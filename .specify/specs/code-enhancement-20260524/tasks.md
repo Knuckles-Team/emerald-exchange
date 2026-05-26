@@ -1,0 +1,61 @@
+# Tasks: Code Enhancement: emerald-exchange
+
+Generated: 2026-05-24T04:17:16.180667+00:00
+Skipped informational: 5
+
+- [ ] [P] **T001** [Dependency Audit] Minor update: agent-utilities 0.2.40 (installed) -> 0.16.0
+  - Priority: P3-Low | Effort: Small
+- [ ] [P] **T002** [Dependency Audit] Minor update: alpaca-py 0.30.0 (constraint — not installed) -> 0.43.4
+  - Priority: P3-Low | Effort: Small
+- [ ] [P] **T003** [Dependency Audit] MAJOR update: pandas 2.0.0 (constraint — not installed) -> 3.0.3
+  - Priority: P2-Medium | Effort: Small
+- [ ] [P] **T004** [Dependency Audit] Minor update: ccxt 4.0.0 (constraint — not installed) -> 4.5.54
+  - Priority: P3-Low | Effort: Small
+- [ ] [P] **T005** [Codebase Optimization] Needs attention: backends.py (565L) — Low cohesion: 18 distinct concepts in one
+  - Priority: P2-Medium | Effort: Medium
+- [ ] [P] **T006** [Codebase Optimization] 6 functions with nesting depth >4
+  - Priority: P2-Medium | Effort: Medium
+- [ ] [P] **T007** [Test Coverage] Test suite lacks intent diversity (only one type)
+  - Priority: P2-Medium | Effort: Medium
+- [ ] [P] **T008** [Test Coverage] 11 potential doc-test drift items
+  - Priority: P2-Medium | Effort: Medium
+- [ ] [P] **T009** [Documentation & Governance] README.md is short (133 lines) — consider expanding
+  - Priority: P3-Low | Effort: Medium
+- [ ] [P] **T010** [Documentation & Governance] README missing: Has a Table of Contents
+  - Priority: P3-Low | Effort: Small
+- [ ] [P] **T011** [Documentation & Governance] README missing: References /docs directory material
+  - Priority: P3-Low | Effort: Small
+- [ ] [P] **T012** [Documentation & Governance] README missing: Has agent_server.py deployment configurations
+  - Priority: P3-Low | Effort: Small
+- [ ] [P] **T013** [Documentation & Governance] AGENTS.md missing sections: tech stack, project structure
+  - Priority: P3-Low | Effort: Small
+- [ ] [P] **T014** [Architecture & Design Patterns] SRP: 1 modules exceed 500 lines (god modules)
+  - Priority: P2-Medium | Effort: Large
+- [ ] [P] **T015** [Architecture & Design Patterns] No discernible layer architecture (no domain/service/adapter separation)
+  - Priority: P2-Medium | Effort: Medium
+- [ ] [P] **T016** [Concept Traceability] Low traceability ratio: 7% concepts fully traced
+  - Priority: P4-Enhancement | Effort: Medium
+- [ ] [P] **T017** [Concept Traceability] 11 orphaned concepts (only in one source)
+  - Priority: P4-Enhancement | Effort: Medium
+- [ ] [P] **T018** [Concept Traceability] 16 concepts with drift (missing from one source)
+  - Priority: P4-Enhancement | Effort: Small
+- [ ] [P] **T019** [Concept Traceability] 13 test functions missing concept markers
+  - Priority: P4-Enhancement | Effort: Small
+- [ ] [P] **T020** [Linting & Formatting] Total lint findings: 0 (high/error: 0, medium/warning: 0, low: 0)
+  - Priority: P4-Enhancement | Effort: Medium
+- [ ] [P] **T021** [Pre-Commit Compliance] 1 hook(s) may be outdated: ruff-pre-commit
+  - Priority: P2-Medium | Effort: Small
+- [ ] [P] **T022** [Changelog Audit] CHANGELOG.md exists but could not be parsed — check format compliance
+  - Priority: P3-Low | Effort: Medium
+- [ ] [P] **T023** [Changelog Audit] No changelog entries within the last 30 days
+  - Priority: P3-Low | Effort: Medium
+- [ ] [P] **T024** [Changelog Audit] keepachangelog not installed — pip install 'universal-skills[code-enhancer]'
+  - Priority: P3-Low | Effort: Small
+- [ ] [P] **T025** [Pytest Quality] Low fixture usage: only 0% of tests use fixtures
+  - Priority: P3-Low | Effort: Medium
+- [ ] [P] **T026** [Pytest Quality] No @pytest.mark.parametrize usage — consider data-driven tests
+  - Priority: P3-Low | Effort: Medium
+- [ ] [P] **T027** [Environment Variables] No environment variables detected in codebase
+  - Priority: P3-Low | Effort: Medium
+- [ ] [P] **T028** [analyze_xdg_kg] Analysis error: No module named 'agent_utilities.knowledge_graph'
+  - Priority: P1-High | Effort: Medium

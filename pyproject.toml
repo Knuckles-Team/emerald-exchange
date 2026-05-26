@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=80.9.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "emerald-exchange"
+version = "0.1.0"
+description = "Emerald Exchange — Unified Finance MCP Server with fully abstracted exchange backends for equities, crypto, and derivatives trading. CONCEPT:EE-001"
+readme = "README.md"
+authors = [{ name = "Audel Rouhi", email = "knucklessg1@gmail.com" }]
+license = { text = "MIT" }
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: MIT License",
+    "Environment :: Console",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3"]
+requires-python = ">=3.10"
+dependencies = [
+    "agent-utilities[mcp]>=0.16.0",
+    "numpy>=1.24.0",
+    "pandas>=2.0.0",
+]
+
+[project.optional-dependencies]
+alpaca = ["alpaca-py>=0.30.0"]
+binance = ["python-binance>=1.0.0"]
+crypto = ["ccxt>=4.0.0"]
+all = [
+    "agent-utilities[mcp,agent,logfire]>=0.16.0",
+    "alpaca-py>=0.30.0",
+    "ccxt>=4.0.0",
+]
+agent = ["agent-utilities[agent,logfire]>=0.16.0"]
+
+[project.scripts]
+emerald-exchange-mcp = "emerald_exchange.mcp_server:mcp_server"
+emerald-exchange-agent = "emerald_exchange.agent_server:agent_server"
+
+[tool.setuptools.packages.find]
+where = ["."]

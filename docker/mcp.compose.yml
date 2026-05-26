@@ -1,0 +1,72 @@
+---
+services:
+  emerald-exchange-mcp:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: emerald-exchange-mcp
+    hostname: emerald-exchange-mcp
+    command: [ "emerald-exchange-mcp" ]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    restart: always
+    env_file:
+      - ../.env
+    environment:
+      - "PYTHONUNBUFFERED=1"
+      - "HOST=0.0.0.0"
+      - "PORT=8100"
+      - "TRANSPORT=streamable-http"
+    ports:
+      - "8100:8100"
+    healthcheck:
+      test: [ "CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8100/health')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  emerald-exchange-agent:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: emerald-exchange-agent
+    hostname: emerald-exchange-agent
+    command: [ "emerald-exchange-agent" ]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - emerald-exchange-mcp
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    restart: always
+    env_file:
+      - ../.env
+    environment:
+      - "PYTHONUNBUFFERED=1"
+      - "HOST=0.0.0.0"
+      - "PORT=9100"
+      - "MCP_URL=http://emerald-exchange-mcp:8100/mcp"
+      - "PROVIDER=openai"
+      - "LLM_BASE_URL=${LLM_BASE_URL:-http://host.docker.internal:1234/v1}"
+      - "LLM_API_KEY=${LLM_API_KEY:-llama}"
+      - "MODEL_ID=${MODEL_ID:-qwen/qwen3.5-9b}"
+      - "DEBUG=False"
+      - "ENABLE_WEB_UI=True"
+      - "ENABLE_OTEL=True"
+    ports:
+      - "9100:9100"
+    healthcheck:
+      test: [ "CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:9100/health')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
