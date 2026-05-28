@@ -32,7 +32,8 @@ def mcp_server():
     from emerald_exchange.mcp.mcp_strategy import register_strategy_tools
 
     # Load config
-    config_path = os.path.expanduser("~/.config/agent-utilities/config.json")
+    from agent_utilities.core import paths
+    config_path = paths.config_dir() / "config.json"
     trading_config: dict = {}
     if os.path.exists(config_path):
         try:
