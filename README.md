@@ -3,7 +3,7 @@
 ![PyPI - Version](https://img.shields.io/pypi/v/emerald-exchange)
 ![MCP Server](https://badge.mcpx.dev?type=server 'MCP Server')
 
-*Version: 0.4.0*
+*Version: 0.4.1*
 
 ## Overview
 
