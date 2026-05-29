@@ -6,4 +6,4 @@ Provides fully abstracted exchange backends for equities, crypto, and
 derivatives trading. All functionality is tool-driven via MCP.
 """
 
-__version__ = "0.7.0"
+__version__ = "0.8.0"
