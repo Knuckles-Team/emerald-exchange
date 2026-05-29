@@ -65,3 +65,19 @@ bump2version patch
 - Default backend is always `PaperBackend` — never default to live
 - Use `create_backend()` factory, never instantiate backends directly in tools
 - Follow `agent-utilities` patterns for `create_mcp_server()` initialization
+
+## ⛔ No Scratch or Temporary Files in Repository
+
+**NEVER write any of the following to this repository:**
+- Temporary test scripts (`test_*.py`, `debug_*.py` outside of `tests/`)
+- Scratch scripts or experimental one-off files
+- Log files (`.log`, `.txt` command output)
+- Random text files with command output or debug dumps
+- Any file that is NOT production source code, tests in `tests/`, or documentation
+
+**Why:** These files expose private filesystem paths, credentials, and internal infrastructure details when pushed to GitHub publicly.
+
+**Where to put scratch work instead:**
+- Use `~/workspace/scratch/` for temporary scripts and experiments
+- Use `~/workspace/reports/` for command output and reports
+- Keep test scripts in the `tests/` directory following proper pytest conventions
