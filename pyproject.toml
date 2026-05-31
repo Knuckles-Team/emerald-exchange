@@ -17,7 +17,7 @@ classifiers = [
     "Programming Language :: Python :: 3"]
 requires-python = ">=3.10"
 dependencies = [
-    "agent-utilities[mcp]>=0.34.4",
+    "agent-utilities[mcp]>=0.36.0",
     "numpy>=1.24.0",
     "pandas>=2.0.0",
 ]
@@ -28,14 +28,14 @@ binance = ["python-binance>=1.0.0"]
 crypto = ["ccxt>=4.0.0"]
 prediction_markets = ["httpx>=0.24.0", "kalshi-python", "py-clob-client"]
 all = [
-    "agent-utilities[mcp,agent,logfire]>=0.34.4",
+    "agent-utilities[mcp,agent,logfire]>=0.36.0",
     "alpaca-py>=0.30.0",
     "ccxt>=4.0.0",
     "httpx>=0.24.0",
     "kalshi-python",
     "py-clob-client",
 ]
-agent = ["agent-utilities[agent,logfire]>=0.34.4"]
+agent = ["agent-utilities[agent,logfire]>=0.36.0"]
 
 [project.scripts]
 emerald-exchange-mcp = "emerald_exchange.mcp_server:mcp_server"
