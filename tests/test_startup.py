@@ -1,6 +1,11 @@
 """Smoke tests for emerald-exchange startup. CONCEPT:EE-001"""
 
-from emerald_exchange.backends import PaperBackend, OrderSide, TradingMode, create_backend
+from emerald_exchange.backends import (
+    PaperBackend,
+    OrderSide,
+    TradingMode,
+    create_backend,
+)
 from emerald_exchange.risk_guards import RiskGuard, RiskLimits
 
 

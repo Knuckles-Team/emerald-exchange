@@ -5,6 +5,7 @@
 Launches the Emerald Exchange as a full Pydantic AI agent with A2A
 (Agent-to-Agent) communication support, backed by the MCP toolset.
 """
+
 import os
 import sys
 import logging

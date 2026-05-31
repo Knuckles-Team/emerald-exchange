@@ -109,16 +109,22 @@ class ExchangeBackend(Protocol):
 
     def connect(self) -> bool: ...
     def disconnect(self) -> None: ...
-    def submit_order(self, symbol: str, side: OrderSide, qty: float,
-                     order_type: OrderType = OrderType.MARKET,
-                     limit_price: float | None = None) -> ExecutionResult: ...
+    def submit_order(
+        self,
+        symbol: str,
+        side: OrderSide,
+        qty: float,
+        order_type: OrderType = OrderType.MARKET,
+        limit_price: float | None = None,
+    ) -> ExecutionResult: ...
     def cancel_order(self, order_id: str) -> bool: ...
     def get_order_status(self, order_id: str) -> ExecutionResult: ...
     def get_positions(self) -> list[Position]: ...
     def get_account(self) -> AccountInfo: ...
     def get_quote(self, symbol: str) -> Quote: ...
-    def get_historical(self, symbol: str, period: str = "1y",
-                       interval: str = "1d") -> list[OHLCV]: ...
+    def get_historical(
+        self, symbol: str, period: str = "1y", interval: str = "1d"
+    ) -> list[OHLCV]: ...
 
 
 class PaperBackend:
@@ -149,16 +155,25 @@ class PaperBackend:
     def disconnect(self) -> None:
         logger.info("Paper backend disconnected")
 
-    def submit_order(self, symbol: str, side: OrderSide, qty: float,
-                     order_type: OrderType = OrderType.MARKET,
-                     limit_price: float | None = None) -> ExecutionResult:
+    def submit_order(
+        self,
+        symbol: str,
+        side: OrderSide,
+        qty: float,
+        order_type: OrderType = OrderType.MARKET,
+        limit_price: float | None = None,
+    ) -> ExecutionResult:
         self._order_counter += 1
         oid = f"PAPER-{self._order_counter:06d}"
         price = limit_price or 100.0  # Placeholder
         fees = price * qty * 0.001
         result = ExecutionResult(
-            order_id=oid, status=OrderStatus.FILLED,
-            filled_qty=qty, average_price=price, fees=fees, exchange="paper",
+            order_id=oid,
+            status=OrderStatus.FILLED,
+            filled_qty=qty,
+            average_price=price,
+            fees=fees,
+            exchange="paper",
         )
         self._orders[oid] = result
         # Update position
@@ -174,11 +189,17 @@ class PaperBackend:
                     del self._positions[symbol]
         elif side == OrderSide.BUY:
             self._positions[symbol] = Position(
-                symbol=symbol, qty=qty, avg_entry_price=price,
-                current_price=price, unrealized_pnl=0.0,
-                side="long", exchange="paper",
+                symbol=symbol,
+                qty=qty,
+                avg_entry_price=price,
+                current_price=price,
+                unrealized_pnl=0.0,
+                side="long",
+                exchange="paper",
             )
-        self._cash -= (price * qty + fees) if side == OrderSide.BUY else -(price * qty - fees)
+        self._cash -= (
+            (price * qty + fees) if side == OrderSide.BUY else -(price * qty - fees)
+        )
         logger.info("Paper order %s: %s %s %.2f @ %.2f", oid, side, symbol, qty, price)
         return result
 
@@ -191,8 +212,14 @@ class PaperBackend:
     def get_order_status(self, order_id: str) -> ExecutionResult:
         if order_id in self._orders:
             return self._orders[order_id]
-        return ExecutionResult(order_id=order_id, status=OrderStatus.REJECTED,
-                               filled_qty=0, average_price=0, fees=0, exchange="paper")
+        return ExecutionResult(
+            order_id=order_id,
+            status=OrderStatus.REJECTED,
+            filled_qty=0,
+            average_price=0,
+            fees=0,
+            exchange="paper",
+        )
 
     def get_positions(self) -> list[Position]:
         return list(self._positions.values())
@@ -201,24 +228,29 @@ class PaperBackend:
         equity = self._cash + sum(
             p.qty * p.current_price for p in self._positions.values()
         )
-        return AccountInfo(equity=equity, cash=self._cash,
-                           buying_power=self._cash, exchange="paper")
+        return AccountInfo(
+            equity=equity, cash=self._cash, buying_power=self._cash, exchange="paper"
+        )
 
     def get_quote(self, symbol: str) -> Quote:
-        return Quote(symbol=symbol, bid=99.99, ask=100.01,
-                     last=100.0, volume=1000000)
+        return Quote(symbol=symbol, bid=99.99, ask=100.01, last=100.0, volume=1000000)
 
-    def get_historical(self, symbol: str, period: str = "1y",
-                       interval: str = "1d") -> list[OHLCV]:
+    def get_historical(
+        self, symbol: str, period: str = "1y", interval: str = "1d"
+    ) -> list[OHLCV]:
         return []
 
 
 class AlpacaBackend:
     """Alpaca Markets backend — FREE paper + live equities. CONCEPT:EE-004."""
 
-    def __init__(self, api_key: str = "", secret_key: str = "",
-                 base_url: str = "https://paper-api.alpaca.markets",
-                 mode: TradingMode = TradingMode.PAPER):
+    def __init__(
+        self,
+        api_key: str = "",
+        secret_key: str = "",
+        base_url: str = "https://paper-api.alpaca.markets",
+        mode: TradingMode = TradingMode.PAPER,
+    ):
         self._api_key = api_key
         self._secret_key = secret_key
         self._base_url = base_url
@@ -240,45 +272,76 @@ class AlpacaBackend:
     def connect(self) -> bool:
         try:
             from alpaca.trading.client import TradingClient
-            self._client = TradingClient(self._api_key, self._secret_key,
-                                          paper=(self._mode == TradingMode.PAPER))
+
+            self._client = TradingClient(
+                self._api_key, self._secret_key, paper=(self._mode == TradingMode.PAPER)
+            )
             logger.info("Alpaca connected (mode=%s)", self._mode)
             return True
         except ImportError:
-            logger.error("alpaca-py not installed. pip install emerald-exchange[alpaca]")
+            logger.error(
+                "alpaca-py not installed. pip install emerald-exchange[alpaca]"
+            )
             return False
 
     def disconnect(self) -> None:
         self._client = None
 
-    def submit_order(self, symbol: str, side: OrderSide, qty: float,
-                     order_type: OrderType = OrderType.MARKET,
-                     limit_price: float | None = None) -> ExecutionResult:
+    def submit_order(
+        self,
+        symbol: str,
+        side: OrderSide,
+        qty: float,
+        order_type: OrderType = OrderType.MARKET,
+        limit_price: float | None = None,
+    ) -> ExecutionResult:
         if not self._client:
-            return ExecutionResult(order_id="", status=OrderStatus.REJECTED,
-                                   filled_qty=0, average_price=0, fees=0, exchange="alpaca")
+            return ExecutionResult(
+                order_id="",
+                status=OrderStatus.REJECTED,
+                filled_qty=0,
+                average_price=0,
+                fees=0,
+                exchange="alpaca",
+            )
         try:
             from alpaca.trading.requests import MarketOrderRequest, LimitOrderRequest
             from alpaca.trading.enums import OrderSide as AlpSide, TimeInForce
+
             alp_side = AlpSide.BUY if side == OrderSide.BUY else AlpSide.SELL
             if order_type == OrderType.LIMIT and limit_price:
-                req = LimitOrderRequest(symbol=symbol, qty=qty, side=alp_side,
-                                        limit_price=limit_price, time_in_force=TimeInForce.DAY)
+                req = LimitOrderRequest(
+                    symbol=symbol,
+                    qty=qty,
+                    side=alp_side,
+                    limit_price=limit_price,
+                    time_in_force=TimeInForce.DAY,
+                )
             else:
-                req = MarketOrderRequest(symbol=symbol, qty=qty, side=alp_side,
-                                         time_in_force=TimeInForce.DAY)
+                req = MarketOrderRequest(
+                    symbol=symbol, qty=qty, side=alp_side, time_in_force=TimeInForce.DAY
+                )
             order = self._client.submit_order(req)
             return ExecutionResult(
-                order_id=str(order.id), status=OrderStatus.SUBMITTED,
+                order_id=str(order.id),
+                status=OrderStatus.SUBMITTED,
                 filled_qty=float(order.filled_qty or 0),
                 average_price=float(order.filled_avg_price or 0),
-                fees=0.0, exchange="alpaca", raw={"alpaca_order_id": str(order.id)},
+                fees=0.0,
+                exchange="alpaca",
+                raw={"alpaca_order_id": str(order.id)},
             )
         except Exception as e:
             logger.error("Alpaca order failed: %s", e)
-            return ExecutionResult(order_id="", status=OrderStatus.REJECTED,
-                                   filled_qty=0, average_price=0, fees=0,
-                                   exchange="alpaca", raw={"error": str(e)})
+            return ExecutionResult(
+                order_id="",
+                status=OrderStatus.REJECTED,
+                filled_qty=0,
+                average_price=0,
+                fees=0,
+                exchange="alpaca",
+                raw={"error": str(e)},
+            )
 
     def cancel_order(self, order_id: str) -> bool:
         try:
@@ -290,30 +353,45 @@ class AlpacaBackend:
     def get_order_status(self, order_id: str) -> ExecutionResult:
         try:
             order = self._client.get_order_by_id(order_id)
-            status_map = {"filled": OrderStatus.FILLED, "cancelled": OrderStatus.CANCELLED,
-                          "new": OrderStatus.SUBMITTED, "partially_filled": OrderStatus.PARTIAL}
+            status_map = {
+                "filled": OrderStatus.FILLED,
+                "cancelled": OrderStatus.CANCELLED,
+                "new": OrderStatus.SUBMITTED,
+                "partially_filled": OrderStatus.PARTIAL,
+            }
             return ExecutionResult(
                 order_id=str(order.id),
                 status=status_map.get(str(order.status), OrderStatus.PENDING),
                 filled_qty=float(order.filled_qty or 0),
                 average_price=float(order.filled_avg_price or 0),
-                fees=0.0, exchange="alpaca",
+                fees=0.0,
+                exchange="alpaca",
             )
         except Exception:
-            return ExecutionResult(order_id=order_id, status=OrderStatus.REJECTED,
-                                   filled_qty=0, average_price=0, fees=0, exchange="alpaca")
+            return ExecutionResult(
+                order_id=order_id,
+                status=OrderStatus.REJECTED,
+                filled_qty=0,
+                average_price=0,
+                fees=0,
+                exchange="alpaca",
+            )
 
     def get_positions(self) -> list[Position]:
         try:
             positions = self._client.get_all_positions()
-            return [Position(
-                symbol=p.symbol, qty=float(p.qty),
-                avg_entry_price=float(p.avg_entry_price),
-                current_price=float(p.current_price),
-                unrealized_pnl=float(p.unrealized_pl),
-                side="long" if float(p.qty) > 0 else "short",
-                exchange="alpaca",
-            ) for p in positions]
+            return [
+                Position(
+                    symbol=p.symbol,
+                    qty=float(p.qty),
+                    avg_entry_price=float(p.avg_entry_price),
+                    current_price=float(p.current_price),
+                    unrealized_pnl=float(p.unrealized_pl),
+                    side="long" if float(p.qty) > 0 else "short",
+                    exchange="alpaca",
+                )
+                for p in positions
+            ]
         except Exception:
             return []
 
@@ -321,8 +399,10 @@ class AlpacaBackend:
         try:
             acct = self._client.get_account()
             return AccountInfo(
-                equity=float(acct.equity), cash=float(acct.cash),
-                buying_power=float(acct.buying_power), exchange="alpaca",
+                equity=float(acct.equity),
+                cash=float(acct.cash),
+                buying_power=float(acct.buying_power),
+                exchange="alpaca",
             )
         except Exception:
             return AccountInfo(equity=0, cash=0, buying_power=0, exchange="alpaca")
@@ -330,8 +410,9 @@ class AlpacaBackend:
     def get_quote(self, symbol: str) -> Quote:
         return Quote(symbol=symbol, bid=0, ask=0, last=0, volume=0)
 
-    def get_historical(self, symbol: str, period: str = "1y",
-                       interval: str = "1d") -> list[OHLCV]:
+    def get_historical(
+        self, symbol: str, period: str = "1y", interval: str = "1d"
+    ) -> list[OHLCV]:
         return []
 
 
@@ -340,9 +421,13 @@ class CCXTBackend:
     Supports 100+ exchanges: Binance, Coinbase, Kraken, etc.
     """
 
-    def __init__(self, exchange_id: str = "binance",
-                 api_key: str = "", secret: str = "",
-                 mode: TradingMode = TradingMode.PAPER):
+    def __init__(
+        self,
+        exchange_id: str = "binance",
+        api_key: str = "",
+        secret: str = "",
+        mode: TradingMode = TradingMode.PAPER,
+    ):
         self._exchange_id = exchange_id
         self._api_key = api_key
         self._secret = secret
@@ -364,6 +449,7 @@ class CCXTBackend:
     def connect(self) -> bool:
         try:
             import ccxt
+
             exchange_class = getattr(ccxt, self._exchange_id)
             config: dict[str, Any] = {"apiKey": self._api_key, "secret": self._secret}
             if self._mode == TradingMode.PAPER:
@@ -379,28 +465,48 @@ class CCXTBackend:
     def disconnect(self) -> None:
         self._exchange = None
 
-    def submit_order(self, symbol: str, side: OrderSide, qty: float,
-                     order_type: OrderType = OrderType.MARKET,
-                     limit_price: float | None = None) -> ExecutionResult:
+    def submit_order(
+        self,
+        symbol: str,
+        side: OrderSide,
+        qty: float,
+        order_type: OrderType = OrderType.MARKET,
+        limit_price: float | None = None,
+    ) -> ExecutionResult:
         if not self._exchange:
-            return ExecutionResult(order_id="", status=OrderStatus.REJECTED,
-                                   filled_qty=0, average_price=0, fees=0,
-                                   exchange=self._exchange_id)
+            return ExecutionResult(
+                order_id="",
+                status=OrderStatus.REJECTED,
+                filled_qty=0,
+                average_price=0,
+                fees=0,
+                exchange=self._exchange_id,
+            )
         try:
             ot = "limit" if order_type == OrderType.LIMIT else "market"
-            order = self._exchange.create_order(symbol, ot, side.value, qty, limit_price)
+            order = self._exchange.create_order(
+                symbol, ot, side.value, qty, limit_price
+            )
             return ExecutionResult(
-                order_id=order["id"], status=OrderStatus.SUBMITTED,
+                order_id=order["id"],
+                status=OrderStatus.SUBMITTED,
                 filled_qty=float(order.get("filled", 0)),
                 average_price=float(order.get("average", 0) or 0),
                 fees=float(order.get("fee", {}).get("cost", 0) or 0),
-                exchange=self._exchange_id, raw=order,
+                exchange=self._exchange_id,
+                raw=order,
             )
         except Exception as e:
             logger.error("CCXT order failed: %s", e)
-            return ExecutionResult(order_id="", status=OrderStatus.REJECTED,
-                                   filled_qty=0, average_price=0, fees=0,
-                                   exchange=self._exchange_id, raw={"error": str(e)})
+            return ExecutionResult(
+                order_id="",
+                status=OrderStatus.REJECTED,
+                filled_qty=0,
+                average_price=0,
+                fees=0,
+                exchange=self._exchange_id,
+                raw={"error": str(e)},
+            )
 
     def cancel_order(self, order_id: str) -> bool:
         try:
@@ -412,19 +518,28 @@ class CCXTBackend:
     def get_order_status(self, order_id: str) -> ExecutionResult:
         try:
             order = self._exchange.fetch_order(order_id)
-            status_map = {"closed": OrderStatus.FILLED, "canceled": OrderStatus.CANCELLED,
-                          "open": OrderStatus.SUBMITTED}
+            status_map = {
+                "closed": OrderStatus.FILLED,
+                "canceled": OrderStatus.CANCELLED,
+                "open": OrderStatus.SUBMITTED,
+            }
             return ExecutionResult(
                 order_id=order["id"],
                 status=status_map.get(order["status"], OrderStatus.PENDING),
                 filled_qty=float(order.get("filled", 0)),
                 average_price=float(order.get("average", 0) or 0),
-                fees=0.0, exchange=self._exchange_id,
+                fees=0.0,
+                exchange=self._exchange_id,
             )
         except Exception:
-            return ExecutionResult(order_id=order_id, status=OrderStatus.REJECTED,
-                                   filled_qty=0, average_price=0, fees=0,
-                                   exchange=self._exchange_id)
+            return ExecutionResult(
+                order_id=order_id,
+                status=OrderStatus.REJECTED,
+                filled_qty=0,
+                average_price=0,
+                fees=0,
+                exchange=self._exchange_id,
+            )
 
     def get_positions(self) -> list[Position]:
         try:
@@ -432,11 +547,17 @@ class CCXTBackend:
             positions = []
             for asset, info in balances.get("total", {}).items():
                 if float(info) > 0 and asset != "USD":
-                    positions.append(Position(
-                        symbol=asset, qty=float(info), avg_entry_price=0,
-                        current_price=0, unrealized_pnl=0,
-                        side="long", exchange=self._exchange_id,
-                    ))
+                    positions.append(
+                        Position(
+                            symbol=asset,
+                            qty=float(info),
+                            avg_entry_price=0,
+                            current_price=0,
+                            unrealized_pnl=0,
+                            side="long",
+                            exchange=self._exchange_id,
+                        )
+                    )
             return positions
         except Exception:
             return []
@@ -446,17 +567,24 @@ class CCXTBackend:
             balance = self._exchange.fetch_balance()
             total = balance.get("total", {})
             usd = float(total.get("USD", 0) or total.get("USDT", 0) or 0)
-            return AccountInfo(equity=usd, cash=usd, buying_power=usd,
-                               exchange=self._exchange_id, currency="USD")
+            return AccountInfo(
+                equity=usd,
+                cash=usd,
+                buying_power=usd,
+                exchange=self._exchange_id,
+                currency="USD",
+            )
         except Exception:
-            return AccountInfo(equity=0, cash=0, buying_power=0,
-                               exchange=self._exchange_id)
+            return AccountInfo(
+                equity=0, cash=0, buying_power=0, exchange=self._exchange_id
+            )
 
     def get_quote(self, symbol: str) -> Quote:
         try:
             ticker = self._exchange.fetch_ticker(symbol)
             return Quote(
-                symbol=symbol, bid=float(ticker.get("bid", 0) or 0),
+                symbol=symbol,
+                bid=float(ticker.get("bid", 0) or 0),
                 ask=float(ticker.get("ask", 0) or 0),
                 last=float(ticker.get("last", 0) or 0),
                 volume=float(ticker.get("baseVolume", 0) or 0),
@@ -464,16 +592,24 @@ class CCXTBackend:
         except Exception:
             return Quote(symbol=symbol, bid=0, ask=0, last=0, volume=0)
 
-    def get_historical(self, symbol: str, period: str = "1y",
-                       interval: str = "1d") -> list[OHLCV]:
+    def get_historical(
+        self, symbol: str, period: str = "1y", interval: str = "1d"
+    ) -> list[OHLCV]:
         try:
             tf_map = {"1m": "1m", "5m": "5m", "1h": "1h", "1d": "1d"}
             tf = tf_map.get(interval, "1d")
             candles = self._exchange.fetch_ohlcv(symbol, tf, limit=365)
-            return [OHLCV(
-                timestamp=datetime.fromtimestamp(c[0] / 1000, tz=UTC).isoformat(),
-                open=c[1], high=c[2], low=c[3], close=c[4], volume=c[5],
-            ) for c in candles]
+            return [
+                OHLCV(
+                    timestamp=datetime.fromtimestamp(c[0] / 1000, tz=UTC).isoformat(),
+                    open=c[1],
+                    high=c[2],
+                    low=c[3],
+                    close=c[4],
+                    volume=c[5],
+                )
+                for c in candles
+            ]
         except Exception:
             return []
 
@@ -481,8 +617,12 @@ class CCXTBackend:
 class FreqtradeBackend:
     """Freqtrade REST API backend — CONCEPT:EE-006."""
 
-    def __init__(self, api_url: str = "http://localhost:8080",
-                 api_key: str = "", mode: TradingMode = TradingMode.PAPER):
+    def __init__(
+        self,
+        api_url: str = "http://localhost:8080",
+        api_key: str = "",
+        mode: TradingMode = TradingMode.PAPER,
+    ):
         self._api_url = api_url
         self._api_key = api_key
         self._mode = mode
@@ -506,19 +646,36 @@ class FreqtradeBackend:
     def disconnect(self) -> None:
         pass
 
-    def submit_order(self, symbol: str, side: OrderSide, qty: float,
-                     order_type: OrderType = OrderType.MARKET,
-                     limit_price: float | None = None) -> ExecutionResult:
+    def submit_order(
+        self,
+        symbol: str,
+        side: OrderSide,
+        qty: float,
+        order_type: OrderType = OrderType.MARKET,
+        limit_price: float | None = None,
+    ) -> ExecutionResult:
         logger.warning("Freqtrade backend: order routing via freqtrade strategies")
-        return ExecutionResult(order_id="FT-STUB", status=OrderStatus.PENDING,
-                               filled_qty=0, average_price=0, fees=0, exchange="freqtrade")
+        return ExecutionResult(
+            order_id="FT-STUB",
+            status=OrderStatus.PENDING,
+            filled_qty=0,
+            average_price=0,
+            fees=0,
+            exchange="freqtrade",
+        )
 
     def cancel_order(self, order_id: str) -> bool:
         return False
 
     def get_order_status(self, order_id: str) -> ExecutionResult:
-        return ExecutionResult(order_id=order_id, status=OrderStatus.PENDING,
-                               filled_qty=0, average_price=0, fees=0, exchange="freqtrade")
+        return ExecutionResult(
+            order_id=order_id,
+            status=OrderStatus.PENDING,
+            filled_qty=0,
+            average_price=0,
+            fees=0,
+            exchange="freqtrade",
+        )
 
     def get_positions(self) -> list[Position]:
         return []
@@ -529,17 +686,25 @@ class FreqtradeBackend:
     def get_quote(self, symbol: str) -> Quote:
         return Quote(symbol=symbol, bid=0, ask=0, last=0, volume=0)
 
-    def get_historical(self, symbol: str, period: str = "1y",
-                       interval: str = "1d") -> list[OHLCV]:
+    def get_historical(
+        self, symbol: str, period: str = "1y", interval: str = "1d"
+    ) -> list[OHLCV]:
         return []
 
 
 class PolymarketBackend:
     """Polymarket CLOB v2 REST/WebSocket Backend integration."""
 
-    def __init__(self, private_key: str = "", host: str = "https://clob.polymarket.com",
-                 chain_id: int = 137, api_key: str = "", api_secret: str = "",
-                 api_passphrase: str = "", mode: TradingMode = TradingMode.PAPER):
+    def __init__(
+        self,
+        private_key: str = "",
+        host: str = "https://clob.polymarket.com",
+        chain_id: int = 137,
+        api_key: str = "",
+        api_secret: str = "",
+        api_passphrase: str = "",
+        mode: TradingMode = TradingMode.PAPER,
+    ):
         self._private_key = private_key
         self._host = host
         self._chain_id = chain_id
@@ -568,6 +733,7 @@ class PolymarketBackend:
 
         try:
             from py_clob_client_v2 import ApiCreds, ClobClient
+
             if self._api_key and self._api_secret and self._api_passphrase:
                 creds = ApiCreds(
                     api_key=self._api_key,
@@ -598,9 +764,13 @@ class PolymarketBackend:
             logger.info("Successfully connected to Polymarket CLOB v2 API")
             return True
         except ImportError:
-            logger.error("py_clob_client_v2 not installed. Run 'pip install py_clob_client_v2'")
+            logger.error(
+                "py_clob_client_v2 not installed. Run 'pip install py_clob_client_v2'"
+            )
             if self._mode == TradingMode.LIVE:
-                raise RuntimeError("py_clob_client_v2 is required for Live Polymarket trading")
+                raise RuntimeError(
+                    "py_clob_client_v2 is required for Live Polymarket trading"
+                )
             return True
         except Exception as e:
             logger.error("Failed to connect to Polymarket CLOB: %s", e)
@@ -611,9 +781,14 @@ class PolymarketBackend:
     def disconnect(self) -> None:
         self._client = None
 
-    def submit_order(self, symbol: str, side: OrderSide, qty: float,
-                     order_type: OrderType = OrderType.LIMIT,
-                     limit_price: float | None = None) -> ExecutionResult:
+    def submit_order(
+        self,
+        symbol: str,
+        side: OrderSide,
+        qty: float,
+        order_type: OrderType = OrderType.LIMIT,
+        limit_price: float | None = None,
+    ) -> ExecutionResult:
         if self._mode == TradingMode.PAPER or not self._client:
             # Paper execution fallback
             price = limit_price if limit_price and limit_price > 0 else 0.50
@@ -627,8 +802,16 @@ class PolymarketBackend:
             )
 
         try:
-            from py_clob_client_v2 import OrderArgs, PartialCreateOrderOptions, Side, OrderType as PMOrderType
-            from py_clob_client_v2 import MarketOrderArgs, OrderType as PMMarketOrderType
+            from py_clob_client_v2 import (
+                OrderArgs,
+                PartialCreateOrderOptions,
+                Side,
+                OrderType as PMOrderType,
+            )
+            from py_clob_client_v2 import (
+                MarketOrderArgs,
+                OrderType as PMMarketOrderType,
+            )
 
             pm_side = Side.BUY if side == OrderSide.BUY else Side.SELL
 
@@ -693,13 +876,23 @@ class PolymarketBackend:
 
     def get_order_status(self, order_id: str) -> ExecutionResult:
         if self._mode == TradingMode.PAPER or not self._client:
-            return ExecutionResult(order_id=order_id, status=OrderStatus.FILLED,
-                                   filled_qty=1.0, average_price=0.5, fees=0.0, exchange="polymarket")
+            return ExecutionResult(
+                order_id=order_id,
+                status=OrderStatus.FILLED,
+                filled_qty=1.0,
+                average_price=0.5,
+                fees=0.0,
+                exchange="polymarket",
+            )
         try:
             order = self._client.get_order(order_id)
             # Map statuses
-            status_map = {"closed": OrderStatus.FILLED, "canceled": OrderStatus.CANCELLED,
-                          "open": OrderStatus.SUBMITTED, "partially_filled": OrderStatus.PARTIAL}
+            status_map = {
+                "closed": OrderStatus.FILLED,
+                "canceled": OrderStatus.CANCELLED,
+                "open": OrderStatus.SUBMITTED,
+                "partially_filled": OrderStatus.PARTIAL,
+            }
             raw_status = order.get("status", "open")
             return ExecutionResult(
                 order_id=order.get("id", order_id),
@@ -712,8 +905,14 @@ class PolymarketBackend:
             )
         except Exception as e:
             logger.error("Failed to fetch order status %s: %s", order_id, e)
-            return ExecutionResult(order_id=order_id, status=OrderStatus.REJECTED,
-                                   filled_qty=0.0, average_price=0.0, fees=0.0, exchange="polymarket")
+            return ExecutionResult(
+                order_id=order_id,
+                status=OrderStatus.REJECTED,
+                filled_qty=0.0,
+                average_price=0.0,
+                fees=0.0,
+                exchange="polymarket",
+            )
 
     def get_positions(self) -> list[Position]:
         if self._mode == TradingMode.PAPER or not self._client:
@@ -734,15 +933,17 @@ class PolymarketBackend:
             for asset in assets:
                 qty = float(asset.get("size", 0.0))
                 if qty > 0:
-                    positions.append(Position(
-                        symbol=asset.get("asset_id", ""),
-                        qty=qty,
-                        avg_entry_price=float(asset.get("avg_price", 0.0)),
-                        current_price=float(asset.get("current_price", 0.0)),
-                        unrealized_pnl=float(asset.get("unrealized_pnl", 0.0)),
-                        side="long",
-                        exchange="polymarket",
-                    ))
+                    positions.append(
+                        Position(
+                            symbol=asset.get("asset_id", ""),
+                            qty=qty,
+                            avg_entry_price=float(asset.get("avg_price", 0.0)),
+                            current_price=float(asset.get("current_price", 0.0)),
+                            unrealized_pnl=float(asset.get("unrealized_pnl", 0.0)),
+                            side="long",
+                            exchange="polymarket",
+                        )
+                    )
             return positions
         except Exception as e:
             logger.error("Failed to fetch Polymarket positions: %s", e)
@@ -750,7 +951,9 @@ class PolymarketBackend:
 
     def get_account(self) -> AccountInfo:
         if self._mode == TradingMode.PAPER or not self._client:
-            return AccountInfo(equity=1000.0, cash=1000.0, buying_power=1000.0, exchange="polymarket")
+            return AccountInfo(
+                equity=1000.0, cash=1000.0, buying_power=1000.0, exchange="polymarket"
+            )
         try:
             balance_info = self._client.get_balance()
             cash = float(balance_info.get("balance", 0.0))
@@ -763,7 +966,9 @@ class PolymarketBackend:
             )
         except Exception as e:
             logger.error("Failed to fetch Polymarket account info: %s", e)
-            return AccountInfo(equity=0.0, cash=0.0, buying_power=0.0, exchange="polymarket")
+            return AccountInfo(
+                equity=0.0, cash=0.0, buying_power=0.0, exchange="polymarket"
+            )
 
     def get_quote(self, symbol: str) -> Quote:
         if self._mode == TradingMode.PAPER or not self._client:
@@ -785,8 +990,9 @@ class PolymarketBackend:
             logger.error("Failed to fetch Polymarket quote: %s", e)
             return Quote(symbol=symbol, bid=0.0, ask=0.0, last=0.0, volume=0.0)
 
-    def get_historical(self, symbol: str, period: str = "1y",
-                       interval: str = "1d") -> list[OHLCV]:
+    def get_historical(
+        self, symbol: str, period: str = "1y", interval: str = "1d"
+    ) -> list[OHLCV]:
         return []
 
     def merge_positions(self, market_id: str) -> bool:
@@ -817,8 +1023,11 @@ BACKEND_REGISTRY: dict[str, type] = {
 }
 
 
-def create_backend(name: str, config: dict[str, Any] | None = None,
-                   mode: TradingMode = TradingMode.PAPER) -> ExchangeBackend:
+def create_backend(
+    name: str,
+    config: dict[str, Any] | None = None,
+    mode: TradingMode = TradingMode.PAPER,
+) -> ExchangeBackend:
     """Factory to create exchange backends from config. CONCEPT:EE-002."""
     config = config or {}
     backend_class = BACKEND_REGISTRY.get(name)

@@ -23,8 +23,10 @@ def risk_guard():
 @pytest.fixture
 def strict_risk_guard():
     """Create a risk guard with strict limits for testing circuit breakers."""
-    return RiskGuard(RiskLimits(
-        max_position_pct=0.01,
-        max_portfolio_drawdown_pct=0.05,
-        max_daily_loss_pct=0.02,
-    ))
+    return RiskGuard(
+        RiskLimits(
+            max_position_pct=0.01,
+            max_portfolio_drawdown_pct=0.05,
+            max_daily_loss_pct=0.02,
+        )
+    )

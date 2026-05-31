@@ -16,9 +16,9 @@ logger = logging.getLogger(__name__)
 class RiskLimits:
     """Configurable risk limits from config.json trading.risk_limits."""
 
-    max_position_pct: float = 0.02        # Kelly capped at 2%
+    max_position_pct: float = 0.02  # Kelly capped at 2%
     max_portfolio_drawdown_pct: float = 0.10  # 10% max drawdown
-    max_daily_loss_pct: float = 0.03      # 3% daily loss limit
+    max_daily_loss_pct: float = 0.03  # 3% daily loss limit
     regime_shift_halt: bool = True
     require_human_approval_live: bool = True
 
@@ -53,9 +53,15 @@ class RiskGuard:
         self._halted = False
         logger.warning("⚠️ Trading resumed — ensure conditions are safe")
 
-    def pre_trade_check(self, symbol: str, qty: float, price: float,
-                        portfolio_equity: float, portfolio_cash: float,
-                        is_live: bool = False) -> RiskCheckResult:
+    def pre_trade_check(
+        self,
+        symbol: str,
+        qty: float,
+        price: float,
+        portfolio_equity: float,
+        portfolio_cash: float,
+        is_live: bool = False,
+    ) -> RiskCheckResult:
         """Validate order before submission. Returns approval + adjusted qty."""
         if self._halted:
             return RiskCheckResult(False, "Trading is halted (kill switch active)")
@@ -65,7 +71,9 @@ class RiskGuard:
 
         # Position size check (Kelly cap)
         position_value = qty * price
-        position_pct = position_value / portfolio_equity if portfolio_equity > 0 else 1.0
+        position_pct = (
+            position_value / portfolio_equity if portfolio_equity > 0 else 1.0
+        )
         if position_pct > self.limits.max_position_pct:
             max_qty = (self.limits.max_position_pct * portfolio_equity) / price
             return RiskCheckResult(
@@ -77,10 +85,17 @@ class RiskGuard:
 
         # Cash check
         if position_value > portfolio_cash:
-            return RiskCheckResult(False, f"Insufficient cash: need ${position_value:.2f}, have ${portfolio_cash:.2f}")
+            return RiskCheckResult(
+                False,
+                f"Insufficient cash: need ${position_value:.2f}, have ${portfolio_cash:.2f}",
+            )
 
-        return RiskCheckResult(True, "Approved", adjusted_qty=qty,
-                               risk_score=position_pct / self.limits.max_position_pct)
+        return RiskCheckResult(
+            True,
+            "Approved",
+            adjusted_qty=qty,
+            risk_score=position_pct / self.limits.max_position_pct,
+        )
 
     def check_drawdown(self, current_equity: float) -> RiskCheckResult:
         """Check portfolio drawdown against limits."""
@@ -92,14 +107,22 @@ class RiskGuard:
 
         drawdown = (self._peak_equity - current_equity) / self._peak_equity
         if drawdown >= self.limits.max_portfolio_drawdown_pct:
-            self.halt(f"Max drawdown breached: {drawdown:.1%} >= {self.limits.max_portfolio_drawdown_pct:.1%}")
-            return RiskCheckResult(False, f"CIRCUIT BREAKER: Drawdown {drawdown:.1%}",
-                                   risk_score=1.0)
+            self.halt(
+                f"Max drawdown breached: {drawdown:.1%} >= {self.limits.max_portfolio_drawdown_pct:.1%}"
+            )
+            return RiskCheckResult(
+                False, f"CIRCUIT BREAKER: Drawdown {drawdown:.1%}", risk_score=1.0
+            )
 
-        return RiskCheckResult(True, f"Drawdown OK: {drawdown:.1%}",
-                               risk_score=drawdown / self.limits.max_portfolio_drawdown_pct)
+        return RiskCheckResult(
+            True,
+            f"Drawdown OK: {drawdown:.1%}",
+            risk_score=drawdown / self.limits.max_portfolio_drawdown_pct,
+        )
 
-    def check_daily_loss(self, daily_pnl: float, portfolio_equity: float) -> RiskCheckResult:
+    def check_daily_loss(
+        self, daily_pnl: float, portfolio_equity: float
+    ) -> RiskCheckResult:
         """Check daily loss limit."""
         self._daily_pnl = daily_pnl
         if portfolio_equity <= 0:
@@ -108,20 +131,28 @@ class RiskGuard:
         daily_loss_pct = abs(min(0, daily_pnl)) / portfolio_equity
         if daily_loss_pct >= self.limits.max_daily_loss_pct:
             self.halt(f"Daily loss limit breached: {daily_loss_pct:.1%}")
-            return RiskCheckResult(False, f"CIRCUIT BREAKER: Daily loss {daily_loss_pct:.1%}",
-                                   risk_score=1.0)
+            return RiskCheckResult(
+                False,
+                f"CIRCUIT BREAKER: Daily loss {daily_loss_pct:.1%}",
+                risk_score=1.0,
+            )
 
-        return RiskCheckResult(True, f"Daily P&L: ${daily_pnl:.2f}",
-                               risk_score=daily_loss_pct / self.limits.max_daily_loss_pct)
+        return RiskCheckResult(
+            True,
+            f"Daily P&L: ${daily_pnl:.2f}",
+            risk_score=daily_loss_pct / self.limits.max_daily_loss_pct,
+        )
 
     @staticmethod
-    def check_regime_shift(historical: np.ndarray, recent: np.ndarray,
-                           threshold: float = 0.1) -> bool:
+    def check_regime_shift(
+        historical: np.ndarray, recent: np.ndarray, threshold: float = 0.1
+    ) -> bool:
         """KS-test for regime shift detection."""
         if len(historical) < 20 or len(recent) < 5:
             return False
         try:
             from scipy.stats import ks_2samp
+
             stat, _ = ks_2samp(historical, recent)
             return stat > threshold
         except ImportError:
@@ -129,8 +160,12 @@ class RiskGuard:
             return False
 
     @staticmethod
-    def kelly_criterion(win_rate: float, win_loss_ratio: float,
-                        half_kelly: bool = True, max_risk: float = 0.02) -> float:
+    def kelly_criterion(
+        win_rate: float,
+        win_loss_ratio: float,
+        half_kelly: bool = True,
+        max_risk: float = 0.02,
+    ) -> float:
         """Calculate Kelly criterion position size."""
         if win_loss_ratio <= 0:
             return 0.0

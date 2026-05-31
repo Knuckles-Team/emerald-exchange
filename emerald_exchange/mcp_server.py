@@ -10,13 +10,16 @@ import sys
 
 logger = logging.getLogger(__name__)
 
+
 def mcp_server():
     """Entry point for the Emerald Exchange MCP server."""
     import warnings
+
     warnings.filterwarnings("ignore", category=UserWarning, module="urllib3")
     warnings.filterwarnings("ignore", category=DeprecationWarning)
 
     from agent_utilities.mcp_utilities import create_mcp_server
+
     mcp = create_mcp_server(
         name="emerald-exchange",
         instructions="Unified Finance MCP — Exchange backends, risk management, and trading tools",
@@ -33,6 +36,7 @@ def mcp_server():
 
     # Load config
     from agent_utilities.core import paths
+
     config_path = paths.config_dir() / "config.json"
     trading_config: dict = {}
     if os.path.exists(config_path):
@@ -66,7 +70,9 @@ def mcp_server():
     risk_config = trading_config.get("risk_limits", {})
     risk_guard = RiskGuard(RiskLimits(**risk_config) if risk_config else None)
 
-    print(f"🟢 Emerald Exchange MCP: {default_exchange} ({default_mode})", file=sys.stderr)
+    print(
+        f"🟢 Emerald Exchange MCP: {default_exchange} ({default_mode})", file=sys.stderr
+    )
 
     # Register all 8 tool domains
     register_crypto_tools(mcp, backend)
@@ -79,6 +85,7 @@ def mcp_server():
     register_strategy_tools(mcp)
 
     return mcp
+
 
 if __name__ == "__main__":
     server = mcp_server()
