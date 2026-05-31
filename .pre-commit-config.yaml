@@ -43,6 +43,11 @@ repos:
       )$
 - repo: local
   hooks:
+  - id: check-stubs
+    name: Check for Active Stubs and TODOs
+    entry: python3 /home/apps/workspace/agent-packages/agent-utilities/scripts/check_stubs.py
+    language: python
+    types: [python]
   - id: check-agent-standards
     name: check agent standards
     entry: |-
