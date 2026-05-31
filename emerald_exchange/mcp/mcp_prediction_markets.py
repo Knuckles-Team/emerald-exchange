@@ -11,7 +11,6 @@ import httpx
 
 from agent_utilities.domains.finance.cross_market_arb import (
     CostAwareThresholdFilter,
-    EventArbitrageEngine,
 )
 from agent_utilities.domains.finance.signal_fusion import LaplaceEnsembleFusion
 from emerald_exchange.risk_guards import RiskGuard
@@ -45,7 +44,7 @@ def register_prediction_market_tools(mcp: Any, risk_guard: RiskGuard | None = No
             if action == "fetch_open_meteo_ensemble":
                 latitude = params.get("latitude", 40.7128)
                 longitude = params.get("longitude", -74.0060)
-                
+
                 # Fetching 31 members requires multiple models in Open-Meteo or specific ensemble endpoints
                 url = f"https://ensemble-api.open-meteo.com/v1/ensemble?latitude={latitude}&longitude={longitude}&hourly=temperature_2m&models=gfs_seamless"
                 async with httpx.AsyncClient() as client:
@@ -72,21 +71,21 @@ def register_prediction_market_tools(mcp: Any, risk_guard: RiskGuard | None = No
 
                 # Use Laplace Smoothing
                 model_prob = LaplaceEnsembleFusion.compute_probability(condition_met_count, total_members)
-                
+
                 # Use default risk limits or explicit threshold
                 pm_threshold = 0.08
                 kalshi_threshold = 0.08
                 if risk_guard and risk_guard.limits:
                     pm_threshold = risk_guard.limits.prediction_market_cost_thresholds.get("polymarket", 0.08)
                     kalshi_threshold = risk_guard.limits.prediction_market_cost_thresholds.get("kalshi", 0.08)
-                
+
                 opportunities = {}
                 if CostAwareThresholdFilter.passes_threshold(model_prob, pm_price, pm_threshold):
                     opportunities["polymarket"] = model_prob - pm_price
-                    
+
                 if CostAwareThresholdFilter.passes_threshold(model_prob, kalshi_price, kalshi_threshold):
                     opportunities["kalshi"] = model_prob - kalshi_price
-                    
+
                 return json.dumps({
                     "model_probability": model_prob,
                     "opportunities": opportunities
