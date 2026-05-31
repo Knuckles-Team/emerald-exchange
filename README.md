@@ -3,7 +3,7 @@
 ![PyPI - Version](https://img.shields.io/pypi/v/emerald-exchange)
 ![MCP Server](https://badge.mcpx.dev?type=server 'MCP Server')
 
-*Version: 0.9.0*
+*Version: 0.10.0*
 
 ## Overview
 
@@ -41,6 +41,7 @@ flowchart TB
 | Market Data | `emerald_market_data` | quote, historical, exchanges | market-data |
 | Orders | `emerald_orders` | submit, cancel, status, halt, resume | orders |
 | Portfolio | `emerald_portfolio` | positions, account | portfolio |
+| Prediction Markets | `emerald_prediction_markets` | kalshi_events, polymarket_events, open_meteo_ensemble | prediction-markets |
 | Risk | `emerald_risk` | status, drawdown_check, daily_loss_check, kelly, limits | risk |
 | Signals | `emerald_signals` | regime, alpha, fuse | signals |
 | Strategy | `emerald_strategy` | list, promote, export | strategy |
@@ -55,6 +56,7 @@ flowchart TB
 | CCXT (Coinbase) | Crypto | ✅ | ✅ | ✅ |
 | CCXT (Kraken) | Crypto | ✅ | ✅ | ✅ |
 | Freqtrade | Crypto | ✅ | ✅ | ✅ |
+| Prediction Markets (Kalshi/Polymarket) | Events/Weather | ✅ | ✅ | ✅ |
 
 ## Financial Hardening (OS-5.1)
 
@@ -145,6 +147,7 @@ When query strings or parameters are supplied, an LLM-free **Knowledge Graph res
 pip install emerald-exchange           # Core + paper backend
 pip install emerald-exchange[alpaca]   # + Alpaca equities
 pip install emerald-exchange[crypto]   # + CCXT crypto
+pip install emerald-exchange[prediction_markets] # + Kalshi & Polymarket
 pip install emerald-exchange[all]      # Everything
 ```
 

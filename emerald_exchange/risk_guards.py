@@ -5,7 +5,7 @@ All P0 controls for live trading safety.
 """
 
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import numpy as np
 
@@ -21,6 +21,9 @@ class RiskLimits:
     max_daily_loss_pct: float = 0.03  # 3% daily loss limit
     regime_shift_halt: bool = True
     require_human_approval_live: bool = True
+    prediction_market_cost_thresholds: dict[str, float] = field(
+        default_factory=lambda: {"polymarket": 0.08, "kalshi": 0.08}
+    )
 
 
 @dataclass

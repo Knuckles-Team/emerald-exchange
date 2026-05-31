@@ -33,6 +33,7 @@ def mcp_server():
     from emerald_exchange.mcp.mcp_risk import register_risk_tools
     from emerald_exchange.mcp.mcp_signals import register_signal_tools
     from emerald_exchange.mcp.mcp_strategy import register_strategy_tools
+    from emerald_exchange.mcp.mcp_prediction_markets import register_prediction_market_tools
 
     # Load config
     from agent_utilities.core import paths
@@ -83,6 +84,7 @@ def mcp_server():
     register_risk_tools(mcp, backend, risk_guard)
     register_signal_tools(mcp)
     register_strategy_tools(mcp)
+    register_prediction_market_tools(mcp, risk_guard)
 
     return mcp
 
