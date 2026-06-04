@@ -644,7 +644,7 @@ class FreqtradeBackend:
         return True
 
     def disconnect(self) -> None:
-        pass
+        logger.info("Freqtrade backend disconnected")
 
     def submit_order(
         self,
