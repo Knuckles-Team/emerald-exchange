@@ -5,6 +5,24 @@
 
 > AI coding agent context for `emerald-exchange`
 
+## ⚙️ Quant compute lives in epistemic-graph (READ FIRST)
+
+Exchange backends (alpaca/ccxt/binance/kalshi/clob) are **I/O glue and stay in
+Python**. But any **numeric/quant** work — portfolio optimization, risk metrics
+(VaR/CVaR/Sortino/drawdown/stress), regime detection (HMM), alpha signals
+(z-score/EWMA/momentum/IC), execution math (TWAP/VWAP/market-impact/pairs) — must
+be delegated to the Rust **`epistemic-graph`** engine, not re-implemented with
+`numpy`/`scipy`.
+
+- Call it via `epistemic_graph.client` (`.finance` / `.datascience` namespaces),
+  directly or through `agent-utilities/domains/finance/*` (which already routes
+  portfolio optimization to the engine).
+- **When enhancing or adding quant features, extend the engine** and call it from
+  here — see `epistemic-graph/docs/RUST_COMPUTE_GUIDE.md` for the capability list
+  and how to expose a new one. Keep only trivial per-order arithmetic (e.g. Kelly
+  sizing, position caps) inline.
+- Do not add `scipy`/heavy-`numpy` compute paths to this package.
+
 ## Project Overview
 
 Unified Finance MCP Server with fully abstracted exchange backends.
