@@ -18,6 +18,15 @@ def register_risk_tools(
         daily_pnl: float = 0.0,
         win_rate: float = 0.5,
         win_loss_ratio: float = 1.5,
+        wins: int = 0,
+        losses: int = 0,
+        cost: float = 0.5,
+        fraction: float = 0.25,
+        p: float = 0.5,
+        b: float = 1.0,
+        historical_returns_json: str = "[]",
+        n_simulations: int = 10000,
+        seed: int = 42,
     ) -> str:
         """Risk management and monitoring. CONCEPT:EE-011
 
@@ -25,7 +34,11 @@ def register_risk_tools(
         - 'status': Current risk status (halted?, drawdown, daily PnL)
         - 'drawdown_check': Check portfolio drawdown against limits
         - 'daily_loss_check': Check daily loss against limits
-        - 'kelly': Calculate Kelly criterion position size
+        - 'kelly': Calculate point Kelly criterion position size
+        - 'bayesian_kelly': Beta-posterior Kelly sizing (engine-backed, uncertainty-aware)
+        - 'empirical_kelly': Monte-Carlo Kelly sizing over a realized return
+          distribution (engine-backed). params: p, b, historical_returns_json
+          (JSON list), fraction, n_simulations, seed. Capped at max_position_pct.
         - 'limits': Show current risk limits configuration
         """
         if action == "status":
@@ -66,6 +79,43 @@ def register_risk_tools(
             return json.dumps(
                 {
                     "kelly_fraction": size,
+                    "max_position_pct": risk_guard.limits.max_position_pct,
+                }
+            )
+        elif action == "bayesian_kelly":
+            size = risk_guard.bayesian_kelly_size(
+                wins=wins, losses=losses, cost=cost, fraction=fraction
+            )
+            return json.dumps(
+                {
+                    "bayesian_kelly_fraction": size,
+                    "wins": wins,
+                    "losses": losses,
+                    "cost": cost,
+                    "fraction": fraction,
+                    "max_position_pct": risk_guard.limits.max_position_pct,
+                }
+            )
+        elif action == "empirical_kelly":
+            try:
+                historical_returns = json.loads(historical_returns_json or "[]")
+            except json.JSONDecodeError as exc:
+                return json.dumps({"error": f"invalid historical_returns_json: {exc}"})
+            size = risk_guard.empirical_kelly_size(
+                p=p,
+                b=b,
+                historical_returns=historical_returns,
+                fraction=fraction,
+                n_simulations=n_simulations,
+                seed=seed,
+            )
+            return json.dumps(
+                {
+                    "empirical_kelly_fraction": size,
+                    "p": p,
+                    "b": b,
+                    "n_history": len(historical_returns),
+                    "fraction": fraction,
                     "max_position_pct": risk_guard.limits.max_position_pct,
                 }
             )

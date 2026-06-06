@@ -35,11 +35,11 @@ repos:
   rev: v2.4.1
   hooks:
   - id: codespell
-    args: ["-L", "ans,nam,tread,ot,"]
+    args: ["-L", "ans,nam,tread,ot,tyes"]
     exclude: |
       (?x)^(
-        \./test/.*|
-        \./tests/.*
+        test/.*|
+        tests/.*
       )$
 - repo: local
   hooks:

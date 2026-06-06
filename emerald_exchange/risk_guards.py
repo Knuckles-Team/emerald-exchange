@@ -169,10 +169,123 @@ class RiskGuard:
         half_kelly: bool = True,
         max_risk: float = 0.02,
     ) -> float:
-        """Calculate Kelly criterion position size."""
+        """Calculate point Kelly criterion position size."""
         if win_loss_ratio <= 0:
             return 0.0
         f_star = (win_rate * win_loss_ratio - (1 - win_rate)) / win_loss_ratio
         if half_kelly:
             f_star /= 2.0
         return max(0.0, min(f_star, max_risk))
+
+    def bayesian_kelly_size(
+        self,
+        wins: int,
+        losses: int,
+        cost: float,
+        prior_alpha: float = 1.0,
+        prior_beta: float = 1.0,
+        fraction: float = 0.25,
+    ) -> float:
+        """Bayesian-Kelly sizing under a Beta(α, β) posterior — CONCEPT:EE-015.
+
+        Unlike :meth:`kelly_criterion` (a point estimate of the edge), this path
+        accounts for *estimation uncertainty*: it builds a Beta posterior over the
+        true win probability from observed ``wins``/``losses`` plus a prior, then
+        delegates to the Rust engine's ``bayesian_kelly`` (which integrates Kelly
+        over that posterior and shrinks the bet as posterior variance grows).
+
+        Delegates compute to ``epistemic_graph`` ``client.finance.bayesian_kelly``;
+        falls back to the point Kelly cap when the engine is unreachable so that
+        sizing is never silently zeroed offline. The result is always clamped to
+        ``[0, max_position_pct]`` — the same cap the point path respects.
+
+        Args:
+            wins: observed winning bets (Beta successes).
+            losses: observed losing bets (Beta failures).
+            cost: per-contract cost ``c`` in (0, 1) — the YES entry price.
+            prior_alpha / prior_beta: Beta prior pseudo-counts.
+            fraction: fractional-Kelly scaler (e.g. 0.25 = quarter Kelly).
+
+        Returns:
+            Capped fraction of capital to allocate, in [0, max_position_pct].
+        """
+        alpha = prior_alpha + max(0, int(wins))
+        beta = prior_beta + max(0, int(losses))
+        cap = self.limits.max_position_pct
+
+        from emerald_exchange._engine import finance_engine
+
+        engine = finance_engine()
+        if engine is not None:
+            try:
+                f = float(
+                    engine.finance.bayesian_kelly(alpha, beta, cost, n_quadrature=50)
+                )
+                f *= fraction
+                return max(0.0, min(f, cap))
+            except Exception as exc:  # noqa: BLE001 — degrade to point Kelly
+                logger.debug("bayesian_kelly engine call failed: %s", exc)
+
+        # Engine-free fallback: point Kelly from the posterior mean win-rate.
+        win_rate = alpha / (alpha + beta)
+        win_loss_ratio = (1.0 - cost) / cost if 0 < cost < 1 else 1.0
+        f_star = (win_rate * win_loss_ratio - (1 - win_rate)) / win_loss_ratio
+        return max(0.0, min(f_star * fraction, cap))
+
+    def empirical_kelly_size(
+        self,
+        p: float,
+        b: float,
+        historical_returns: list[float],
+        fraction: float = 0.25,
+        n_simulations: int = 10000,
+        seed: int = 42,
+    ) -> float:
+        """Empirical (Monte-Carlo resampled) Kelly sizing — CONCEPT:EE-031.
+
+        Where :meth:`kelly_criterion` uses the textbook closed form and
+        :meth:`bayesian_kelly_size` integrates over a Beta posterior, this path
+        sizes against the *realized return distribution*: it resamples the
+        observed per-bet ``historical_returns`` to find the growth-optimal
+        fraction, so fat tails / skew in the actual P&L (not just win-rate) shrink
+        the bet. Delegates compute to ``client.finance.empirical_kelly``.
+
+        Composition with the existing sizing ladder: this returns a *raw* Kelly
+        fraction that is fractional-scaled and then clamped to
+        ``[0, max_position_pct]`` — the SAME cap the point/Bayesian paths respect,
+        so it slots in as a drop-in third estimator without weakening the position
+        cap. Falls back to the point Kelly cap when the engine is unreachable so
+        sizing is never silently zeroed offline.
+
+        Args:
+            p: win probability estimate.
+            b: net win odds (payoff per unit risked on a win).
+            historical_returns: observed per-bet returns to resample.
+            fraction: fractional-Kelly scaler (e.g. 0.25 = quarter Kelly).
+            n_simulations: Monte-Carlo resamples.
+            seed: RNG seed for reproducibility.
+
+        Returns:
+            Capped fraction of capital to allocate, in [0, max_position_pct].
+        """
+        cap = self.limits.max_position_pct
+
+        from emerald_exchange._engine import finance_engine
+
+        engine = finance_engine()
+        if engine is not None and historical_returns:
+            try:
+                f = float(
+                    engine.finance.empirical_kelly(
+                        p, b, historical_returns, n_simulations, seed
+                    )
+                )
+                return max(0.0, min(f * fraction, cap))
+            except Exception as exc:  # noqa: BLE001 — degrade to point Kelly
+                logger.debug("empirical_kelly engine call failed: %s", exc)
+
+        # Engine-free / no-history fallback: point Kelly from (p, b).
+        if b <= 0:
+            return 0.0
+        f_star = (p * b - (1.0 - p)) / b
+        return max(0.0, min(f_star * fraction, cap))

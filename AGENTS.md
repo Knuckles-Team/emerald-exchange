@@ -42,13 +42,18 @@ emerald-exchange/
 │   ├── backends.py          # ExchangeBackend Protocol + 5 impls
 │   ├── risk_guards.py       # OS-5.1 financial hardening
 │   ├── mcp_server.py        # MCP server entry
+│   ├── data/                # Data/fundamentals providers (optional deps, lazy)
+│   │   ├── edgar.py         # SEC EDGAR (edgartools) — CONCEPT:EE-027
+│   │   └── wallet_intel.py  # Polymarket wallet analytics — CONCEPT:EE-028
 │   └── mcp/                 # Tool domains
 │       ├── mcp_market_data.py
 │       ├── mcp_orders.py
 │       ├── mcp_portfolio.py
 │       ├── mcp_risk.py
 │       ├── mcp_signals.py
-│       └── mcp_strategy.py
+│       ├── mcp_strategy.py
+│       ├── mcp_fundamentals.py    # emerald_fundamentals — CONCEPT:EE-027
+│       └── mcp_wallet_intel.py    # emerald_wallet_intel — CONCEPT:EE-028
 ├── tests/
 │   ├── conftest.py
 │   ├── test_concept_parity.py
@@ -86,6 +91,47 @@ bump2version patch
 - Default backend is always `PaperBackend` — never default to live
 - Use `create_backend()` factory, never instantiate backends directly in tools
 - Follow `agent-utilities` patterns for `create_mcp_server()` initialization
+
+## Fundamentals & Wallet-Intelligence Tool Groups
+
+Two data-provider tool groups were folded in from the former standalone
+`edgar-mcp` and `poly-wallet-mcp` packages so emerald-exchange is the single
+multi-asset finance hub (execution + market data + risk + fundamentals +
+wallet-intel). Both keep their heavy third-party deps (`edgartools` / `polars` /
+`py-clob-client`) **optional and lazily imported** — emerald imports cleanly
+without them, surfacing a clear `{"error": ...}` payload when a call needs an
+absent dependency, identity, dataset, or engine.
+
+### `emerald_fundamentals` — SEC EDGAR (CONCEPT:EE-027)
+
+Action-routed (`action`, `params_json`). Env gate `FUNDAMENTALSTOOL` (set falsey
+to disable); SEC identity from `EDGAR_IDENTITY` (`"Name email@example.com"`).
+Optional dep: `edgartools` (`pip install 'emerald-exchange[fundamentals]'`).
+
+- `filings` — latest N filings of a form (10-K/10-Q/8-K).
+- `financials` — standardized income / balance / cashflow statement.
+- `risk_factors` — Item 1A, this year + prior year (for diffing).
+- `mdna` — Item 7 MD&A, this year + prior year.
+- `full_text_search` — EDGAR phrase search (e.g. "material weakness").
+- `standardize` — two latest fiscal years → exact 17-key forensic schema.
+- `forensic_screen` — chains `standardize_financials` → engine
+  `forensic_report` (Beneish M / Altman Z / Piotroski F / Sloan accruals) so a
+  single ticker goes filings → standardize → verdict in ONE call. Reuses
+  `forensic.py` / `_engine.py`; degrades gracefully when the engine socket is
+  absent.
+
+### `emerald_wallet_intel` — Polymarket wallet analytics (CONCEPT:EE-028)
+
+Action-routed (`action`, `params_json`). Env gate `WALLETINTELTOOL` (set falsey
+to disable); dataset path from `POLY_TRADES_PATH` (a `poly_data` processed-trades
+CSV/Parquet). Optional dep: `polars` (Parquet / fast loader —
+`pip install 'emerald-exchange[wallet_intel]'`); pure-Python over a stdlib-CSV
+fallback otherwise.
+
+- `rank_wallets` — smart-money copy-trade targets (filter by trades + win rate).
+- `wallet_profile` — per-wallet stats + open positions.
+- `smart_money_convergence` — how many target wallets hold the same side.
+- `exit_behavior` — % exit before resolution + avg % max profit captured.
 
 ## ⛔ No Scratch or Temporary Files in Repository
 

@@ -30,6 +30,20 @@
 | `CONCEPT:EE-018` | Crypto-Native Analytics | `crypto` MCP domain: funding rates, whale alerts, arb scan via CCXT |
 | `CONCEPT:EE-019` | Trading Debate Engine | `debate` MCP domain: multi-agent bull/bear debate with risk veto |
 | `CONCEPT:EE-020` | A2A Server Integration | Native agent-to-agent interface via `agent_server.py` |
+| `CONCEPT:EE-021` | Engine Client (lazy) | Lazy/cached `SyncEpistemicGraphClient` accessor; import never requires a running engine |
+| `CONCEPT:EE-022` | Polymarket V2 Fee Model | Category-aware taker fee / maker rebate schedule (`fees.py`) |
+| `CONCEPT:EE-023` | Market-Making Controller | Per-book-update quoting policy (microprice/OFI/AS/logit/VPIN gate); decision-only, never places orders (`market_making.py`) |
+| `CONCEPT:EE-024` | Event-Driven Backtester | Heap event-loop with latency injection, L2 queue, fee accounting + deflated-Sharpe/CPCV/PBO validation hooks (`backtester.py`) |
+| `CONCEPT:EE-025` | Production WebSocket Client | Polymarket market-channel subscriber: auto-reconnect, heartbeat watchdog, sequence-gap resync (`ws_client.py`) |
+| `CONCEPT:EE-026` | Forensic Screener | Two-year Beneish/Altman/Piotroski/Sloan screen via engine `forensic_report` (`forensic.py`) |
+| `CONCEPT:EE-027` | Fundamentals (SEC EDGAR) | `emerald_fundamentals` MCP domain: filings/financials/risk_factors/mdna/full_text_search/standardize + `forensic_screen` chaining standardize→engine `forensic_report` (`data/edgar.py`, optional `edgartools`) |
+| `CONCEPT:EE-028` | Wallet Intelligence | `emerald_wallet_intel` MCP domain: Polymarket rank_wallets/wallet_profile/smart_money_convergence/exit_behavior over a `poly_data` trade dataset (`data/wallet_intel.py`, optional `polars`) |
+| `CONCEPT:EE-029` | Dynamic-Beta Hedging | Time-varying CAPM Kalman-beta hedge: current beta + uncertainty band → beta-neutral hedge ratio via engine `kalman_beta` (KG-2.20h). `hedging.py`; `emerald_statarb` action `dynamic_beta`. Decision-only |
+| `CONCEPT:EE-030` | OU Statistical-Arbitrage Signal | Cross-venue spread → ADF stationarity gate → OU calibration + optimal thresholds → entry/exit signal via engine `adf_test`/`ou_calibrate`/`ou_optimal_thresholds` (KG-2.20h). `stat_arb.py`; `emerald_statarb` action `ou_signal`. Decision-only |
+| `CONCEPT:EE-031` | Conviction Gate + Calibration | Convergence gate (engine `convergence_gate`, KG-2.20i) wired ON by default into the market-making decision path (no N/N strong-signal agreement ⇒ withdraw); empirical-Kelly sizing (`empirical_kelly`) on `RiskGuard`; Brier calibration helper (`brier_score`). `market_making.py`/`risk_guards.py`; `emerald_market_making` action `brier`, `emerald_risk` action `empirical_kelly` |
+| `CONCEPT:EE-032` | Execution Bridge | Routes a strategy/debate/optimizer `TradeDecision` (side/size/symbol/type/venue) to an `ExchangeBackend` behind the live-approval gate: paper executes freely, LIVE is BLOCKED while `require_human_approval_live` is set (returns `approval_required`), and every routed order still clears `RiskGuard.pre_trade_check`. Decision→action seam (`execution_bridge.py`) |
+| `CONCEPT:EE-033` | Live Cockpit (text-mode) | GUI-free cockpit rendering a structured snapshot + rich/plain table: engine status, account/positions, risk (kill-switch/drawdown/daily-loss), watchlist quotes, signals. Offline-safe (`engine: offline`). `emerald-cockpit` console script + `cockpit()` (`cockpit.py`) |
+| `CONCEPT:EE-034` | SABR Volatility Surface | `emerald_derivatives` MCP domain delegating to engine SABR kernels (`sabr_implied_vol`/`sabr_smile`/`sabr_calibrate`, KG-2.20j): implied_vol/smile/calibrate + a decision-only `vol_arb` helper diffing market vs SABR-fair smile (rich/cheap strikes). `derivatives.py`; lazy/optional engine |
 
 ## Cross-Project References (from agent-utilities)
 

@@ -27,13 +27,20 @@ def mcp_server():
 
     from emerald_exchange.mcp.mcp_crypto import register_crypto_tools
     from emerald_exchange.mcp.mcp_debate import register_debate_tools
+    from emerald_exchange.mcp.mcp_derivatives import register_derivatives_tools
+    from emerald_exchange.mcp.mcp_fundamentals import register_fundamentals_tools
     from emerald_exchange.mcp.mcp_market_data import register_market_data_tools
+    from emerald_exchange.mcp.mcp_market_making import register_market_making_tools
     from emerald_exchange.mcp.mcp_orders import register_order_tools
     from emerald_exchange.mcp.mcp_portfolio import register_portfolio_tools
     from emerald_exchange.mcp.mcp_risk import register_risk_tools
     from emerald_exchange.mcp.mcp_signals import register_signal_tools
+    from emerald_exchange.mcp.mcp_statarb import register_statarb_tools
     from emerald_exchange.mcp.mcp_strategy import register_strategy_tools
-    from emerald_exchange.mcp.mcp_prediction_markets import register_prediction_market_tools
+    from emerald_exchange.mcp.mcp_prediction_markets import (
+        register_prediction_market_tools,
+    )
+    from emerald_exchange.mcp.mcp_wallet_intel import register_wallet_intel_tools
 
     # Load config
     from agent_utilities.core import paths
@@ -78,13 +85,18 @@ def mcp_server():
     # Register all 8 tool domains
     register_crypto_tools(mcp, backend)
     register_debate_tools(mcp)
+    register_derivatives_tools(mcp)
     register_market_data_tools(mcp, backend)
+    register_market_making_tools(mcp)
     register_order_tools(mcp, backend, risk_guard)
     register_portfolio_tools(mcp, backend)
     register_risk_tools(mcp, backend, risk_guard)
     register_signal_tools(mcp)
+    register_statarb_tools(mcp)
     register_strategy_tools(mcp)
     register_prediction_market_tools(mcp, risk_guard)
+    register_fundamentals_tools(mcp)
+    register_wallet_intel_tools(mcp)
 
     return mcp
 
