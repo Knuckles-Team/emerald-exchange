@@ -5,6 +5,10 @@
 
 *Version: 0.15.0*
 
+> **Documentation** — Installation, deployment, usage across the API, CLI, and MCP
+> interfaces, the A2A agent server, and the trading configuration schema are
+> maintained in the [official documentation](https://knuckles-team.github.io/emerald-exchange/).
+
 ## Overview
 
 Emerald Exchange is a unified Finance MCP Server providing fully abstracted exchange backends
@@ -156,3 +160,20 @@ pip install emerald-exchange[all]      # Everything
 ```bash
 docker compose -f docker/compose.yml up -d
 ```
+
+## Documentation
+
+The complete documentation is published as the
+[official documentation site](https://knuckles-team.github.io/emerald-exchange/) and is the
+recommended reference for installation, deployment, and day-to-day operation.
+
+| Page | Contents |
+|---|---|
+| [Installation](https://knuckles-team.github.io/emerald-exchange/installation/) | pip, source, extras, prebuilt Docker image |
+| [Deployment](https://knuckles-team.github.io/emerald-exchange/deployment/) | run the MCP and agent servers, Compose, Caddy + Technitium, env config |
+| [Usage](https://knuckles-team.github.io/emerald-exchange/usage/) | the MCP tools, the Python API, the cockpit CLI |
+| [Overview](https://knuckles-team.github.io/emerald-exchange/overview/) | enterprise features, tool surface, architecture |
+| [Configuration Schema](https://knuckles-team.github.io/emerald-exchange/config_schema/) | the `trading` config block and backend matrix |
+| [Concepts](https://knuckles-team.github.io/emerald-exchange/concepts/) | concept registry (`CONCEPT:EE-*`) |
+
+`AGENTS.md` is the canonical contributor/agent guidance.
