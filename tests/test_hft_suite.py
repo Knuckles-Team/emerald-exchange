@@ -131,6 +131,54 @@ def test_mm_quote_engine_numeric(engine_client):
         assert 0.0 < decision.bid < 1.0
 
 
+def test_mm_queue_skew_local_fallback_nudges_reservation(monkeypatch):
+    """CONCEPT:EE-032 — with no engine, the queue skew is computed locally and a
+    non-zero ``queue_skew_coef`` shifts the reservation toward the thicker queue."""
+    import emerald_exchange.market_making as mm
+
+    monkeypatch.setattr(mm, "finance_engine", lambda: None)
+    book = _sample_book()  # bid_sz[-1]=120 > ask_sz[-1]=90 ⇒ negative skew (bid heavier)
+
+    base = MarketMakingController(MMConfig(bounded=True, tick=0.01, queue_skew_coef=0.0))
+    nudged = MarketMakingController(
+        MMConfig(bounded=True, tick=0.01, queue_skew_coef=5.0)
+    )
+    d0 = base.decide(book, inventory=0.0)
+    d1 = nudged.decide(book, inventory=0.0)
+
+    assert d0.queue_skew < 0.0  # bid queue heavier ⇒ negative skew
+    assert d1.queue_fill_time == 0.0  # local fallback has no arrival-rate model
+    # Negative skew + positive coef ⇒ reservation shifts up vs the un-nudged base.
+    assert d1.reservation > d0.reservation
+
+
+def test_mm_queue_fill_time_withdraw(engine_client):
+    """CONCEPT:EE-032 — a long worst-side fill time triggers an adverse-selection
+    withdraw. Skips cleanly until the engine ships the queue_imbalance kernel."""
+    book = BookSnapshot(
+        ts=[0.0, 1.0],
+        bid_px=[0.48, 0.49],
+        bid_sz=[100.0, 120.0],
+        ask_px=[0.52, 0.51],
+        ask_sz=[100.0, 90.0],
+        buy_vol=[10.0, 12.0],
+        sell_vol=[8.0, 9.0],
+        p_mean=[0.50, 0.50],
+        bid_q=[100.0, 120.0],
+        ask_q=[100.0, 90.0],
+        bid_rate=[1.0, 1.0],
+        ask_rate=[1.0, 1.0],
+    )
+    ctrl = MarketMakingController(
+        MMConfig(bounded=True, tick=0.01, queue_fill_time_max=1.0)
+    )
+    decision = ctrl.decide(book, inventory=0.0)
+    if decision.queue_fill_time > 0.0:  # engine kernel present
+        assert decision.queue_fill_time > 1.0
+        assert decision.withdraw is True
+        assert decision.reason == "queue_adverse_selection"
+
+
 # ── Backtester ─────────────────────────────────────────────────────────
 def _events() -> list[Event]:
     return [
@@ -230,12 +278,136 @@ def test_bayesian_kelly_fallback_when_no_engine(monkeypatch):
     assert 0.0 <= f <= 0.05
 
 
+def test_emerald_signals_fuse_degrades_without_engine(monkeypatch):
+    """CONCEPT:EE-033 — fuse seeds from KG priors but still fuses supplied
+    directions (with neutral sources) when no engine/priors are reachable."""
+    import emerald_exchange._engine as eng
+    import emerald_exchange.mcp.mcp_signals as ms
+
+    monkeypatch.setattr(eng, "finance_engine", lambda: None)
+
+    captured = {}
+
+    class _MCP:
+        def tool(self, *a, **k):
+            def deco(fn):
+                captured[fn.__name__] = fn
+                return fn
+
+            return deco
+
+    ms.register_signal_tools(_MCP())
+    out = json.loads(
+        captured["emerald_signals"](
+            action="fuse", signals_json='{"ofi": 1, "queue": 1}'
+        )
+    )
+    assert out["seeded_from_kg"] == 0
+    assert out["posterior_up"] > 0.5  # two bullish sources push the prior up
+    assert set(out["sources"]) == {"ofi", "queue"}
+
+
+def test_emerald_strategy_backtest_writeback(engine_client):
+    """CONCEPT:EE-033 — backtest computes priors and writes them to the KG.
+    Skips cleanly when the engine binary lacks the finance kernels."""
+    import emerald_exchange.mcp.mcp_strategy as mst
+
+    captured = {}
+
+    class _MCP:
+        def tool(self, *a, **k):
+            def deco(fn):
+                captured[fn.__name__] = fn
+                return fn
+
+            return deco
+
+    mst.register_strategy_tools(_MCP())
+    out = json.loads(
+        captured["emerald_strategy"](
+            action="backtest",
+            strategy_id="sig:test_ofi",
+            returns_json=json.dumps([0.01, -0.004, 0.02, 0.015, -0.002, 0.011]),
+            name="ofi",
+        )
+    )
+    _skip_if_unsupported(out)
+    if "error" in out:
+        pytest.skip(f"engine unavailable for backtest: {out['error']}")
+    assert 0.0 <= out["hit_rate"] <= 1.0
+    assert "deflated_sharpe" in out and "pbo" in out
+
+
 def test_require_human_approval_live_preserved():
     """Live execution gating must NOT be weakened by the new sizing path."""
     guard = RiskGuard(RiskLimits(require_human_approval_live=True))
     check = guard.pre_trade_check("X", 1, 0.5, 1000, 1000, is_live=True)
     assert not check.approved
     assert "human approval" in check.reason.lower()
+
+
+def test_paper_stage_blocks_live():
+    """CONCEPT:EE-038 — paper stage refuses live orders; paper orders pass."""
+    from emerald_exchange.risk_guards import load_execution_policy
+
+    policy = load_execution_policy()
+    assert policy["stage"] == "paper"  # ships paper-first
+    guard = RiskGuard(RiskLimits.from_execution_policy(policy))
+    live = guard.pre_trade_check("X", 1, 0.5, 1000, 1000, is_live=True)
+    assert not live.approved and "human approval" in live.reason.lower()
+    paper = guard.pre_trade_check("X", 1, 0.5, 1000, 1000, is_live=False)
+    assert paper.approved
+
+
+def test_bounded_autonomous_caps():
+    """CONCEPT:EE-038 — bounded_autonomous allows small live orders, blocks large."""
+    limits = RiskLimits.from_execution_policy(
+        {
+            "stage": "bounded_autonomous",
+            "bounded_autonomous": {
+                "max_notional_per_trade": 500,
+                "require_human_above": 1000,
+            },
+        }
+    )
+    assert limits.require_human_approval_live is False
+    guard = RiskGuard(limits)
+    # within caps (notional 400) on a big book ⇒ allowed
+    ok = guard.pre_trade_check("X", 800, 0.5, 1_000_000, 1_000_000, is_live=True)
+    assert ok.approved
+    # above require_human_above (notional 1200) ⇒ blocked
+    big = guard.pre_trade_check("X", 2400, 0.5, 1_000_000, 1_000_000, is_live=True)
+    assert not big.approved and "human approval" in big.reason.lower()
+
+
+def test_graduation_is_eligibility_only_and_stage_is_human_gated(monkeypatch):
+    """CONCEPT:EE-038 — evaluate_graduation never changes stage; approve_stage
+    requires the human token."""
+    guard = RiskGuard(RiskLimits(stage="paper"))
+    policy = {
+        "graduation": {
+            "paper_to_advisory": {
+                "min_paper_trades": 200,
+                "min_deflated_sharpe": 1.0,
+                "max_pbo": 0.3,
+                "min_hit_rate": 0.52,
+            }
+        }
+    }
+    not_ready = guard.evaluate_graduation({"paper_trades": 10}, policy)
+    assert not_ready["eligible"] is False and guard.limits.stage == "paper"
+    ready = guard.evaluate_graduation(
+        {"paper_trades": 300, "deflated_sharpe": 1.5, "pbo": 0.2, "hit_rate": 0.55},
+        policy,
+    )
+    assert ready["eligible"] is True and guard.limits.stage == "paper"  # unchanged
+
+    # Agent (no token) cannot promote; human with token can.
+    assert guard.approve_stage("advisory", "guess") is False
+    assert guard.limits.stage == "paper"
+    monkeypatch.setenv("EMERALD_STAGE_APPROVAL_TOKEN", "s3cret")
+    assert guard.approve_stage("advisory", "s3cret") is True
+    assert guard.limits.stage == "advisory"
 
 
 # ── Forensic screener ──────────────────────────────────────────────────

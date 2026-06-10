@@ -72,6 +72,13 @@ class BookSnapshot:
     buy_vol: list[float] = field(default_factory=list)
     sell_vol: list[float] = field(default_factory=list)
     p_mean: list[float] = field(default_factory=list)
+    # Best-level resting queue sizes + recent arrival rates for the
+    # queue-position / time-to-fill signal. When empty, the controller falls
+    # back to ``bid_sz``/``ask_sz`` for queue lengths and uniform arrival rates.
+    bid_q: list[float] = field(default_factory=list)
+    ask_q: list[float] = field(default_factory=list)
+    bid_rate: list[float] = field(default_factory=list)
+    ask_rate: list[float] = field(default_factory=list)
 
     @property
     def top_bid(self) -> float:
@@ -102,6 +109,10 @@ class MMConfig:
     boundary_m: float = 0.0  # logit boundary inventory cap margin
     ofi_drift_coef: float = 0.0  # 0 disables OFI drift; >0 nudges fair value
     ofi_window_secs: float = 1.0
+    # Queue-position / adverse-selection (CONCEPT:EE-032). Both default to 0 ⇒
+    # behavior-identical until an operator opts in (mirrors ofi_drift_coef).
+    queue_skew_coef: float = 0.0  # >0 nudges reservation toward the thicker queue
+    queue_fill_time_max: float = 0.0  # >0 withdraws when worst-side fill time exceeds this
     vh: float = 1.0  # payoff if "high" resolves (YES → 1.0)
     vl: float = 0.0  # payoff if "low" resolves
     post_only: bool = True  # never cross the resting book
@@ -126,6 +137,8 @@ class QuoteDecision:
     withdraw: bool
     toxicity_alpha: float = 0.0
     breakeven_alpha: float = 0.0
+    queue_skew: float = 0.0
+    queue_fill_time: float = 0.0
     reason: str = ""
     engine_used: bool = False
     # Conviction-gate outcome (CONCEPT:EE-031). When the gate is on and fails,
@@ -143,6 +156,8 @@ class QuoteDecision:
             "withdraw": self.withdraw,
             "toxicity_alpha": self.toxicity_alpha,
             "breakeven_alpha": self.breakeven_alpha,
+            "queue_skew": self.queue_skew,
+            "queue_fill_time": self.queue_fill_time,
             "reason": self.reason,
             "engine_used": self.engine_used,
             "conviction_pass": self.conviction_pass,
@@ -217,6 +232,42 @@ class MarketMakingController:
         except Exception as exc:  # noqa: BLE001
             logger.debug("toxicity gate unavailable: %s", exc)
             return 0.0, 1.0
+
+    def _queue_skew(self, book: BookSnapshot, engine: Any) -> tuple[float, float]:
+        """Return ``(queue_skew ∈ [-1, 1], worst-side fill_time)``.
+
+        CONCEPT:EE-032. ``skew = (ask_q - bid_q)/(ask_q + bid_q)`` — positive ⇒ the
+        ask queue is heavier, so a resting bid fills relatively faster. A longer
+        ``fill_time`` means more adverse-selection exposure while resting. Uses the
+        engine ``queue_imbalance`` kernel with a local-fallback mirror so the
+        signal is never silently dropped offline. Falls back to ``bid_sz``/
+        ``ask_sz`` for queue lengths when explicit queue sizes aren't supplied.
+        """
+        bq = book.bid_q or book.bid_sz
+        aq = book.ask_q or book.ask_sz
+        if not bq or not aq:
+            return 0.0, 0.0
+        if engine is not None:
+            try:
+                out = engine.finance.queue_imbalance(
+                    bq,
+                    aq,
+                    book.bid_rate or [1.0] * len(bq),
+                    book.ask_rate or [1.0] * len(aq),
+                )
+                if isinstance(out, dict) and out.get("skew"):
+                    fill_time = max(
+                        float(out["bid_fill_time"][-1]),
+                        float(out["ask_fill_time"][-1]),
+                    )
+                    return float(out["skew"][-1]), fill_time
+            except Exception as exc:  # noqa: BLE001 — degrade to local mirror
+                logger.debug("queue_imbalance failed, local skew: %s", exc)
+        # Local fallback mirroring the kernel: (ask_q - bid_q)/(ask_q + bid_q).
+        b, a = float(bq[-1]), float(aq[-1])
+        total = a + b
+        skew = (a - b) / total if total > 0 else 0.0
+        return skew, 0.0
 
     def _conviction_gate(
         self, signal_strengths: list[float] | None, engine: Any
@@ -368,6 +419,19 @@ class MarketMakingController:
             withdraw = True
             reason = "toxicity_withdraw"
 
+        # Queue-position / adverse-selection (CONCEPT:EE-032). Both coefs default
+        # to 0 ⇒ no effect, so existing callers are behavior-identical.
+        q_skew, fill_time = self._queue_skew(book, engine)
+        if cfg.queue_skew_coef != 0.0 and not withdraw:
+            # Nudge the reservation (and quotes) toward the thicker queue so we
+            # rest where we're less likely to be adversely selected.
+            reservation -= cfg.queue_skew_coef * q_skew * half_spread
+            bid = reservation - half_spread
+            ask = reservation + half_spread
+        if cfg.queue_fill_time_max > 0.0 and fill_time > cfg.queue_fill_time_max:
+            withdraw = True
+            reason = "queue_adverse_selection"
+
         # Inventory limit: withdraw the side that worsens our position.
         over_long = inventory >= cfg.max_inventory
         over_short = inventory <= -cfg.max_inventory
@@ -418,6 +482,8 @@ class MarketMakingController:
             withdraw=withdraw,
             toxicity_alpha=tox_alpha,
             breakeven_alpha=be_alpha,
+            queue_skew=q_skew,
+            queue_fill_time=fill_time,
             reason=reason,
             engine_used=engine_used,
             conviction_pass=True,

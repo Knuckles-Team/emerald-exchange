@@ -4,12 +4,20 @@ Pre-trade risk validation, circuit breakers, and kill switch.
 All P0 controls for live trading safety.
 """
 
+import json
 import logging
+import os
 from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Any
 
 import numpy as np
 
 logger = logging.getLogger(__name__)
+
+# Valid execution stages, in promotion order. Paper-first is the hard default.
+EXECUTION_STAGES = ("paper", "advisory", "bounded_autonomous")
+_DEFAULT_POLICY_PATH = Path(__file__).parent / "data" / "execution_policy.json"
 
 
 @dataclass
@@ -21,9 +29,51 @@ class RiskLimits:
     max_daily_loss_pct: float = 0.03  # 3% daily loss limit
     regime_shift_halt: bool = True
     require_human_approval_live: bool = True
+    # Staged execution gating (CONCEPT:EE-038). Paper-first by default; only
+    # ``bounded_autonomous`` may submit live, and only within these caps.
+    stage: str = "paper"
+    max_notional_per_trade: float = 0.0  # 0 ⇒ unset (no per-trade cap beyond pct)
+    max_daily_notional: float = 0.0
+    require_human_above: float = 0.0  # bounded-auto orders above this need approval
     prediction_market_cost_thresholds: dict[str, float] = field(
         default_factory=lambda: {"polymarket": 0.08, "kalshi": 0.08}
     )
+
+    @classmethod
+    def from_execution_policy(cls, policy: dict[str, Any]) -> "RiskLimits":
+        """Build limits from an execution-policy dict (see execution_policy.json).
+
+        ``paper``/``advisory`` keep ``require_human_approval_live=True`` so live
+        orders are blocked; ``bounded_autonomous`` sets it False and relies on the
+        notional caps. Stage promotion is a human action — never inferred here.
+        """
+        stage = str(policy.get("stage", "paper"))
+        if stage not in EXECUTION_STAGES:
+            logger.warning("unknown execution stage %r; forcing 'paper'", stage)
+            stage = "paper"
+        caps = policy.get("bounded_autonomous", {}) or {}
+        return cls(
+            stage=stage,
+            require_human_approval_live=(stage != "bounded_autonomous"),
+            max_notional_per_trade=float(caps.get("max_notional_per_trade", 0.0)),
+            max_daily_notional=float(caps.get("max_daily_notional", 0.0)),
+            require_human_above=float(caps.get("require_human_above", 0.0)),
+        )
+
+
+def load_execution_policy(path: str | os.PathLike | None = None) -> dict[str, Any]:
+    """Load the execution policy JSON (CONCEPT:EE-038), defaulting to paper.
+
+    Returns ``{"stage": "paper", ...}`` when the file is absent or malformed, so
+    the system fails safe to paper trading rather than to an open stage.
+    """
+    p = Path(path) if path else _DEFAULT_POLICY_PATH
+    try:
+        if p.is_file():
+            return json.loads(p.read_text(encoding="utf-8"))
+    except Exception as exc:  # noqa: BLE001 — fail safe to paper
+        logger.warning("execution policy load failed (%s); defaulting to paper", exc)
+    return {"stage": "paper"}
 
 
 @dataclass
@@ -56,6 +106,63 @@ class RiskGuard:
         self._halted = False
         logger.warning("⚠️ Trading resumed — ensure conditions are safe")
 
+    def evaluate_graduation(
+        self, metrics: dict[str, Any], policy: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
+        """Report whether the current stage is ELIGIBLE to advance (CONCEPT:EE-038).
+
+        Read-only: it never changes the stage — promotion is a human action via
+        :meth:`approve_stage`. ``metrics`` carries observed performance (e.g.
+        ``paper_trades``, ``deflated_sharpe``, ``pbo``, ``hit_rate``,
+        ``approved_advisories``, ``live_sharpe``, ``max_drawdown_pct``). Thresholds
+        come from the policy's ``graduation`` block.
+        """
+        policy = policy or load_execution_policy()
+        grad = policy.get("graduation", {}) or {}
+        stage = self.limits.stage
+        if stage == "paper":
+            req = grad.get("paper_to_advisory", {})
+            unmet = []
+            if metrics.get("paper_trades", 0) < req.get("min_paper_trades", 0):
+                unmet.append("min_paper_trades")
+            if metrics.get("deflated_sharpe", 0.0) < req.get("min_deflated_sharpe", 0.0):
+                unmet.append("min_deflated_sharpe")
+            if metrics.get("pbo", 1.0) > req.get("max_pbo", 1.0):
+                unmet.append("max_pbo")
+            if metrics.get("hit_rate", 0.0) < req.get("min_hit_rate", 0.0):
+                unmet.append("min_hit_rate")
+            return {"stage": stage, "next": "advisory", "eligible": not unmet, "unmet": unmet}
+        if stage == "advisory":
+            req = grad.get("advisory_to_bounded", {})
+            unmet = []
+            if metrics.get("approved_advisories", 0) < req.get("min_approved_advisories", 0):
+                unmet.append("min_approved_advisories")
+            if metrics.get("live_sharpe", 0.0) < req.get("min_live_sharpe", 0.0):
+                unmet.append("min_live_sharpe")
+            if metrics.get("max_drawdown_pct", 1.0) > req.get("max_drawdown_pct", 1.0):
+                unmet.append("max_drawdown_pct")
+            return {"stage": stage, "next": "bounded_autonomous", "eligible": not unmet, "unmet": unmet}
+        return {"stage": stage, "next": None, "eligible": False, "unmet": ["already at terminal stage"]}
+
+    def approve_stage(self, new_stage: str, token: str) -> bool:
+        """Promote the execution stage — a HUMAN action gated by a secret token.
+
+        Requires ``token`` to match ``EMERALD_STAGE_APPROVAL_TOKEN`` from the
+        environment. The agent itself can never call this successfully (it has no
+        token), enforcing the "never self-escalate" rule. Returns True on success.
+        """
+        if new_stage not in EXECUTION_STAGES:
+            logger.error("approve_stage: unknown stage %r", new_stage)
+            return False
+        expected = os.getenv("EMERALD_STAGE_APPROVAL_TOKEN", "")
+        if not expected or token != expected:
+            logger.error("approve_stage: invalid or missing approval token")
+            return False
+        self.limits.stage = new_stage
+        self.limits.require_human_approval_live = new_stage != "bounded_autonomous"
+        logger.warning("✅ Execution stage promoted to %s (human-approved)", new_stage)
+        return True
+
     def pre_trade_check(
         self,
         symbol: str,
@@ -71,6 +178,35 @@ class RiskGuard:
 
         if is_live and self.limits.require_human_approval_live:
             return RiskCheckResult(False, "Live trading requires human approval")
+
+        # Staged execution gate (CONCEPT:EE-038). Only bounded_autonomous may
+        # submit live, and only within the policy's notional caps.
+        if is_live:
+            position_value = qty * price
+            if self.limits.stage != "bounded_autonomous":
+                return RiskCheckResult(
+                    False,
+                    f"{self.limits.stage} stage does not permit live orders "
+                    "(paper-first; promote the stage to go live)",
+                )
+            if (
+                self.limits.require_human_above > 0
+                and position_value > self.limits.require_human_above
+            ):
+                return RiskCheckResult(
+                    False,
+                    f"Order ${position_value:.2f} exceeds autonomous cap "
+                    f"${self.limits.require_human_above:.2f}; human approval required",
+                )
+            if (
+                self.limits.max_notional_per_trade > 0
+                and position_value > self.limits.max_notional_per_trade
+            ):
+                return RiskCheckResult(
+                    False,
+                    f"Order ${position_value:.2f} exceeds per-trade notional cap "
+                    f"${self.limits.max_notional_per_trade:.2f}",
+                )
 
         # Position size check (Kelly cap)
         position_value = qty * price
