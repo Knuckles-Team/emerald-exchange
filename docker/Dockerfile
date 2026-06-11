@@ -8,8 +8,12 @@ ENV UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy \
     UV_SYSTEM_PYTHON=1 \
     UV_HTTP_TIMEOUT=3600
+# agent-utilities[finance] pulls torch; emerald delegates all quant compute to the
+# Rust epistemic-graph engine, so torch only needs to be importable (CPU is enough).
+# --torch-backend=cpu resolves the CPU-only wheels (~190MB vs the multi-GB CUDA build),
+# which is what kept this image's build/push from finishing inside the registry window.
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv pip install --system --upgrade --break-system-packages --prerelease=allow "emerald-exchange[all]>=0.8.0" "agent-utilities[finance]"
+    uv pip install --system --upgrade --break-system-packages --prerelease=allow --torch-backend=cpu "emerald-exchange[all]>=0.8.0" "agent-utilities[finance]"
 
 FROM python:3.11-slim
 
