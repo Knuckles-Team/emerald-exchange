@@ -11,8 +11,8 @@ import sys
 logger = logging.getLogger(__name__)
 
 
-def mcp_server():
-    """Entry point for the Emerald Exchange MCP server."""
+def get_mcp_instance():
+    """Build the Emerald Exchange MCP server (FastMCP instance + parsed args)."""
     import warnings
 
     warnings.filterwarnings("ignore", category=UserWarning, module="urllib3")
@@ -20,7 +20,7 @@ def mcp_server():
 
     from agent_utilities.mcp_utilities import create_mcp_server
 
-    mcp = create_mcp_server(
+    args, mcp, middlewares = create_mcp_server(
         name="emerald-exchange",
         instructions="Unified Finance MCP — Exchange backends, risk management, and trading tools",
     )
@@ -98,9 +98,23 @@ def mcp_server():
     register_fundamentals_tools(mcp)
     register_wallet_intel_tools(mcp)
 
-    return mcp
+    for mw in middlewares:
+        mcp.add_middleware(mw)
+
+    return mcp, args, middlewares
+
+
+def mcp_server() -> None:
+    """Console-script entry point: build the server and run the selected transport."""
+    mcp, args, _middlewares = get_mcp_instance()
+    print("Emerald Exchange MCP", file=sys.stderr)
+    if args.transport == "streamable-http":
+        mcp.run(transport="streamable-http", host=args.host, port=args.port)
+    elif args.transport == "sse":
+        mcp.run(transport="sse", host=args.host, port=args.port)
+    else:
+        mcp.run(transport="stdio")
 
 
 if __name__ == "__main__":
-    server = mcp_server()
-    server.run(transport="stdio")
+    mcp_server()
