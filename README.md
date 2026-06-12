@@ -123,6 +123,21 @@ All trading settings are configured via `~/.config/agent-utilities/config.json`:
 }
 ```
 
+<!-- BEGIN GENERATED: additional-deployment-options -->
+### Additional Deployment Options
+
+`emerald-exchange` can also run as a **local container** (Docker / Podman / `uv`) or be
+consumed from a **remote deployment**. The
+[Deployment guide](https://knuckles-team.github.io/emerald-exchange/deployment/) has full, copy-paste
+`mcp_config.json` for all four transports — **stdio**, **streamable-http**,
+**local container / uv**, and **remote URL**:
+
+- **Local container / uv** — launch the server from `mcp_config.json` via `uvx`,
+  `docker run`, or `podman run`, or point at a local streamable-http container by `url`.
+- **Remote URL** — connect to a server deployed behind Caddy at
+  `http://emerald-exchange-mcp.arpa/mcp` using the `"url"` key.
+<!-- END GENERATED: additional-deployment-options -->
+
 ## ⚙️ Dynamic Tool Selection & Visibility
 
 This MCP server supports dynamic toolset selection and visibility filtering at runtime. This allows you to restrict the set of exposed tools in order to prevent blowing up the LLM's context window.
