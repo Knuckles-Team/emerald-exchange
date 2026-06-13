@@ -12,6 +12,12 @@ ENV UV_COMPILE_BYTECODE=1 \
 # Rust epistemic-graph engine, so torch only needs to be importable (CPU is enough).
 # --torch-backend=cpu resolves the CPU-only wheels (~190MB vs the multi-GB CUDA build),
 # which is what kept this image's build/push from finishing inside the registry window.
+# Some [all] deps (e.g. hnswlib, an agent-utilities transitive) ship no manylinux
+# wheel and build from sdist, needing a C++ toolchain. Install it in the builder
+# only — the final stage copies just /usr/local, so no compiler ships.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends build-essential \
+    && rm -rf /var/lib/apt/lists/*
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv pip install --system --upgrade --break-system-packages --prerelease=allow --torch-backend=cpu "emerald-exchange[all]>=0.8.0" "agent-utilities[finance]"
 
