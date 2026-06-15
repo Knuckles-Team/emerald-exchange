@@ -123,6 +123,13 @@ class MMConfig:
         0.6  # |strength| ≥ this counts as a strong vote
     )
     conviction_min_agree: int = 2  # min agreeing strong votes to pass the gate
+    # ── Kyle legal-risk / adverse-selection gate (CONCEPT:EE-043) ──────
+    # The surveillance score is ALWAYS computed and surfaced (native), but the
+    # withdraw action requires an operator threshold. Default 1.0 ⇒ never trips
+    # (legal_risk_score ∈ [0,1) asymptotes below 1), so behavior is identical
+    # until an operator tightens it (e.g. 0.85), mirroring the queue coefs.
+    legal_risk_max: float = 1.0  # withdraw when legal_risk_score exceeds this
+    surveillance_baseline_sigma: float = 0.0  # 0 ⇒ kernel uses sample std of flow
 
 
 @dataclass
@@ -145,6 +152,10 @@ class QuoteDecision:
     # the decision is forced to withdraw (no quotes are posted).
     conviction_pass: bool = True
     conviction: dict[str, Any] = field(default_factory=dict)
+    # Kyle surveillance scores (CONCEPT:EE-043) — always surfaced for
+    # observability; legal_risk_score drives the adverse-selection withdraw.
+    legal_risk_score: float = 0.0
+    informed_share: float = 0.0
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -162,6 +173,8 @@ class QuoteDecision:
             "engine_used": self.engine_used,
             "conviction_pass": self.conviction_pass,
             "conviction": self.conviction,
+            "legal_risk_score": self.legal_risk_score,
+            "informed_share": self.informed_share,
         }
 
 
@@ -232,6 +245,37 @@ class MarketMakingController:
         except Exception as exc:  # noqa: BLE001
             logger.debug("toxicity gate unavailable: %s", exc)
             return 0.0, 1.0
+
+    def _surveillance(self, book: BookSnapshot, engine: Any) -> tuple[float, float]:
+        """Return ``(legal_risk_score, informed_share)`` from the Kyle surveillance
+        kernel (CONCEPT:EE-043, distils arXiv:2605.27684). Derives signed flow and
+        price changes from the book's volume/price buckets. Degrades to
+        ``(0.0, 0.0)`` — never blocking blind — when the engine is unreachable or
+        the window is too thin. DEFENSIVE: adverse-selection protection only.
+        """
+        if engine is None or not book.buy_vol or not book.sell_vol:
+            return 0.0, 0.0
+        try:
+            n = min(len(book.buy_vol), len(book.sell_vol))
+            signed_flow = [book.buy_vol[i] - book.sell_vol[i] for i in range(n)]
+            pm = book.p_mean or []
+            price_changes = [pm[i] - pm[i - 1] for i in range(1, len(pm))]
+            out = engine.finance.surveillance_risk(
+                book.buy_vol,
+                book.sell_vol,
+                book.p_mean,
+                signed_flow,
+                price_changes,
+                self.config.surveillance_baseline_sigma,
+            )
+            if isinstance(out, dict):
+                return (
+                    float(out.get("legal_risk_score", 0.0)),
+                    float(out.get("informed_share", 0.0)),
+                )
+        except Exception as exc:  # noqa: BLE001 — degrade, never block blind
+            logger.debug("surveillance gate unavailable: %s", exc)
+        return 0.0, 0.0
 
     def _queue_skew(self, book: BookSnapshot, engine: Any) -> tuple[float, float]:
         """Return ``(queue_skew ∈ [-1, 1], worst-side fill_time)``.
@@ -419,6 +463,13 @@ class MarketMakingController:
             withdraw = True
             reason = "toxicity_withdraw"
 
+        # Kyle legal-risk / adverse-selection gate (CONCEPT:EE-043). Always
+        # computed + surfaced; withdraws only when the operator threshold trips.
+        legal_risk_score, informed_share = self._surveillance(book, engine)
+        if legal_risk_score > cfg.legal_risk_max and not withdraw:
+            withdraw = True
+            reason = "legal_risk_withdraw"
+
         # Queue-position / adverse-selection (CONCEPT:EE-032). Both coefs default
         # to 0 ⇒ no effect, so existing callers are behavior-identical.
         q_skew, fill_time = self._queue_skew(book, engine)
@@ -488,4 +539,6 @@ class MarketMakingController:
             engine_used=engine_used,
             conviction_pass=True,
             conviction=conviction,
+            legal_risk_score=legal_risk_score,
+            informed_share=informed_share,
         )
