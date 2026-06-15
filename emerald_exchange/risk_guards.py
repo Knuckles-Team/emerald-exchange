@@ -131,6 +131,11 @@ class RiskGuard:
                 unmet.append("max_pbo")
             if metrics.get("hit_rate", 0.0) < req.get("min_hit_rate", 0.0):
                 unmet.append("min_hit_rate")
+            # Kyle surveillance gate (CONCEPT:EE-043): sustained adverse-selection /
+            # legal-risk exposure blocks graduation. Default 1.0 ⇒ no-op until the
+            # policy sets a tighter ``max_legal_risk``.
+            if metrics.get("legal_risk_score", 0.0) > req.get("max_legal_risk", 1.0):
+                unmet.append("max_legal_risk")
             return {"stage": stage, "next": "advisory", "eligible": not unmet, "unmet": unmet}
         if stage == "advisory":
             req = grad.get("advisory_to_bounded", {})

@@ -55,6 +55,13 @@ def register_signal_tools(mcp: Any) -> None:
         - 'alpha': Generate alpha factors for a ticker
         - 'fuse': Bayesian signal fusion seeded from KG-stored signal priors.
           ``signals_json`` maps signal name -> direction (1 up / -1 down / 0).
+        - 'surveillance': Kyle insider/stealth-trading surveillance scores
+          (CONCEPT:EE-042). ``signals_json`` is a trailing book/flow window
+          ``{buy_vol, sell_vol, p_mean, signed_flow, price_changes,
+          baseline_sigma}``. Returns informed-flow / detection-hazard /
+          legal-risk scores and registers a discoverable MicrostructureSignal
+          (priors set later by ``emerald_strategy`` backtest). DEFENSIVE:
+          informed-flow detection, not trade concealment.
         """
         try:
             if action == "regime":
@@ -109,6 +116,61 @@ def register_signal_tools(mcp: Any) -> None:
                         "posterior_up": posterior,
                         "seeded_from_kg": seeded,
                         "sources": sorted(fusion.sources),
+                    }
+                )
+
+            elif action == "surveillance":
+                from .._engine import ENGINE_REQUIRED_ERR, finance_engine
+
+                engine = finance_engine()
+                if engine is None:
+                    return json.dumps({"error": ENGINE_REQUIRED_ERR})
+                try:
+                    book = json.loads(signals_json)
+                except (ValueError, TypeError) as exc:
+                    return json.dumps({"error": f"invalid signals_json: {exc}"})
+
+                try:
+                    scores = engine.finance.surveillance_risk(
+                        buy_vol=[float(x) for x in book.get("buy_vol", [])],
+                        sell_vol=[float(x) for x in book.get("sell_vol", [])],
+                        p_mean=[float(x) for x in book.get("p_mean", [])],
+                        signed_flow=[float(x) for x in book.get("signed_flow", [])],
+                        price_changes=[float(x) for x in book.get("price_changes", [])],
+                        baseline_sigma=float(book.get("baseline_sigma", 0.0)),
+                    )
+                except Exception as exc:  # noqa: BLE001 — degrade cleanly
+                    return json.dumps({"error": str(exc)})
+
+                # Register the detector as a discoverable MicrostructureSignal so the
+                # fuse path finds it; priors (accuracy/sharpe/pbo) stay at defaults
+                # until an ``emerald_strategy`` backtest writes them (CONCEPT:EE-033).
+                signal_id = f"kyle_surveillance:{ticker}" if ticker else "kyle_surveillance"
+                registered = False
+                try:
+                    from agent_utilities.models.domains.finance import (
+                        MicrostructureSignalNode,
+                    )
+
+                    node = MicrostructureSignalNode(
+                        id=signal_id,
+                        name="Kyle insider/stealth surveillance",
+                        asset_class=asset_class,
+                        decay_regime="regime_dependent",
+                        provenance="paper:arxiv:2605.27684",
+                    )
+                    engine.nodes.add(signal_id, node.model_dump(mode="json"))
+                    registered = True
+                except Exception as exc:  # noqa: BLE001 — scores still returned
+                    logger.debug("surveillance signal register failed: %s", exc)
+
+                return json.dumps(
+                    {
+                        "ticker": ticker,
+                        "action": "surveillance",
+                        "signal_id": signal_id,
+                        "registered": registered,
+                        **scores,
                     }
                 )
 
