@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "emerald-exchange"
-version = "0.16.1"
+version = "0.17.0"
 description = "Emerald Exchange — Unified Finance MCP Server with fully abstracted exchange backends for equities, crypto, and derivatives trading. CONCEPT:EE-001"
 readme = "README.md"
 authors = [{ name = "Audel Rouhi", email = "knucklessg1@gmail.com" }]
@@ -17,7 +17,7 @@ classifiers = [
     "Programming Language :: Python :: 3"]
 requires-python = ">=3.10"
 dependencies = [
-    "agent-utilities[mcp]>=0.49.0",
+    "agent-utilities[mcp]>=0.50.0",
     "numpy>=1.24.0",
     "pandas>=2.0.0",
 ]
@@ -30,7 +30,7 @@ prediction_markets = ["httpx>=0.24.0", "kalshi-python", "py-clob-client", "webso
 fundamentals = ["edgartools>=2.0.0"]
 wallet_intel = ["polars>=0.20.0", "py-clob-client"]
 all = [
-    "agent-utilities[mcp,agent,logfire]>=0.49.0",
+    "agent-utilities[mcp,agent,logfire]>=0.50.0",
     "alpaca-py>=0.30.0",
     "ccxt>=4.0.0",
     "httpx>=0.24.0",
@@ -40,7 +40,7 @@ all = [
     "edgartools>=2.0.0",
     "polars>=0.20.0",
 ]
-agent = ["agent-utilities[agent,logfire]>=0.49.0"]
+agent = ["agent-utilities[agent,logfire]>=0.50.0"]
 
 [project.scripts]
 emerald-exchange-mcp = "emerald_exchange.mcp_server:mcp_server"
