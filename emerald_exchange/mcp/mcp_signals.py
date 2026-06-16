@@ -62,6 +62,16 @@ def register_signal_tools(mcp: Any) -> None:
           legal-risk scores and registers a discoverable MicrostructureSignal
           (priors set later by ``emerald_strategy`` backtest). DEFENSIVE:
           informed-flow detection, not trade concealment.
+        - 'insider_equilibrium': Strategic insider equilibrium under DYNAMIC legal
+          risk (CONCEPT:EE-044, distils arXiv:2605.27684 Qiao & Xia). Deepens the
+          snapshot 'surveillance' score into the full continuous-time game:
+          ``signals_json`` carries model primitives ``{sigma_v, sigma_u, gap_var,
+          enforcement, surveillance_kappa, criminal_penalty, civil_penalty_rate,
+          horizon, steps}``. Returns the equilibrium trading intensity β*, the
+          end-of-window acceleration schedule, and a penalty-policy verdict
+          (criminal vs civil levers). DEFENSIVE: a regulator/surveillance-design
+          tool, not a trade-concealment aid — it quantifies which enforcement
+          levers constrain an insider.
         """
         try:
             if action == "regime":
@@ -171,6 +181,40 @@ def register_signal_tools(mcp: Any) -> None:
                         "signal_id": signal_id,
                         "registered": registered,
                         **scores,
+                    }
+                )
+
+            elif action == "insider_equilibrium":
+                from agent_utilities.domains.finance.insider_equilibrium import (
+                    InsiderEquilibriumInputs,
+                    intensity_schedule,
+                    penalty_policy_analysis,
+                    solve_equilibrium,
+                )
+
+                try:
+                    params = json.loads(signals_json) if signals_json else {}
+                except (ValueError, TypeError) as exc:
+                    return json.dumps({"error": f"invalid signals_json: {exc}"})
+
+                steps = int(params.pop("steps", 10))
+                allowed = InsiderEquilibriumInputs.__dataclass_fields__
+                try:
+                    kwargs = {k: float(v) for k, v in params.items() if k in allowed}
+                except (ValueError, TypeError) as exc:
+                    return json.dumps({"error": f"invalid equilibrium params: {exc}"})
+
+                inputs = InsiderEquilibriumInputs(**kwargs)
+                eq = solve_equilibrium(inputs)
+                schedule = intensity_schedule(inputs, steps=steps)
+                policy = penalty_policy_analysis(inputs)
+                return json.dumps(
+                    {
+                        "ticker": ticker,
+                        "action": "insider_equilibrium",
+                        "equilibrium": eq.to_dict(),
+                        "schedule": schedule,
+                        "policy": policy.to_dict(),
                     }
                 )
 
