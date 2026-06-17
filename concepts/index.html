@@ -949,6 +949,26 @@
 <td>SABR Volatility Surface</td>
 <td><code>emerald_derivatives</code> MCP domain delegating to engine SABR kernels (<code>sabr_implied_vol</code>/<code>sabr_smile</code>/<code>sabr_calibrate</code>, KG-2.20j): implied_vol/smile/calibrate + a decision-only <code>vol_arb</code> helper diffing market vs SABR-fair smile (rich/cheap strikes). <code>derivatives.py</code>; lazy/optional engine</td>
 </tr>
+<tr>
+<td><code>CONCEPT:EE-038</code></td>
+<td>Paper-First Staged Execution</td>
+<td>Execution-policy gating (<code>data/execution_policy.json</code>): default <code>paper</code> stage, human-only promotion (<code>RiskGuard.approve_stage</code> + token; the agent never self-escalates), and <code>evaluate_graduation</code> reporting paper→advisory→bounded_autonomous eligibility against policy thresholds. <code>risk_guards.py</code></td>
+</tr>
+<tr>
+<td><code>CONCEPT:EE-042</code></td>
+<td>Kyle Insider/Stealth Surveillance Signal</td>
+<td><code>emerald_signals</code> action <code>surveillance</code> calling the engine <code>surveillance_risk</code> kernel (KG-2.20k, distils arXiv:2605.27684) → informed-flow/detection-hazard/legal-risk scores; registers a discoverable <code>MicrostructureSignal</code> whose priors are set later by <code>emerald_strategy</code> backtest (EE-033). DEFENSIVE: informed-flow detection, not trade concealment. <code>mcp/mcp_signals.py</code></td>
+</tr>
+<tr>
+<td><code>CONCEPT:EE-043</code></td>
+<td>Kyle Legal-Risk / Adverse-Selection Gate</td>
+<td>Market-making <code>decide</code> always computes + surfaces the Kyle <code>legal_risk_score</code>/<code>informed_share</code> (engine <code>surveillance_risk</code>) and withdraws quotes when it exceeds <code>MMConfig.legal_risk_max</code> (default 1.0 ⇒ no-op until tightened); <code>RiskGuard.evaluate_graduation</code> blocks promotion on <code>max_legal_risk</code>. <code>market_making.py</code>/<code>risk_guards.py</code></td>
+</tr>
+<tr>
+<td><code>CONCEPT:EE-044</code></td>
+<td>Insider Equilibrium under Dynamic Legal Risk</td>
+<td><code>emerald_signals</code> action <code>insider_equilibrium</code> routes to <code>agent_utilities.domains.finance.insider_equilibrium</code> (KG-2.6, distils arXiv:2605.27684 Qiao &amp; Xia) — deepens the snapshot EE-042 surveillance score into the full continuous-time Kyle game: solves equilibrium trading intensity β<em>, the end-of-window acceleration schedule, and a penalty-policy verdict (criminal cost suppresses β</em> exactly; civil fines have diminishing, enforcement-gated effect). DEFENSIVE: surveillance/enforcement-design tool, not a concealment aid. <code>mcp/mcp_signals.py</code></td>
+</tr>
 </tbody>
 </table>
 <h2 id="cross-project-references-from-agent-utilities">Cross-Project References (from agent-utilities)<a class="headerlink" href="#cross-project-references-from-agent-utilities" title="Permanent link">&para;</a></h2>
