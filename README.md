@@ -46,20 +46,20 @@ _Auto-generated from the live MCP server — do not edit by hand._
 
 | MCP Tool | Toggle Env Var | Description |
 |----------|----------------|-------------|
-| `ee_prediction_markets` | — | Prediction Markets operations. |
+| `ee_prediction_markets` | `PREDICTION_MARKETTOOL` | Prediction Markets operations. |
 | `emerald_crypto` | `CRYPTOTOOL` | Crypto-native analytics and arbitrage. CONCEPT:EE-015 |
 | `emerald_debate` | `DEBATETOOL` | Multi-agent trading debate engine. CONCEPT:EE-014 |
 | `emerald_derivatives` | `DERIVATIVESTOOL` | SABR volatility surface + vol-arb. CONCEPT:EE-034 |
-| `emerald_fundamentals` | — | SEC EDGAR fundamentals operations. CONCEPT:EE-027. |
-| `emerald_market_data` | `MARKET-DATATOOL` | Market data operations. CONCEPT:EE-008 |
+| `emerald_fundamentals` | `FUNDAMENTALSTOOL` | SEC EDGAR fundamentals operations. CONCEPT:EE-027. |
+| `emerald_market_data` | `MARKET_DATATOOL` | Market data operations. CONCEPT:EE-008 |
 | `emerald_market_making` | `MARKET_MAKINGTOOL` | Market-making controller, fee model, and forensic screener. CONCEPT:EE-023 |
-| `emerald_orders` | `ORDERSTOOL` | Order management with pre-trade risk validation. CONCEPT:EE-009 |
+| `emerald_orders` | `ORDERTOOL` | Order management with pre-trade risk validation. CONCEPT:EE-009 |
 | `emerald_portfolio` | `PORTFOLIOTOOL` | Portfolio management operations. CONCEPT:EE-010 |
 | `emerald_risk` | `RISKTOOL` | Risk management and monitoring. CONCEPT:EE-011 |
-| `emerald_signals` | `SIGNALSTOOL` | Signal generation and fusion. Routes to agent-utilities finance domain. CONCEPT:EE-012 |
+| `emerald_signals` | `SIGNALTOOL` | Signal generation and fusion. Routes to agent-utilities finance domain. CONCEPT:EE-012 |
 | `emerald_statarb` | `STATARBTOOL` | OU statistical-arbitrage signal + dynamic-beta hedge. CONCEPT:EE-030 |
 | `emerald_strategy` | `STRATEGYTOOL` | Strategy lifecycle management. CONCEPT:EE-013 |
-| `emerald_wallet_intel` | — | Polymarket wallet-intelligence operations. CONCEPT:EE-028. |
+| `emerald_wallet_intel` | `WALLET_INTELTOOL` | Polymarket wallet-intelligence operations. CONCEPT:EE-028. |
 
 _14 action-routed tools (default `MCP_TOOL_MODE=condensed`). Each is enabled unless its toggle is set false; set `MCP_TOOL_MODE=verbose` (or `both`) for the 1:1 per-operation surface. Auto-generated — do not edit._
 <!-- MCP-TOOLS-TABLE:END -->
