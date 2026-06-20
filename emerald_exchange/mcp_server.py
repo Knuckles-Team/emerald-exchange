@@ -5,7 +5,6 @@ Unified Finance MCP exposing all trading tools via action-routed domains.
 
 import json
 import logging
-import os
 import sys
 
 logger = logging.getLogger(__name__)
@@ -18,7 +17,14 @@ def get_mcp_instance():
     warnings.filterwarnings("ignore", category=UserWarning, module="urllib3")
     warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-    from agent_utilities.mcp_utilities import create_mcp_server
+    from agent_utilities.core.config import setting
+    from agent_utilities.mcp_utilities import (
+        create_mcp_server,
+        load_config,
+        register_tool_surface,
+    )
+
+    load_config()
 
     args, mcp, middlewares = create_mcp_server(
         name="emerald-exchange",
@@ -47,7 +53,7 @@ def get_mcp_instance():
 
     config_path = paths.config_dir() / "config.json"
     trading_config: dict = {}
-    if os.path.exists(config_path):
+    if config_path.exists():
         try:
             with open(config_path) as f:
                 full_config = json.load(f)
@@ -67,7 +73,7 @@ def get_mcp_instance():
     resolved_config: dict = {}
     for key, val in exchange_config.items():
         if isinstance(val, str) and key.endswith("_env"):
-            resolved_config[key.replace("_env", "")] = os.environ.get(val, "")
+            resolved_config[key.replace("_env", "")] = setting(val, "")
         elif key not in ("enabled",):
             resolved_config[key] = val
 
@@ -82,21 +88,48 @@ def get_mcp_instance():
         f"🟢 Emerald Exchange MCP: {default_exchange} ({default_mode})", file=sys.stderr
     )
 
-    # Register all 8 tool domains
-    register_crypto_tools(mcp, backend)
-    register_debate_tools(mcp)
-    register_derivatives_tools(mcp)
-    register_market_data_tools(mcp, backend)
-    register_market_making_tools(mcp)
-    register_order_tools(mcp, backend, risk_guard)
-    register_portfolio_tools(mcp, backend)
-    register_risk_tools(mcp, backend, risk_guard)
-    register_signal_tools(mcp)
-    register_statarb_tools(mcp)
-    register_strategy_tools(mcp)
-    register_prediction_market_tools(mcp, risk_guard)
-    register_fundamentals_tools(mcp)
-    register_wallet_intel_tools(mcp)
+    # Register every trading domain through the one central tool surface
+    # (CONCEPT:ECO-4.82). Each `<TAG>TOOL` env var defaults True, so the default
+    # condensed mode registers all 14 domains exactly as the prior unconditional
+    # calls did; operators can disable a domain, and verbose/both mode adds the
+    # 1:1 surface over the backend's methods.
+    registrars = [
+        ("crypto", "CRYPTOTOOL", lambda m: register_crypto_tools(m, backend)),
+        ("debate", "DEBATETOOL", register_debate_tools),
+        ("derivatives", "DERIVATIVESTOOL", register_derivatives_tools),
+        (
+            "market_data",
+            "MARKET_DATATOOL",
+            lambda m: register_market_data_tools(m, backend),
+        ),
+        ("market_making", "MARKET_MAKINGTOOL", register_market_making_tools),
+        ("order", "ORDERTOOL", lambda m: register_order_tools(m, backend, risk_guard)),
+        ("portfolio", "PORTFOLIOTOOL", lambda m: register_portfolio_tools(m, backend)),
+        ("risk", "RISKTOOL", lambda m: register_risk_tools(m, backend, risk_guard)),
+        ("signal", "SIGNALTOOL", register_signal_tools),
+        ("statarb", "STATARBTOOL", register_statarb_tools),
+        ("strategy", "STRATEGYTOOL", register_strategy_tools),
+        (
+            "prediction_market",
+            "PREDICTION_MARKETTOOL",
+            lambda m: register_prediction_market_tools(m, risk_guard),
+        ),
+        ("fundamentals", "FUNDAMENTALSTOOL", register_fundamentals_tools),
+        ("wallet_intel", "WALLET_INTELTOOL", register_wallet_intel_tools),
+    ]
+    registered_tags = register_tool_surface(
+        mcp,
+        service="emerald-exchange",
+        registrars=registrars,
+        verbose_targets=[
+            {
+                "client_cls": type(backend),
+                "get_client": lambda: backend,
+                "tool_prefix": "emerald",
+            }
+        ],
+    )
+    logger.debug("Registered tool domains: %s", registered_tags)
 
     for mw in middlewares:
         mcp.add_middleware(mw)
