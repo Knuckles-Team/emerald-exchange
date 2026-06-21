@@ -47,5 +47,14 @@ emerald-exchange-mcp = "emerald_exchange.mcp_server:mcp_server"
 emerald-exchange-agent = "emerald_exchange.agent_server:agent_server"
 emerald-cockpit = "emerald_exchange.cockpit:main"
 
+[project.entry-points."agent_utilities.skill_providers"]
+emerald-exchange = "emerald_exchange.skills"
+
+[project.entry-points."agent_utilities.prompt_providers"]
+emerald-exchange = "emerald_exchange.prompts"
+
+[tool.setuptools.package-data]
+emerald_exchange = [ "mcp_config.json", "prompts/**", "skills/**",]
+
 [tool.setuptools.packages.find]
 where = ["."]
