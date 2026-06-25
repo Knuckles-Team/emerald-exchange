@@ -92,13 +92,22 @@ _14 action-routed tools (default `MCP_TOOL_MODE=condensed`). Each is enabled unl
 
 ### MCP Configuration
 
+> **Install the slim `[mcp]` extra.** The examples below install
+> `emerald-exchange[mcp]` — the MCP-server extra that pulls only the FastMCP /
+> FastAPI tooling (`agent-utilities[mcp]`). It deliberately **excludes** the heavy
+> agent runtime (the epistemic-graph engine, `pydantic-ai`, `dspy`, `llama-index`,
+> `tree-sitter`), so `uvx`/container installs are dramatically smaller and faster.
+> Use the full `[agent]` extra only when you need the integrated Pydantic AI agent
+> (see [Installation](#installation)). Add trading-backend extras (`[alpaca]`,
+> `[crypto]`, `[prediction_markets]`, …) on top as needed.
+
 #### stdio Mode
 ```json
 {
   "mcpServers": {
     "emerald-exchange": {
-      "command": "uv",
-      "args": ["run", "--with", "emerald-exchange", "emerald-exchange"],
+      "command": "uvx",
+      "args": ["--from", "emerald-exchange[mcp]", "emerald-exchange-mcp"],
       "env": {}
     }
   }
@@ -107,7 +116,7 @@ _14 action-routed tools (default `MCP_TOOL_MODE=condensed`). Each is enabled unl
 
 #### Streamable HTTP Mode
 ```bash
-emerald-exchange --transport streamable-http --port 8100
+emerald-exchange-mcp --transport streamable-http --port 8100
 ```
 
 ### Configuration
@@ -176,19 +185,50 @@ When query strings or parameters are supplied, an LLM-free **Knowledge Graph res
 
 ## Installation
 
+Pick the extra that matches what you want to run, then layer trading-backend extras on top:
+
+| Extra | Installs | Use when |
+|-------|----------|----------|
+| `emerald-exchange[mcp]` | Slim MCP server (`agent-utilities[mcp]` — FastMCP/FastAPI) + paper backend | You only run the **MCP server** (smallest install / image) |
+| `emerald-exchange[agent]` | Full agent runtime (`agent-utilities[agent,logfire]` — Pydantic AI + the epistemic-graph engine) | You run the **integrated agent** |
+| `emerald-exchange[all]` | Everything (`mcp` + `agent` + every trading backend) | Development / full surface |
+
 ```bash
-pip install emerald-exchange           # Core + paper backend
-pip install emerald-exchange[alpaca]   # + Alpaca equities
-pip install emerald-exchange[crypto]   # + CCXT crypto
-pip install emerald-exchange[prediction_markets] # + Kalshi & Polymarket
-pip install emerald-exchange[all]      # Everything
+pip install "emerald-exchange[mcp]"                # MCP server only (slim deps)
+pip install "emerald-exchange[agent]"              # Full agent runtime (Pydantic AI + engine)
+pip install "emerald-exchange[mcp,alpaca]"         # + Alpaca equities
+pip install "emerald-exchange[mcp,crypto]"         # + CCXT crypto
+pip install "emerald-exchange[mcp,prediction_markets]"  # + Kalshi & Polymarket
+pip install "emerald-exchange[all]"                # Everything
 ```
 
 ## Docker
 
+### Container images (`:mcp` vs `:agent`)
+
+One multi-stage `docker/Dockerfile` builds two right-sized images, selected by `--target`:
+
+| Image tag | Build target | Contents | Entrypoint |
+|-----------|--------------|----------|------------|
+| `knucklessg1/emerald-exchange:mcp` | `--target mcp` | `emerald-exchange[mcp]` — **slim**, no engine/`pydantic-ai`/`dspy`/`llama-index`/`tree-sitter` | `emerald-exchange-mcp` |
+| `knucklessg1/emerald-exchange:latest` | `--target agent` (default) | `emerald-exchange[agent]` — **full** agent runtime + epistemic-graph engine | `emerald-exchange-agent` |
+
 ```bash
-docker compose -f docker/compose.yml up -d
+docker build --target mcp   -t knucklessg1/emerald-exchange:mcp    docker/   # slim MCP server
+docker build --target agent -t knucklessg1/emerald-exchange:latest docker/   # full agent
+docker compose -f docker/mcp.compose.yml up -d                               # run the slim :mcp server
+docker compose -f docker/compose.yml up -d                                   # full stack
 ```
+
+### Knowledge-graph database (`epistemic-graph`)
+
+The **full agent** (`[agent]` / `:latest`) embeds the **epistemic-graph** engine (pulled in
+transitively via `agent-utilities[agent]`). For production — or to share one knowledge graph
+across multiple agents — run **epistemic-graph as its own database container** and point the
+agent at it instead of embedding it. Deployment recipes (single-node + Raft HA), connection
+config, and the full database architecture (with diagrams) are documented in the
+[epistemic-graph deployment guide](https://knuckles-team.github.io/epistemic-graph/deployment/).
+The slim `[mcp]` server does **not** require the database.
 
 ## Documentation
 
