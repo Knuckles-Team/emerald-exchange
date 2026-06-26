@@ -44,6 +44,8 @@ _Auto-generated from the live MCP server — do not edit by hand._
 
 <!-- MCP-TOOLS-TABLE:START -->
 
+#### Condensed action-routed tools (default — `MCP_TOOL_MODE=condensed`)
+
 | MCP Tool | Toggle Env Var | Description |
 |----------|----------------|-------------|
 | `ee_prediction_markets` | `PREDICTION_MARKETTOOL` | Prediction Markets operations. |
@@ -61,7 +63,26 @@ _Auto-generated from the live MCP server — do not edit by hand._
 | `emerald_strategy` | `STRATEGYTOOL` | Strategy lifecycle management. CONCEPT:EE-013 |
 | `emerald_wallet_intel` | `WALLET_INTELTOOL` | Polymarket wallet-intelligence operations. CONCEPT:EE-028. |
 
-_14 action-routed tools (default `MCP_TOOL_MODE=condensed`). Each is enabled unless its toggle is set false; set `MCP_TOOL_MODE=verbose` (or `both`) for the 1:1 per-operation surface. Auto-generated — do not edit._
+#### Verbose 1:1 API-mapped tools (`MCP_TOOL_MODE=verbose` or `both`)
+
+<details>
+<summary>9 per-operation tools — one per public API method (click to expand)</summary>
+
+| MCP Tool | Toggle Env Var | Description |
+|----------|----------------|-------------|
+| `emerald_cancel_order` | `PAPER_BACKENDTOOL` | Invoke the cancel_order operation. |
+| `emerald_connect` | `PAPER_BACKENDTOOL` | Invoke the connect operation. |
+| `emerald_disconnect` | `PAPER_BACKENDTOOL` | Invoke the disconnect operation. |
+| `emerald_get_account` | `PAPER_BACKENDTOOL` | Invoke the get_account operation. |
+| `emerald_get_historical` | `PAPER_BACKENDTOOL` | Invoke the get_historical operation. |
+| `emerald_get_order_status` | `PAPER_BACKENDTOOL` | Invoke the get_order_status operation. |
+| `emerald_get_positions` | `PAPER_BACKENDTOOL` | Invoke the get_positions operation. |
+| `emerald_get_quote` | `PAPER_BACKENDTOOL` | Invoke the get_quote operation. |
+| `emerald_submit_order` | `PAPER_BACKENDTOOL` | Invoke the submit_order operation. |
+
+</details>
+
+_14 action-routed tool(s) (default) · 9 verbose 1:1 tool(s). Each is enabled unless its `<DOMAIN>TOOL` toggle is set false; `MCP_TOOL_MODE` selects the surface (`condensed` default · `verbose` 1:1 · `both`). Auto-generated — do not edit._
 <!-- MCP-TOOLS-TABLE:END -->
 
 ## Exchange Backends
@@ -277,12 +298,29 @@ Secrets are read-existing + seeded via `vault_sync` — you are only prompted fo
 
 | Variable | Example | Description |
 |----------|---------|-------------|
-| `ALPACA_API_KEY` | — | Exchange API Keys (stored in ~/.config/agent-utilities/secrets/) |
-| `ALPACA_SECRET_KEY` | — |  |
-| `BINANCE_API_KEY` | — |  |
+| `BINANCE_API_KEY` | — | Other exchanges (Alpaca, Coinbase, ...) supply credentials via operator config. |
 | `BINANCE_SECRET_KEY` | — |  |
-| `COINBASE_API_KEY` | — |  |
-| `COINBASE_SECRET_KEY` | — |  |
+| `CRYPTOTOOL` | `True` | crypto market tools |
+| `DEBATETOOL` | `True` | multi-agent debate tools |
+| `DERIVATIVESTOOL` | `True` | options/futures derivatives tools |
+| `FUNDAMENTALSTOOL` | `True` | SEC/EDGAR fundamentals tools |
+| `MARKET_DATATOOL` | `True` | market-data tools |
+| `MARKET_MAKINGTOOL` | `True` | market-making tools |
+| `ORDERTOOL` | `True` | order placement/management tools |
+| `PORTFOLIOTOOL` | `True` | portfolio tools |
+| `PREDICTION_MARKETTOOL` | `True` | prediction-market tools |
+| `RISKTOOL` | `True` | risk tools |
+| `SIGNALTOOL` | `True` | signal tools |
+| `STATARBTOOL` | `True` | statistical-arbitrage tools |
+| `STRATEGYTOOL` | `True` | strategy tools |
+| `WALLET_INTELTOOL` | `True` | Polymarket wallet-intelligence tools |
+| `EDGAR_IDENTITY` | `Your Name your.email@example.com` | SEC EDGAR identity ("Name email") |
+| `EDGAR_USER_AGENT` | `Your Name your.email@example.com` | legacy fallback for EDGAR_IDENTITY |
+| `POLY_TRADES_PATH` | `/path/to/poly_trades.parquet` | Polymarket trade dataset for wallet-intel |
+| `EMERALD_STAGE_APPROVAL_TOKEN` | — | human approval token to promote execution stage |
+| `EPISTEMIC_GRAPH_SOCKET` | `/run/epistemic-graph.sock` | UDS path to the epistemic-graph engine |
+| `GRAPH_SERVICE_SOCKET` | `/run/epistemic-graph.sock` | alternate UDS path env var |
+| `EPISTEMIC_GRAPH_TCP` | `127.0.0.1:50051` | host:port for a TCP engine endpoint |
 
 #### Inherited agent-utilities variables (apply to every connector)
 
@@ -311,5 +349,5 @@ Secrets are read-existing + seeded via `vault_sync` — you are only prompted fo
 | `MODEL_ID` | `gpt-4o` | Model id for the agent |
 | `ENABLE_WEB_UI` | `True` | Serve the AG-UI web interface |
 
-_6 package + 22 inherited variable(s). Auto-generated from `.env.example` + the shared agent-utilities set — do not edit._
+_23 package + 22 inherited variable(s). Auto-generated from `.env.example` + the shared agent-utilities set — do not edit._
 <!-- ENV-VARS-TABLE:END -->
