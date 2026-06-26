@@ -5,7 +5,7 @@ standalone ``poly-wallet-mcp`` package. Over a ``poly_data`` trade dataset it
 finds smart-money wallets, profiles them, measures convergence on a token, and
 studies exit behavior.
 
-Tool registration is gated by ``WALLETINTELTOOL`` (set to a falsey value to
+Tool registration is gated by ``WALLET_INTELTOOL`` (set to a falsey value to
 disable). The dataset path is read from ``POLY_TRADES_PATH``. ``polars`` is an
 optional fast/Parquet loader; an unconfigured / missing dataset is returned as a
 clear ``{"error": ...}`` payload rather than crashing the server.
@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 def _enabled() -> bool:
     """Whether the wallet-intel tool group should be registered."""
-    return os.getenv("WALLETINTELTOOL", "True").strip().lower() not in (
+    return os.getenv("WALLET_INTELTOOL", "True").strip().lower() not in (
         "false",
         "0",
         "no",
@@ -51,7 +51,7 @@ def _parse_wallets(wallets: Any) -> list[str]:
 def register_wallet_intel_tools(mcp: Any) -> None:
     """Register the Polymarket wallet-intelligence tool group. CONCEPT:EE-028."""
     if not _enabled():
-        logger.info("WALLETINTELTOOL disabled; skipping wallet-intel tool group")
+        logger.info("WALLET_INTELTOOL disabled; skipping wallet-intel tool group")
         return
 
     @mcp.tool()
