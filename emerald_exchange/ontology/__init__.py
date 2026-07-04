@@ -1,4 +1,4 @@
-"""Emerald Exchange finance ontology contribution (CONCEPT:KG-2.325).
+"""Emerald Exchange finance ontology contribution (CONCEPT:AU-KG.ontology.package-federation-migration).
 
 Data-only subpackage: it carries the three ``owl:Ontology`` modules this
 package owns — ``quant.ttl`` (``http://knuckles.team/kg/quant``), ``trading.ttl``

@@ -54,7 +54,7 @@ emerald-exchange = "emerald_exchange.skills"
 [project.entry-points."agent_utilities.prompt_providers"]
 emerald-exchange = "emerald_exchange.prompts"
 
-# CONCEPT:KG-2.325 — federate this package's OWL/RDF ontology modules into the
+# CONCEPT:AU-KG.ontology.package-federation-migration — federate this package's OWL/RDF ontology modules into the
 # agent-utilities hub (quant, trading, banking). Resolved via iter_provider_dirs
 # like the skill/prompt providers; the hub globs every *.ttl in the dir.
 [project.entry-points."agent_utilities.ontology_providers"]
