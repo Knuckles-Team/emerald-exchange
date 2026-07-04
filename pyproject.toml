@@ -54,6 +54,11 @@ emerald-exchange = "emerald_exchange.skills"
 [project.entry-points."agent_utilities.prompt_providers"]
 emerald-exchange = "emerald_exchange.prompts"
 
+# CONCEPT:AU-KG.ingest.mcp-tool-connector — Tier-1 declarative source preset(s) that sync
+# this package's records into the KG via its own MCP server, resolved via iter_provider_dirs.
+[project.entry-points."agent_utilities.source_connector_providers"]
+emerald-exchange = "emerald_exchange.connectors"
+
 # CONCEPT:AU-KG.ontology.package-federation-migration — federate this package's OWL/RDF ontology modules into the
 # agent-utilities hub (quant, trading, banking). Resolved via iter_provider_dirs
 # like the skill/prompt providers; the hub globs every *.ttl in the dir.
@@ -61,7 +66,7 @@ emerald-exchange = "emerald_exchange.prompts"
 emerald-exchange = "emerald_exchange.ontology"
 
 [tool.setuptools.package-data]
-emerald_exchange = [ "mcp_config.json", "prompts/**", "skills/**", "ontology/**",]
+emerald_exchange = [ "mcp_config.json", "prompts/**", "skills/**", "ontology/**", "connectors/**",]
 
 [tool.setuptools.packages.find]
 where = ["."]

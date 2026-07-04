@@ -35,6 +35,7 @@ def get_mcp_instance():
     from emerald_exchange.mcp.mcp_debate import register_debate_tools
     from emerald_exchange.mcp.mcp_derivatives import register_derivatives_tools
     from emerald_exchange.mcp.mcp_fundamentals import register_fundamentals_tools
+    from emerald_exchange.mcp.mcp_kg_ingest import register_kg_ingest_tools
     from emerald_exchange.mcp.mcp_market_data import register_market_data_tools
     from emerald_exchange.mcp.mcp_market_making import register_market_making_tools
     from emerald_exchange.mcp.mcp_orders import register_order_tools
@@ -116,6 +117,11 @@ def get_mcp_instance():
         ),
         ("fundamentals", "FUNDAMENTALSTOOL", register_fundamentals_tools),
         ("wallet_intel", "WALLET_INTELTOOL", register_wallet_intel_tools),
+        (
+            "kg_ingest",
+            "KG_INGESTTOOL",
+            lambda m: register_kg_ingest_tools(m, backend),
+        ),
     ]
     registered_tags = register_tool_surface(
         mcp,
