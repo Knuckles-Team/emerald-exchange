@@ -1,4 +1,4 @@
-"""Order Management MCP Tools — CONCEPT:EE-009."""
+"""Order Management MCP Tools — CONCEPT:EX-AHE.harness.ee-8."""
 
 from typing import Any
 from pydantic import Field
@@ -25,7 +25,7 @@ def register_order_tools(
         limit_price: float = 0.0,
         order_id: str = "",
     ) -> str:
-        """Order management with pre-trade risk validation. CONCEPT:EE-009
+        """Order management with pre-trade risk validation. CONCEPT:EX-AHE.harness.ee-8
 
         Actions:
         - 'submit': Submit an order (goes through risk guard)

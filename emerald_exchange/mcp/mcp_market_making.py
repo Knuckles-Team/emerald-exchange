@@ -1,4 +1,4 @@
-"""Market-Making / Fees / Forensic MCP Tools — CONCEPT:EE-023 / EE-022 / EE-026.
+"""Market-Making / Fees / Forensic MCP Tools — CONCEPT:EX-AHE.harness.ee-22 / EE-022 / EE-026.
 
 Action-routed tool exposing the HFT controller surface:
   - quote: compute intended market-making quotes (decision only, no live order).
@@ -25,7 +25,7 @@ def register_market_making_tools(mcp: Any) -> None:
         action: str,
         params_json: str = "{}",
     ) -> str:
-        """Market-making controller, fee model, and forensic screener. CONCEPT:EE-023
+        """Market-making controller, fee model, and forensic screener. CONCEPT:EX-AHE.harness.ee-22
 
         Actions:
           - 'quote': Compute intended MM quotes for one book update (decision

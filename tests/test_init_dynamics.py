@@ -1,4 +1,4 @@
-"""Test package import and version dynamics. CONCEPT:EE-001"""
+"""Test package import and version dynamics. CONCEPT:AU-AHE.assimilation.autonomous-trading-ecosystem"""
 
 import importlib
 

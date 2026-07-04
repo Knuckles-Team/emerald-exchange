@@ -1,4 +1,4 @@
-"""Event-Driven Backtester — CONCEPT:EE-024.
+"""Event-Driven Backtester — CONCEPT:EX-AHE.harness.ee-23.
 
 A heap-based event loop with latency injection, L2 queue tracking, maker/taker
 fee accounting (via :mod:`emerald_exchange.fees`), and fractional inventory. The
@@ -110,7 +110,7 @@ class BacktestContext:
 
 
 class EventBacktester:
-    """Heap/event-loop simulator with L2 queue + fee accounting. CONCEPT:EE-024."""
+    """Heap/event-loop simulator with L2 queue + fee accounting. CONCEPT:EX-AHE.harness.ee-23."""
 
     def __init__(
         self,

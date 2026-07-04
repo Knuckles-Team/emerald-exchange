@@ -1,4 +1,4 @@
-"""Kyle insider/stealth surveillance gate — CONCEPT:EE-043.
+"""Kyle insider/stealth surveillance gate — CONCEPT:EX-AHE.harness.sustained-adverse-selection.
 
 Live-path tests: exercise ``MarketMakingController.decide`` and
 ``RiskGuard.evaluate_graduation`` and assert the surveillance score is computed,

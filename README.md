@@ -49,19 +49,19 @@ _Auto-generated from the live MCP server — do not edit by hand._
 | MCP Tool | Toggle Env Var | Description |
 |----------|----------------|-------------|
 | `ee_prediction_markets` | `PREDICTION_MARKETTOOL` | Prediction Markets operations. |
-| `emerald_crypto` | `CRYPTOTOOL` | Crypto-native analytics and arbitrage. CONCEPT:EE-015 |
-| `emerald_debate` | `DEBATETOOL` | Multi-agent trading debate engine. CONCEPT:EE-014 |
-| `emerald_derivatives` | `DERIVATIVESTOOL` | SABR volatility surface + vol-arb. CONCEPT:EE-034 |
-| `emerald_fundamentals` | `FUNDAMENTALSTOOL` | SEC EDGAR fundamentals operations. CONCEPT:EE-027. |
-| `emerald_market_data` | `MARKET_DATATOOL` | Market data operations. CONCEPT:EE-008 |
-| `emerald_market_making` | `MARKET_MAKINGTOOL` | Market-making controller, fee model, and forensic screener. CONCEPT:EE-023 |
-| `emerald_orders` | `ORDERTOOL` | Order management with pre-trade risk validation. CONCEPT:EE-009 |
-| `emerald_portfolio` | `PORTFOLIOTOOL` | Portfolio management operations. CONCEPT:EE-010 |
-| `emerald_risk` | `RISKTOOL` | Risk management and monitoring. CONCEPT:EE-011 |
-| `emerald_signals` | `SIGNALTOOL` | Signal generation and fusion. Routes to agent-utilities finance domain. CONCEPT:EE-012 |
-| `emerald_statarb` | `STATARBTOOL` | OU statistical-arbitrage signal + dynamic-beta hedge. CONCEPT:EE-030 |
-| `emerald_strategy` | `STRATEGYTOOL` | Strategy lifecycle management. CONCEPT:EE-013 |
-| `emerald_wallet_intel` | `WALLET_INTELTOOL` | Polymarket wallet-intelligence operations. CONCEPT:EE-028. |
+| `emerald_crypto` | `CRYPTOTOOL` | Crypto-native analytics and arbitrage. CONCEPT:EX-AHE.harness.ee-14 |
+| `emerald_debate` | `DEBATETOOL` | Multi-agent trading debate engine. CONCEPT:EX-AHE.harness.ee-13 |
+| `emerald_derivatives` | `DERIVATIVESTOOL` | SABR volatility surface + vol-arb. CONCEPT:AU-AHE.assimilation.decision-distillation |
+| `emerald_fundamentals` | `FUNDAMENTALSTOOL` | SEC EDGAR fundamentals operations. CONCEPT:EX-AHE.harness.ee-26. |
+| `emerald_market_data` | `MARKET_DATATOOL` | Market data operations. CONCEPT:EX-AHE.harness.ee-7 |
+| `emerald_market_making` | `MARKET_MAKINGTOOL` | Market-making controller, fee model, and forensic screener. CONCEPT:EX-AHE.harness.ee-22 |
+| `emerald_orders` | `ORDERTOOL` | Order management with pre-trade risk validation. CONCEPT:EX-AHE.harness.ee-8 |
+| `emerald_portfolio` | `PORTFOLIOTOOL` | Portfolio management operations. CONCEPT:EX-AHE.harness.ee-9 |
+| `emerald_risk` | `RISKTOOL` | Risk management and monitoring. CONCEPT:AU-AHE.assimilation.skill-workflow-ingest |
+| `emerald_signals` | `SIGNALTOOL` | Signal generation and fusion. Routes to agent-utilities finance domain. CONCEPT:EX-AHE.harness.ee-11 |
+| `emerald_statarb` | `STATARBTOOL` | OU statistical-arbitrage signal + dynamic-beta hedge. CONCEPT:EX-AHE.harness.ee-29 |
+| `emerald_strategy` | `STRATEGYTOOL` | Strategy lifecycle management. CONCEPT:AU-AHE.assimilation.trading-ecosystem-spec |
+| `emerald_wallet_intel` | `WALLET_INTELTOOL` | Polymarket wallet-intelligence operations. CONCEPT:EX-AHE.harness.ee-27. |
 
 #### Verbose 1:1 API-mapped tools (`MCP_TOOL_MODE=verbose` or `both`)
 

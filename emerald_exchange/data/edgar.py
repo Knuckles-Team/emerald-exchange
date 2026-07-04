@@ -1,4 +1,4 @@
-"""SEC EDGAR fundamentals provider — CONCEPT:EE-027.
+"""SEC EDGAR fundamentals provider — CONCEPT:EX-AHE.harness.ee-26.
 
 Folded into emerald-exchange from the former standalone ``edgar-mcp`` package so
 the unified finance hub can feed agents *real* SEC filings instead of

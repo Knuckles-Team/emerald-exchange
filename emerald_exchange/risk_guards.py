@@ -1,4 +1,4 @@
-"""Risk Guards — CONCEPT:EE-007 / OS-5.1
+"""Risk Guards — CONCEPT:EX-AHE.harness.ee-6 / OS-5.1
 
 Pre-trade risk validation, circuit breakers, and kill switch.
 All P0 controls for live trading safety.
@@ -29,7 +29,7 @@ class RiskLimits:
     max_daily_loss_pct: float = 0.03  # 3% daily loss limit
     regime_shift_halt: bool = True
     require_human_approval_live: bool = True
-    # Staged execution gating (CONCEPT:EE-038). Paper-first by default; only
+    # Staged execution gating (CONCEPT:EX-AHE.harness.bounded-autonomous-allows-small). Paper-first by default; only
     # ``bounded_autonomous`` may submit live, and only within these caps.
     stage: str = "paper"
     max_notional_per_trade: float = 0.0  # 0 ⇒ unset (no per-trade cap beyond pct)
@@ -62,7 +62,7 @@ class RiskLimits:
 
 
 def load_execution_policy(path: str | os.PathLike | None = None) -> dict[str, Any]:
-    """Load the execution policy JSON (CONCEPT:EE-038), defaulting to paper.
+    """Load the execution policy JSON (CONCEPT:EX-AHE.harness.bounded-autonomous-allows-small), defaulting to paper.
 
     Returns ``{"stage": "paper", ...}`` when the file is absent or malformed, so
     the system fails safe to paper trading rather than to an open stage.
@@ -85,7 +85,7 @@ class RiskCheckResult:
 
 
 class RiskGuard:
-    """Pre-trade and runtime risk validation engine. CONCEPT:EE-007."""
+    """Pre-trade and runtime risk validation engine. CONCEPT:EX-AHE.harness.ee-6."""
 
     def __init__(self, limits: RiskLimits | None = None):
         self.limits = limits or RiskLimits()
@@ -98,7 +98,7 @@ class RiskGuard:
         return self._halted
 
     def halt(self, reason: str = "Manual kill switch") -> None:
-        """Emergency kill switch — CONCEPT:OS-5.1."""
+        """Emergency kill switch — CONCEPT:AU-OS.config.secrets-authentication."""
         self._halted = True
         logger.critical("🛑 TRADING HALTED: %s", reason)
 
@@ -109,7 +109,7 @@ class RiskGuard:
     def evaluate_graduation(
         self, metrics: dict[str, Any], policy: dict[str, Any] | None = None
     ) -> dict[str, Any]:
-        """Report whether the current stage is ELIGIBLE to advance (CONCEPT:EE-038).
+        """Report whether the current stage is ELIGIBLE to advance (CONCEPT:EX-AHE.harness.bounded-autonomous-allows-small).
 
         Read-only: it never changes the stage — promotion is a human action via
         :meth:`approve_stage`. ``metrics`` carries observed performance (e.g.
@@ -131,7 +131,7 @@ class RiskGuard:
                 unmet.append("max_pbo")
             if metrics.get("hit_rate", 0.0) < req.get("min_hit_rate", 0.0):
                 unmet.append("min_hit_rate")
-            # Kyle surveillance gate (CONCEPT:EE-043): sustained adverse-selection /
+            # Kyle surveillance gate (CONCEPT:EX-AHE.harness.sustained-adverse-selection): sustained adverse-selection /
             # legal-risk exposure blocks graduation. Default 1.0 ⇒ no-op until the
             # policy sets a tighter ``max_legal_risk``.
             if metrics.get("legal_risk_score", 0.0) > req.get("max_legal_risk", 1.0):
@@ -184,7 +184,7 @@ class RiskGuard:
         if is_live and self.limits.require_human_approval_live:
             return RiskCheckResult(False, "Live trading requires human approval")
 
-        # Staged execution gate (CONCEPT:EE-038). Only bounded_autonomous may
+        # Staged execution gate (CONCEPT:EX-AHE.harness.bounded-autonomous-allows-small). Only bounded_autonomous may
         # submit live, and only within the policy's notional caps.
         if is_live:
             position_value = qty * price
@@ -327,7 +327,7 @@ class RiskGuard:
         prior_beta: float = 1.0,
         fraction: float = 0.25,
     ) -> float:
-        """Bayesian-Kelly sizing under a Beta(α, β) posterior — CONCEPT:EE-015.
+        """Bayesian-Kelly sizing under a Beta(α, β) posterior — CONCEPT:EX-AHE.harness.ee-14.
 
         Unlike :meth:`kelly_criterion` (a point estimate of the edge), this path
         accounts for *estimation uncertainty*: it builds a Beta posterior over the
@@ -382,7 +382,7 @@ class RiskGuard:
         n_simulations: int = 10000,
         seed: int = 42,
     ) -> float:
-        """Empirical (Monte-Carlo resampled) Kelly sizing — CONCEPT:EE-031.
+        """Empirical (Monte-Carlo resampled) Kelly sizing — CONCEPT:EX-AHE.harness.by-default.
 
         Where :meth:`kelly_criterion` uses the textbook closed form and
         :meth:`bayesian_kelly_size` integrates over a Beta posterior, this path

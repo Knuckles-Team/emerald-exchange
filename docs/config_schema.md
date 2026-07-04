@@ -73,7 +73,7 @@ The `trading` section in `~/.config/agent-utilities/config.json` controls all tr
 }
 ```
 
-## Exchange Backend Abstraction — CONCEPT:EE-002
+## Exchange Backend Abstraction — CONCEPT:EX-AHE.harness.ee
 
 All exchanges implement the same `ExchangeBackend` Protocol. Switch backends by changing `default_exchange`:
 

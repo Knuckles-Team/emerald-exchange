@@ -1,4 +1,4 @@
-"""Wallet Intelligence MCP Domain — CONCEPT:EE-028.
+"""Wallet Intelligence MCP Domain — CONCEPT:EX-AHE.harness.ee-27.
 
 Action-routed Polymarket wallet-analytics tool, folded in from the former
 standalone ``poly-wallet-mcp`` package. Over a ``poly_data`` trade dataset it
@@ -49,7 +49,7 @@ def _parse_wallets(wallets: Any) -> list[str]:
 
 
 def register_wallet_intel_tools(mcp: Any) -> None:
-    """Register the Polymarket wallet-intelligence tool group. CONCEPT:EE-028."""
+    """Register the Polymarket wallet-intelligence tool group. CONCEPT:EX-AHE.harness.ee-27."""
     if not _enabled():
         logger.info("WALLET_INTELTOOL disabled; skipping wallet-intel tool group")
         return
@@ -59,7 +59,7 @@ def register_wallet_intel_tools(mcp: Any) -> None:
         action: str,
         params_json: str = "{}",
     ) -> str:
-        """Polymarket wallet-intelligence operations. CONCEPT:EE-028.
+        """Polymarket wallet-intelligence operations. CONCEPT:EX-AHE.harness.ee-27.
 
         Actions:
           - rank_wallets: Smart-money copy-trade targets. params: min_trades,

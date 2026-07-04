@@ -1,4 +1,4 @@
-"""Lazy epistemic-graph engine client — CONCEPT:EE-021.
+"""Lazy epistemic-graph engine client — CONCEPT:EX-AHE.harness.ee-20.
 
 The heavy quant math (market-making quotes, VPIN, Bayesian Kelly, backtest
 validation, forensic accounting) lives in the Rust ``epistemic-graph`` engine and

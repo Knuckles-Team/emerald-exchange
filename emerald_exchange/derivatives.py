@@ -1,7 +1,7 @@
-"""SABR volatility-surface helpers — CONCEPT:EE-034
+"""SABR volatility-surface helpers — CONCEPT:AU-AHE.assimilation.decision-distillation
 
 Thin Python seam over the engine's SABR kernels (``client.finance.sabr_*``,
-CONCEPT:KG-2.20j / DSCI-007). All compute (Hagan 2002 implied vol, smile,
+CONCEPT:AU-KG.domains.derivatives / DSCI-007). All compute (Hagan 2002 implied vol, smile,
 calibration) runs in the Rust ``epistemic-graph`` engine; this module only
 marshals arguments and adds a small vol-arb comparison that diffs a *market*
 smile against the SABR-*fair* smile to surface rich/cheap strikes.
@@ -30,7 +30,7 @@ def implied_vol(
     rho: float,
     nu: float,
 ) -> dict[str, Any]:
-    """SABR lognormal (Black) implied vol for one strike. CONCEPT:EE-034."""
+    """SABR lognormal (Black) implied vol for one strike. CONCEPT:AU-AHE.assimilation.decision-distillation."""
     engine = finance_engine()
     if engine is None:
         return {"error": ENGINE_REQUIRED_ERR}
@@ -51,7 +51,7 @@ def smile(
     rho: float,
     nu: float,
 ) -> dict[str, Any]:
-    """SABR implied-vol smile across strikes. CONCEPT:EE-034."""
+    """SABR implied-vol smile across strikes. CONCEPT:AU-AHE.assimilation.decision-distillation."""
     engine = finance_engine()
     if engine is None:
         return {"error": ENGINE_REQUIRED_ERR}
@@ -73,7 +73,7 @@ def calibrate(
     market_vols: list[float],
     beta: float = 0.5,
 ) -> dict[str, Any]:
-    """Calibrate SABR (α, ρ, ν) to a market smile (β fixed). CONCEPT:EE-034.
+    """Calibrate SABR (α, ρ, ν) to a market smile (β fixed). CONCEPT:AU-AHE.assimilation.decision-distillation.
 
     Returns ``{alpha, beta, rho, nu, rmse, converged}`` from the engine.
     """
@@ -98,7 +98,7 @@ def vol_arb(
     beta: float = 0.5,
 ) -> dict[str, Any]:
     """Vol-arb helper: calibrate SABR to the market smile, then compare each
-    strike's *market* vol to the SABR-*fair* vol. CONCEPT:EE-034.
+    strike's *market* vol to the SABR-*fair* vol. CONCEPT:AU-AHE.assimilation.decision-distillation.
 
     Calibrating then re-pricing yields the smoothed, arbitrage-consistent fair
     smile; residuals (market − fair) flag strikes that look rich (positive

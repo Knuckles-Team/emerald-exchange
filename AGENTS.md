@@ -43,8 +43,8 @@ emerald-exchange/
 │   ├── risk_guards.py       # OS-5.1 financial hardening
 │   ├── mcp_server.py        # MCP server entry
 │   ├── data/                # Data/fundamentals providers (optional deps, lazy)
-│   │   ├── edgar.py         # SEC EDGAR (edgartools) — CONCEPT:EE-027
-│   │   └── wallet_intel.py  # Polymarket wallet analytics — CONCEPT:EE-028
+│   │   ├── edgar.py         # SEC EDGAR (edgartools) — CONCEPT:EX-AHE.harness.ee-26
+│   │   └── wallet_intel.py  # Polymarket wallet analytics — CONCEPT:EX-AHE.harness.ee-27
 │   └── mcp/                 # Tool domains
 │       ├── mcp_market_data.py
 │       ├── mcp_orders.py
@@ -52,8 +52,8 @@ emerald-exchange/
 │       ├── mcp_risk.py
 │       ├── mcp_signals.py
 │       ├── mcp_strategy.py
-│       ├── mcp_fundamentals.py    # emerald_fundamentals — CONCEPT:EE-027
-│       └── mcp_wallet_intel.py    # emerald_wallet_intel — CONCEPT:EE-028
+│       ├── mcp_fundamentals.py    # emerald_fundamentals — CONCEPT:EX-AHE.harness.ee-26
+│       └── mcp_wallet_intel.py    # emerald_wallet_intel — CONCEPT:EX-AHE.harness.ee-27
 ├── tests/
 │   ├── conftest.py
 │   ├── test_concept_parity.py
@@ -102,7 +102,7 @@ wallet-intel). Both keep their heavy third-party deps (`edgartools` / `polars` /
 without them, surfacing a clear `{"error": ...}` payload when a call needs an
 absent dependency, identity, dataset, or engine.
 
-### `emerald_fundamentals` — SEC EDGAR (CONCEPT:EE-027)
+### `emerald_fundamentals` — SEC EDGAR (CONCEPT:EX-AHE.harness.ee-26)
 
 Action-routed (`action`, `params_json`). Env gate `FUNDAMENTALSTOOL` (set falsey
 to disable); SEC identity from `EDGAR_IDENTITY` (`"Name email@example.com"`).
@@ -120,7 +120,7 @@ Optional dep: `edgartools` (`pip install 'emerald-exchange[fundamentals]'`).
   `forensic.py` / `_engine.py`; degrades gracefully when the engine socket is
   absent.
 
-### `emerald_wallet_intel` — Polymarket wallet analytics (CONCEPT:EE-028)
+### `emerald_wallet_intel` — Polymarket wallet analytics (CONCEPT:EX-AHE.harness.ee-27)
 
 Action-routed (`action`, `params_json`). Env gate `WALLETINTELTOOL` (set falsey
 to disable); dataset path from `POLY_TRADES_PATH` (a `poly_data` processed-trades
@@ -255,7 +255,7 @@ alone).
 Working in parallel with other sessions/worktrees? **Reserve a concept id before you write its `CONCEPT:` marker** so two sessions never collide:
 
 ```bash
-agent-utilities --json concept reserve --ns KG-2   # or a package prefix, e.g. KEY
+agent-utilities --json concept reserve --ns EG-KG.compute.backend   # or a package prefix, e.g. KEY
 ```
 
 Full protocol (ledger, merge=union, reconcile, MCP/REST): <https://knuckles-team.github.io/agent-utilities/concept_coordination/>

@@ -1,4 +1,4 @@
-"""Polymarket wallet-intelligence provider — CONCEPT:EE-028.
+"""Polymarket wallet-intelligence provider — CONCEPT:EX-AHE.harness.ee-27.
 
 Folded into emerald-exchange from the former standalone ``poly-wallet-mcp``
 package. Smart-money analytics over a ``poly_data`` trade dataset: find

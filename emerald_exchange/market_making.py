@@ -1,4 +1,4 @@
-"""Market-Making Controller — CONCEPT:EE-023.
+"""Market-Making Controller — CONCEPT:EX-AHE.harness.ee-22.
 
 A per-book-update quoting *policy* implementing the §9 HFT skeleton. It is the
 CONTROLLER + venue-decision layer only: it computes intended bid/ask quotes and a
@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 def brier_score(forecasts: list[float], outcomes: list[float]) -> dict[str, Any]:
     """Brier calibration score of probabilistic forecasts vs realized outcomes.
 
-    CONCEPT:EE-031. Tracks how well the quoting/conviction signals are calibrated
+    CONCEPT:EX-AHE.harness.by-default. Tracks how well the quoting/conviction signals are calibrated
     over time (lower = better; 0 = perfect, 0.25 = uninformative coin flip).
     Delegates to the engine ``client.finance.brier_score``; degrades to a clean
     ``{"error": ...}`` when the engine is unreachable or the kernel is missing.
@@ -109,7 +109,7 @@ class MMConfig:
     boundary_m: float = 0.0  # logit boundary inventory cap margin
     ofi_drift_coef: float = 0.0  # 0 disables OFI drift; >0 nudges fair value
     ofi_window_secs: float = 1.0
-    # Queue-position / adverse-selection (CONCEPT:EE-032). Both default to 0 ⇒
+    # Queue-position / adverse-selection (CONCEPT:AU-AHE.assimilation.trading-ecosystem-changelog). Both default to 0 ⇒
     # behavior-identical until an operator opts in (mirrors ofi_drift_coef).
     queue_skew_coef: float = 0.0  # >0 nudges reservation toward the thicker queue
     queue_fill_time_max: float = 0.0  # >0 withdraws when worst-side fill time exceeds this
@@ -117,13 +117,13 @@ class MMConfig:
     vl: float = 0.0  # payoff if "low" resolves
     post_only: bool = True  # never cross the resting book
     max_inventory: float = 100.0  # |inventory| beyond which we withdraw the loaded side
-    # ── Conviction gate (CONCEPT:EE-031) — ON by default ───────────────
+    # ── Conviction gate (CONCEPT:EX-AHE.harness.by-default) — ON by default ───────────────
     conviction_gate: bool = True  # require N/N strong-signal agreement to quote
     conviction_strong_threshold: float = (
         0.6  # |strength| ≥ this counts as a strong vote
     )
     conviction_min_agree: int = 2  # min agreeing strong votes to pass the gate
-    # ── Kyle legal-risk / adverse-selection gate (CONCEPT:EE-043) ──────
+    # ── Kyle legal-risk / adverse-selection gate (CONCEPT:EX-AHE.harness.sustained-adverse-selection) ──────
     # The surveillance score is ALWAYS computed and surfaced (native), but the
     # withdraw action requires an operator threshold. Default 1.0 ⇒ never trips
     # (legal_risk_score ∈ [0,1) asymptotes below 1), so behavior is identical
@@ -148,11 +148,11 @@ class QuoteDecision:
     queue_fill_time: float = 0.0
     reason: str = ""
     engine_used: bool = False
-    # Conviction-gate outcome (CONCEPT:EE-031). When the gate is on and fails,
+    # Conviction-gate outcome (CONCEPT:EX-AHE.harness.by-default). When the gate is on and fails,
     # the decision is forced to withdraw (no quotes are posted).
     conviction_pass: bool = True
     conviction: dict[str, Any] = field(default_factory=dict)
-    # Kyle surveillance scores (CONCEPT:EE-043) — always surfaced for
+    # Kyle surveillance scores (CONCEPT:EX-AHE.harness.sustained-adverse-selection) — always surfaced for
     # observability; legal_risk_score drives the adverse-selection withdraw.
     legal_risk_score: float = 0.0
     informed_share: float = 0.0
@@ -181,7 +181,7 @@ class QuoteDecision:
 class MarketMakingController:
     """Pure decision policy — computes intended quotes, never places orders.
 
-    CONCEPT:EE-023.
+    CONCEPT:EX-AHE.harness.ee-22.
     """
 
     def __init__(self, config: MMConfig | None = None) -> None:
@@ -248,7 +248,7 @@ class MarketMakingController:
 
     def _surveillance(self, book: BookSnapshot, engine: Any) -> tuple[float, float]:
         """Return ``(legal_risk_score, informed_share)`` from the Kyle surveillance
-        kernel (CONCEPT:EE-043, distils arXiv:2605.27684). Derives signed flow and
+        kernel (CONCEPT:EX-AHE.harness.sustained-adverse-selection, distils arXiv:2605.27684). Derives signed flow and
         price changes from the book's volume/price buckets. Degrades to
         ``(0.0, 0.0)`` — never blocking blind — when the engine is unreachable or
         the window is too thin. DEFENSIVE: adverse-selection protection only.
@@ -280,7 +280,7 @@ class MarketMakingController:
     def _queue_skew(self, book: BookSnapshot, engine: Any) -> tuple[float, float]:
         """Return ``(queue_skew ∈ [-1, 1], worst-side fill_time)``.
 
-        CONCEPT:EE-032. ``skew = (ask_q - bid_q)/(ask_q + bid_q)`` — positive ⇒ the
+        CONCEPT:AU-AHE.assimilation.trading-ecosystem-changelog. ``skew = (ask_q - bid_q)/(ask_q + bid_q)`` — positive ⇒ the
         ask queue is heavier, so a resting bid fills relatively faster. A longer
         ``fill_time`` means more adverse-selection exposure while resting. Uses the
         engine ``queue_imbalance`` kernel with a local-fallback mirror so the
@@ -318,7 +318,7 @@ class MarketMakingController:
     ) -> dict[str, Any]:
         """Run the engine convergence gate over the supplied signal strengths.
 
-        CONCEPT:EE-031. Returns the engine's ``convergence_gate`` payload
+        CONCEPT:EX-AHE.harness.by-default. Returns the engine's ``convergence_gate`` payload
         ``{agree, total, fraction, direction, pass}``. When no strengths are
         supplied the gate is vacuously *open* (``pass=True``) so the controller
         behaves exactly as before for callers that don't feed signals — but as
@@ -371,7 +371,7 @@ class MarketMakingController:
         drift → AS/logit quotes → VPIN toxicity gate → tick snap → post-only /
         non-crossing.
 
-        The CONVICTION GATE (CONCEPT:EE-031) runs FIRST and is **ON by default**
+        The CONVICTION GATE (CONCEPT:EX-AHE.harness.by-default) runs FIRST and is **ON by default**
         (``MMConfig.conviction_gate=True``): when ``signal_strengths`` are
         supplied they must reach ``conviction_min_agree`` strong agreeing votes
         (via the engine ``convergence_gate``) before any quote is emitted —
@@ -463,14 +463,14 @@ class MarketMakingController:
             withdraw = True
             reason = "toxicity_withdraw"
 
-        # Kyle legal-risk / adverse-selection gate (CONCEPT:EE-043). Always
+        # Kyle legal-risk / adverse-selection gate (CONCEPT:EX-AHE.harness.sustained-adverse-selection). Always
         # computed + surfaced; withdraws only when the operator threshold trips.
         legal_risk_score, informed_share = self._surveillance(book, engine)
         if legal_risk_score > cfg.legal_risk_max and not withdraw:
             withdraw = True
             reason = "legal_risk_withdraw"
 
-        # Queue-position / adverse-selection (CONCEPT:EE-032). Both coefs default
+        # Queue-position / adverse-selection (CONCEPT:AU-AHE.assimilation.trading-ecosystem-changelog). Both coefs default
         # to 0 ⇒ no effect, so existing callers are behavior-identical.
         q_skew, fill_time = self._queue_skew(book, engine)
         if cfg.queue_skew_coef != 0.0 and not withdraw:

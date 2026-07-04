@@ -1,4 +1,4 @@
-"""Derivatives / SABR MCP Tools — CONCEPT:EE-034.
+"""Derivatives / SABR MCP Tools — CONCEPT:AU-AHE.assimilation.decision-distillation.
 
 Action-routed tool exposing the engine's SABR volatility-surface kernels
 (``client.finance.sabr_*``, KG-2.20j / DSCI-007) plus a vol-arb helper that
@@ -25,7 +25,7 @@ def register_derivatives_tools(mcp: Any) -> None:
         action: str,
         params_json: str = "{}",
     ) -> str:
-        """SABR volatility surface + vol-arb. CONCEPT:EE-034
+        """SABR volatility surface + vol-arb. CONCEPT:AU-AHE.assimilation.decision-distillation
 
         Actions:
           - 'implied_vol': one-strike SABR implied vol. params: f, k, t, alpha,

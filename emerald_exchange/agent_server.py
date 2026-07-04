@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # coding: utf-8
-"""Emerald Exchange A2A Agent Server — CONCEPT:EE-017.
+"""Emerald Exchange A2A Agent Server — CONCEPT:EX-AHE.harness.ee-16.
 
 Launches the Emerald Exchange as a full Pydantic AI agent with A2A
 (Agent-to-Agent) communication support, backed by the MCP toolset.
@@ -47,7 +47,7 @@ def agent_server():
         meta.get(
             "description",
             "Emerald Exchange — Unified Finance MCP with multi-exchange backend abstraction, "
-            "risk guards, and KG-native trading workflows. CONCEPT:EE-001",
+            "risk guards, and KG-native trading workflows. CONCEPT:AU-AHE.assimilation.autonomous-trading-ecosystem",
         ),
     )
     DEFAULT_AGENT_SYSTEM_PROMPT = os.getenv(

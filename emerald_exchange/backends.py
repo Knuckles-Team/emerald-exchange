@@ -1,4 +1,4 @@
-"""Exchange Backend Abstractions — CONCEPT:EE-002
+"""Exchange Backend Abstractions — CONCEPT:EX-AHE.harness.ee
 
 Unified Protocol for all exchange implementations.
 Backends: Paper (default), Alpaca, Binance, IBKR, Freqtrade, CCXT.
@@ -98,7 +98,7 @@ class OHLCV:
 
 @runtime_checkable
 class ExchangeBackend(Protocol):
-    """Abstracted exchange interface — CONCEPT:EE-002."""
+    """Abstracted exchange interface — CONCEPT:EX-AHE.harness.ee."""
 
     @property
     def name(self) -> str: ...
@@ -128,7 +128,7 @@ class ExchangeBackend(Protocol):
 
 
 class PaperBackend:
-    """Local simulation backend — DEFAULT for all trading. CONCEPT:EE-003."""
+    """Local simulation backend — DEFAULT for all trading. CONCEPT:EX-AHE.harness.ee-2."""
 
     def __init__(self, initial_cash: float = 100000.0):
         self._cash = initial_cash
@@ -242,7 +242,7 @@ class PaperBackend:
 
 
 class AlpacaBackend:
-    """Alpaca Markets backend — FREE paper + live equities. CONCEPT:EE-004."""
+    """Alpaca Markets backend — FREE paper + live equities. CONCEPT:EX-AHE.harness.ee-3."""
 
     def __init__(
         self,
@@ -417,7 +417,7 @@ class AlpacaBackend:
 
 
 class CCXTBackend:
-    """CCXT unified crypto exchange backend — CONCEPT:EE-005.
+    """CCXT unified crypto exchange backend — CONCEPT:EX-AHE.harness.ee-4.
     Supports 100+ exchanges: Binance, Coinbase, Kraken, etc.
     """
 
@@ -615,7 +615,7 @@ class CCXTBackend:
 
 
 class FreqtradeBackend:
-    """Freqtrade REST API backend — CONCEPT:EE-006."""
+    """Freqtrade REST API backend — CONCEPT:EX-AHE.harness.ee-5."""
 
     def __init__(
         self,
@@ -1028,7 +1028,7 @@ def create_backend(
     config: dict[str, Any] | None = None,
     mode: TradingMode = TradingMode.PAPER,
 ) -> ExchangeBackend:
-    """Factory to create exchange backends from config. CONCEPT:EE-002."""
+    """Factory to create exchange backends from config. CONCEPT:EX-AHE.harness.ee."""
     config = config or {}
     backend_class = BACKEND_REGISTRY.get(name)
     if not backend_class:

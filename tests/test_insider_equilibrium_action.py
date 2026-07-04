@@ -1,4 +1,4 @@
-"""emerald_signals ``insider_equilibrium`` action — CONCEPT:EE-044.
+"""emerald_signals ``insider_equilibrium`` action — CONCEPT:EX-AHE.harness.ee-32.
 
 Captures the registered ``emerald_signals`` tool via a fake MCP and exercises the
 new action end to end. Skips cleanly when the backing agent-utilities model

@@ -1,6 +1,6 @@
 """SEC EDGAR fundamentals tool group — schema, optional-dep, forensic chain.
 
-Migrated from the former standalone ``edgar-mcp`` test suite. CONCEPT:EE-027.
+Migrated from the former standalone ``edgar-mcp`` test suite. CONCEPT:EX-AHE.harness.ee-26.
 """
 
 import importlib.util

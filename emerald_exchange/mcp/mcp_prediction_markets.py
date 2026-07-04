@@ -1,4 +1,4 @@
-"""Prediction Markets MCP Domain — CONCEPT:EE-009
+"""Prediction Markets MCP Domain — CONCEPT:EX-AHE.harness.ee-8
 
 Action-routed tool for Kalshi, Polymarket, and Open-Meteo ensemble forecasts.
 """

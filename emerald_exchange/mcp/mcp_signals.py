@@ -1,4 +1,4 @@
-"""Signal Generation MCP Tools — CONCEPT:EE-012."""
+"""Signal Generation MCP Tools — CONCEPT:EX-AHE.harness.ee-11."""
 
 from typing import Any
 
@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 def _load_microstructure_priors() -> list[dict]:
-    """Fetch stored MicrostructureSignal priors from the KG (CONCEPT:EE-033).
+    """Fetch stored MicrostructureSignal priors from the KG (CONCEPT:AU-AHE.assimilation.microstructure-signal-fusion).
 
     Returns a list of property dicts (``directional_accuracy``,
     ``standalone_sharpe``, ``pbo``, ``name`` …) — empty when the engine is
@@ -48,7 +48,7 @@ def register_signal_tools(mcp: Any) -> None:
         asset_class: str = "equity",
         signals_json: str = "{}",
     ) -> str:
-        """Signal generation and fusion. Routes to agent-utilities finance domain. CONCEPT:EE-012
+        """Signal generation and fusion. Routes to agent-utilities finance domain. CONCEPT:EX-AHE.harness.ee-11
 
         Actions:
         - 'regime': Detect current market regime
@@ -56,14 +56,14 @@ def register_signal_tools(mcp: Any) -> None:
         - 'fuse': Bayesian signal fusion seeded from KG-stored signal priors.
           ``signals_json`` maps signal name -> direction (1 up / -1 down / 0).
         - 'surveillance': Kyle insider/stealth-trading surveillance scores
-          (CONCEPT:EE-042). ``signals_json`` is a trailing book/flow window
+          (CONCEPT:EX-AHE.harness.ee-31). ``signals_json`` is a trailing book/flow window
           ``{buy_vol, sell_vol, p_mean, signed_flow, price_changes,
           baseline_sigma}``. Returns informed-flow / detection-hazard /
           legal-risk scores and registers a discoverable MicrostructureSignal
           (priors set later by ``emerald_strategy`` backtest). DEFENSIVE:
           informed-flow detection, not trade concealment.
         - 'insider_equilibrium': Strategic insider equilibrium under DYNAMIC legal
-          risk (CONCEPT:EE-044, distils arXiv:2605.27684 Qiao & Xia). Deepens the
+          risk (CONCEPT:EX-AHE.harness.ee-32, distils arXiv:2605.27684 Qiao & Xia). Deepens the
           snapshot 'surveillance' score into the full continuous-time game:
           ``signals_json`` carries model primitives ``{sigma_v, sigma_u, gap_var,
           enforcement, surveillance_kappa, criminal_penalty, civil_penalty_rate,
@@ -154,7 +154,7 @@ def register_signal_tools(mcp: Any) -> None:
 
                 # Register the detector as a discoverable MicrostructureSignal so the
                 # fuse path finds it; priors (accuracy/sharpe/pbo) stay at defaults
-                # until an ``emerald_strategy`` backtest writes them (CONCEPT:EE-033).
+                # until an ``emerald_strategy`` backtest writes them (CONCEPT:AU-AHE.assimilation.microstructure-signal-fusion).
                 signal_id = f"kyle_surveillance:{ticker}" if ticker else "kyle_surveillance"
                 registered = False
                 try:

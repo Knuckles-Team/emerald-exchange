@@ -1,4 +1,4 @@
-"""Fundamentals MCP Domain — CONCEPT:EE-027.
+"""Fundamentals MCP Domain — CONCEPT:EX-AHE.harness.ee-26.
 
 Action-routed SEC EDGAR fundamentals tool, folded in from the former standalone
 ``edgar-mcp`` package. Surfaces filings / financials / narrative / full-text
@@ -39,7 +39,7 @@ def _enabled() -> bool:
 
 
 def register_fundamentals_tools(mcp: Any) -> None:
-    """Register the SEC EDGAR fundamentals tool group. CONCEPT:EE-027."""
+    """Register the SEC EDGAR fundamentals tool group. CONCEPT:EX-AHE.harness.ee-26."""
     if not _enabled():
         logger.info("FUNDAMENTALSTOOL disabled; skipping fundamentals tool group")
         return
@@ -49,7 +49,7 @@ def register_fundamentals_tools(mcp: Any) -> None:
         action: str,
         params_json: str = "{}",
     ) -> str:
-        """SEC EDGAR fundamentals operations. CONCEPT:EE-027.
+        """SEC EDGAR fundamentals operations. CONCEPT:EX-AHE.harness.ee-26.
 
         Actions:
           - filings: Latest N filings of a form. params: ticker, form, latest.

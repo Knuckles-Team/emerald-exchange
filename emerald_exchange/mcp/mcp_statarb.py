@@ -1,6 +1,6 @@
 """Statistical-Arbitrage / Dynamic-Beta Hedging MCP Tools.
 
-CONCEPT:EE-029 (dynamic-beta hedge) / EE-030 (OU stat-arb signal).
+CONCEPT:EX-AHE.harness.ee-28 (dynamic-beta hedge) / EE-030 (OU stat-arb signal).
 
 Action-routed tool exposing two engine-backed stat-arb surfaces:
   - 'ou_signal': two venues' price series for the same outcome → spread → ADF
@@ -27,7 +27,7 @@ def register_statarb_tools(mcp: Any) -> None:
         action: str,
         params_json: str = "{}",
     ) -> str:
-        """OU statistical-arbitrage signal + dynamic-beta hedge. CONCEPT:EE-030
+        """OU statistical-arbitrage signal + dynamic-beta hedge. CONCEPT:EX-AHE.harness.ee-29
 
         Actions:
           - 'ou_signal': OU stat-arb entry/exit signal between two venues.

@@ -1,4 +1,4 @@
-"""Forensic Accounting Screener — CONCEPT:EE-026.
+"""Forensic Accounting Screener — CONCEPT:EX-AHE.harness.ee-25.
 
 Thin controller over the Rust ``epistemic-graph`` engine's ``forensic_report``
 (Beneish M-Score / Altman Z-Score / Piotroski F-Score / Sloan accruals over two
@@ -54,7 +54,7 @@ def standardize_year(raw: dict[str, Any]) -> dict[str, float]:
 def forensic_screen(
     this_year: dict[str, Any], prior_year: dict[str, Any]
 ) -> dict[str, Any]:
-    """Run the two-year forensic report. CONCEPT:EE-026.
+    """Run the two-year forensic report. CONCEPT:EX-AHE.harness.ee-25.
 
     Returns the engine verdict
     ``{m_score, z_score, f_score, accruals_ratio, flags, verdict}`` or

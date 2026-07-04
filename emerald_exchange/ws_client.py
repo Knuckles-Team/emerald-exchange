@@ -1,4 +1,4 @@
-"""Production Polymarket WebSocket Client — CONCEPT:EE-025.
+"""Production Polymarket WebSocket Client — CONCEPT:EX-AHE.harness.ee-24.
 
 Async subscriber for the Polymarket CLOB **market channel** with the resilience
 properties a live HFT feed needs:
@@ -47,7 +47,7 @@ class WSConfig:
 
 
 class PolymarketMarketStream:
-    """Resilient market-channel subscriber. CONCEPT:EE-025."""
+    """Resilient market-channel subscriber. CONCEPT:EX-AHE.harness.ee-24."""
 
     def __init__(
         self,

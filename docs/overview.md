@@ -18,13 +18,13 @@ All agents in the ecosystem inherit enterprise-grade infrastructure from `agent-
 | **JWT/OIDC Authentication** | ✅ Built-in | `agent-utilities[auth]` — Authlib JWKS + API key middleware |
 | **OpenTelemetry Instrumentation** | ✅ Built-in | `agent-utilities[logfire]` — OTLP export, FastAPI auto-instrumentation |
 | **HashiCorp Vault Integration** | ✅ Built-in | `agent-utilities[vault]` — `secret://`, `env://`, `vault://` URI schemes |
-| **Audit Logging** | ✅ Built-in | Append-only compliance trail with 30+ action types (CONCEPT:OS-5.4) |
-| **Token Usage Analytics** | ✅ Built-in | 4-bucket tracking with budget alerting (CONCEPT:OS-5.4) |
-| **Prompt Injection Defense** | ✅ Built-in | 25+ pattern scanner + jailbreak taxonomy (CONCEPT:OS-5.1) |
-| **Guardrail Engine** | ✅ Built-in | Input/output interception with block/redact/warn (CONCEPT:OS-5.3) |
-| **Action Execution Pipeline** | ✅ Built-in | Token, cost, duration, and node transition limits (CONCEPT:ORCH-1.4) |
-| **Resource Scheduling** | ✅ Built-in | Priority queuing + preemption limits (CONCEPT:OS-5.2) |
-| **Session Concurrency** | ✅ Built-in | Enqueue/reject/interrupt/rollback (CONCEPT:OS-5.3) |
+| **Audit Logging** | ✅ Built-in | Append-only compliance trail with 30+ action types (CONCEPT:AU-OS.governance.wasm-micro-agent-sandbox) |
+| **Token Usage Analytics** | ✅ Built-in | 4-bucket tracking with budget alerting (CONCEPT:AU-OS.governance.wasm-micro-agent-sandbox) |
+| **Prompt Injection Defense** | ✅ Built-in | 25+ pattern scanner + jailbreak taxonomy (CONCEPT:AU-OS.config.secrets-authentication) |
+| **Guardrail Engine** | ✅ Built-in | Input/output interception with block/redact/warn (CONCEPT:AU-OS.governance.reactive-multi-axis-budget) |
+| **Action Execution Pipeline** | ✅ Built-in | Token, cost, duration, and node transition limits (CONCEPT:AU-ORCH.adapter.kg-graph-materialization) |
+| **Resource Scheduling** | ✅ Built-in | Priority queuing + preemption limits (CONCEPT:AU-OS.state.cognitive-scheduler-preemption) |
+| **Session Concurrency** | ✅ Built-in | Enqueue/reject/interrupt/rollback (CONCEPT:AU-OS.governance.reactive-multi-axis-budget) |
 
 ## Finance-Specific Features
 
@@ -43,15 +43,15 @@ This project implements or inherits the following ecosystem concepts:
 
 | Concept ID | Description | Source |
 |:-----------|:------------|:-------|
-| EE-001 | Emerald Exchange MCP Server | This project |
-| EE-002 | Exchange Backend Protocol | This project |
-| EE-007 | Risk Guards (OS-5.1) | This project |
-| EE-008 | Market Data Tools | This project |
-| EE-009 | Order Management Tools | This project |
-| EE-010 | Portfolio Tools | This project |
-| EE-011 | Risk Management Tools | This project |
-| EE-012 | Signal Generation Tools | This project |
-| EE-013 | Strategy Management Tools | This project |
+| AU-AHE.assimilation.autonomous-trading-ecosystem | Emerald Exchange MCP Server | This project |
+| EX-AHE.harness.ee | Exchange Backend Protocol | This project |
+| EX-AHE.harness.ee-6 | Risk Guards (OS-5.1) | This project |
+| EX-AHE.harness.ee-7 | Market Data Tools | This project |
+| EX-AHE.harness.ee-8 | Order Management Tools | This project |
+| EX-AHE.harness.ee-9 | Portfolio Tools | This project |
+| AU-AHE.assimilation.skill-workflow-ingest | Risk Management Tools | This project |
+| EX-AHE.harness.ee-11 | Signal Generation Tools | This project |
+| AU-AHE.assimilation.trading-ecosystem-spec | Strategy Management Tools | This project |
 | ECO-4.1 | MCP & Universal Skills | `agent-utilities` (inherited) |
 
 > 📖 **Full Registry**: See [`agent-utilities/docs/overview.md`](https://github.com/Knuckles-Team/agent-utilities/blob/main/docs/overview.md) for the complete 5-Pillar concept index.
@@ -65,13 +65,13 @@ emerald-exchange/
 ├── emerald_exchange/          # Source code
 │   ├── __init__.py
 │   ├── __main__.py            # CLI entrypoint
-│   ├── agent_server.py        # A2A agent entrypoint (CONCEPT:EE-020)
+│   ├── agent_server.py        # A2A agent entrypoint (CONCEPT:EX-AHE.harness.ee-19)
 │   ├── backends.py            # Exchange backend abstractions
 │   ├── risk_guards.py         # OS-5.1 financial hardening
 │   ├── mcp_server.py          # MCP server entrypoint
 │   └── mcp/                   # MCP tool domains
-│       ├── mcp_crypto.py      # Crypto-native analytics, funding rates (CONCEPT:EE-018)
-│       ├── mcp_debate.py      # Bull/bear trading debate engine (CONCEPT:EE-019)
+│       ├── mcp_crypto.py      # Crypto-native analytics, funding rates (CONCEPT:EX-AHE.harness.ee-17)
+│       ├── mcp_debate.py      # Bull/bear trading debate engine (CONCEPT:EX-AHE.harness.ee-18)
 │       ├── mcp_market_data.py # Quote, historical, exchanges
 │       ├── mcp_orders.py      # Submit, cancel, halt, resume
 │       ├── mcp_portfolio.py   # Positions, account

@@ -1,6 +1,6 @@
 """Polymarket wallet-intelligence tool group — analytics over a synthetic CSV.
 
-Migrated from the former standalone ``poly-wallet-mcp`` test suite. CONCEPT:EE-028.
+Migrated from the former standalone ``poly-wallet-mcp`` test suite. CONCEPT:EX-AHE.harness.ee-27.
 """
 
 import json

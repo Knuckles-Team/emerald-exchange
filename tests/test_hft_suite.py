@@ -1,5 +1,5 @@
 """Tests for the HFT suite — fees, market-making, backtester, ws client,
-Bayesian Kelly, and forensic screener. CONCEPT:EE-022..026
+Bayesian Kelly, and forensic screener. CONCEPT:EX-AHE.harness.ee-21..026
 
 Engine-free assertions run everywhere; engine-backed numeric checks use the
 ``engine_client`` fixture and skip gracefully when no engine socket is present.
@@ -132,7 +132,7 @@ def test_mm_quote_engine_numeric(engine_client):
 
 
 def test_mm_queue_skew_local_fallback_nudges_reservation(monkeypatch):
-    """CONCEPT:EE-032 — with no engine, the queue skew is computed locally and a
+    """CONCEPT:AU-AHE.assimilation.trading-ecosystem-changelog — with no engine, the queue skew is computed locally and a
     non-zero ``queue_skew_coef`` shifts the reservation toward the thicker queue."""
     import emerald_exchange.market_making as mm
 
@@ -153,7 +153,7 @@ def test_mm_queue_skew_local_fallback_nudges_reservation(monkeypatch):
 
 
 def test_mm_queue_fill_time_withdraw(engine_client):
-    """CONCEPT:EE-032 — a long worst-side fill time triggers an adverse-selection
+    """CONCEPT:AU-AHE.assimilation.trading-ecosystem-changelog — a long worst-side fill time triggers an adverse-selection
     withdraw. Skips cleanly until the engine ships the queue_imbalance kernel."""
     book = BookSnapshot(
         ts=[0.0, 1.0],
@@ -279,7 +279,7 @@ def test_bayesian_kelly_fallback_when_no_engine(monkeypatch):
 
 
 def test_emerald_signals_fuse_degrades_without_engine(monkeypatch):
-    """CONCEPT:EE-033 — fuse seeds from KG priors but still fuses supplied
+    """CONCEPT:AU-AHE.assimilation.microstructure-signal-fusion — fuse seeds from KG priors but still fuses supplied
     directions (with neutral sources) when no engine/priors are reachable."""
     import emerald_exchange._engine as eng
     import emerald_exchange.mcp.mcp_signals as ms
@@ -308,7 +308,7 @@ def test_emerald_signals_fuse_degrades_without_engine(monkeypatch):
 
 
 def test_emerald_strategy_backtest_writeback(engine_client):
-    """CONCEPT:EE-033 — backtest computes priors and writes them to the KG.
+    """CONCEPT:AU-AHE.assimilation.microstructure-signal-fusion — backtest computes priors and writes them to the KG.
     Skips cleanly when the engine binary lacks the finance kernels."""
     import emerald_exchange.mcp.mcp_strategy as mst
 
@@ -347,7 +347,7 @@ def test_require_human_approval_live_preserved():
 
 
 def test_paper_stage_blocks_live():
-    """CONCEPT:EE-038 — paper stage refuses live orders; paper orders pass."""
+    """CONCEPT:EX-AHE.harness.bounded-autonomous-allows-small — paper stage refuses live orders; paper orders pass."""
     from emerald_exchange.risk_guards import load_execution_policy
 
     policy = load_execution_policy()
@@ -360,7 +360,7 @@ def test_paper_stage_blocks_live():
 
 
 def test_bounded_autonomous_caps():
-    """CONCEPT:EE-038 — bounded_autonomous allows small live orders, blocks large."""
+    """CONCEPT:EX-AHE.harness.bounded-autonomous-allows-small — bounded_autonomous allows small live orders, blocks large."""
     limits = RiskLimits.from_execution_policy(
         {
             "stage": "bounded_autonomous",
@@ -381,7 +381,7 @@ def test_bounded_autonomous_caps():
 
 
 def test_graduation_is_eligibility_only_and_stage_is_human_gated(monkeypatch):
-    """CONCEPT:EE-038 — evaluate_graduation never changes stage; approve_stage
+    """CONCEPT:EX-AHE.harness.bounded-autonomous-allows-small — evaluate_graduation never changes stage; approve_stage
     requires the human token."""
     guard = RiskGuard(RiskLimits(stage="paper"))
     policy = {

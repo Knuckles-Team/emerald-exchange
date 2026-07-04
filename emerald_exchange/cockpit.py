@@ -1,4 +1,4 @@
-"""Live Trading Cockpit (text-mode) — CONCEPT:EE-033
+"""Live Trading Cockpit (text-mode) — CONCEPT:AU-AHE.assimilation.microstructure-signal-fusion
 
 A real, GUI-free cockpit that renders live trading state as a structured
 snapshot plus a plain-text (or ``rich``, when installed) table render. This is

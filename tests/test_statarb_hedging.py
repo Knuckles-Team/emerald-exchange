@@ -1,6 +1,6 @@
 """Tests for the stat-arb / dynamic-beta hedging + conviction-gate features.
 
-CONCEPT:EE-029 / EE-030 / EE-031. Engine-backed assertions gate on the shared
+CONCEPT:EX-AHE.harness.ee-28 / EE-030 / EE-031. Engine-backed assertions gate on the shared
 ``engine_client`` fixture (skipped cleanly with no socket) and additionally skip
 when a version-behind daemon lacks the KG-2.20h/i kernels (``unknown variant``).
 The import / wiring / offline-degradation assertions run unconditionally.

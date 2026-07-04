@@ -1,4 +1,4 @@
-"""Dynamic-Beta Hedging — CONCEPT:EE-029.
+"""Dynamic-Beta Hedging — CONCEPT:EX-AHE.harness.ee-28.
 
 A thin controller over the Rust ``epistemic-graph`` engine's time-varying CAPM
 Kalman-beta kernel (``client.finance.kalman_beta``, KG-2.20h). Given an asset's
@@ -32,7 +32,7 @@ def dynamic_beta_hedge(
     p0: float = 1.0,
     n_sigma: float = 1.0,
 ) -> dict[str, Any]:
-    """Estimate the current beta-neutral hedge ratio via Kalman beta. CONCEPT:EE-029.
+    """Estimate the current beta-neutral hedge ratio via Kalman beta. CONCEPT:EX-AHE.harness.ee-28.
 
     Runs the engine's ``kalman_beta`` over the paired (market, asset) return
     series and reads the *last* state as the current beta. The hedge ratio for a

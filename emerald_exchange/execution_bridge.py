@@ -1,4 +1,4 @@
-"""Execution Bridge — CONCEPT:EE-032
+"""Execution Bridge — CONCEPT:AU-AHE.assimilation.trading-ecosystem-changelog
 
 Turns a strategy / debate / optimizer *decision* (side, size, symbol, order
 type, venue) into a routed order through the existing
@@ -125,7 +125,7 @@ class ExecutionDecisionResult:
 class ExecutionBridge:
     """Route trading decisions to a backend behind the live-approval gate.
 
-    CONCEPT:EE-032. The bridge is the single seam between *deciding* (strategy /
+    CONCEPT:AU-AHE.assimilation.trading-ecosystem-changelog. The bridge is the single seam between *deciding* (strategy /
     debate / optimizer) and *acting* (the ``ExchangeBackend``). It guarantees:
 
     1. Paper / simulated backends execute freely.

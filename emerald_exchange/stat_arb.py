@@ -1,4 +1,4 @@
-"""Ornstein-Uhlenbeck Statistical-Arbitrage Signal — CONCEPT:EE-030.
+"""Ornstein-Uhlenbeck Statistical-Arbitrage Signal — CONCEPT:EX-AHE.harness.ee-29.
 
 A thin controller over the Rust ``epistemic-graph`` engine's stat-arb kernels
 (KG-2.20h): build the spread between two venues' price series for the *same*
@@ -44,7 +44,7 @@ def ou_stat_arb_signal(
 ) -> dict[str, Any]:
     """Build a spread, ADF-gate it, OU-calibrate, and emit an entry/exit signal.
 
-    CONCEPT:EE-030. Pipeline:
+    CONCEPT:EX-AHE.harness.ee-29. Pipeline:
 
     1. ``spread = px_a − hedge_ratio·px_b`` (same-outcome cross-venue pair).
     2. ``adf_test`` — if ``require_stationary`` and not ``stationary_5pct``, return

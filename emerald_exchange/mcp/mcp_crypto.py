@@ -1,4 +1,4 @@
-"""Crypto-Specific MCP Tools — CONCEPT:EE-015.
+"""Crypto-Specific MCP Tools — CONCEPT:EX-AHE.harness.ee-14.
 
 Crypto-native operations: funding rates, whale alerts, on-chain analytics,
 and cross-market arbitrage scanning.
@@ -12,7 +12,7 @@ from emerald_exchange.backends import ExchangeBackend
 
 
 def register_crypto_tools(mcp: Any, backend: ExchangeBackend) -> None:
-    """Register crypto-specific tools. CONCEPT:EE-015."""
+    """Register crypto-specific tools. CONCEPT:EX-AHE.harness.ee-14."""
 
     @mcp.tool(tags=["crypto"])
     def emerald_crypto(
@@ -22,7 +22,7 @@ def register_crypto_tools(mcp: Any, backend: ExchangeBackend) -> None:
         exchange_b: str = "coinbase",
         threshold: float = 0.005,
     ) -> str:
-        """Crypto-native analytics and arbitrage. CONCEPT:EE-015
+        """Crypto-native analytics and arbitrage. CONCEPT:EX-AHE.harness.ee-14
 
         Actions:
         - 'funding_rates': Get perpetual futures funding rates

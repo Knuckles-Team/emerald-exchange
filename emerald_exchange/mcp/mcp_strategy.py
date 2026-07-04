@@ -1,4 +1,4 @@
-"""Strategy Management MCP Tools — CONCEPT:EE-013."""
+"""Strategy Management MCP Tools — CONCEPT:AU-AHE.assimilation.trading-ecosystem-spec."""
 
 from typing import Any
 
@@ -17,7 +17,7 @@ def register_strategy_tools(mcp: Any) -> None:
         name: str = "",
         prediction_horizon: str = "1m",
     ) -> str:
-        """Strategy lifecycle management. CONCEPT:EE-013
+        """Strategy lifecycle management. CONCEPT:AU-AHE.assimilation.trading-ecosystem-spec
 
         Actions:
         - 'list': List strategies from KG
@@ -25,7 +25,7 @@ def register_strategy_tools(mcp: Any) -> None:
         - 'export': Export to PineScript/MQL5/TDX
         - 'backtest': Validate a returns series (deflated Sharpe + PBO) and write
           the measured priors back onto the MicrostructureSignal ``strategy_id``
-          in the KG, so signal-fusion weights self-adjust (CONCEPT:EE-033).
+          in the KG, so signal-fusion weights self-adjust (CONCEPT:AU-AHE.assimilation.microstructure-signal-fusion).
         """
         try:
             if action == "backtest":

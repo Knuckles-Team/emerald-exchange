@@ -1,4 +1,4 @@
-"""Trading Debate MCP Tools — CONCEPT:EE-014.
+"""Trading Debate MCP Tools — CONCEPT:EX-AHE.harness.ee-13.
 
 Multi-agent trading debate engine. Bull vs Bear agents argue a hypothesis,
 Risk Compliance Officer has veto power. Routes to KG orchestration for
@@ -11,7 +11,7 @@ import json
 
 
 def register_debate_tools(mcp: Any) -> None:
-    """Register trading debate tools. CONCEPT:EE-014."""
+    """Register trading debate tools. CONCEPT:EX-AHE.harness.ee-13."""
 
     @mcp.tool(tags=["debate"])
     def emerald_debate(
@@ -23,7 +23,7 @@ def register_debate_tools(mcp: Any) -> None:
         rounds: int = 3,
         veto_reason: str = "",
     ) -> str:
-        """Multi-agent trading debate engine. CONCEPT:EE-014
+        """Multi-agent trading debate engine. CONCEPT:EX-AHE.harness.ee-13
 
         Actions:
         - 'start': Start a new debate on a trading hypothesis

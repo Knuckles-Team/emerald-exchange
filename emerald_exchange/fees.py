@@ -1,4 +1,4 @@
-"""Polymarket V2 Fee Model — CONCEPT:EE-022.
+"""Polymarket V2 Fee Model — CONCEPT:EX-AHE.harness.ee-21.
 
 Category-aware taker fee / maker rebate schedule for the Polymarket CLOB v2
 maker-rebate program. Fees are charged on the *proceeds* of a fill — i.e. on the
@@ -71,7 +71,7 @@ def _effective_notional(price: float, size: float) -> float:
 
 
 def taker_fee(price: float, size: float, category: str | FeeCategory) -> float:
-    """Taker fee charged when crossing the spread. CONCEPT:EE-022.
+    """Taker fee charged when crossing the spread. CONCEPT:EX-AHE.harness.ee-21.
 
     Args:
         price: fill price in (0, 1).
@@ -86,7 +86,7 @@ def taker_fee(price: float, size: float, category: str | FeeCategory) -> float:
 
 
 def maker_rebate(price: float, size: float, category: str | FeeCategory) -> float:
-    """Maker rebate credited when a resting order is filled. CONCEPT:EE-022.
+    """Maker rebate credited when a resting order is filled. CONCEPT:EX-AHE.harness.ee-21.
 
     Returns a positive credit (subtract from cost / add to PnL).
     """

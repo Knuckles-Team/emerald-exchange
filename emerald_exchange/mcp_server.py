@@ -89,7 +89,7 @@ def get_mcp_instance():
     )
 
     # Register every trading domain through the one central tool surface
-    # (CONCEPT:ECO-4.82). Each `<TAG>TOOL` env var defaults True, so the default
+    # (CONCEPT:AU-ECO.mcp.tool-mode-standardization). Each `<TAG>TOOL` env var defaults True, so the default
     # condensed mode registers all 14 domains exactly as the prior unconditional
     # calls did; operators can disable a domain, and verbose/both mode adds the
     # 1:1 surface over the backend's methods.

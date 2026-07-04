@@ -1,4 +1,4 @@
-"""Risk Management MCP Tools — CONCEPT:EE-011 / OS-5.1."""
+"""Risk Management MCP Tools — CONCEPT:AU-AHE.assimilation.skill-workflow-ingest / OS-5.1."""
 
 from typing import Any
 
@@ -28,7 +28,7 @@ def register_risk_tools(
         n_simulations: int = 10000,
         seed: int = 42,
     ) -> str:
-        """Risk management and monitoring. CONCEPT:EE-011
+        """Risk management and monitoring. CONCEPT:AU-AHE.assimilation.skill-workflow-ingest
 
         Actions:
         - 'status': Current risk status (halted?, drawdown, daily PnL)
