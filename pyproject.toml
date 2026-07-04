@@ -54,8 +54,14 @@ emerald-exchange = "emerald_exchange.skills"
 [project.entry-points."agent_utilities.prompt_providers"]
 emerald-exchange = "emerald_exchange.prompts"
 
+# CONCEPT:KG-2.325 — federate this package's OWL/RDF ontology modules into the
+# agent-utilities hub (quant, trading, banking). Resolved via iter_provider_dirs
+# like the skill/prompt providers; the hub globs every *.ttl in the dir.
+[project.entry-points."agent_utilities.ontology_providers"]
+emerald-exchange = "emerald_exchange.ontology"
+
 [tool.setuptools.package-data]
-emerald_exchange = [ "mcp_config.json", "prompts/**", "skills/**",]
+emerald_exchange = [ "mcp_config.json", "prompts/**", "skills/**", "ontology/**",]
 
 [tool.setuptools.packages.find]
 where = ["."]
