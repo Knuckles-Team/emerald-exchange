@@ -766,7 +766,7 @@
 <blockquote>
 <p><strong>Prefix</strong>: <code>CONCEPT:EE-*</code>
 <strong>Version</strong>: 0.1.0
-<strong>Bridge</strong>: <a href="https://github.com/Knuckles-Team/agent-utilities/blob/main/docs/concepts.md"><code>CONCEPT:ECO-4.0</code></a> (Unified Toolkit Ingestion)</p>
+<strong>Bridge</strong>: <a href="https://github.com/Knuckles-Team/agent-utilities/blob/main/docs/concepts.md"><code>CONCEPT:AU-ECO.messaging.native-backend-abstraction</code></a> (Unified Toolkit Ingestion)</p>
 </blockquote>
 <hr />
 <h2 id="project-specific-concepts">Project-Specific Concepts<a class="headerlink" href="#project-specific-concepts" title="Permanent link">&para;</a></h2>
@@ -780,194 +780,194 @@
 </thead>
 <tbody>
 <tr>
-<td><code>CONCEPT:EE-001</code></td>
+<td><code>CONCEPT:AU-AHE.assimilation.autonomous-trading-ecosystem</code></td>
 <td>MCP Server</td>
 <td>MCP entrypoint — action-routed finance tools with config.json backend resolution</td>
 </tr>
 <tr>
-<td><code>CONCEPT:EE-002</code></td>
+<td><code>CONCEPT:EX-AHE.harness.ee</code></td>
 <td>Exchange Backend Protocol</td>
 <td>Abstract <code>ExchangeBackend</code> protocol with factory registry pattern</td>
 </tr>
 <tr>
-<td><code>CONCEPT:EE-003</code></td>
+<td><code>CONCEPT:EX-AHE.harness.ee-2</code></td>
 <td>Paper Backend</td>
 <td>Full simulation backend — default for all new installations</td>
 </tr>
 <tr>
-<td><code>CONCEPT:EE-004</code></td>
+<td><code>CONCEPT:EX-AHE.harness.ee-3</code></td>
 <td>Alpaca Backend</td>
 <td>Alpaca Markets integration (equities + crypto, FREE paper trading)</td>
 </tr>
 <tr>
-<td><code>CONCEPT:EE-005</code></td>
+<td><code>CONCEPT:EX-AHE.harness.ee-4</code></td>
 <td>CCXT Backend</td>
 <td>CCXT multi-exchange crypto support (Binance, Coinbase, Kraken, 100+)</td>
 </tr>
 <tr>
-<td><code>CONCEPT:EE-006</code></td>
+<td><code>CONCEPT:EX-AHE.harness.ee-5</code></td>
 <td>Freqtrade Backend</td>
 <td>Freqtrade REST API strategy execution backend</td>
 </tr>
 <tr>
-<td><code>CONCEPT:EE-007</code></td>
+<td><code>CONCEPT:EX-AHE.harness.ee-6</code></td>
 <td>Risk Guards</td>
 <td>Pre-trade risk validation, circuit breakers, kill switch (OS-5.1)</td>
 </tr>
 <tr>
-<td><code>CONCEPT:EE-008</code></td>
+<td><code>CONCEPT:EX-AHE.harness.ee-7</code></td>
 <td>Market Data Tools</td>
 <td>MCP tool domain <code>market_data</code> — quote, historical, exchanges</td>
 </tr>
 <tr>
-<td><code>CONCEPT:EE-009</code></td>
+<td><code>CONCEPT:EX-AHE.harness.ee-8</code></td>
 <td>Order Management Tools</td>
 <td>MCP tool domain <code>orders</code> — submit, cancel, status, halt, resume</td>
 </tr>
 <tr>
-<td><code>CONCEPT:EE-010</code></td>
+<td><code>CONCEPT:EX-AHE.harness.ee-9</code></td>
 <td>Portfolio Tools</td>
 <td>MCP tool domain <code>portfolio</code> — positions, account</td>
 </tr>
 <tr>
-<td><code>CONCEPT:EE-011</code></td>
+<td><code>CONCEPT:AU-AHE.assimilation.skill-workflow-ingest</code></td>
 <td>Risk Management Tools</td>
 <td>MCP tool domain <code>risk</code> — drawdown_check, daily_loss_check, kelly, limits</td>
 </tr>
 <tr>
-<td><code>CONCEPT:EE-012</code></td>
+<td><code>CONCEPT:EX-AHE.harness.ee-11</code></td>
 <td>Signal Generation Tools</td>
 <td>MCP tool domain <code>signals</code> — regime, alpha, fuse</td>
 </tr>
 <tr>
-<td><code>CONCEPT:EE-013</code></td>
+<td><code>CONCEPT:AU-AHE.assimilation.trading-ecosystem-spec</code></td>
 <td>Strategy Management Tools</td>
 <td>MCP tool domain <code>strategy</code> — list, promote, export</td>
 </tr>
 <tr>
-<td><code>CONCEPT:EE-014</code></td>
+<td><code>CONCEPT:EX-AHE.harness.ee-13</code></td>
 <td>Trading Mode Enum</td>
 <td>Paper/Live mode gating with config-driven default</td>
 </tr>
 <tr>
-<td><code>CONCEPT:EE-015</code></td>
+<td><code>CONCEPT:EX-AHE.harness.ee-14</code></td>
 <td>Kelly Criterion Sizing</td>
 <td>Half-Kelly position sizing capped at configurable max_position_pct</td>
 </tr>
 <tr>
-<td><code>CONCEPT:EE-016</code></td>
+<td><code>CONCEPT:EX-AHE.harness.ee-15</code></td>
 <td>Circuit Breaker Engine</td>
 <td>Drawdown + daily loss + regime shift auto-halt system</td>
 </tr>
 <tr>
-<td><code>CONCEPT:EE-017</code></td>
+<td><code>CONCEPT:EX-AHE.harness.ee-16</code></td>
 <td>Kill Switch</td>
 <td>Emergency halt/resume lifecycle for all trading activity</td>
 </tr>
 <tr>
-<td><code>CONCEPT:EE-018</code></td>
+<td><code>CONCEPT:EX-AHE.harness.ee-17</code></td>
 <td>Crypto-Native Analytics</td>
 <td><code>crypto</code> MCP domain: funding rates, whale alerts, arb scan via CCXT</td>
 </tr>
 <tr>
-<td><code>CONCEPT:EE-019</code></td>
+<td><code>CONCEPT:EX-AHE.harness.ee-18</code></td>
 <td>Trading Debate Engine</td>
 <td><code>debate</code> MCP domain: multi-agent bull/bear debate with risk veto</td>
 </tr>
 <tr>
-<td><code>CONCEPT:EE-020</code></td>
+<td><code>CONCEPT:EX-AHE.harness.ee-19</code></td>
 <td>A2A Server Integration</td>
 <td>Native agent-to-agent interface via <code>agent_server.py</code></td>
 </tr>
 <tr>
-<td><code>CONCEPT:EE-021</code></td>
+<td><code>CONCEPT:EX-AHE.harness.ee-20</code></td>
 <td>Engine Client (lazy)</td>
 <td>Lazy/cached <code>SyncEpistemicGraphClient</code> accessor; import never requires a running engine</td>
 </tr>
 <tr>
-<td><code>CONCEPT:EE-022</code></td>
+<td><code>CONCEPT:EX-AHE.harness.ee-21</code></td>
 <td>Polymarket V2 Fee Model</td>
 <td>Category-aware taker fee / maker rebate schedule (<code>fees.py</code>)</td>
 </tr>
 <tr>
-<td><code>CONCEPT:EE-023</code></td>
+<td><code>CONCEPT:EX-AHE.harness.ee-22</code></td>
 <td>Market-Making Controller</td>
 <td>Per-book-update quoting policy (microprice/OFI/AS/logit/VPIN gate); decision-only, never places orders (<code>market_making.py</code>)</td>
 </tr>
 <tr>
-<td><code>CONCEPT:EE-024</code></td>
+<td><code>CONCEPT:EX-AHE.harness.ee-23</code></td>
 <td>Event-Driven Backtester</td>
 <td>Heap event-loop with latency injection, L2 queue, fee accounting + deflated-Sharpe/CPCV/PBO validation hooks (<code>backtester.py</code>)</td>
 </tr>
 <tr>
-<td><code>CONCEPT:EE-025</code></td>
+<td><code>CONCEPT:EX-AHE.harness.ee-24</code></td>
 <td>Production WebSocket Client</td>
 <td>Polymarket market-channel subscriber: auto-reconnect, heartbeat watchdog, sequence-gap resync (<code>ws_client.py</code>)</td>
 </tr>
 <tr>
-<td><code>CONCEPT:EE-026</code></td>
+<td><code>CONCEPT:EX-AHE.harness.ee-25</code></td>
 <td>Forensic Screener</td>
 <td>Two-year Beneish/Altman/Piotroski/Sloan screen via engine <code>forensic_report</code> (<code>forensic.py</code>)</td>
 </tr>
 <tr>
-<td><code>CONCEPT:EE-027</code></td>
+<td><code>CONCEPT:EX-AHE.harness.ee-26</code></td>
 <td>Fundamentals (SEC EDGAR)</td>
 <td><code>emerald_fundamentals</code> MCP domain: filings/financials/risk_factors/mdna/full_text_search/standardize + <code>forensic_screen</code> chaining standardize→engine <code>forensic_report</code> (<code>data/edgar.py</code>, optional <code>edgartools</code>)</td>
 </tr>
 <tr>
-<td><code>CONCEPT:EE-028</code></td>
+<td><code>CONCEPT:EX-AHE.harness.ee-27</code></td>
 <td>Wallet Intelligence</td>
 <td><code>emerald_wallet_intel</code> MCP domain: Polymarket rank_wallets/wallet_profile/smart_money_convergence/exit_behavior over a <code>poly_data</code> trade dataset (<code>data/wallet_intel.py</code>, optional <code>polars</code>)</td>
 </tr>
 <tr>
-<td><code>CONCEPT:EE-029</code></td>
+<td><code>CONCEPT:EX-AHE.harness.ee-28</code></td>
 <td>Dynamic-Beta Hedging</td>
-<td>Time-varying CAPM Kalman-beta hedge: current beta + uncertainty band → beta-neutral hedge ratio via engine <code>kalman_beta</code> (KG-2.20h). <code>hedging.py</code>; <code>emerald_statarb</code> action <code>dynamic_beta</code>. Decision-only</td>
+<td>Time-varying CAPM Kalman-beta hedge: current beta + uncertainty band → beta-neutral hedge ratio via engine <code>kalman_beta</code> (EG-KG.domains.state-space-statistical-arbitrage). <code>hedging.py</code>; <code>emerald_statarb</code> action <code>dynamic_beta</code>. Decision-only</td>
 </tr>
 <tr>
-<td><code>CONCEPT:EE-030</code></td>
+<td><code>CONCEPT:EX-AHE.harness.ee-29</code></td>
 <td>OU Statistical-Arbitrage Signal</td>
-<td>Cross-venue spread → ADF stationarity gate → OU calibration + optimal thresholds → entry/exit signal via engine <code>adf_test</code>/<code>ou_calibrate</code>/<code>ou_optimal_thresholds</code> (KG-2.20h). <code>stat_arb.py</code>; <code>emerald_statarb</code> action <code>ou_signal</code>. Decision-only</td>
+<td>Cross-venue spread → ADF stationarity gate → OU calibration + optimal thresholds → entry/exit signal via engine <code>adf_test</code>/<code>ou_calibrate</code>/<code>ou_optimal_thresholds</code> (EG-KG.domains.state-space-statistical-arbitrage). <code>stat_arb.py</code>; <code>emerald_statarb</code> action <code>ou_signal</code>. Decision-only</td>
 </tr>
 <tr>
-<td><code>CONCEPT:EE-031</code></td>
+<td><code>CONCEPT:EX-AHE.harness.by-default</code></td>
 <td>Conviction Gate + Calibration</td>
-<td>Convergence gate (engine <code>convergence_gate</code>, KG-2.20i) wired ON by default into the market-making decision path (no N/N strong-signal agreement ⇒ withdraw); empirical-Kelly sizing (<code>empirical_kelly</code>) on <code>RiskGuard</code>; Brier calibration helper (<code>brier_score</code>). <code>market_making.py</code>/<code>risk_guards.py</code>; <code>emerald_market_making</code> action <code>brier</code>, <code>emerald_risk</code> action <code>empirical_kelly</code></td>
+<td>Convergence gate (engine <code>convergence_gate</code>, EG-KG.domains.quant-finance) wired ON by default into the market-making decision path (no N/N strong-signal agreement ⇒ withdraw); empirical-Kelly sizing (<code>empirical_kelly</code>) on <code>RiskGuard</code>; Brier calibration helper (<code>brier_score</code>). <code>market_making.py</code>/<code>risk_guards.py</code>; <code>emerald_market_making</code> action <code>brier</code>, <code>emerald_risk</code> action <code>empirical_kelly</code></td>
 </tr>
 <tr>
-<td><code>CONCEPT:EE-032</code></td>
+<td><code>CONCEPT:AU-AHE.assimilation.trading-ecosystem-changelog</code></td>
 <td>Execution Bridge</td>
 <td>Routes a strategy/debate/optimizer <code>TradeDecision</code> (side/size/symbol/type/venue) to an <code>ExchangeBackend</code> behind the live-approval gate: paper executes freely, LIVE is BLOCKED while <code>require_human_approval_live</code> is set (returns <code>approval_required</code>), and every routed order still clears <code>RiskGuard.pre_trade_check</code>. Decision→action seam (<code>execution_bridge.py</code>)</td>
 </tr>
 <tr>
-<td><code>CONCEPT:EE-033</code></td>
+<td><code>CONCEPT:AU-AHE.assimilation.microstructure-signal-fusion</code></td>
 <td>Live Cockpit (text-mode)</td>
 <td>GUI-free cockpit rendering a structured snapshot + rich/plain table: engine status, account/positions, risk (kill-switch/drawdown/daily-loss), watchlist quotes, signals. Offline-safe (<code>engine: offline</code>). <code>emerald-cockpit</code> console script + <code>cockpit()</code> (<code>cockpit.py</code>)</td>
 </tr>
 <tr>
-<td><code>CONCEPT:EE-034</code></td>
+<td><code>CONCEPT:AU-AHE.assimilation.decision-distillation</code></td>
 <td>SABR Volatility Surface</td>
-<td><code>emerald_derivatives</code> MCP domain delegating to engine SABR kernels (<code>sabr_implied_vol</code>/<code>sabr_smile</code>/<code>sabr_calibrate</code>, KG-2.20j): implied_vol/smile/calibrate + a decision-only <code>vol_arb</code> helper diffing market vs SABR-fair smile (rich/cheap strikes). <code>derivatives.py</code>; lazy/optional engine</td>
+<td><code>emerald_derivatives</code> MCP domain delegating to engine SABR kernels (<code>sabr_implied_vol</code>/<code>sabr_smile</code>/<code>sabr_calibrate</code>, AU-KG.domains.derivatives): implied_vol/smile/calibrate + a decision-only <code>vol_arb</code> helper diffing market vs SABR-fair smile (rich/cheap strikes). <code>derivatives.py</code>; lazy/optional engine</td>
 </tr>
 <tr>
-<td><code>CONCEPT:EE-038</code></td>
+<td><code>CONCEPT:EX-AHE.harness.bounded-autonomous-allows-small</code></td>
 <td>Paper-First Staged Execution</td>
 <td>Execution-policy gating (<code>data/execution_policy.json</code>): default <code>paper</code> stage, human-only promotion (<code>RiskGuard.approve_stage</code> + token; the agent never self-escalates), and <code>evaluate_graduation</code> reporting paper→advisory→bounded_autonomous eligibility against policy thresholds. <code>risk_guards.py</code></td>
 </tr>
 <tr>
-<td><code>CONCEPT:EE-042</code></td>
+<td><code>CONCEPT:EX-AHE.harness.ee-31</code></td>
 <td>Kyle Insider/Stealth Surveillance Signal</td>
-<td><code>emerald_signals</code> action <code>surveillance</code> calling the engine <code>surveillance_risk</code> kernel (KG-2.20k, distils arXiv:2605.27684) → informed-flow/detection-hazard/legal-risk scores; registers a discoverable <code>MicrostructureSignal</code> whose priors are set later by <code>emerald_strategy</code> backtest (EE-033). DEFENSIVE: informed-flow detection, not trade concealment. <code>mcp/mcp_signals.py</code></td>
+<td><code>emerald_signals</code> action <code>surveillance</code> calling the engine <code>surveillance_risk</code> kernel (EG-KG.domains.concept-2, distils arXiv:2605.27684) → informed-flow/detection-hazard/legal-risk scores; registers a discoverable <code>MicrostructureSignal</code> whose priors are set later by <code>emerald_strategy</code> backtest (AU-AHE.assimilation.microstructure-signal-fusion). DEFENSIVE: informed-flow detection, not trade concealment. <code>mcp/mcp_signals.py</code></td>
 </tr>
 <tr>
-<td><code>CONCEPT:EE-043</code></td>
+<td><code>CONCEPT:EX-AHE.harness.sustained-adverse-selection</code></td>
 <td>Kyle Legal-Risk / Adverse-Selection Gate</td>
 <td>Market-making <code>decide</code> always computes + surfaces the Kyle <code>legal_risk_score</code>/<code>informed_share</code> (engine <code>surveillance_risk</code>) and withdraws quotes when it exceeds <code>MMConfig.legal_risk_max</code> (default 1.0 ⇒ no-op until tightened); <code>RiskGuard.evaluate_graduation</code> blocks promotion on <code>max_legal_risk</code>. <code>market_making.py</code>/<code>risk_guards.py</code></td>
 </tr>
 <tr>
-<td><code>CONCEPT:EE-044</code></td>
+<td><code>CONCEPT:EX-AHE.harness.ee-32</code></td>
 <td>Insider Equilibrium under Dynamic Legal Risk</td>
-<td><code>emerald_signals</code> action <code>insider_equilibrium</code> routes to <code>agent_utilities.domains.finance.insider_equilibrium</code> (KG-2.6, distils arXiv:2605.27684 Qiao &amp; Xia) — deepens the snapshot EE-042 surveillance score into the full continuous-time Kyle game: solves equilibrium trading intensity β<em>, the end-of-window acceleration schedule, and a penalty-policy verdict (criminal cost suppresses β</em> exactly; civil fines have diminishing, enforcement-gated effect). DEFENSIVE: surveillance/enforcement-design tool, not a concealment aid. <code>mcp/mcp_signals.py</code></td>
+<td><code>emerald_signals</code> action <code>insider_equilibrium</code> routes to <code>agent_utilities.domains.finance.insider_equilibrium</code> (KG-2.6, distils arXiv:2605.27684 Qiao &amp; Xia) — deepens the snapshot EX-AHE.harness.ee-31 surveillance score into the full continuous-time Kyle game: solves equilibrium trading intensity β<em>, the end-of-window acceleration schedule, and a penalty-policy verdict (criminal cost suppresses β</em> exactly; civil fines have diminishing, enforcement-gated effect). DEFENSIVE: surveillance/enforcement-design tool, not a concealment aid. <code>mcp/mcp_signals.py</code></td>
 </tr>
 </tbody>
 </table>
@@ -982,49 +982,49 @@
 </thead>
 <tbody>
 <tr>
-<td><code>CONCEPT:ECO-4.0</code></td>
+<td><code>CONCEPT:AU-ECO.messaging.native-backend-abstraction</code></td>
 <td>Unified Toolkit Ingestion</td>
 <td>agent-utilities</td>
 </tr>
 <tr>
-<td><code>CONCEPT:ORCH-1.2</code></td>
+<td><code>CONCEPT:AU-ORCH.adapter.hot-cache-invalidation</code></td>
 <td>Confidence-Gated Router</td>
 <td>agent-utilities</td>
 </tr>
 <tr>
-<td><code>CONCEPT:OS-5.1</code></td>
+<td><code>CONCEPT:AU-OS.config.secrets-authentication</code></td>
 <td>Prompt Injection Defense / Financial Hardening</td>
 <td>agent-utilities</td>
 </tr>
 <tr>
-<td><code>CONCEPT:OS-5.2</code></td>
+<td><code>CONCEPT:AU-OS.state.cognitive-scheduler-preemption</code></td>
 <td>Cognitive Scheduler</td>
 <td>agent-utilities</td>
 </tr>
 <tr>
-<td><code>CONCEPT:OS-5.3</code></td>
+<td><code>CONCEPT:AU-OS.governance.reactive-multi-axis-budget</code></td>
 <td>Guardrail Engine</td>
 <td>agent-utilities</td>
 </tr>
 <tr>
-<td><code>CONCEPT:OS-5.4</code></td>
+<td><code>CONCEPT:AU-OS.governance.wasm-micro-agent-sandbox</code></td>
 <td>Audit Logging</td>
 <td>agent-utilities</td>
 </tr>
 <tr>
-<td><code>CONCEPT:KG-2.0</code></td>
+<td><code>CONCEPT:AU-KG.query.object-graph-mapper</code></td>
 <td>Knowledge Graph Core</td>
 <td>agent-utilities</td>
 </tr>
 <tr>
-<td><code>CONCEPT:KG-2.6</code></td>
+<td><code>CONCEPT:AU-KG.research.research-pipeline-runner</code></td>
 <td>Finance Domain</td>
 <td>agent-utilities</td>
 </tr>
 </tbody>
 </table>
 <h2 id="synergy-with-agent-utilities">Synergy with agent-utilities<a class="headerlink" href="#synergy-with-agent-utilities" title="Permanent link">&para;</a></h2>
-<p>This project integrates with <code>agent-utilities</code> via <code>CONCEPT:ECO-4.0</code> (Unified Toolkit Ingestion). The <code>emerald_exchange</code> MCP server registers its tools with the agent-utilities FastMCP middleware, enabling automatic discovery, telemetry, and Knowledge Graph ingestion of all EE-* concepts.</p>
+<p>This project integrates with <code>agent-utilities</code> via <code>CONCEPT:AU-ECO.messaging.native-backend-abstraction</code> (Unified Toolkit Ingestion). The <code>emerald_exchange</code> MCP server registers its tools with the agent-utilities FastMCP middleware, enabling automatic discovery, telemetry, and Knowledge Graph ingestion of all EE-* concepts.</p>
 <p><strong>Finance Domain Integration</strong>:
 - Signal generation routes to <code>agent_utilities.domains.finance</code> (regime_detector, alpha_factors, signal_fusion)
 - Strategy lifecycle uses <code>agent_utilities.domains.finance.strategy_engine</code>
