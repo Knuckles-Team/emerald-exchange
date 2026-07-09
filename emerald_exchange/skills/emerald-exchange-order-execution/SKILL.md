@@ -1,5 +1,6 @@
 ---
 name: emerald-exchange-order-execution
+skill_type: skill
 description: >-
   Place, cancel, and check trading orders through the emerald-exchange MCP server
   with mandatory pre-trade risk validation, plus the emergency halt/resume kill

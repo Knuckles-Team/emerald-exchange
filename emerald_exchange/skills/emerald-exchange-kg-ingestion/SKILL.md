@@ -1,5 +1,6 @@
 ---
 name: emerald-exchange-kg-ingestion
+skill_type: skill
 description: >-
   Natively ingest live Emerald Exchange trading state into the epistemic-graph
   knowledge graph as typed OWL nodes — :Portfolio, :Position, :Instrument, :Quote,

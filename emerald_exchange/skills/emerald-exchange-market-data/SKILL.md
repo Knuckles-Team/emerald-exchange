@@ -1,5 +1,6 @@
 ---
 name: emerald-exchange-market-data
+skill_type: skill
 description: >-
   Read market data through the emerald-exchange MCP server — top-of-book quotes,
   OHLCV history, and the available exchange backends — via the domain-typed
