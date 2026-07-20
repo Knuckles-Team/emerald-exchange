@@ -1,4 +1,4 @@
-"""Exchange Backend Abstractions — CONCEPT:EE-002
+"""Exchange Backend Abstractions — CONCEPT:EX-AHE.harness.ee
 
 Unified Protocol for all exchange implementations.
 Backends: Paper (default), Alpaca, Binance, IBKR, Freqtrade, CCXT.
@@ -98,7 +98,7 @@ class OHLCV:
 
 @runtime_checkable
 class ExchangeBackend(Protocol):
-    """Abstracted exchange interface — CONCEPT:EE-002."""
+    """Abstracted exchange interface — CONCEPT:EX-AHE.harness.ee."""
 
     @property
     def name(self) -> str: ...
@@ -128,7 +128,7 @@ class ExchangeBackend(Protocol):
 
 
 class PaperBackend:
-    """Local simulation backend — DEFAULT for all trading. CONCEPT:EE-003."""
+    """Local simulation backend — DEFAULT for all trading. CONCEPT:EX-AHE.harness.ee-2."""
 
     def __init__(self, initial_cash: float = 100000.0):
         self._cash = initial_cash
@@ -242,7 +242,7 @@ class PaperBackend:
 
 
 class AlpacaBackend:
-    """Alpaca Markets backend — FREE paper + live equities. CONCEPT:EE-004."""
+    """Alpaca Markets backend — FREE paper + live equities. CONCEPT:EX-AHE.harness.ee-3."""
 
     def __init__(
         self,
@@ -332,7 +332,7 @@ class AlpacaBackend:
                 raw={"alpaca_order_id": str(order.id)},
             )
         except Exception as e:
-            logger.error("Alpaca order failed: %s", e)
+            logger.error("Alpaca order failed: error_type=%s", type(e).__name__)
             return ExecutionResult(
                 order_id="",
                 status=OrderStatus.REJECTED,
@@ -340,7 +340,7 @@ class AlpacaBackend:
                 average_price=0,
                 fees=0,
                 exchange="alpaca",
-                raw={"error": str(e)},
+                raw={"error": "Operation failed"},
             )
 
     def cancel_order(self, order_id: str) -> bool:
@@ -417,7 +417,7 @@ class AlpacaBackend:
 
 
 class CCXTBackend:
-    """CCXT unified crypto exchange backend — CONCEPT:EE-005.
+    """CCXT unified crypto exchange backend — CONCEPT:EX-AHE.harness.ee-4.
     Supports 100+ exchanges: Binance, Coinbase, Kraken, etc.
     """
 
@@ -497,7 +497,7 @@ class CCXTBackend:
                 raw=order,
             )
         except Exception as e:
-            logger.error("CCXT order failed: %s", e)
+            logger.error("CCXT order failed: error_type=%s", type(e).__name__)
             return ExecutionResult(
                 order_id="",
                 status=OrderStatus.REJECTED,
@@ -505,7 +505,7 @@ class CCXTBackend:
                 average_price=0,
                 fees=0,
                 exchange=self._exchange_id,
-                raw={"error": str(e)},
+                raw={"error": "Operation failed"},
             )
 
     def cancel_order(self, order_id: str) -> bool:
@@ -615,7 +615,7 @@ class CCXTBackend:
 
 
 class FreqtradeBackend:
-    """Freqtrade REST API backend — CONCEPT:EE-006."""
+    """Freqtrade REST API backend — CONCEPT:EX-AHE.harness.ee-5."""
 
     def __init__(
         self,
@@ -773,7 +773,7 @@ class PolymarketBackend:
                 )
             return True
         except Exception as e:
-            logger.error("Failed to connect to Polymarket CLOB: %s", e)
+            logger.error("Operation failed: error_type=%s", type(e).__name__)
             if self._mode == TradingMode.LIVE:
                 raise
             return False
@@ -853,7 +853,7 @@ class PolymarketBackend:
                 raw=resp if isinstance(resp, dict) else {"response": str(resp)},
             )
         except Exception as e:
-            logger.error("Polymarket order failed: %s", e)
+            logger.error("Polymarket order failed: error_type=%s", type(e).__name__)
             return ExecutionResult(
                 order_id="",
                 status=OrderStatus.REJECTED,
@@ -861,7 +861,7 @@ class PolymarketBackend:
                 average_price=0.0,
                 fees=0.0,
                 exchange="polymarket",
-                raw={"error": str(e)},
+                raw={"error": "Operation failed"},
             )
 
     def cancel_order(self, order_id: str) -> bool:
@@ -871,7 +871,7 @@ class PolymarketBackend:
             self._client.cancel_order(order_id)
             return True
         except Exception as e:
-            logger.error("Failed to cancel order %s: %s", order_id, e)
+            logger.error("Operation failed: error_type=%s", type(e).__name__)
             return False
 
     def get_order_status(self, order_id: str) -> ExecutionResult:
@@ -904,7 +904,9 @@ class PolymarketBackend:
                 raw=order,
             )
         except Exception as e:
-            logger.error("Failed to fetch order status %s: %s", order_id, e)
+            logger.error(
+                "Failed to fetch order status: error_type=%s", type(e).__name__
+            )
             return ExecutionResult(
                 order_id=order_id,
                 status=OrderStatus.REJECTED,
@@ -946,7 +948,7 @@ class PolymarketBackend:
                     )
             return positions
         except Exception as e:
-            logger.error("Failed to fetch Polymarket positions: %s", e)
+            logger.error("Operation failed: error_type=%s", type(e).__name__)
             return []
 
     def get_account(self) -> AccountInfo:
@@ -965,7 +967,7 @@ class PolymarketBackend:
                 currency="USDC",
             )
         except Exception as e:
-            logger.error("Failed to fetch Polymarket account info: %s", e)
+            logger.error("Operation failed: error_type=%s", type(e).__name__)
             return AccountInfo(
                 equity=0.0, cash=0.0, buying_power=0.0, exchange="polymarket"
             )
@@ -987,7 +989,9 @@ class PolymarketBackend:
                 volume=0.0,
             )
         except Exception as e:
-            logger.error("Failed to fetch Polymarket quote: %s", e)
+            logger.error(
+                "Failed to fetch Polymarket quote: error_type=%s", type(e).__name__
+            )
             return Quote(symbol=symbol, bid=0.0, ask=0.0, last=0.0, volume=0.0)
 
     def get_historical(
@@ -1005,7 +1009,7 @@ class PolymarketBackend:
             logger.info("Successfully merged YES/NO positions for market %s", market_id)
             return True
         except Exception as e:
-            logger.error("Position merge failed for market %s: %s", market_id, e)
+            logger.error("Operation failed: error_type=%s", type(e).__name__)
             return False
 
 
@@ -1028,7 +1032,7 @@ def create_backend(
     config: dict[str, Any] | None = None,
     mode: TradingMode = TradingMode.PAPER,
 ) -> ExchangeBackend:
-    """Factory to create exchange backends from config. CONCEPT:EE-002."""
+    """Factory to create exchange backends from config. CONCEPT:EX-AHE.harness.ee."""
     config = config or {}
     backend_class = BACKEND_REGISTRY.get(name)
     if not backend_class:

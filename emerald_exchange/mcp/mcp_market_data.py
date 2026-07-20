@@ -1,4 +1,4 @@
-"""Market Data MCP Tools — CONCEPT:EE-008."""
+"""Market Data MCP Tools — CONCEPT:EX-AHE.harness.ee-7."""
 
 from typing import Any
 
@@ -17,7 +17,7 @@ def register_market_data_tools(mcp: Any, backend: ExchangeBackend) -> None:
         period: str = "1y",
         interval: str = "1d",
     ) -> str:
-        """Market data operations. CONCEPT:EE-008
+        """Market data operations. CONCEPT:EX-AHE.harness.ee-7
 
         Actions:
         - 'quote': Get current quote for a symbol

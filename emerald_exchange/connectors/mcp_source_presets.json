@@ -1,0 +1,14 @@
+{
+  "_comment": "Tier-1 mcp_tool source presets for emerald-exchange (AU-KG.ingest.mcp-tool-connector). Sync live trading records into the KG via the emerald-exchange MCP server. The primary/maximum-ingestion path is the native emerald_ingest_snapshot tool (typed :Portfolio/:Position/:Instrument/:Quote/:MarketBar/:Trade nodes); this declarative preset mirrors open positions as documents. Contributed presets win over the central MCP_TOOL_PRESETS.",
+  "emerald-positions": {
+    "server": "emerald-exchange",
+    "tool": "emerald_portfolio",
+    "action": "positions",
+    "records_path": "",
+    "id_field": "symbol",
+    "title_field": "symbol",
+    "text_field": "symbol",
+    "updated_field": "",
+    "doc_type": "position"
+  }
+}

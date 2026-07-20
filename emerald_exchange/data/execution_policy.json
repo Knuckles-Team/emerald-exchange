@@ -1,0 +1,22 @@
+{
+  "stage": "paper",
+  "_comment": "CONCEPT:EE-038 — paper-first staged execution. Stage promotion is a HUMAN action (RiskGuard.approve_stage with EMERALD_STAGE_APPROVAL_TOKEN); the agent may never self-escalate. evaluate_graduation only reports eligibility.",
+  "graduation": {
+    "paper_to_advisory": {
+      "min_paper_trades": 200,
+      "min_deflated_sharpe": 1.0,
+      "max_pbo": 0.3,
+      "min_hit_rate": 0.52
+    },
+    "advisory_to_bounded": {
+      "min_approved_advisories": 50,
+      "min_live_sharpe": 0.8,
+      "max_drawdown_pct": 0.05
+    }
+  },
+  "bounded_autonomous": {
+    "max_notional_per_trade": 500,
+    "max_daily_notional": 2000,
+    "require_human_above": 1000
+  }
+}

@@ -4,10 +4,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "emerald-exchange"
-version = "0.14.0"
+version = "1.0.1"
 description = "Emerald Exchange — Unified Finance MCP Server with fully abstracted exchange backends for equities, crypto, and derivatives trading. CONCEPT:EE-001"
 readme = "README.md"
-authors = [{ name = "Audel Rouhi", email = "knucklessg1@gmail.com" }]
+authors = [{ name = "Project Maintainers", email = "maintainers@users.noreply.github.com" }]
 license = { text = "MIT" }
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -15,31 +15,58 @@ classifiers = [
     "Environment :: Console",
     "Operating System :: POSIX :: Linux",
     "Programming Language :: Python :: 3"]
-requires-python = ">=3.10"
+requires-python = ">=3.11,<3.15"
 dependencies = [
-    "agent-utilities[mcp]>=0.41.0",
+    "agent-utilities[mcp]>=1.27.1,<2.0.0",
     "numpy>=1.24.0",
     "pandas>=2.0.0",
 ]
 
 [project.optional-dependencies]
+mcp = ["agent-utilities[mcp]>=1.27.1,<2.0.0"]
 alpaca = ["alpaca-py>=0.30.0"]
 binance = ["python-binance>=1.0.0"]
 crypto = ["ccxt>=4.0.0"]
-prediction_markets = ["httpx>=0.24.0", "kalshi-python", "py-clob-client"]
+prediction_markets = ["httpx>=0.24.0", "kalshi-python", "py-clob-client", "websockets>=12.0"]
+fundamentals = ["edgartools>=2.0.0"]
+wallet_intel = ["polars>=0.20.0", "py-clob-client"]
 all = [
-    "agent-utilities[mcp,agent,logfire]>=0.41.0",
+    "agent-utilities[mcp,agent-runtime,logfire]>=1.27.1,<2.0.0",
     "alpaca-py>=0.30.0",
     "ccxt>=4.0.0",
     "httpx>=0.24.0",
     "kalshi-python",
     "py-clob-client",
+    "websockets>=12.0",
+    "edgartools>=2.0.0",
+    "polars>=0.20.0",
 ]
-agent = ["agent-utilities[agent,logfire]>=0.41.0"]
+agent = ["agent-utilities[agent-runtime,logfire]>=1.27.1,<2.0.0"]
 
 [project.scripts]
 emerald-exchange-mcp = "emerald_exchange.mcp_server:mcp_server"
 emerald-exchange-agent = "emerald_exchange.agent_server:agent_server"
+emerald-cockpit = "emerald_exchange.cockpit:main"
+
+[project.entry-points."agent_utilities.skill_providers"]
+emerald-exchange = "emerald_exchange.skills"
+
+[project.entry-points."agent_utilities.prompt_providers"]
+emerald-exchange = "emerald_exchange.prompts"
+
+# CONCEPT:AU-KG.ingest.mcp-tool-connector — Tier-1 declarative source preset(s) that sync
+# this package's records into the KG via its own MCP server, resolved via iter_provider_dirs.
+[project.entry-points."agent_utilities.source_connector_providers"]
+emerald-exchange = "emerald_exchange.connectors"
+
+# CONCEPT:AU-KG.ontology.package-federation-migration — federate this package's OWL/RDF ontology modules into the
+# agent-utilities hub (quant, trading, banking). Resolved via iter_provider_dirs
+# like the skill/prompt providers; the hub globs every *.ttl in the dir.
+[project.entry-points."agent_utilities.ontology_providers"]
+emerald-exchange = "emerald_exchange.ontology"
+
+[tool.setuptools.package-data]
+emerald_exchange = [ "mcp_config.json", "prompts/**", "skills/**", "ontology/**", "connectors/**",]
 
 [tool.setuptools.packages.find]
 where = ["."]

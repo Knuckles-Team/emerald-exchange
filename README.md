@@ -3,7 +3,11 @@
 ![PyPI - Version](https://img.shields.io/pypi/v/emerald-exchange)
 ![MCP Server](https://badge.mcpx.dev?type=server 'MCP Server')
 
-*Version: 0.14.0*
+*Version: 1.0.1*
+
+> **Documentation** — Installation, deployment, usage across the API, CLI, and MCP
+> interfaces, the A2A agent server, and the trading configuration schema are
+> maintained in the [official documentation](https://knuckles-team.github.io/emerald-exchange/).
 
 ## Overview
 
@@ -36,15 +40,50 @@ flowchart TB
 
 ## MCP Tools
 
-| Domain | Tool Name | Actions | Tag |
-|--------|-----------|---------|-----|
-| Market Data | `emerald_market_data` | quote, historical, exchanges | market-data |
-| Orders | `emerald_orders` | submit, cancel, status, halt, resume | orders |
-| Portfolio | `emerald_portfolio` | positions, account | portfolio |
-| Prediction Markets | `emerald_prediction_markets` | kalshi_events, polymarket_events, open_meteo_ensemble | prediction-markets |
-| Risk | `emerald_risk` | status, drawdown_check, daily_loss_check, kelly, limits | risk |
-| Signals | `emerald_signals` | regime, alpha, fuse | signals |
-| Strategy | `emerald_strategy` | list, promote, export | strategy |
+_Auto-generated from the live MCP server — do not edit by hand._
+
+<!-- MCP-TOOLS-TABLE:START -->
+
+#### Condensed action-routed tools (default — `MCP_TOOL_MODE=condensed`)
+
+| MCP Tool | Toggle Env Var | Description |
+|----------|----------------|-------------|
+| `ee_prediction_markets` | `PREDICTION_MARKETTOOL` | Prediction Markets operations. |
+| `emerald_crypto` | `CRYPTOTOOL` | Crypto-native analytics and arbitrage. CONCEPT:EX-AHE.harness.ee-14 |
+| `emerald_debate` | `DEBATETOOL` | Multi-agent trading debate engine. CONCEPT:EX-AHE.harness.ee-13 |
+| `emerald_derivatives` | `DERIVATIVESTOOL` | SABR volatility surface + vol-arb. CONCEPT:AU-AHE.assimilation.decision-distillation |
+| `emerald_fundamentals` | `FUNDAMENTALSTOOL` | SEC EDGAR fundamentals operations. CONCEPT:EX-AHE.harness.ee-26. |
+| `emerald_market_data` | `MARKET_DATATOOL` | Market data operations. CONCEPT:EX-AHE.harness.ee-7 |
+| `emerald_market_making` | `MARKET_MAKINGTOOL` | Market-making controller, fee model, and forensic screener. CONCEPT:EX-AHE.harness.ee-22 |
+| `emerald_orders` | `ORDERTOOL` | Order management with pre-trade risk validation. CONCEPT:EX-AHE.harness.ee-8 |
+| `emerald_portfolio` | `PORTFOLIOTOOL` | Portfolio management operations. CONCEPT:EX-AHE.harness.ee-9 |
+| `emerald_risk` | `RISKTOOL` | Risk management and monitoring. CONCEPT:AU-AHE.assimilation.skill-workflow-ingest |
+| `emerald_signals` | `SIGNALTOOL` | Signal generation and fusion. Routes to agent-utilities finance domain. CONCEPT:EX-AHE.harness.ee-11 |
+| `emerald_statarb` | `STATARBTOOL` | OU statistical-arbitrage signal + dynamic-beta hedge. CONCEPT:EX-AHE.harness.ee-29 |
+| `emerald_strategy` | `STRATEGYTOOL` | Strategy lifecycle management. CONCEPT:AU-AHE.assimilation.trading-ecosystem-spec |
+| `emerald_wallet_intel` | `WALLET_INTELTOOL` | Polymarket wallet-intelligence operations. CONCEPT:EX-AHE.harness.ee-27. |
+
+#### Verbose 1:1 API-mapped tools (`MCP_TOOL_MODE=verbose` or `both`)
+
+<details>
+<summary>9 per-operation tools — one per public API method (click to expand)</summary>
+
+| MCP Tool | Toggle Env Var | Description |
+|----------|----------------|-------------|
+| `emerald_cancel_order` | `PAPER_BACKENDTOOL` | Invoke the cancel_order operation. |
+| `emerald_connect` | `PAPER_BACKENDTOOL` | Invoke the connect operation. |
+| `emerald_disconnect` | `PAPER_BACKENDTOOL` | Invoke the disconnect operation. |
+| `emerald_get_account` | `PAPER_BACKENDTOOL` | Invoke the get_account operation. |
+| `emerald_get_historical` | `PAPER_BACKENDTOOL` | Invoke the get_historical operation. |
+| `emerald_get_order_status` | `PAPER_BACKENDTOOL` | Invoke the get_order_status operation. |
+| `emerald_get_positions` | `PAPER_BACKENDTOOL` | Invoke the get_positions operation. |
+| `emerald_get_quote` | `PAPER_BACKENDTOOL` | Invoke the get_quote operation. |
+| `emerald_submit_order` | `PAPER_BACKENDTOOL` | Invoke the submit_order operation. |
+
+</details>
+
+_14 action-routed tool(s) (default) · 9 verbose 1:1 tool(s). Each is enabled unless its `<DOMAIN>TOOL` toggle is set false; `MCP_TOOL_MODE` selects the surface (`condensed` default · `verbose` 1:1 · `both`). Auto-generated — do not edit._
+<!-- MCP-TOOLS-TABLE:END -->
 
 ## Exchange Backends
 
@@ -74,13 +113,18 @@ flowchart TB
 
 ### MCP Configuration
 
+> **Install the connector-focused `[mcp]` extra.** Examples use `emerald-exchange[mcp]` to add
+> FastMCP / FastAPI through `agent-utilities[mcp]`; the required Agent Utilities core
+> still carries `epistemic-graph[full]`. The `[agent]` extra additionally
+> enables model orchestration.
+
 #### stdio Mode
 ```json
 {
   "mcpServers": {
     "emerald-exchange": {
-      "command": "uv",
-      "args": ["run", "--with", "emerald-exchange", "emerald-exchange"],
+      "command": "uvx",
+      "args": ["--from", "emerald-exchange[mcp]", "emerald-exchange-mcp"],
       "env": {}
     }
   }
@@ -89,7 +133,7 @@ flowchart TB
 
 #### Streamable HTTP Mode
 ```bash
-emerald-exchange --transport streamable-http --port 8100
+emerald-exchange-mcp --transport streamable-http --port 8100
 ```
 
 ### Configuration
@@ -119,6 +163,21 @@ All trading settings are configured via `~/.config/agent-utilities/config.json`:
 }
 ```
 
+<!-- BEGIN GENERATED: additional-deployment-options -->
+### Additional Deployment Options
+
+`emerald-exchange` can run as a local stdio process or container, or behind a remote
+network boundary. The
+[Deployment guide](https://knuckles-team.github.io/emerald-exchange/deployment/) carries
+the detailed transport contract.
+
+- **Local container** — launch a reviewed immutable image as a least-privilege
+  stdio child with no listener or published port.
+- **Remote URL** — connect through an operator-supplied authenticated HTTPS
+  ingress. Keep its URL, outbound identity references, trust profile, and exact
+  `MCP_ALLOWED_HOSTS` in `AgentConfig`.
+<!-- END GENERATED: additional-deployment-options -->
+
 ## ⚙️ Dynamic Tool Selection & Visibility
 
 This MCP server supports dynamic toolset selection and visibility filtering at runtime. This allows you to restrict the set of exposed tools in order to prevent blowing up the LLM's context window.
@@ -143,16 +202,166 @@ When query strings or parameters are supplied, an LLM-free **Knowledge Graph res
 
 ## Installation
 
+Pick the extra that matches what you want to run, then layer trading-backend extras on top:
+
+| Extra | Installs | Use when |
+|-------|----------|----------|
+| `emerald-exchange[mcp]` | Connector-focused MCP server (`agent-utilities[mcp]` — FastMCP/FastAPI + `epistemic-graph[full]`) + paper backend | You only run the **MCP server** (smallest install / image) |
+| `emerald-exchange[agent]` | Agent runtime (`agent-utilities[agent-runtime,logfire]` — model orchestration + `epistemic-graph[full]`) | You run the **integrated agent** |
+| `emerald-exchange[all]` | Everything (`mcp` + `agent` + every trading backend) | Development / full surface |
+
 ```bash
-pip install emerald-exchange           # Core + paper backend
-pip install emerald-exchange[alpaca]   # + Alpaca equities
-pip install emerald-exchange[crypto]   # + CCXT crypto
-pip install emerald-exchange[prediction_markets] # + Kalshi & Polymarket
-pip install emerald-exchange[all]      # Everything
+pip install "emerald-exchange[mcp]"                # MCP server only (MCP runtime)
+pip install "emerald-exchange[agent]"              # Full agent runtime (Pydantic AI + engine)
+pip install "emerald-exchange[mcp,alpaca]"         # + Alpaca equities
+pip install "emerald-exchange[mcp,crypto]"         # + CCXT crypto
+pip install "emerald-exchange[mcp,prediction_markets]"  # + Kalshi & Polymarket
+pip install "emerald-exchange[all]"                # Everything
 ```
 
 ## Docker
 
+### Container images (`:mcp` vs `:agent`)
+
+One multi-stage `docker/Dockerfile` builds two right-sized images, selected by `--target`:
+
+| Image tag | Build target | Contents | Entrypoint |
+|-----------|--------------|----------|------------|
+| `example/emerald-exchange:mcp` | `--target mcp` | `emerald-exchange[mcp]` — **connector-focused**, includes `epistemic-graph[full]`; no model-orchestration stack | `emerald-exchange-mcp` |
+| `example/emerald-exchange@sha256:<digest>` | `--target agent` (default) | `emerald-exchange[agent]` — **agent runtime**, model orchestration + `epistemic-graph[full]` | `emerald-exchange-agent` |
+
 ```bash
-docker compose -f docker/compose.yml up -d
+docker build --target mcp   -t example/emerald-exchange:mcp    docker/   # connector-focused MCP server
+docker build --target agent -t example/emerald-exchange:agent-local docker/   # agent runtime
+docker compose -f docker/mcp.compose.yml up -d                               # run the :mcp server
+docker compose -f docker/compose.yml up -d                                   # full stack
 ```
+
+### Knowledge-graph database (`epistemic-graph`)
+
+Both `[mcp]` and `[agent]` carry the **epistemic-graph** engine through the required
+Agent Utilities core dependency (`epistemic-graph[full]`). The `[mcp]` extra keeps
+the server connector-focused; `[agent]` additionally enables model orchestration. Local
+deployments can use the bundled engine. For production or shared state, run
+**epistemic-graph as a dedicated database service** and configure the runtime to use it.
+Deployment recipes (single-node + Raft HA), connection configuration, and architecture
+diagrams are documented in the
+[epistemic-graph deployment guide](https://knuckles-team.github.io/epistemic-graph/deployment/).
+
+## Documentation
+
+The complete documentation is published as the
+[official documentation site](https://knuckles-team.github.io/emerald-exchange/) and is the
+recommended reference for installation, deployment, and day-to-day operation.
+
+| Page | Contents |
+|---|---|
+| [Installation](https://knuckles-team.github.io/emerald-exchange/installation/) | pip, source, extras, prebuilt Docker image |
+| [Deployment](https://knuckles-team.github.io/emerald-exchange/deployment/) | run the MCP and agent servers, Compose, Caddy + Technitium, env config |
+| [Usage](https://knuckles-team.github.io/emerald-exchange/usage/) | the MCP tools, the Python API, the cockpit CLI |
+| [Overview](https://knuckles-team.github.io/emerald-exchange/overview/) | enterprise features, tool surface, architecture |
+| [Configuration Schema](https://knuckles-team.github.io/emerald-exchange/config_schema/) | the `trading` config block and backend matrix |
+| [Concepts](https://knuckles-team.github.io/emerald-exchange/concepts/) | concept registry (`CONCEPT:EE-*`) |
+
+`AGENTS.md` is the canonical contributor/agent guidance.
+
+
+<!-- BEGIN agent-utilities-deployment (generated; do not edit between markers) -->
+
+## Deploy with `agent-utilities-deployment`
+
+Provision this package with the consolidated **`agent-utilities-deployment`**
+workflow. It selects an installed-package, editable-source, or immutable-container
+path; records only runtime secret and TLS-profile references in `AgentConfig`; and
+runs doctor, registration, policy, observability, and rollback gates. Ask your agent
+to **"deploy `emerald-exchange` with agent-utilities-deployment"**.
+
+| Install mode | Command |
+|------|---------|
+| Installed package | `uv tool install "emerald-exchange[mcp]"`, then run `emerald-exchange-mcp` |
+| Editable source | `uv pip install -e ".[agent]"`, then run `emerald-exchange-mcp` |
+| Immutable container | deploy `registry.example.invalid/emerald-exchange@sha256:<digest>` through the operator-selected orchestrator |
+
+The repository embeds no deployment profile, credential value, certificate path, or
+environment-specific endpoint. Supply those at runtime through `AgentConfig` and the
+configured secret provider.
+
+<!-- END agent-utilities-deployment -->
+
+## Environment Variables
+
+<!-- ENV-VARS-TABLE:START -->
+
+#### Package environment variables
+
+| Variable | Example | Description |
+|----------|---------|-------------|
+| `BINANCE_API_KEY` | — | Other exchanges (Alpaca, Coinbase, ...) supply credentials via operator config. |
+| `BINANCE_SECRET_KEY` | — |  |
+| `CRYPTOTOOL` | `True` | crypto market tools |
+| `DEBATETOOL` | `True` | multi-agent debate tools |
+| `DERIVATIVESTOOL` | `True` | options/futures derivatives tools |
+| `FUNDAMENTALSTOOL` | `True` | SEC/EDGAR fundamentals tools |
+| `MARKET_DATATOOL` | `True` | market-data tools |
+| `MARKET_MAKINGTOOL` | `True` | market-making tools |
+| `ORDERTOOL` | `True` | order placement/management tools |
+| `PORTFOLIOTOOL` | `True` | portfolio tools |
+| `PREDICTION_MARKETTOOL` | `True` | prediction-market tools |
+| `RISKTOOL` | `True` | risk tools |
+| `SIGNALTOOL` | `True` | signal tools |
+| `STATARBTOOL` | `True` | statistical-arbitrage tools |
+| `STRATEGYTOOL` | `True` | strategy tools |
+| `WALLET_INTELTOOL` | `True` | Polymarket wallet-intelligence tools |
+| `EDGAR_IDENTITY` | `Your Name your.email@example.com` | SEC EDGAR identity ("Name email") |
+| `EDGAR_USER_AGENT` | `Your Name your.email@example.com` | legacy fallback for EDGAR_IDENTITY |
+| `POLY_TRADES_PATH` | `/path/to/poly_trades.parquet` | Polymarket trade dataset for wallet-intel |
+| `EMERALD_STAGE_APPROVAL_TOKEN` | — | human approval token to promote execution stage |
+| `EPISTEMIC_GRAPH_SOCKET` | `/run/epistemic-graph.sock` | UDS path to the epistemic-graph engine |
+| `GRAPH_SERVICE_SOCKET` | `/run/epistemic-graph.sock` | alternate UDS path env var |
+| `EPISTEMIC_GRAPH_TCP` | `127.0.0.1:50051` | host:port for a TCP engine endpoint |
+
+#### Inherited agent-utilities variables (apply to every connector)
+
+| Variable | Example | Description |
+|----------|---------|-------------|
+| `TRANSPORT` | `stdio` | MCP transport: `stdio` | `streamable-http` | `sse` |
+| `HOST` | `0.0.0.0` | Bind host (HTTP transports) |
+| `PORT` | `8000` | Bind port (HTTP transports) |
+| `MCP_TOOL_MODE` | `condensed` | Tool surface: `condensed` | `verbose` | `both` |
+| `MCP_ENABLED_TOOLS` | — | Comma-separated tool allow-list |
+| `MCP_DISABLED_TOOLS` | — | Comma-separated tool deny-list |
+| `MCP_ENABLED_TAGS` | — | Comma-separated tag allow-list |
+| `MCP_DISABLED_TAGS` | — | Comma-separated tag deny-list |
+| `EUNOMIA_TYPE` | `none` | Authorization mode: `none` | `embedded` | `remote` |
+| `EUNOMIA_POLICY_FILE` | `mcp_policies.json` | Embedded Eunomia policy file |
+| `EUNOMIA_REMOTE_URL` | — | Remote Eunomia authorization server URL |
+| `ENABLE_OTEL` | `False` | Enable OpenTelemetry export |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | — | OTLP collector endpoint |
+| `MCP_CLIENT_AUTH` | — | Outbound MCP auth (`oidc-client-credentials` for fleet calls) |
+| `OIDC_CLIENT_ID` | — | OIDC client id (service-account auth) |
+| `OIDC_CLIENT_SECRET` | — | OIDC client secret (service-account auth) |
+| `DEBUG` | `False` | Verbose logging |
+| `PYTHONUNBUFFERED` | `1` | Unbuffered stdout (recommended in containers) |
+| `MCP_URL` | `http://localhost:8000/mcp` | URL of the MCP server the agent connects to |
+| `PROVIDER` | `openai` | LLM provider for the agent |
+| `MODEL_ID` | `gpt-4o` | Model id for the agent |
+| `ENABLE_WEB_UI` | `True` | Serve the AG-UI web interface |
+
+_23 package + 22 inherited variable(s). Auto-generated from `.env.example` + the shared agent-utilities set — do not edit._
+<!-- ENV-VARS-TABLE:END -->
+
+<!-- GOVERNED-CAPABILITY:START -->
+## Governed capability contract
+
+This package ships a compact canonical skill surface with specialist procedures
+kept as referenced workflows. The current MCP tools, skill metadata,
+`connector_manifest.yml`, ontology, mappings, shapes, fixtures, migrations,
+tool-schema fingerprints, and certification metadata form one versioned
+capability contract. Validate them together; do not rely on stale tool names or
+historical per-task skill wrappers.
+
+Runtime endpoints, credentials, certificate trust, tenant identity, retention,
+and observability policy are deployment inputs and are never packaged values.
+See [Configuration, trust, and privacy](docs/configuration.md) before enabling a
+network transport, connector ingestion, GraphOS delegation, or trace export.
+<!-- GOVERNED-CAPABILITY:END -->

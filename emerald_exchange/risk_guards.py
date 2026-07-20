@@ -1,15 +1,23 @@
-"""Risk Guards — CONCEPT:EE-007 / OS-5.1
+"""Risk Guards — CONCEPT:EX-AHE.harness.ee-6 / OS-5.1
 
 Pre-trade risk validation, circuit breakers, and kill switch.
 All P0 controls for live trading safety.
 """
 
+import json
 import logging
+import os
 from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Any
 
 import numpy as np
 
 logger = logging.getLogger(__name__)
+
+# Valid execution stages, in promotion order. Paper-first is the hard default.
+EXECUTION_STAGES = ("paper", "advisory", "bounded_autonomous")
+_DEFAULT_POLICY_PATH = Path(__file__).parent / "data" / "execution_policy.json"
 
 
 @dataclass
@@ -21,9 +29,51 @@ class RiskLimits:
     max_daily_loss_pct: float = 0.03  # 3% daily loss limit
     regime_shift_halt: bool = True
     require_human_approval_live: bool = True
+    # Staged execution gating (CONCEPT:EX-AHE.harness.bounded-autonomous-allows-small). Paper-first by default; only
+    # ``bounded_autonomous`` may submit live, and only within these caps.
+    stage: str = "paper"
+    max_notional_per_trade: float = 0.0  # 0 ⇒ unset (no per-trade cap beyond pct)
+    max_daily_notional: float = 0.0
+    require_human_above: float = 0.0  # bounded-auto orders above this need approval
     prediction_market_cost_thresholds: dict[str, float] = field(
         default_factory=lambda: {"polymarket": 0.08, "kalshi": 0.08}
     )
+
+    @classmethod
+    def from_execution_policy(cls, policy: dict[str, Any]) -> "RiskLimits":
+        """Build limits from an execution-policy dict (see execution_policy.json).
+
+        ``paper``/``advisory`` keep ``require_human_approval_live=True`` so live
+        orders are blocked; ``bounded_autonomous`` sets it False and relies on the
+        notional caps. Stage promotion is a human action — never inferred here.
+        """
+        stage = str(policy.get("stage", "paper"))
+        if stage not in EXECUTION_STAGES:
+            logger.warning("unknown execution stage %r; forcing 'paper'", stage)
+            stage = "paper"
+        caps = policy.get("bounded_autonomous", {}) or {}
+        return cls(
+            stage=stage,
+            require_human_approval_live=(stage != "bounded_autonomous"),
+            max_notional_per_trade=float(caps.get("max_notional_per_trade", 0.0)),
+            max_daily_notional=float(caps.get("max_daily_notional", 0.0)),
+            require_human_above=float(caps.get("require_human_above", 0.0)),
+        )
+
+
+def load_execution_policy(path: str | os.PathLike | None = None) -> dict[str, Any]:
+    """Load the execution policy JSON (CONCEPT:EX-AHE.harness.bounded-autonomous-allows-small), defaulting to paper.
+
+    Returns ``{"stage": "paper", ...}`` when the file is absent or malformed, so
+    the system fails safe to paper trading rather than to an open stage.
+    """
+    p = Path(path) if path else _DEFAULT_POLICY_PATH
+    try:
+        if p.is_file():
+            return json.loads(p.read_text(encoding="utf-8"))
+    except Exception as exc:  # noqa: BLE001 — fail safe to paper
+        logger.warning("Operation failed: error_type=%s", type(exc).__name__)
+    return {"stage": "paper"}
 
 
 @dataclass
@@ -35,7 +85,7 @@ class RiskCheckResult:
 
 
 class RiskGuard:
-    """Pre-trade and runtime risk validation engine. CONCEPT:EE-007."""
+    """Pre-trade and runtime risk validation engine. CONCEPT:EX-AHE.harness.ee-6."""
 
     def __init__(self, limits: RiskLimits | None = None):
         self.limits = limits or RiskLimits()
@@ -48,13 +98,75 @@ class RiskGuard:
         return self._halted
 
     def halt(self, reason: str = "Manual kill switch") -> None:
-        """Emergency kill switch — CONCEPT:OS-5.1."""
+        """Emergency kill switch — CONCEPT:AU-OS.config.secrets-authentication."""
         self._halted = True
         logger.critical("🛑 TRADING HALTED: %s", reason)
 
     def resume(self) -> None:
         self._halted = False
         logger.warning("⚠️ Trading resumed — ensure conditions are safe")
+
+    def evaluate_graduation(
+        self, metrics: dict[str, Any], policy: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
+        """Report whether the current stage is ELIGIBLE to advance (CONCEPT:EX-AHE.harness.bounded-autonomous-allows-small).
+
+        Read-only: it never changes the stage — promotion is a human action via
+        :meth:`approve_stage`. ``metrics`` carries observed performance (e.g.
+        ``paper_trades``, ``deflated_sharpe``, ``pbo``, ``hit_rate``,
+        ``approved_advisories``, ``live_sharpe``, ``max_drawdown_pct``). Thresholds
+        come from the policy's ``graduation`` block.
+        """
+        policy = policy or load_execution_policy()
+        grad = policy.get("graduation", {}) or {}
+        stage = self.limits.stage
+        if stage == "paper":
+            req = grad.get("paper_to_advisory", {})
+            unmet = []
+            if metrics.get("paper_trades", 0) < req.get("min_paper_trades", 0):
+                unmet.append("min_paper_trades")
+            if metrics.get("deflated_sharpe", 0.0) < req.get("min_deflated_sharpe", 0.0):
+                unmet.append("min_deflated_sharpe")
+            if metrics.get("pbo", 1.0) > req.get("max_pbo", 1.0):
+                unmet.append("max_pbo")
+            if metrics.get("hit_rate", 0.0) < req.get("min_hit_rate", 0.0):
+                unmet.append("min_hit_rate")
+            # Kyle surveillance gate (CONCEPT:EX-AHE.harness.sustained-adverse-selection): sustained adverse-selection /
+            # legal-risk exposure blocks graduation. Default 1.0 ⇒ no-op until the
+            # policy sets a tighter ``max_legal_risk``.
+            if metrics.get("legal_risk_score", 0.0) > req.get("max_legal_risk", 1.0):
+                unmet.append("max_legal_risk")
+            return {"stage": stage, "next": "advisory", "eligible": not unmet, "unmet": unmet}
+        if stage == "advisory":
+            req = grad.get("advisory_to_bounded", {})
+            unmet = []
+            if metrics.get("approved_advisories", 0) < req.get("min_approved_advisories", 0):
+                unmet.append("min_approved_advisories")
+            if metrics.get("live_sharpe", 0.0) < req.get("min_live_sharpe", 0.0):
+                unmet.append("min_live_sharpe")
+            if metrics.get("max_drawdown_pct", 1.0) > req.get("max_drawdown_pct", 1.0):
+                unmet.append("max_drawdown_pct")
+            return {"stage": stage, "next": "bounded_autonomous", "eligible": not unmet, "unmet": unmet}
+        return {"stage": stage, "next": None, "eligible": False, "unmet": ["already at terminal stage"]}
+
+    def approve_stage(self, new_stage: str, token: str) -> bool:
+        """Promote the execution stage — a HUMAN action gated by a secret token.
+
+        Requires ``token`` to match ``EMERALD_STAGE_APPROVAL_TOKEN`` from the
+        environment. The agent itself can never call this successfully (it has no
+        token), enforcing the "never self-escalate" rule. Returns True on success.
+        """
+        if new_stage not in EXECUTION_STAGES:
+            logger.error("approve_stage: unknown stage %r", new_stage)
+            return False
+        expected = os.getenv("EMERALD_STAGE_APPROVAL_TOKEN", "")
+        if not expected or token != expected:
+            logger.error("approve_stage: invalid or missing approval token")
+            return False
+        self.limits.stage = new_stage
+        self.limits.require_human_approval_live = new_stage != "bounded_autonomous"
+        logger.warning("✅ Execution stage promoted to %s (human-approved)", new_stage)
+        return True
 
     def pre_trade_check(
         self,
@@ -71,6 +183,35 @@ class RiskGuard:
 
         if is_live and self.limits.require_human_approval_live:
             return RiskCheckResult(False, "Live trading requires human approval")
+
+        # Staged execution gate (CONCEPT:EX-AHE.harness.bounded-autonomous-allows-small). Only bounded_autonomous may
+        # submit live, and only within the policy's notional caps.
+        if is_live:
+            position_value = qty * price
+            if self.limits.stage != "bounded_autonomous":
+                return RiskCheckResult(
+                    False,
+                    f"{self.limits.stage} stage does not permit live orders "
+                    "(paper-first; promote the stage to go live)",
+                )
+            if (
+                self.limits.require_human_above > 0
+                and position_value > self.limits.require_human_above
+            ):
+                return RiskCheckResult(
+                    False,
+                    f"Order ${position_value:.2f} exceeds autonomous cap "
+                    f"${self.limits.require_human_above:.2f}; human approval required",
+                )
+            if (
+                self.limits.max_notional_per_trade > 0
+                and position_value > self.limits.max_notional_per_trade
+            ):
+                return RiskCheckResult(
+                    False,
+                    f"Order ${position_value:.2f} exceeds per-trade notional cap "
+                    f"${self.limits.max_notional_per_trade:.2f}",
+                )
 
         # Position size check (Kelly cap)
         position_value = qty * price
@@ -169,10 +310,123 @@ class RiskGuard:
         half_kelly: bool = True,
         max_risk: float = 0.02,
     ) -> float:
-        """Calculate Kelly criterion position size."""
+        """Calculate point Kelly criterion position size."""
         if win_loss_ratio <= 0:
             return 0.0
         f_star = (win_rate * win_loss_ratio - (1 - win_rate)) / win_loss_ratio
         if half_kelly:
             f_star /= 2.0
         return max(0.0, min(f_star, max_risk))
+
+    def bayesian_kelly_size(
+        self,
+        wins: int,
+        losses: int,
+        cost: float,
+        prior_alpha: float = 1.0,
+        prior_beta: float = 1.0,
+        fraction: float = 0.25,
+    ) -> float:
+        """Bayesian-Kelly sizing under a Beta(α, β) posterior — CONCEPT:EX-AHE.harness.ee-14.
+
+        Unlike :meth:`kelly_criterion` (a point estimate of the edge), this path
+        accounts for *estimation uncertainty*: it builds a Beta posterior over the
+        true win probability from observed ``wins``/``losses`` plus a prior, then
+        delegates to the Rust engine's ``bayesian_kelly`` (which integrates Kelly
+        over that posterior and shrinks the bet as posterior variance grows).
+
+        Delegates compute to ``epistemic_graph`` ``client.finance.bayesian_kelly``;
+        falls back to the point Kelly cap when the engine is unreachable so that
+        sizing is never silently zeroed offline. The result is always clamped to
+        ``[0, max_position_pct]`` — the same cap the point path respects.
+
+        Args:
+            wins: observed winning bets (Beta successes).
+            losses: observed losing bets (Beta failures).
+            cost: per-contract cost ``c`` in (0, 1) — the YES entry price.
+            prior_alpha / prior_beta: Beta prior pseudo-counts.
+            fraction: fractional-Kelly scaler (e.g. 0.25 = quarter Kelly).
+
+        Returns:
+            Capped fraction of capital to allocate, in [0, max_position_pct].
+        """
+        alpha = prior_alpha + max(0, int(wins))
+        beta = prior_beta + max(0, int(losses))
+        cap = self.limits.max_position_pct
+
+        from emerald_exchange._engine import finance_engine
+
+        engine = finance_engine()
+        if engine is not None:
+            try:
+                f = float(
+                    engine.finance.bayesian_kelly(alpha, beta, cost, n_quadrature=50)
+                )
+                f *= fraction
+                return max(0.0, min(f, cap))
+            except Exception as exc:  # noqa: BLE001 — degrade to point Kelly
+                logger.debug("Operation failed: error_type=%s", type(exc).__name__)
+
+        # Engine-free fallback: point Kelly from the posterior mean win-rate.
+        win_rate = alpha / (alpha + beta)
+        win_loss_ratio = (1.0 - cost) / cost if 0 < cost < 1 else 1.0
+        f_star = (win_rate * win_loss_ratio - (1 - win_rate)) / win_loss_ratio
+        return max(0.0, min(f_star * fraction, cap))
+
+    def empirical_kelly_size(
+        self,
+        p: float,
+        b: float,
+        historical_returns: list[float],
+        fraction: float = 0.25,
+        n_simulations: int = 10000,
+        seed: int = 42,
+    ) -> float:
+        """Empirical (Monte-Carlo resampled) Kelly sizing — CONCEPT:EX-AHE.harness.by-default.
+
+        Where :meth:`kelly_criterion` uses the textbook closed form and
+        :meth:`bayesian_kelly_size` integrates over a Beta posterior, this path
+        sizes against the *realized return distribution*: it resamples the
+        observed per-bet ``historical_returns`` to find the growth-optimal
+        fraction, so fat tails / skew in the actual P&L (not just win-rate) shrink
+        the bet. Delegates compute to ``client.finance.empirical_kelly``.
+
+        Composition with the existing sizing ladder: this returns a *raw* Kelly
+        fraction that is fractional-scaled and then clamped to
+        ``[0, max_position_pct]`` — the SAME cap the point/Bayesian paths respect,
+        so it slots in as a drop-in third estimator without weakening the position
+        cap. Falls back to the point Kelly cap when the engine is unreachable so
+        sizing is never silently zeroed offline.
+
+        Args:
+            p: win probability estimate.
+            b: net win odds (payoff per unit risked on a win).
+            historical_returns: observed per-bet returns to resample.
+            fraction: fractional-Kelly scaler (e.g. 0.25 = quarter Kelly).
+            n_simulations: Monte-Carlo resamples.
+            seed: RNG seed for reproducibility.
+
+        Returns:
+            Capped fraction of capital to allocate, in [0, max_position_pct].
+        """
+        cap = self.limits.max_position_pct
+
+        from emerald_exchange._engine import finance_engine
+
+        engine = finance_engine()
+        if engine is not None and historical_returns:
+            try:
+                f = float(
+                    engine.finance.empirical_kelly(
+                        p, b, historical_returns, n_simulations, seed
+                    )
+                )
+                return max(0.0, min(f * fraction, cap))
+            except Exception as exc:  # noqa: BLE001 — degrade to point Kelly
+                logger.debug("Operation failed: error_type=%s", type(exc).__name__)
+
+        # Engine-free / no-history fallback: point Kelly from (p, b).
+        if b <= 0:
+            return 0.0
+        f_star = (p * b - (1.0 - p)) / b
+        return max(0.0, min(f_star * fraction, cap))

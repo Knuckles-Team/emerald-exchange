@@ -1,0 +1,20 @@
+schema_version: '1'
+connector: emerald-exchange
+ontology_source: banking
+sync:
+- preset: emerald-positions
+  server: emerald-exchange
+  tool: emerald_portfolio
+  action: positions
+  records_path: ''
+  id_field: symbol
+  title_field: symbol
+  text_field: symbol
+  updated_field: ''
+  doc_type: position
+  tool_schema_sha256: a0b30e7c48412de793324d32ce2303aaa61dc946d44d42a0e49b10c6a69144db
+governance:
+  default_acl: quarantine
+  identity: opaque-reference
+  tenant: required-at-materialization
+  provenance: required-at-materialization

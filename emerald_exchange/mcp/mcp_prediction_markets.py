@@ -1,4 +1,4 @@
-"""Prediction Markets MCP Domain — CONCEPT:EE-009
+"""Prediction Markets MCP Domain — CONCEPT:EX-AHE.harness.ee-8
 
 Action-routed tool for Kalshi, Polymarket, and Open-Meteo ensemble forecasts.
 """
@@ -95,5 +95,5 @@ def register_prediction_market_tools(mcp: Any, risk_guard: RiskGuard | None = No
                 return json.dumps({"error": f"Unknown action: {action}"})
 
         except Exception as e:
-            logger.error("Prediction markets error: %s", e)
-            return json.dumps({"error": str(e)})
+            logger.error("Operation failed: error_type=%s", type(e).__name__)
+            return json.dumps({"error": "Operation failed"})

@@ -1,4 +1,4 @@
-"""Portfolio MCP Tools — CONCEPT:EE-010."""
+"""Portfolio MCP Tools — CONCEPT:EX-AHE.harness.ee-9."""
 
 from typing import Any
 
@@ -11,7 +11,7 @@ def register_portfolio_tools(mcp: Any, backend: ExchangeBackend) -> None:
 
     @mcp.tool(tags=["portfolio"])
     def emerald_portfolio(action: str) -> str:
-        """Portfolio management operations. CONCEPT:EE-010
+        """Portfolio management operations. CONCEPT:EX-AHE.harness.ee-9
 
         Actions:
         - 'positions': List all open positions

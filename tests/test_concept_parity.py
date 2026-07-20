@@ -1,4 +1,4 @@
-"""Test concept parity between docs/concepts.md and source code. CONCEPT:EE-001"""
+"""Test concept parity between docs/concepts.md and source code. CONCEPT:AU-AHE.assimilation.autonomous-trading-ecosystem"""
 
 import re
 from pathlib import Path
@@ -48,6 +48,6 @@ def test_source_concepts_documented():
 
 
 def test_eco_bridge_reference():
-    """docs/concepts.md must reference CONCEPT:ECO-4.0 bridge."""
+    """docs/concepts.md must reference CONCEPT:AU-ECO.messaging.native-backend-abstraction bridge."""
     text = CONCEPTS_MD.read_text()
-    assert "ECO-4.0" in text, "Missing CONCEPT:ECO-4.0 bridge reference"
+    assert "AU-ECO.messaging.native-backend-abstraction" in text, "Missing CONCEPT:AU-ECO.messaging.native-backend-abstraction bridge reference"

@@ -1,0 +1,195 @@
+@prefix fibo-fi: <https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstruments/FinancialInstruments/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dc: <http://purl.org/dc/terms/> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix : <http://knuckles.team/kg#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Emerald Exchange execution-runtime ontology — the LIVE trading surface exposed by the
+# emerald-exchange MCP server (emerald_market_data / emerald_portfolio / emerald_orders).
+# Complements the analytical `quant.ttl` (which owns :Portfolio, :Position, :Account,
+# :Order, :FinancialInstrument): this module adds the concrete runtime records the
+# ingestion mapper writes — tradable :Instrument, executed :Trade fills, live :Quote
+# snapshots and :MarketBar OHLCV timeseries. All classes/properties live in the shared
+# `:` (kg#) namespace; only the owl:Ontology node carries the per-package IRI.
+
+# --- classes ---
+
+:Instrument a owl:Class ;
+    rdfs:label "Tradable Instrument" ;
+    rdfs:comment "A concrete tradable symbol on an exchange backend (equity, crypto, forex, derivative), as surfaced by emerald_market_data. Runtime twin of the analytical :FinancialInstrument." ;
+    rdfs:seeAlso fibo-fi:FinancialInstrument ;
+    rdfs:subClassOf :FinancialInstrument .
+
+:Trade a owl:Class ;
+    rdfs:label "Trade" ;
+    rdfs:comment "A recorded order execution / fill returned by emerald_orders (order_id, filled qty, average price, fees) against an exchange backend." .
+
+:Quote a owl:Class ;
+    rdfs:label "Market Quote" ;
+    rdfs:comment "A point-in-time top-of-book quote (bid/ask/last/volume) for an :Instrument, from emerald_market_data action=quote." .
+
+:MarketBar a owl:Class ;
+    rdfs:label "Market Bar (OHLCV)" ;
+    rdfs:comment "A single OHLCV timeseries bar (open/high/low/close/volume at a timestamp) for an :Instrument, from emerald_market_data action=historical." .
+
+# --- links (owl:ObjectProperty) ---
+
+:ofInstrument a owl:ObjectProperty ;
+    rdfs:label "of instrument" ;
+    rdfs:comment "Links a :Quote, :MarketBar, :Trade, or :Position to the :Instrument it concerns." ;
+    rdfs:range :Instrument .
+
+:tradesInstrument a owl:ObjectProperty ;
+    rdfs:label "trades instrument" ;
+    rdfs:comment "Links a :Trade execution to the :Instrument that was bought or sold." ;
+    rdfs:domain :Trade ;
+    rdfs:range :Instrument .
+
+:holdsPosition a owl:ObjectProperty ;
+    rdfs:label "holds position" ;
+    rdfs:comment "Links a :Portfolio to a :Position it currently holds." ;
+    rdfs:domain :Portfolio ;
+    rdfs:range :Position .
+
+:settledInPortfolio a owl:ObjectProperty ;
+    rdfs:label "settled in portfolio" ;
+    rdfs:comment "Links a :Trade execution to the :Portfolio whose cash/positions it moved." ;
+    rdfs:domain :Trade ;
+    rdfs:range :Portfolio .
+
+# --- fields (owl:DatatypeProperty) ---
+
+:exchange a owl:DatatypeProperty ;
+    rdfs:label "exchange" ;
+    rdfs:comment "Name of the exchange backend the record came from (paper, alpaca, binance, ccxt, ...)." ;
+    rdfs:range xsd:string .
+
+:tradingMode a owl:DatatypeProperty ;
+    rdfs:label "trading mode" ;
+    rdfs:comment "Execution mode of the backend: paper or live." ;
+    rdfs:range xsd:string .
+
+:bid a owl:DatatypeProperty ;
+    rdfs:label "bid" ;
+    rdfs:domain :Quote ;
+    rdfs:range xsd:double .
+
+:ask a owl:DatatypeProperty ;
+    rdfs:label "ask" ;
+    rdfs:domain :Quote ;
+    rdfs:range xsd:double .
+
+:last a owl:DatatypeProperty ;
+    rdfs:label "last price" ;
+    rdfs:domain :Quote ;
+    rdfs:range xsd:double .
+
+:volume a owl:DatatypeProperty ;
+    rdfs:label "volume" ;
+    rdfs:range xsd:double .
+
+:open a owl:DatatypeProperty ;
+    rdfs:label "open" ;
+    rdfs:domain :MarketBar ;
+    rdfs:range xsd:double .
+
+:high a owl:DatatypeProperty ;
+    rdfs:label "high" ;
+    rdfs:domain :MarketBar ;
+    rdfs:range xsd:double .
+
+:low a owl:DatatypeProperty ;
+    rdfs:label "low" ;
+    rdfs:domain :MarketBar ;
+    rdfs:range xsd:double .
+
+:close a owl:DatatypeProperty ;
+    rdfs:label "close" ;
+    rdfs:domain :MarketBar ;
+    rdfs:range xsd:double .
+
+:barTimestamp a owl:DatatypeProperty ;
+    rdfs:label "bar timestamp" ;
+    rdfs:comment "ISO-8601 timestamp of a :MarketBar or :Quote observation." ;
+    rdfs:range xsd:dateTime .
+
+:qty a owl:DatatypeProperty ;
+    rdfs:label "quantity" ;
+    rdfs:comment "Signed/absolute quantity of a :Position holding or a :Trade fill." ;
+    rdfs:range xsd:double .
+
+:filledQty a owl:DatatypeProperty ;
+    rdfs:label "filled quantity" ;
+    rdfs:domain :Trade ;
+    rdfs:range xsd:double .
+
+:averagePrice a owl:DatatypeProperty ;
+    rdfs:label "average fill price" ;
+    rdfs:domain :Trade ;
+    rdfs:range xsd:double .
+
+:fees a owl:DatatypeProperty ;
+    rdfs:label "fees" ;
+    rdfs:domain :Trade ;
+    rdfs:range xsd:double .
+
+:orderStatus a owl:DatatypeProperty ;
+    rdfs:label "order status" ;
+    rdfs:comment "Lifecycle status of a :Trade (filled, partial, cancelled, rejected, ...)." ;
+    rdfs:domain :Trade ;
+    rdfs:range xsd:string .
+
+:side a owl:DatatypeProperty ;
+    rdfs:label "side" ;
+    rdfs:comment "Trade/position side (buy/sell, long/short)." ;
+    rdfs:range xsd:string .
+
+:avgEntryPrice a owl:DatatypeProperty ;
+    rdfs:label "average entry price" ;
+    rdfs:domain :Position ;
+    rdfs:range xsd:double .
+
+:currentPrice a owl:DatatypeProperty ;
+    rdfs:label "current price" ;
+    rdfs:domain :Position ;
+    rdfs:range xsd:double .
+
+:unrealizedPnl a owl:DatatypeProperty ;
+    rdfs:label "unrealized PnL" ;
+    rdfs:domain :Position ;
+    rdfs:range xsd:double .
+
+:equity a owl:DatatypeProperty ;
+    rdfs:label "equity" ;
+    rdfs:domain :Portfolio ;
+    rdfs:range xsd:double .
+
+:cash a owl:DatatypeProperty ;
+    rdfs:label "cash" ;
+    rdfs:domain :Portfolio ;
+    rdfs:range xsd:double .
+
+:buyingPower a owl:DatatypeProperty ;
+    rdfs:label "buying power" ;
+    rdfs:domain :Portfolio ;
+    rdfs:range xsd:double .
+
+:marginUsed a owl:DatatypeProperty ;
+    rdfs:label "margin used" ;
+    rdfs:domain :Portfolio ;
+    rdfs:range xsd:double .
+
+:currency a owl:DatatypeProperty ;
+    rdfs:label "currency" ;
+    rdfs:range xsd:string .
+
+<http://knuckles.team/kg/emerald> a owl:Ontology ;
+    rdfs:label "Emerald Exchange Execution Runtime Ontology" ;
+    rdfs:comment """Live trading-execution surface of the emerald-exchange MCP server —
+    tradable instruments, executed trades/fills, top-of-book quotes, and OHLCV market-bar
+    timeseries, plus their links to the analytical :Portfolio / :Position / :Account model
+    defined in quant.ttl — federated into the agent-utilities knowledge-graph hub.""" ;
+    owl:imports <http://knuckles.team/kg> .

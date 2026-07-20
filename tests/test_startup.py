@@ -1,4 +1,4 @@
-"""Smoke tests for emerald-exchange startup. CONCEPT:EE-001"""
+"""Smoke tests for emerald-exchange startup. CONCEPT:AU-AHE.assimilation.autonomous-trading-ecosystem"""
 
 from emerald_exchange.backends import (
     PaperBackend,
