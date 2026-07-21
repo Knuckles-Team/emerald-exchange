@@ -154,7 +154,7 @@ class ExecutionBridge:
             if last and last > 0:
                 return last
         except Exception as exc:  # noqa: BLE001 — degrade to fallback price
-            logger.debug("quote lookup failed for %s: %s", decision.symbol, exc)
+            logger.debug("Operation failed: error_type=%s", type(exc).__name__)
         return 100.0
 
     def route(

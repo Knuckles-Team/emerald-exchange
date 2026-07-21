@@ -35,7 +35,7 @@ def register_strategy_tools(mcp: Any) -> None:
                 try:
                     returns = [float(x) for x in json.loads(returns_json)]
                 except (ValueError, TypeError) as exc:
-                    return json.dumps({"error": f"invalid returns_json: {exc}"})
+                    return json.dumps({"error": f"invalid returns_json: {type(exc).__name__}"})
                 if len(returns) < 2:
                     return json.dumps({"error": "need >= 2 returns to backtest"})
 
@@ -70,7 +70,7 @@ def register_strategy_tools(mcp: Any) -> None:
                         engine.nodes.add(strategy_id, node.model_dump(mode="json"))
                         written = True
                     except Exception as exc:  # noqa: BLE001 — degrade, still report
-                        metrics["write_error"] = str(exc)
+                        metrics["write_error"] = type(exc).__name__
 
                 return json.dumps(
                     {
@@ -102,5 +102,5 @@ def register_strategy_tools(mcp: Any) -> None:
                     }
                 )
             return json.dumps({"error": f"Unknown action: {action}"})
-        except Exception as e:
-            return json.dumps({"error": str(e)})
+        except Exception:
+            return json.dumps({"error": "Operation failed"})

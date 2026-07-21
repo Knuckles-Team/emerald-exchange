@@ -59,8 +59,8 @@ def _engine_status() -> dict[str, Any]:
         from emerald_exchange._engine import finance_engine
 
         client = finance_engine()
-    except Exception as exc:  # noqa: BLE001 — cockpit never crashes on probe
-        return {"status": "offline", "detail": f"probe error: {exc}"}
+    except Exception:  # noqa: BLE001 — cockpit never crashes on probe
+        return {"status": "offline", "detail": "Probe failed"}
 
     if client is None:
         return {"status": "offline", "detail": "engine unreachable"}
@@ -73,7 +73,7 @@ def _engine_status() -> dict[str, Any]:
             try:
                 info["health"] = fn()
             except Exception as exc:  # noqa: BLE001
-                info["health"] = f"{attr} failed: {exc}"
+                info["health"] = f"{attr} failed: {type(exc).__name__}"
             break
     return info
 
@@ -89,14 +89,14 @@ def _account_panel(backend: ExchangeBackend) -> dict[str, Any]:
             "buying_power": acct.buying_power,
             "currency": acct.currency,
         }
-    except Exception as exc:  # noqa: BLE001
+    except Exception:  # noqa: BLE001
         return {
             "exchange": getattr(backend, "name", "?"),
             "mode": "unknown",
             "equity": 0.0,
             "cash": 0.0,
             "buying_power": 0.0,
-            "error": str(exc),
+            "error": "Operation failed",
         }
 
 
@@ -114,7 +114,7 @@ def _positions_panel(backend: ExchangeBackend) -> list[dict[str, Any]]:
             for p in backend.get_positions()
         ]
     except Exception as exc:  # noqa: BLE001
-        logger.debug("positions lookup failed: %s", exc)
+        logger.debug("Operation failed: error_type=%s", type(exc).__name__)
         return []
 
 
@@ -134,9 +134,9 @@ def _risk_panel(backend: ExchangeBackend, risk_guard: RiskGuard) -> dict[str, An
             panel["drawdown_pct"] = max(0.0, (peak - equity) / peak)
         else:
             panel["drawdown_pct"] = 0.0
-    except Exception as exc:  # noqa: BLE001
+    except Exception:  # noqa: BLE001
         panel["drawdown_pct"] = 0.0
-        panel["detail"] = str(exc)
+        panel["detail"] = "Panel unavailable"
     return panel
 
 
@@ -156,8 +156,8 @@ def _quotes_panel(
                     "volume": q.volume,
                 }
             )
-        except Exception as exc:  # noqa: BLE001
-            out.append({"symbol": symbol, "error": str(exc)})
+        except Exception:  # noqa: BLE001
+            out.append({"symbol": symbol, "error": "Operation failed"})
     return out
 
 
@@ -194,7 +194,7 @@ def render_snapshot(snapshot: CockpitSnapshot, use_rich: bool = True) -> str:
         try:
             return _render_rich(snapshot)
         except Exception as exc:  # noqa: BLE001 — fall back to plain text
-            logger.debug("rich render failed, falling back to plain: %s", exc)
+            logger.debug("Operation failed: error_type=%s", type(exc).__name__)
     return _render_plain(snapshot)
 
 

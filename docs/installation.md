@@ -5,7 +5,7 @@ Pick the path that matches how you want to run it.
 
 ## Requirements
 
-- **Python 3.10+**.
+- **Python 3.11–3.14** (matches `requires-python = ">=3.11,<3.15"` in `pyproject.toml`).
 - No external service is required to start: the default **Paper** backend is fully
   self-contained, and every live exchange or data connector remains inactive when
   its credentials are absent.
@@ -54,14 +54,22 @@ uv run emerald-exchange-mcp
 
 ## Prebuilt Docker image
 
-A multi-stage, slim image is published on every release (entrypoint
-`emerald-exchange-mcp`):
+A multi-stage, slim runtime image (non-root, least-privilege) is published on every
+release (entrypoint `emerald-exchange-mcp`):
 
 ```bash
 docker pull knucklessg1/emerald-exchange:latest
 
 docker run --rm -i \
   knucklessg1/emerald-exchange:latest        # stdio transport (default)
+```
+
+For a pinned, reproducible pull, reference the release digest instead of the
+mutable `:latest` tag (see the [Deployment](deployment.md) guide for the
+least-privilege `docker run` flags):
+
+```bash
+docker pull knucklessg1/emerald-exchange@sha256:<digest>
 ```
 
 For an HTTP server with a published port — and the companion A2A agent server —

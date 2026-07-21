@@ -8,7 +8,15 @@ CONCEPT:AU-KG.ingest.enterprise-source-extractor.
 
 from __future__ import annotations
 
-from emerald_exchange.backends import AccountInfo, OHLCV, Position, Quote
+from typing import Any
+
+import msgpack
+import pytest
+from agent_utilities.knowledge_graph.core.session import GraphSession, use_session
+from agent_utilities.knowledge_graph.memory.native_ingest import NativeIngestError
+from agent_utilities.models.company_brain import ActorType
+from agent_utilities.security.brain_context import ActorContext, use_actor
+from emerald_exchange.backends import OHLCV, AccountInfo, Position, Quote
 from emerald_exchange.kg_ingest import (
     ingest_backend_snapshot,
     ingest_entities,
@@ -20,35 +28,97 @@ from emerald_exchange.kg_ingest import (
 )
 
 
-class _FakeTxn:
-    def __init__(self):
-        self.nodes = {}
-        self.committed = False
+@pytest.fixture(autouse=True)
+def _governed_session():
+    """Ambient actor + GraphSession required by native_ingest's injected-client path.
 
-    def begin(self, graph=None):
-        self.graph = graph
-        return "txn-1"
+    Mirrors agent-utilities' own ``tests/knowledge_graph/test_native_ingest.py``
+    reference fixture/fake (CONCEPT:AU-KG.ingest.enterprise-source-extractor).
+    """
+    actor = ActorContext(
+        actor_id="subject:opaque:synthetic",
+        actor_type=ActorType.AUTOMATED_SERVICE,
+        roles=(),
+        tenant_id="tenant:opaque:synthetic",
+        authenticated=True,
+    )
+    session = GraphSession(
+        actor=actor,
+        tenant=actor.tenant_id,
+        scopes=frozenset({"kg:write"}),
+        graph="__commons__",
+        policy_version="policy:opaque:synthetic",
+        audience="epistemic-graph",
+    )
+    with use_actor(actor), use_session(session):
+        yield
 
-    def add_node(self, txn, node_id, props):
-        self.nodes[node_id] = props
 
-    def commit(self, txn):
-        self.committed = True
-        return True
+class _FakeNodes:
+    def __init__(self) -> None:
+        self.values: dict[str, dict[str, Any]] = {}
+
+    def properties(self, node_id: str) -> dict[str, Any] | None:
+        return self.values.get(node_id)
+
+    def list(self) -> list[tuple[str, dict[str, Any]]]:
+        return list(self.values.items())
 
 
-class _FakeEdges:
-    def __init__(self):
-        self.edges = []
+class _FakeChanges:
+    def __init__(self, nodes: _FakeNodes) -> None:
+        self.nodes = nodes
+        self.edges: list[tuple[str, str, dict[str, Any]]] = []
+        self.applied: list[dict[str, Any]] = []
+        self.records: dict[str, dict[str, Any]] = {}
+        self.versions: dict[str, dict[str, Any]] = {}
 
-    def add(self, src, dst, props):
-        self.edges.append((src, dst, props))
+    def get(self, envelope_id: str) -> dict[str, Any] | None:
+        return self.records.get(envelope_id)
+
+    def content_version(self, object_id: str) -> dict[str, Any] | None:
+        return self.versions.get(object_id)
+
+    def cursor(self, _source: str, _partition: str = "") -> None:
+        return None
+
+    def apply(self, envelope: dict[str, Any]) -> dict[str, Any]:
+        self.applied.append(envelope)
+        mutation = envelope["mutation"]
+        for operation in mutation["operations"]:
+            method = operation["method"]
+            params = method["params"]
+            properties = msgpack.unpackb(params["properties_msgpack"], raw=False)
+            if method["method"] == "AddNode":
+                self.nodes.values[params["node_id"]] = properties
+            elif method["method"] == "AddEdge":
+                self.edges.append(
+                    (params["source_id"], params["target_id"], properties)
+                )
+        version = envelope["content_version"]
+        self.versions[version["object_id"]] = version
+        self.records[envelope["envelope_id"]] = envelope
+        return {
+            "batch_id": mutation["batch_id"],
+            "replayed": False,
+            "projection_pending": False,
+        }
+
+
+class _FakeRdf:
+    def validate_shacl(self, _shapes: str, _data_graph: str) -> dict[str, Any]:
+        return {"conforms": True, "results": []}
 
 
 class _FakeClient:
-    def __init__(self):
-        self.txn = _FakeTxn()
-        self.edges = _FakeEdges()
+    def __init__(self) -> None:
+        self.nodes = _FakeNodes()
+        self.changes = _FakeChanges(self.nodes)
+        self.rdf = _FakeRdf()
+
+    @staticmethod
+    def supports(operation: str) -> bool:
+        return operation == "ApplyChangeEnvelope"
 
 
 class _FakeBackend:
@@ -103,40 +173,40 @@ def test_ingest_entities_writes_nodes_and_edges():
     c = _FakeClient()
     res = ingest_entities(
         [
-            {"id": "emerald:instrument:AAPL", "type": "Instrument", "name": "AAPL"},
-            {"id": "emerald:portfolio:paper", "type": "Portfolio"},
+            {"id": "emerald:instrument:AAPL", "node_type": "Instrument", "name": "AAPL"},
+            {"id": "emerald:portfolio:paper", "node_type": "Portfolio"},
         ],
         [
             {
                 "source": "emerald:portfolio:paper",
                 "target": "emerald:instrument:AAPL",
-                "type": "holdsPosition",
+                "relationship": "holdsPosition",
             }
         ],
         client=c,
         graph="__commons__",
     )
     assert res == {"nodes": 2, "edges": 1}
-    assert c.txn.committed is True
-    assert set(c.txn.nodes) == {"emerald:instrument:AAPL", "emerald:portfolio:paper"}
+    assert len(c.changes.applied) == 1
+    assert set(c.nodes.values) == {"emerald:instrument:AAPL", "emerald:portfolio:paper"}
     # provenance stamped
-    assert c.txn.nodes["emerald:instrument:AAPL"]["source"] == "emerald-exchange"
-    assert c.txn.nodes["emerald:instrument:AAPL"]["domain"] == "emerald"
-    assert c.edges.edges[0][2] == {"type": "holdsPosition"}
+    assert c.nodes.values["emerald:instrument:AAPL"]["source"] == "emerald-exchange"
+    assert c.nodes.values["emerald:instrument:AAPL"]["domain"] == "emerald"
+    assert c.changes.edges[0] == (
+        "emerald:portfolio:paper",
+        "emerald:instrument:AAPL",
+        {"relationship": "holdsPosition"},
+    )
 
 
-def test_ingest_noops_without_engine():
-    # No injected client + no reachable engine -> clean no-op.
-    assert ingest_entities([{"id": "x", "type": "Instrument"}]) is None
+def test_ingest_rejects_legacy_structural_fields():
+    with pytest.raises(NativeIngestError, match="canonical node_type"):
+        ingest_entities([{"id": "legacy", "type": "Legacy"}], client=_FakeClient())
 
+def test_ingest_empty_is_rejected():
+    with pytest.raises(NativeIngestError, match="at least one entity"):
+        ingest_entities([], client=_FakeClient())
 
-def test_ingest_empty_is_noop():
-    assert ingest_entities([], client=_FakeClient()) is None
-
-
-# --------------------------------------------------------------------------- #
-# mappers
-# --------------------------------------------------------------------------- #
 def test_map_account_to_portfolio():
     e, r = map_account(
         {
@@ -151,7 +221,7 @@ def test_map_account_to_portfolio():
     assert r == []
     node = e[0]
     assert node["id"] == "emerald:portfolio:paper"
-    assert node["type"] == "Portfolio"
+    assert node["node_type"] == "Portfolio"
     assert node["equity"] == 100000.0
     assert node["buyingPower"] == 200000.0
 
@@ -173,9 +243,9 @@ def test_map_positions_links_instrument_and_portfolio():
     ids = {n["id"]: n for n in e}
     assert "emerald:position:paper:AAPL" in ids
     assert "emerald:instrument:AAPL" in ids
-    assert ids["emerald:position:paper:AAPL"]["type"] == "Position"
-    assert ids["emerald:instrument:AAPL"]["type"] == "Instrument"
-    rel_types = {rel["type"] for rel in r}
+    assert ids["emerald:position:paper:AAPL"]["node_type"] == "Position"
+    assert ids["emerald:instrument:AAPL"]["node_type"] == "Instrument"
+    rel_types = {rel["relationship"] for rel in r}
     assert rel_types == {"ofInstrument", "holdsPosition"}
 
 
@@ -190,8 +260,8 @@ def test_map_quote_and_bars_and_trade():
             "timestamp": "",
         }
     )
-    assert any(n["type"] == "Quote" for n in qe)
-    assert qr[0]["type"] == "ofInstrument"
+    assert any(n["node_type"] == "Quote" for n in qe)
+    assert qr[0]["relationship"] == "ofInstrument"
 
     be, br = map_bars(
         "BTC",
@@ -206,10 +276,10 @@ def test_map_quote_and_bars_and_trade():
             }
         ],
     )
-    bar = next(n for n in be if n["type"] == "MarketBar")
+    bar = next(n for n in be if n["node_type"] == "MarketBar")
     assert bar["id"] == "emerald:bar:BTC:2026-07-01T00:00:00Z"
     assert bar["close"] == 1.5
-    assert br[0]["type"] == "ofInstrument"
+    assert br[0]["relationship"] == "ofInstrument"
 
     te, tr = map_trade(
         {
@@ -222,10 +292,10 @@ def test_map_quote_and_bars_and_trade():
             "symbol": "AAPL",
         }
     )
-    trade = next(n for n in te if n["type"] == "Trade")
+    trade = next(n for n in te if n["node_type"] == "Trade")
     assert trade["id"] == "emerald:trade:PAPER-000001"
     assert trade["filledQty"] == 5
-    assert {rel["type"] for rel in tr} == {"settledInPortfolio", "tradesInstrument"}
+    assert {rel["relationship"] for rel in tr} == {"settledInPortfolio", "tradesInstrument"}
 
 
 def test_map_trade_without_id_is_empty():
@@ -246,10 +316,5 @@ def test_ingest_backend_snapshot_pushes_account_positions_quotes_bars():
     )
     assert res is not None and res["nodes"] > 0
     # portfolio + position + instrument + quote + bar all present
-    types = {props.get("type") for props in c.txn.nodes.values()}
+    types = {props.get("node_type") for props in c.nodes.values.values()}
     assert {"Portfolio", "Position", "Instrument", "Quote", "MarketBar"} <= types
-
-
-def test_snapshot_noops_without_engine():
-    # No injected client -> resolves no engine -> no-op.
-    assert ingest_backend_snapshot(_FakeBackend(), ["AAPL"]) is None

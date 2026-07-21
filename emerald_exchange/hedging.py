@@ -69,8 +69,8 @@ def dynamic_beta_hedge(
     try:
         out = engine.finance.kalman_beta(market_returns, asset_returns, q, r, beta0, p0)
     except Exception as exc:  # noqa: BLE001 — degrade cleanly (incl. stale daemon)
-        logger.debug("kalman_beta failed: %s", exc)
-        return {"error": str(exc)}
+        logger.debug("Operation failed: error_type=%s", type(exc).__name__)
+        return {"error": "Operation failed"}
 
     states = out.get("states") if isinstance(out, dict) else None
     variances = out.get("variances") if isinstance(out, dict) else None

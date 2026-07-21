@@ -77,7 +77,7 @@ def register_wallet_intel_tools(mcp: Any) -> None:
         try:
             params = json.loads(params_json) if params_json else {}
         except json.JSONDecodeError as exc:
-            return json.dumps({"error": f"invalid params_json: {exc}"})
+            return json.dumps({"error": f"invalid params_json: {type(exc).__name__}"})
 
         client = PolyWalletApi()
 
@@ -100,12 +100,12 @@ def register_wallet_intel_tools(mcp: Any) -> None:
                 result = client.exit_behavior(params["wallet"])
             else:
                 return json.dumps({"error": f"Unknown action: {action}"})
-        except NoDatasetConfigured as exc:
-            return json.dumps({"error": str(exc), "ok": False})
+        except NoDatasetConfigured:
+            return json.dumps({"error": "Operation failed", "ok": False})
         except KeyError as exc:
-            return json.dumps({"error": f"missing required param: {exc}"})
+            return json.dumps({"error": f"missing required param: {type(exc).__name__}"})
         except Exception as exc:  # noqa: BLE001
-            logger.error("wallet-intel error (%s): %s", action, exc)
-            return json.dumps({"error": str(exc)})
+            logger.error("Operation failed: error_type=%s", type(exc).__name__)
+            return json.dumps({"error": "Operation failed"})
 
         return json.dumps(result, default=str)

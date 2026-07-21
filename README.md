@@ -116,11 +116,13 @@ _14 action-routed tool(s) (default) · 9 verbose 1:1 tool(s). Each is enabled un
 > **Install the slim `[mcp]` extra.** The examples below install
 > `emerald-exchange[mcp]` — the MCP-server extra that pulls only the FastMCP /
 > FastAPI tooling (`agent-utilities[mcp]`). It deliberately **excludes** the heavy
-> agent runtime (the epistemic-graph engine, `pydantic-ai`, `dspy`, `llama-index`,
-> `tree-sitter`), so `uvx`/container installs are dramatically smaller and faster.
-> Use the full `[agent]` extra only when you need the integrated Pydantic AI agent
-> (see [Installation](#installation)). Add trading-backend extras (`[alpaca]`,
-> `[crypto]`, `[prediction_markets]`, …) on top as needed.
+> agent-orchestration runtime (`pydantic-ai`, `dspy`, `llama-index`, `tree-sitter`
+> and the agent frontends), so `uvx`/container installs stay smaller and faster —
+> note the mandatory `epistemic-graph[full]` engine is still present either way,
+> since it is a base dependency of `agent-utilities` itself, not gated behind an
+> extra. Use the full `[agent]` extra only when you need the integrated Pydantic AI
+> agent (see [Installation](#installation)). Add trading-backend extras
+> (`[alpaca]`, `[crypto]`, `[prediction_markets]`, …) on top as needed.
 
 #### stdio Mode
 ```json
@@ -177,9 +179,14 @@ consumed from a **remote deployment**. The
 **local container / uv**, and **remote URL**:
 
 - **Local container / uv** — launch the server from `mcp_config.json` via `uvx`,
-  `docker run`, or `podman run`, or point at a local streamable-http container by `url`.
+  `docker run`, or `podman run` as a least-privilege stdio child (read-only
+  filesystem, dropped capabilities, non-root user, no published port), or point
+  at a local streamable-http container by `url`.
 - **Remote URL** — connect to a server deployed behind Caddy at
-  `http://emerald-exchange-mcp.arpa/mcp` using the `"url"` key.
+  `http://emerald-exchange-mcp.arpa/mcp` using the `"url"` key. Keep the real
+  URL, outbound identity references, trust profile, and exact
+  `MCP_ALLOWED_HOSTS` in `AgentConfig` (`~/.config/agent-utilities/config.json`),
+  not hardcoded in `mcp_config.json`.
 <!-- END GENERATED: additional-deployment-options -->
 
 ## ⚙️ Dynamic Tool Selection & Visibility
@@ -210,8 +217,8 @@ Pick the extra that matches what you want to run, then layer trading-backend ext
 
 | Extra | Installs | Use when |
 |-------|----------|----------|
-| `emerald-exchange[mcp]` | Slim MCP server (`agent-utilities[mcp]` — FastMCP/FastAPI) + paper backend | You only run the **MCP server** (smallest install / image) |
-| `emerald-exchange[agent]` | Full agent runtime (`agent-utilities[agent,logfire]` — Pydantic AI + the epistemic-graph engine) | You run the **integrated agent** |
+| `emerald-exchange[mcp]` | Slim MCP server (`agent-utilities[mcp]` — FastMCP/FastAPI; still carries the mandatory `epistemic-graph[full]` base engine) + paper backend | You only run the **MCP server** (smallest install / image) |
+| `emerald-exchange[agent]` | Full agent runtime (`agent-utilities[agent-runtime,logfire]` — Pydantic AI/DSPy orchestration + `epistemic-graph[full]`) | You run the **integrated agent** |
 | `emerald-exchange[all]` | Everything (`mcp` + `agent` + every trading backend) | Development / full surface |
 
 ```bash
@@ -231,8 +238,8 @@ One multi-stage `docker/Dockerfile` builds two right-sized images, selected by `
 
 | Image tag | Build target | Contents | Entrypoint |
 |-----------|--------------|----------|------------|
-| `knucklessg1/emerald-exchange:mcp` | `--target mcp` | `emerald-exchange[mcp]` — **slim**, no engine/`pydantic-ai`/`dspy`/`llama-index`/`tree-sitter` | `emerald-exchange-mcp` |
-| `knucklessg1/emerald-exchange:latest` | `--target agent` (default) | `emerald-exchange[agent]` — **full** agent runtime + epistemic-graph engine | `emerald-exchange-agent` |
+| `knucklessg1/emerald-exchange:mcp` | `--target mcp` | `emerald-exchange[mcp]` — **slim**: no `pydantic-ai`/`dspy`/`llama-index`/`tree-sitter` agent-orchestration stack (the mandatory `epistemic-graph[full]` engine is still present — it's a base dependency of `agent-utilities`) | `emerald-exchange-mcp` |
+| `knucklessg1/emerald-exchange:latest` | `--target agent` (default) | `emerald-exchange[agent]` — **full** agent runtime (`agent-utilities[agent-runtime,logfire]`) + `epistemic-graph[full]` | `emerald-exchange-agent` |
 
 ```bash
 docker build --target mcp   -t knucklessg1/emerald-exchange:mcp    docker/   # slim MCP server
@@ -243,13 +250,17 @@ docker compose -f docker/compose.yml up -d                                   # f
 
 ### Knowledge-graph database (`epistemic-graph`)
 
-The **full agent** (`[agent]` / `:latest`) embeds the **epistemic-graph** engine (pulled in
-transitively via `agent-utilities[agent]`). For production — or to share one knowledge graph
-across multiple agents — run **epistemic-graph as its own database container** and point the
-agent at it instead of embedding it. Deployment recipes (single-node + Raft HA), connection
-config, and the full database architecture (with diagrams) are documented in the
+Both `[mcp]` and `[agent]` carry the **epistemic-graph** engine through the required
+Agent Utilities core dependency (`epistemic-graph[full]`) — it is a mandatory base
+dependency of `agent-utilities`, not gated behind an extra. The `[mcp]` extra keeps
+the server slim/connector-focused (no agent-orchestration stack); `[agent]`
+additionally enables Pydantic AI/DSPy model orchestration. Local deployments can use
+the bundled engine. For production — or to share one knowledge graph across multiple
+agents — run **epistemic-graph as its own dedicated database service** and point the
+runtime at it instead of embedding it. Deployment recipes (single-node + Raft HA),
+connection configuration, and the full database architecture (with diagrams) are
+documented in the
 [epistemic-graph deployment guide](https://knuckles-team.github.io/epistemic-graph/deployment/).
-The slim `[mcp]` server does **not** require the database.
 
 ## Documentation
 
@@ -289,6 +300,24 @@ to just this package. Ask your agent to **"deploy `emerald-exchange` with agent-
 Secrets are read-existing + seeded via `vault_sync` — you are only prompted for what's missing.
 
 <!-- END agent-os-genesis-deploy -->
+
+### Single-package self-setup: `agent-utilities-deployment`
+
+For a `tiny`/`single-node-prod` profile scoped to just this package (no whole-homelab
+genesis), the **`agent-utilities-deployment`** skill runs the equivalent
+install-mode/secrets/doctor/registration/observability/rollback sequence. Ask your
+agent to **"deploy `emerald-exchange` with agent-utilities-deployment"**.
+
+| Install mode | Command |
+|------|---------|
+| Installed package | `uv tool install "emerald-exchange[mcp]"`, then run `emerald-exchange-mcp` |
+| Editable source | `uv pip install -e ".[agent]"`, then run `emerald-exchange-mcp` |
+| Immutable container | deploy `knucklessg1/emerald-exchange:latest` through the operator-selected orchestrator |
+
+Either path: the repository embeds no deployment profile, credential value,
+certificate path, or environment-specific endpoint. Runtime secrets, TLS trust
+material, and endpoints come from `AgentConfig` / the configured secret provider
+(OpenBao or `.env`), never from a committed file.
 
 ## Environment Variables
 
@@ -351,3 +380,19 @@ Secrets are read-existing + seeded via `vault_sync` — you are only prompted fo
 
 _23 package + 22 inherited variable(s). Auto-generated from `.env.example` + the shared agent-utilities set — do not edit._
 <!-- ENV-VARS-TABLE:END -->
+
+<!-- GOVERNED-CAPABILITY:START -->
+## Governed capability contract
+
+This package ships a compact canonical skill surface with specialist procedures
+kept as referenced workflows. The current MCP tools, skill metadata,
+`connector_manifest.yml`, ontology, mappings, shapes, fixtures, migrations,
+tool-schema fingerprints, and certification metadata form one versioned
+capability contract. Validate them together; do not rely on stale tool names or
+historical per-task skill wrappers.
+
+Runtime endpoints, credentials, certificate trust, tenant identity, retention,
+and observability policy are deployment inputs and are never packaged values.
+See [Configuration, trust, and privacy](docs/configuration.md) before enabling a
+network transport, connector ingestion, GraphOS delegation, or trace export.
+<!-- GOVERNED-CAPABILITY:END -->

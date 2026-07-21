@@ -110,7 +110,7 @@ class PolymarketMarketStream:
                 try:
                     await self._on_resync(asset, last, seq)
                 except Exception as exc:  # noqa: BLE001 — caller resync best-effort
-                    logger.error("resync callback failed: %s", exc)
+                    logger.error("Operation failed: error_type=%s", type(exc).__name__)
         self._last_seq[asset] = seq
 
     # ── connection lifecycle ───────────────────────────────────────────
@@ -138,9 +138,7 @@ class PolymarketMarketStream:
                 try:
                     await ws.close(code=4000, reason="heartbeat timeout")
                 except Exception:  # noqa: BLE001 — closing a frozen socket may error
-                    logger.debug(
-                        "ws.close during heartbeat timeout raised", exc_info=True
-                    )
+                    logger.debug("WebSocket close failed during heartbeat timeout")
                 return
             try:
                 await ws.ping()
@@ -192,7 +190,7 @@ class PolymarketMarketStream:
             except asyncio.CancelledError:
                 raise
             except Exception as exc:  # noqa: BLE001 — reconnect on any error
-                logger.warning("WS connection error: %s", exc)
+                logger.warning("Operation failed: error_type=%s", type(exc).__name__)
             finally:
                 self._connected = False
 

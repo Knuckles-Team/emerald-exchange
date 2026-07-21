@@ -100,7 +100,7 @@ def register_risk_tools(
             try:
                 historical_returns = json.loads(historical_returns_json or "[]")
             except json.JSONDecodeError as exc:
-                return json.dumps({"error": f"invalid historical_returns_json: {exc}"})
+                return json.dumps({"error": f"invalid historical_returns_json: {type(exc).__name__}"})
             size = risk_guard.empirical_kelly_size(
                 p=p,
                 b=b,

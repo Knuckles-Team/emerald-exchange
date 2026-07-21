@@ -16,6 +16,11 @@ dist/
 venv/
 ENV/
 
+# Local credentials and endpoint configuration
+.env
+.env.*
+!.env.example
+
 # IDE
 .idea/
 .vscode/

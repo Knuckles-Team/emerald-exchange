@@ -1,0 +1,4 @@
+interface:
+  display_name: "Emerald Exchange Operations"
+  short_description: "Help with Emerald Exchange Operations tasks"
+  default_prompt: "Use $emerald-exchange-operations to complete a governed provider workflow."

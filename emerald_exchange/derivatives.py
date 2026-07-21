@@ -38,8 +38,10 @@ def implied_vol(
         vol = float(engine.finance.sabr_implied_vol(f, k, t, alpha, beta, rho, nu))
         return {"implied_vol": vol, "f": f, "k": k, "t": t}
     except Exception as exc:  # noqa: BLE001
-        logger.debug("sabr_implied_vol failed: %s", exc)
-        return {"error": str(exc)}
+        logger.debug(
+            "sabr_implied_vol failed: error_type=%s", type(exc).__name__
+        )
+        return {"error": "Operation failed"}
 
 
 def smile(
@@ -62,8 +64,8 @@ def smile(
         ]
         return {"strikes": strikes, "vols": vols, "f": f, "t": t}
     except Exception as exc:  # noqa: BLE001
-        logger.debug("sabr_smile failed: %s", exc)
-        return {"error": str(exc)}
+        logger.debug("sabr_smile failed: error_type=%s", type(exc).__name__)
+        return {"error": "Operation failed"}
 
 
 def calibrate(
@@ -86,8 +88,8 @@ def calibrate(
         result = engine.finance.sabr_calibrate(f, t, strikes, market_vols, beta)
         return dict(result)
     except Exception as exc:  # noqa: BLE001
-        logger.debug("sabr_calibrate failed: %s", exc)
-        return {"error": str(exc)}
+        logger.debug("sabr_calibrate failed: error_type=%s", type(exc).__name__)
+        return {"error": "Operation failed"}
 
 
 def vol_arb(

@@ -6,6 +6,9 @@
 `emerald-exchange` exposes its MCP server (console script `emerald-exchange-mcp`) four ways. Pick the row that
 matches where the server runs relative to your MCP client, then copy the matching
 `mcp_config.json` below. Add the service-connection environment variables documented in the **Configuration** section.
+Provider endpoint, credential, selector, identity, and trust material are supplied at
+runtime through `AgentConfig` (`~/.config/agent-utilities/config.json`) or environment —
+none of it is stored in this repository or belongs hardcoded in `mcp_config.json`.
 
 | # | Option | Transport | Where it runs | `mcp_config.json` key |
 |---|--------|-----------|---------------|------------------------|
@@ -24,7 +27,8 @@ The client launches the server over stdio via `uvx` — best for local IDEs
   "mcpServers": {
     "emerald-exchange-mcp": {
       "command": "uvx",
-      "args": ["--from", "emerald-exchange", "emerald-exchange-mcp"]
+      "args": ["--from", "emerald-exchange", "emerald-exchange-mcp"],
+      "env": {"MCP_TOOL_MODE": "condensed"}
     }
   }
 }
@@ -38,6 +42,13 @@ Run the server as a long-lived HTTP process:
 uvx --from emerald-exchange emerald-exchange-mcp --transport streamable-http --host 0.0.0.0 --port 8000
 curl -s http://localhost:8000/health        # {"status":"OK"}
 ```
+
+> For a **loopback-only development listener** (no published port, nothing else on the
+> host or network can reach it), bind `--host 127.0.0.1` instead of `0.0.0.0`. Do not
+> expose a `0.0.0.0` listener beyond a trusted network boundary: a real network
+> deployment needs direct TLS or an explicitly trusted TLS-terminating ingress,
+> configured authentication, an exact `MCP_ALLOWED_HOSTS`, and an exact trusted-proxy
+> CIDR policy (see [Behind a Caddy reverse proxy](#behind-a-caddy-reverse-proxy) below).
 
 Then either let the client launch it:
 
@@ -87,6 +98,26 @@ no ports to manage). Swap `docker` for `podman` for a daemonless runtime:
 }
 ```
 
+**(a2) Least-privilege container run** — the same launch, hardened for an
+untrusted or shared host (read-only root filesystem, all capabilities dropped, no
+privilege escalation, a bounded process count, and a `noexec` tmpfs for the one
+writable path the process needs):
+
+```bash
+docker run -i --rm \
+  --read-only \
+  --cap-drop=ALL \
+  --security-opt=no-new-privileges \
+  --pids-limit=256 \
+  --tmpfs /tmp:rw,noexec,nosuid,nodev,size=64m \
+  -e TRANSPORT=stdio \
+  knucklessg1/emerald-exchange@sha256:<digest> emerald-exchange-mcp
+```
+
+Pin the immutable release digest (rather than the mutable `:latest` tag) for this
+form, and project the selected `AgentConfig` profile into the process at runtime —
+the image itself carries no environment-specific connection profile.
+
 **(b) Run a local streamable-http container, then connect by URL:**
 
 ```bash
@@ -128,7 +159,10 @@ image required:
 
 Caddy reverse-proxies `http://emerald-exchange-mcp.arpa` to the container's `:8000`
 streamable-http listener; `http://emerald-exchange-mcp.arpa/health` returns
-`{"status":"OK"}` when the service is live.
+`{"status":"OK"}` when the service is live. Keep the real remote URL, outbound
+identity references, and TLS trust profile in `AgentConfig`
+(`~/.config/agent-utilities/config.json`) rather than duplicating them across
+`mcp_config.json` files or documentation.
 <!-- END GENERATED: deployment-options -->
 
 This page covers running `emerald-exchange` as a long-lived service: the
@@ -195,7 +229,9 @@ All trading behavior — the default backend, default mode, risk limits, and
 per-exchange settings — is configured in the `trading` block of
 `~/.config/agent-utilities/config.json`. The full schema, the backend matrix, and
 the complete environment-variable list are documented in the
-[Configuration schema](config_schema.md).
+[Configuration schema](config_schema.md). See also
+[Configuration, trust, and privacy](configuration.md) for the runtime-only-secrets
+policy this package follows.
 
 ### Backing service
 

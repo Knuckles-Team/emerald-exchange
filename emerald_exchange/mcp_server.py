@@ -17,12 +17,9 @@ def get_mcp_instance():
     warnings.filterwarnings("ignore", category=UserWarning, module="urllib3")
     warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-    from agent_utilities.core.config import setting
-    from agent_utilities.mcp_utilities import (
-        create_mcp_server,
-        load_config,
-        register_tool_surface,
-    )
+    from agent_utilities.core.config import load_config, setting
+    from agent_utilities.mcp.server_factory import create_mcp_server
+    from agent_utilities.mcp.verbose_tools import register_tool_surface
 
     load_config()
 
@@ -30,6 +27,9 @@ def get_mcp_instance():
         name="emerald-exchange",
         instructions="Unified Finance MCP — Exchange backends, risk management, and trading tools",
     )
+
+    # Load config
+    from agent_utilities.core import paths
 
     from emerald_exchange.mcp.mcp_crypto import register_crypto_tools
     from emerald_exchange.mcp.mcp_debate import register_debate_tools
@@ -40,17 +40,14 @@ def get_mcp_instance():
     from emerald_exchange.mcp.mcp_market_making import register_market_making_tools
     from emerald_exchange.mcp.mcp_orders import register_order_tools
     from emerald_exchange.mcp.mcp_portfolio import register_portfolio_tools
+    from emerald_exchange.mcp.mcp_prediction_markets import (
+        register_prediction_market_tools,
+    )
     from emerald_exchange.mcp.mcp_risk import register_risk_tools
     from emerald_exchange.mcp.mcp_signals import register_signal_tools
     from emerald_exchange.mcp.mcp_statarb import register_statarb_tools
     from emerald_exchange.mcp.mcp_strategy import register_strategy_tools
-    from emerald_exchange.mcp.mcp_prediction_markets import (
-        register_prediction_market_tools,
-    )
     from emerald_exchange.mcp.mcp_wallet_intel import register_wallet_intel_tools
-
-    # Load config
-    from agent_utilities.core import paths
 
     config_path = paths.config_dir() / "config.json"
     trading_config: dict = {}
@@ -60,7 +57,7 @@ def get_mcp_instance():
                 full_config = json.load(f)
             trading_config = full_config.get("trading", {})
         except Exception as e:
-            logger.warning("Failed to load trading config: %s", e)
+            logger.warning("Operation failed: error_type=%s", type(e).__name__)
 
     # Initialize exchange backend
     from emerald_exchange.backends import TradingMode, create_backend

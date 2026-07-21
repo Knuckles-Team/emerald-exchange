@@ -90,5 +90,5 @@ def register_crypto_tools(mcp: Any, backend: ExchangeBackend) -> None:
                 )
 
             return json.dumps({"error": f"Unknown action: {action}"})
-        except Exception as e:
-            return json.dumps({"error": str(e)})
+        except Exception:
+            return json.dumps({"error": "Operation failed"})

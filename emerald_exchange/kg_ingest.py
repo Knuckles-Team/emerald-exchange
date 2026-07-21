@@ -3,16 +3,10 @@
 CONCEPT:AU-KG.ingest.enterprise-source-extractor. The connector natively pushes its live
 trading data into the ONE epistemic-graph knowledge graph as **typed OWL nodes** —
 :Instrument, :Portfolio, :Position, :Trade, :Quote, :MarketBar (OHLCV timeseries) — plus
-their links (:ofInstrument / :holdsPosition / :tradesInstrument / :settledInPortfolio),
-using the lightweight engine client (``GraphComputeEngine()._client`` + ``txn``): the same
-fast client the blob ``MediaStore`` uses, NOT the heavy in-process ingestion engine.
-
-Everything is dependency-/engine-guarded. It first tries the shared fleet primitive
-``agent_utilities.knowledge_graph.memory.native_ingest``; if that (or a reachable engine)
-is absent, it falls back to a self-contained best-effort txn against ``GraphComputeEngine``,
-and if THAT is unavailable every entry point **no-ops** (returns ``None``) so the connector
-runs with zero KG infrastructure. Node ids follow ``emerald:<class>:<externalId>`` and every
-``type`` matches a class federated by ``emerald_exchange.ontology`` (emerald.ttl / quant.ttl).
+their links (:ofInstrument / :holdsPosition / :tradesInstrument / :settledInPortfolio)
+through the required ``agent_utilities.knowledge_graph.memory.native_ingest`` authority.
+Node ids follow ``emerald:<class>:<externalId>`` and every ``node_type`` matches a class
+federated by ``emerald_exchange.ontology`` (emerald.ttl / quant.ttl).
 """
 
 from __future__ import annotations
@@ -20,73 +14,17 @@ from __future__ import annotations
 import logging
 from typing import Any
 
+from agent_utilities.knowledge_graph.memory.native_ingest import (
+    ingest_documents as _native_ingest_documents,
+)
+from agent_utilities.knowledge_graph.memory.native_ingest import (
+    ingest_entities as _native_ingest_entities,
+)
+
 logger = logging.getLogger("emerald_exchange.kg")
 
 _SOURCE = "emerald-exchange"
 _DOMAIN = "emerald"
-_DEFAULT_GRAPH = "__commons__"
-
-
-# --------------------------------------------------------------------------- #
-# Engine seam — prefer the shared primitive; fall back to a local txn.
-# --------------------------------------------------------------------------- #
-def _native_client() -> tuple[Any | None, str]:
-    """Return ``(engine_client, graph_name)`` or ``(None, "")`` when unavailable."""
-    try:
-        from agent_utilities.knowledge_graph.core.graph_compute import (
-            GraphComputeEngine,
-        )
-    except Exception as e:  # noqa: BLE001 — KG stack absent
-        logger.debug("KG ingest unavailable (import): %s", e)
-        return None, ""
-    try:
-        engine = GraphComputeEngine()
-        client = getattr(engine, "_client", None)
-        if client is None:
-            return None, ""
-        return client, (getattr(engine, "graph_name", None) or _DEFAULT_GRAPH)
-    except Exception as e:  # noqa: BLE001 — engine unreachable
-        logger.debug("KG ingest: engine unreachable: %s", e)
-        return None, ""
-
-
-def _write_nodes(
-    client: Any,
-    graph: str,
-    nodes: list[dict[str, Any]],
-    relationships: list[dict[str, Any]] | None,
-) -> dict[str, int] | None:
-    """Stamp provenance, MERGE the nodes in one txn, then add the edges (best-effort)."""
-    nodes = [n for n in nodes if n.get("id")]
-    if not nodes:
-        return None
-    try:
-        txn = client.txn.begin(graph=graph)
-        for node in nodes:
-            props = {k: v for k, v in node.items() if k != "id" and v is not None}
-            props.setdefault("source", _SOURCE)
-            props.setdefault("domain", _DOMAIN)
-            client.txn.add_node(txn, node["id"], props)
-        committed = client.txn.commit(txn)
-    except Exception as e:  # noqa: BLE001 — engine/txn failure is non-fatal
-        logger.warning("KG ingest: txn failed: %s", e)
-        return None
-    if not committed:
-        logger.warning("KG ingest: txn not committed (conflict)")
-        return None
-
-    edges = 0
-    for rel in relationships or []:
-        try:
-            client.edges.add(
-                rel["source"], rel["target"], {"type": rel.get("type", "RELATED")}
-            )
-            edges += 1
-        except Exception as e:  # noqa: BLE001 — pure edge link, best-effort
-            logger.debug("KG ingest: edge skipped: %s", e)
-
-    logger.info("KG ingest[emerald]: wrote %d nodes, %d edges", len(nodes), edges)
-    return {"nodes": len(nodes), "edges": edges}
 
 
 def ingest_entities(
@@ -97,34 +35,16 @@ def ingest_entities(
     domain: str = _DOMAIN,
     client: Any | None = None,
     graph: str | None = None,
-) -> dict[str, int] | None:
-    """Write typed OWL nodes (+ edges) into epistemic-graph via the fast engine client.
-
-    ``entities``: ``[{"id":..., "type":<owl:Class>, ...props}]``.
-    ``relationships``: ``[{"source":id, "target":id, "type":<link>}]``.
-    Returns ``{"nodes":n, "edges":m}`` or ``None`` (no engine / failure; never raises).
-    Delegates to the shared ``native_ingest`` primitive when present; otherwise uses the
-    local txn fallback. ``client``/``graph`` may be injected (tests).
-    """
-    entities = [e for e in (entities or []) if e.get("id")]
-    if not entities:
-        return None
-    # Prefer the shared fleet primitive when the engine is resolved for us.
-    if client is None:
-        try:
-            from agent_utilities.knowledge_graph.memory.native_ingest import (
-                ingest_entities as _shared,
-            )
-
-            return _shared(
-                entities, relationships, source=source, domain=domain, graph=graph
-            )
-        except Exception as e:  # noqa: BLE001 — primitive absent -> local fallback
-            logger.debug("KG ingest: shared primitive unavailable: %s", e)
-        client, graph = _native_client()
-    if client is None:
-        return None
-    return _write_nodes(client, graph or _DEFAULT_GRAPH, entities, relationships)
+) -> dict[str, int]:
+    """Write canonical typed nodes and relationships through native ingestion."""
+    return _native_ingest_entities(
+        entities,
+        relationships,
+        source=source,
+        domain=domain,
+        client=client,
+        graph=graph,
+    )
 
 
 def ingest_documents(
@@ -134,25 +54,11 @@ def ingest_documents(
     domain: str = _DOMAIN,
     client: Any | None = None,
     graph: str | None = None,
-) -> dict[str, int] | None:
-    """Write text records as ``:Document`` nodes (semantic-search fodder), best-effort."""
-    documents = [d for d in (documents or []) if d.get("id") and d.get("text")]
-    if not documents:
-        return None
-    if client is None:
-        try:
-            from agent_utilities.knowledge_graph.memory.native_ingest import (
-                ingest_documents as _shared,
-            )
-
-            return _shared(documents, source=source, domain=domain, graph=graph)
-        except Exception as e:  # noqa: BLE001 — primitive absent -> local fallback
-            logger.debug("KG ingest: shared primitive unavailable: %s", e)
-        client, graph = _native_client()
-    if client is None:
-        return None
-    nodes = [{**d, "type": "Document"} for d in documents]
-    return _write_nodes(client, graph or _DEFAULT_GRAPH, nodes, None)
+) -> dict[str, int]:
+    """Write text records as ``:Document`` nodes for semantic search."""
+    return _native_ingest_documents(
+        documents, source=source, domain=domain, client=client, graph=graph
+    )
 
 
 # --------------------------------------------------------------------------- #
@@ -172,7 +78,7 @@ def map_account(account: dict[str, Any]) -> tuple[list[dict], list[dict]]:
     pid = _portfolio_id(exchange)
     node = {
         "id": pid,
-        "type": "Portfolio",
+        "node_type": "Portfolio",
         "name": f"{exchange} portfolio",
         "exchange": exchange,
         "equity": account.get("equity"),
@@ -201,7 +107,7 @@ def map_positions(
         entities.append(
             {
                 "id": pos_id,
-                "type": "Position",
+                "node_type": "Position",
                 "name": f"{symbol} @ {exchange}",
                 "exchange": exchange,
                 "qty": pos.get("qty"),
@@ -213,14 +119,21 @@ def map_positions(
             }
         )
         entities.append(
-            {"id": inst_id, "type": "Instrument", "name": symbol, "symbol": symbol}
+            {
+                "id": inst_id,
+                "node_type": "Instrument",
+                "name": symbol,
+                "symbol": symbol,
+            }
         )
-        rels.append({"source": pos_id, "target": inst_id, "type": "ofInstrument"})
+        rels.append(
+            {"source": pos_id, "target": inst_id, "relationship": "ofInstrument"}
+        )
         rels.append(
             {
                 "source": _portfolio_id(exchange),
                 "target": pos_id,
-                "type": "holdsPosition",
+                "relationship": "holdsPosition",
             }
         )
     return entities, rels
@@ -235,10 +148,15 @@ def map_quote(quote: dict[str, Any]) -> tuple[list[dict], list[dict]]:
     ts = quote.get("timestamp") or ""
     q_id = f"emerald:quote:{symbol}:{ts}" if ts else f"emerald:quote:{symbol}:latest"
     entities = [
-        {"id": inst_id, "type": "Instrument", "name": symbol, "symbol": symbol},
+        {
+            "id": inst_id,
+            "node_type": "Instrument",
+            "name": symbol,
+            "symbol": symbol,
+        },
         {
             "id": q_id,
-            "type": "Quote",
+            "node_type": "Quote",
             "name": f"{symbol} quote",
             "symbol": symbol,
             "bid": quote.get("bid"),
@@ -248,7 +166,7 @@ def map_quote(quote: dict[str, Any]) -> tuple[list[dict], list[dict]]:
             "barTimestamp": ts or None,
         },
     ]
-    rels = [{"source": q_id, "target": inst_id, "type": "ofInstrument"}]
+    rels = [{"source": q_id, "target": inst_id, "relationship": "ofInstrument"}]
     return entities, rels
 
 
@@ -258,7 +176,7 @@ def map_bars(symbol: str, bars: list[dict[str, Any]]) -> tuple[list[dict], list[
         return [], []
     inst_id = _instrument_id(symbol)
     entities: list[dict] = [
-        {"id": inst_id, "type": "Instrument", "name": symbol, "symbol": symbol}
+        {"id": inst_id, "node_type": "Instrument", "name": symbol, "symbol": symbol}
     ]
     rels: list[dict] = []
     for bar in bars or []:
@@ -269,7 +187,7 @@ def map_bars(symbol: str, bars: list[dict[str, Any]]) -> tuple[list[dict], list[
         entities.append(
             {
                 "id": bar_id,
-                "type": "MarketBar",
+                "node_type": "MarketBar",
                 "name": f"{symbol} {ts}",
                 "symbol": symbol,
                 "barTimestamp": ts,
@@ -280,7 +198,9 @@ def map_bars(symbol: str, bars: list[dict[str, Any]]) -> tuple[list[dict], list[
                 "volume": bar.get("volume", bar.get("v")),
             }
         )
-        rels.append({"source": bar_id, "target": inst_id, "type": "ofInstrument"})
+        rels.append(
+            {"source": bar_id, "target": inst_id, "relationship": "ofInstrument"}
+        )
     return entities, rels
 
 
@@ -294,7 +214,7 @@ def map_trade(trade: dict[str, Any]) -> tuple[list[dict], list[dict]]:
     t_id = f"emerald:trade:{oid}"
     node = {
         "id": t_id,
-        "type": "Trade",
+        "node_type": "Trade",
         "name": f"trade {oid}",
         "exchange": exchange,
         "orderStatus": trade.get("status"),
@@ -310,16 +230,27 @@ def map_trade(trade: dict[str, Any]) -> tuple[list[dict], list[dict]]:
         {
             "source": t_id,
             "target": _portfolio_id(exchange),
-            "type": "settledInPortfolio",
+            "relationship": "settledInPortfolio",
         }
     ]
     if symbol:
         inst_id = _instrument_id(symbol)
         node["symbol"] = symbol
         entities.append(
-            {"id": inst_id, "type": "Instrument", "name": symbol, "symbol": symbol}
+            {
+                "id": inst_id,
+                "node_type": "Instrument",
+                "name": symbol,
+                "symbol": symbol,
+            }
         )
-        rels.append({"source": t_id, "target": inst_id, "type": "tradesInstrument"})
+        rels.append(
+            {
+                "source": t_id,
+                "target": inst_id,
+                "relationship": "tradesInstrument",
+            }
+        )
     return entities, rels
 
 
@@ -335,9 +266,9 @@ def ingest_backend_snapshot(
     interval: str = "1d",
     client: Any | None = None,
     graph: str | None = None,
-) -> dict[str, int] | None:
+) -> dict[str, int]:
     """List account + positions (+ optional quotes/bars for ``symbols``) off a live
-    ExchangeBackend and push them into the KG as typed nodes. Best-effort / no-op safe.
+    ExchangeBackend and push them into the KG as canonical typed nodes.
     """
     entities: list[dict] = []
     rels: list[dict] = []
@@ -348,7 +279,7 @@ def ingest_backend_snapshot(
         entities += e
         rels += r
     except Exception as e:  # noqa: BLE001
-        logger.debug("KG ingest: account snapshot skipped: %s", e)
+        logger.debug("Operation failed: error_type=%s", type(e).__name__)
 
     try:
         positions = [_as_dict(p) for p in backend.get_positions()]
@@ -356,7 +287,7 @@ def ingest_backend_snapshot(
         entities += e
         rels += r
     except Exception as e:  # noqa: BLE001
-        logger.debug("KG ingest: positions snapshot skipped: %s", e)
+        logger.debug("Operation failed: error_type=%s", type(e).__name__)
 
     for sym in symbols or []:
         try:
@@ -364,7 +295,7 @@ def ingest_backend_snapshot(
             entities += e
             rels += r
         except Exception as e:  # noqa: BLE001
-            logger.debug("KG ingest: quote %s skipped: %s", sym, e)
+            logger.debug("Operation failed: error_type=%s", type(e).__name__)
         if include_history:
             try:
                 bars = [
@@ -374,9 +305,16 @@ def ingest_backend_snapshot(
                 entities += e
                 rels += r
             except Exception as e:  # noqa: BLE001
-                logger.debug("KG ingest: history %s skipped: %s", sym, e)
+                logger.debug("Operation failed: error_type=%s", type(e).__name__)
 
-    return ingest_entities(entities, rels, client=client, graph=graph)
+    # Each per-symbol mapper (map_positions / map_quote / map_bars) independently
+    # re-emits the same :Instrument node for a repeated symbol; the canonical
+    # ChangeEnvelope path requires unique auxiliary node ids, so collapse
+    # same-id duplicates (identical content per mapper) before writing.
+    deduped: dict[str, dict] = {}
+    for entity in entities:
+        deduped.setdefault(entity["id"], entity)
+    return ingest_entities(list(deduped.values()), rels, client=client, graph=graph)
 
 
 def _as_dict(obj: Any) -> dict[str, Any]:

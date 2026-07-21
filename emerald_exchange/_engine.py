@@ -58,7 +58,7 @@ def finance_engine() -> Any:
             client = SyncEpistemicGraphClient.connect()
         logger.info("epistemic-graph engine connected; Rust quant compute enabled")
     except Exception as exc:  # noqa: BLE001 — degrade gracefully when unreachable
-        logger.warning("epistemic-graph engine unavailable: %s", exc)
+        logger.warning("Operation failed: error_type=%s", type(exc).__name__)
         client = None
     _CLIENT_CACHE = client
     return client

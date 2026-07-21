@@ -48,7 +48,7 @@ def register_statarb_tools(mcp: Any) -> None:
         try:
             params = json.loads(params_json or "{}")
         except json.JSONDecodeError as exc:
-            return json.dumps({"error": f"invalid params_json: {exc}"})
+            return json.dumps({"error": f"invalid params_json: {type(exc).__name__}"})
 
         try:
             if action == "ou_signal":
@@ -81,5 +81,5 @@ def register_statarb_tools(mcp: Any) -> None:
 
             return json.dumps({"error": f"Unknown action: {action}"})
         except Exception as exc:  # noqa: BLE001
-            logger.error("statarb tool error: %s", exc)
-            return json.dumps({"error": str(exc)})
+            logger.error("Statarb tool error: error_type=%s", type(exc).__name__)
+            return json.dumps({"error": "Operation failed"})

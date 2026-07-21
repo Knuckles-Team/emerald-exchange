@@ -1,0 +1,6 @@
+{
+  "connector": "emerald-exchange",
+  "current_ontology_source": "banking",
+  "migrations": [],
+  "schema_version": "1"
+}

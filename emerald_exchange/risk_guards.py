@@ -72,7 +72,7 @@ def load_execution_policy(path: str | os.PathLike | None = None) -> dict[str, An
         if p.is_file():
             return json.loads(p.read_text(encoding="utf-8"))
     except Exception as exc:  # noqa: BLE001 — fail safe to paper
-        logger.warning("execution policy load failed (%s); defaulting to paper", exc)
+        logger.warning("Operation failed: error_type=%s", type(exc).__name__)
     return {"stage": "paper"}
 
 
@@ -365,7 +365,7 @@ class RiskGuard:
                 f *= fraction
                 return max(0.0, min(f, cap))
             except Exception as exc:  # noqa: BLE001 — degrade to point Kelly
-                logger.debug("bayesian_kelly engine call failed: %s", exc)
+                logger.debug("Operation failed: error_type=%s", type(exc).__name__)
 
         # Engine-free fallback: point Kelly from the posterior mean win-rate.
         win_rate = alpha / (alpha + beta)
@@ -423,7 +423,7 @@ class RiskGuard:
                 )
                 return max(0.0, min(f * fraction, cap))
             except Exception as exc:  # noqa: BLE001 — degrade to point Kelly
-                logger.debug("empirical_kelly engine call failed: %s", exc)
+                logger.debug("Operation failed: error_type=%s", type(exc).__name__)
 
         # Engine-free / no-history fallback: point Kelly from (p, b).
         if b <= 0:

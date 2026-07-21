@@ -70,5 +70,5 @@ def forensic_screen(
         report = engine.finance.forensic_report(ty, py)
         return dict(report) if isinstance(report, dict) else {"report": report}
     except Exception as exc:  # noqa: BLE001
-        logger.error("forensic_report failed: %s", exc)
-        return {"error": str(exc)}
+        logger.error("Operation failed: error_type=%s", type(exc).__name__)
+        return {"error": "Operation failed"}

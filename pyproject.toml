@@ -7,7 +7,7 @@ name = "emerald-exchange"
 version = "1.0.1"
 description = "Emerald Exchange — Unified Finance MCP Server with fully abstracted exchange backends for equities, crypto, and derivatives trading. CONCEPT:EE-001"
 readme = "README.md"
-authors = [{ name = "Audel Rouhi", email = "knucklessg1@gmail.com" }]
+authors = [{ name = "Project Maintainers", email = "maintainers@users.noreply.github.com" }]
 license = { text = "MIT" }
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -15,15 +15,15 @@ classifiers = [
     "Environment :: Console",
     "Operating System :: POSIX :: Linux",
     "Programming Language :: Python :: 3"]
-requires-python = ">=3.10"
+requires-python = ">=3.11,<3.15"
 dependencies = [
-    "agent-utilities[mcp]>=1.0.0",
+    "agent-utilities[mcp]>=1.27.1,<2.0.0",
     "numpy>=1.24.0",
     "pandas>=2.0.0",
 ]
 
 [project.optional-dependencies]
-mcp = ["agent-utilities[mcp]>=1.0.0"]
+mcp = ["agent-utilities[mcp]>=1.27.1,<2.0.0"]
 alpaca = ["alpaca-py>=0.30.0"]
 binance = ["python-binance>=1.0.0"]
 crypto = ["ccxt>=4.0.0"]
@@ -31,7 +31,7 @@ prediction_markets = ["httpx>=0.24.0", "kalshi-python", "py-clob-client", "webso
 fundamentals = ["edgartools>=2.0.0"]
 wallet_intel = ["polars>=0.20.0", "py-clob-client"]
 all = [
-    "agent-utilities[mcp,agent,logfire]>=1.0.0",
+    "agent-utilities[mcp,agent-runtime,logfire]>=1.27.1,<2.0.0",
     "alpaca-py>=0.30.0",
     "ccxt>=4.0.0",
     "httpx>=0.24.0",
@@ -41,7 +41,7 @@ all = [
     "edgartools>=2.0.0",
     "polars>=0.20.0",
 ]
-agent = ["agent-utilities[agent,logfire]>=1.0.0"]
+agent = ["agent-utilities[agent-runtime,logfire]>=1.27.1,<2.0.0"]
 
 [project.scripts]
 emerald-exchange-mcp = "emerald_exchange.mcp_server:mcp_server"

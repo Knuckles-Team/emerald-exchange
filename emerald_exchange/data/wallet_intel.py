@@ -155,7 +155,7 @@ class PolyWalletApi:
             )
         if not os.path.exists(self.dataset_path):
             raise NoDatasetConfigured(
-                f"Configured trade dataset not found: {self.dataset_path!r}."
+                "Configured trade dataset was not found."
             )
 
         rows = self._read_rows(self.dataset_path)

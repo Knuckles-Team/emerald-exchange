@@ -356,7 +356,7 @@ class EdgarApi:
                 if not text and hasattr(obj, item.lower().replace(" ", "_")):
                     text = str(getattr(obj, item.lower().replace(" ", "_")))
             except Exception as exc:
-                text = f"<extraction failed: {exc}>"
+                text = f"<extraction failed: {type(exc).__name__}>"
             out["years"].append(
                 {
                     "filing_date": str(getattr(f, "filing_date", "")),

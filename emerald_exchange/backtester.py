@@ -348,13 +348,13 @@ def validate_returns(
             engine.finance.deflated_sharpe(observed_sr, n_trials, returns)
         )
     except Exception as exc:  # noqa: BLE001
-        out["deflated_sharpe_error"] = str(exc)
+        out["deflated_sharpe_error"] = type(exc).__name__
     try:
         out["cpcv_splits"] = engine.finance.purged_cpcv(
             len(returns), cpcv_groups, cpcv_test_groups
         )
     except Exception as exc:  # noqa: BLE001
-        out["cpcv_error"] = str(exc)
+        out["cpcv_error"] = type(exc).__name__
     return out
 
 
@@ -373,5 +373,5 @@ def probability_overfit(
             if pbo < 0.3
             else ("overfit" if pbo > 0.5 else "borderline"),
         }
-    except Exception as exc:  # noqa: BLE001
-        return {"error": str(exc)}
+    except Exception:  # noqa: BLE001
+        return {"error": "Operation failed"}

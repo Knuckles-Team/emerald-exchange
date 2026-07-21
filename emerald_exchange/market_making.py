@@ -55,8 +55,8 @@ def brier_score(forecasts: list[float], outcomes: list[float]) -> dict[str, Any]
         score = float(engine.finance.brier_score(forecasts, outcomes))
         return {"brier_score": score, "n": len(forecasts), "engine_used": True}
     except Exception as exc:  # noqa: BLE001 — degrade cleanly (incl. stale daemon)
-        logger.debug("brier_score failed: %s", exc)
-        return {"error": str(exc)}
+        logger.debug("brier_score failed: error_type=%s", type(exc).__name__)
+        return {"error": "Operation failed"}
 
 
 @dataclass
@@ -204,7 +204,7 @@ class MarketMakingController:
                 if series:
                     return float(series[-1]), True
             except Exception as exc:  # noqa: BLE001 — degrade to mid
-                logger.debug("microprice_series failed, using mid: %s", exc)
+                logger.debug("Operation failed: error_type=%s", type(exc).__name__)
         return book.mid, False
 
     def _ofi_drift(self, book: BookSnapshot, engine: Any) -> float:
@@ -223,7 +223,7 @@ class MarketMakingController:
             if ofi:
                 return coef * float(ofi[-1])
         except Exception as exc:  # noqa: BLE001
-            logger.debug("ofi_series failed, no drift: %s", exc)
+            logger.debug("Operation failed: error_type=%s", type(exc).__name__)
         return 0.0
 
     def _toxicity(
@@ -243,7 +243,7 @@ class MarketMakingController:
             )
             return alpha, be
         except Exception as exc:  # noqa: BLE001
-            logger.debug("toxicity gate unavailable: %s", exc)
+            logger.debug("Operation failed: error_type=%s", type(exc).__name__)
             return 0.0, 1.0
 
     def _surveillance(self, book: BookSnapshot, engine: Any) -> tuple[float, float]:
@@ -274,7 +274,7 @@ class MarketMakingController:
                     float(out.get("informed_share", 0.0)),
                 )
         except Exception as exc:  # noqa: BLE001 — degrade, never block blind
-            logger.debug("surveillance gate unavailable: %s", exc)
+            logger.debug("Operation failed: error_type=%s", type(exc).__name__)
         return 0.0, 0.0
 
     def _queue_skew(self, book: BookSnapshot, engine: Any) -> tuple[float, float]:
@@ -306,7 +306,7 @@ class MarketMakingController:
                     )
                     return float(out["skew"][-1]), fill_time
             except Exception as exc:  # noqa: BLE001 — degrade to local mirror
-                logger.debug("queue_imbalance failed, local skew: %s", exc)
+                logger.debug("Operation failed: error_type=%s", type(exc).__name__)
         # Local fallback mirroring the kernel: (ask_q - bid_q)/(ask_q + bid_q).
         b, a = float(bq[-1]), float(aq[-1])
         total = a + b
@@ -340,7 +340,7 @@ class MarketMakingController:
                 if isinstance(out, dict):
                     return out
             except Exception as exc:  # noqa: BLE001 — local fallback below
-                logger.debug("convergence_gate engine call failed: %s", exc)
+                logger.debug("Operation failed: error_type=%s", type(exc).__name__)
 
         # Local fallback mirroring the engine's gate semantics.
         thr = cfg.conviction_strong_threshold
@@ -436,7 +436,10 @@ class MarketMakingController:
                     )
                 engine_used = True
             except Exception as exc:  # noqa: BLE001 — degrade locally
-                logger.debug("AS/logit quotes failed, local fallback: %s", exc)
+                logger.debug(
+                    "AS/logit quotes failed; using local fallback: error_type=%s",
+                    type(exc).__name__,
+                )
                 quotes = None
 
         if quotes is not None:

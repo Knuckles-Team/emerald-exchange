@@ -70,8 +70,8 @@ def ou_stat_arb_signal(
     try:
         adf = engine.finance.adf_test(spread, adf_max_lag)
     except Exception as exc:  # noqa: BLE001 — degrade cleanly (incl. stale daemon)
-        logger.debug("adf_test failed: %s", exc)
-        return {"error": str(exc)}
+        logger.debug("adf_test failed: error_type=%s", type(exc).__name__)
+        return {"error": "Operation failed"}
 
     stationary = (
         bool(adf.get("stationary_5pct", False)) if isinstance(adf, dict) else False
@@ -96,8 +96,8 @@ def ou_stat_arb_signal(
             cost,
         )
     except Exception as exc:  # noqa: BLE001
-        logger.debug("OU calibration/thresholds failed: %s", exc)
-        return {"error": str(exc)}
+        logger.debug("Operation failed: error_type=%s", type(exc).__name__)
+        return {"error": "Operation failed"}
 
     mu = float(ou["mu"])
     entry_long = float(thresholds["entry_long"])

@@ -34,7 +34,9 @@ def _load_microstructure_priors() -> list[dict]:
             props.setdefault("name", node_id)
             priors.append(props)
     except Exception as exc:  # noqa: BLE001 — degrade to no priors
-        logger.debug("microstructure prior load failed: %s", exc)
+        logger.debug(
+            "Microstructure prior load failed: error_type=%s", type(exc).__name__
+        )
         return []
     return priors
 
@@ -107,7 +109,7 @@ def register_signal_tools(mcp: Any) -> None:
                         str(k): int(v) for k, v in json.loads(signals_json).items()
                     }
                 except (ValueError, TypeError, AttributeError) as exc:
-                    return json.dumps({"error": f"invalid signals_json: {exc}"})
+                    return json.dumps({"error": f"invalid signals_json: {type(exc).__name__}"})
 
                 fusion = BayesianSignalFusion()
                 priors = _load_microstructure_priors()
@@ -138,7 +140,7 @@ def register_signal_tools(mcp: Any) -> None:
                 try:
                     book = json.loads(signals_json)
                 except (ValueError, TypeError) as exc:
-                    return json.dumps({"error": f"invalid signals_json: {exc}"})
+                    return json.dumps({"error": f"invalid signals_json: {type(exc).__name__}"})
 
                 try:
                     scores = engine.finance.surveillance_risk(
@@ -149,8 +151,8 @@ def register_signal_tools(mcp: Any) -> None:
                         price_changes=[float(x) for x in book.get("price_changes", [])],
                         baseline_sigma=float(book.get("baseline_sigma", 0.0)),
                     )
-                except Exception as exc:  # noqa: BLE001 — degrade cleanly
-                    return json.dumps({"error": str(exc)})
+                except Exception:  # noqa: BLE001 — degrade cleanly
+                    return json.dumps({"error": "Operation failed"})
 
                 # Register the detector as a discoverable MicrostructureSignal so the
                 # fuse path finds it; priors (accuracy/sharpe/pbo) stay at defaults
@@ -172,7 +174,7 @@ def register_signal_tools(mcp: Any) -> None:
                     engine.nodes.add(signal_id, node.model_dump(mode="json"))
                     registered = True
                 except Exception as exc:  # noqa: BLE001 — scores still returned
-                    logger.debug("surveillance signal register failed: %s", exc)
+                    logger.debug("Operation failed: error_type=%s", type(exc).__name__)
 
                 return json.dumps(
                     {
@@ -195,14 +197,14 @@ def register_signal_tools(mcp: Any) -> None:
                 try:
                     params = json.loads(signals_json) if signals_json else {}
                 except (ValueError, TypeError) as exc:
-                    return json.dumps({"error": f"invalid signals_json: {exc}"})
+                    return json.dumps({"error": f"invalid signals_json: {type(exc).__name__}"})
 
                 steps = int(params.pop("steps", 10))
                 allowed = InsiderEquilibriumInputs.__dataclass_fields__
                 try:
                     kwargs = {k: float(v) for k, v in params.items() if k in allowed}
                 except (ValueError, TypeError) as exc:
-                    return json.dumps({"error": f"invalid equilibrium params: {exc}"})
+                    return json.dumps({"error": f"invalid equilibrium params: {type(exc).__name__}"})
 
                 inputs = InsiderEquilibriumInputs(**kwargs)
                 eq = solve_equilibrium(inputs)
@@ -221,5 +223,5 @@ def register_signal_tools(mcp: Any) -> None:
             return json.dumps({"error": f"Unknown action: {action}"})
         except ImportError as e:
             return json.dumps(
-                {"error": f"agent-utilities finance module not available: {e}"}
+                {"error": f"agent-utilities finance module not available: {type(e).__name__}"}
             )
