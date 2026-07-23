@@ -3,7 +3,7 @@
 ![PyPI - Version](https://img.shields.io/pypi/v/emerald-exchange)
 ![MCP Server](https://badge.mcpx.dev?type=server 'MCP Server')
 
-*Version: 1.0.1*
+*Version: 2.0.0*
 
 > **Documentation** — Installation, deployment, usage across the API, CLI, and MCP
 > interfaces, the A2A agent server, and the trading configuration schema are

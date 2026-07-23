@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "emerald-exchange"
-version = "1.0.1"
+version = "2.0.0"
 description = "Emerald Exchange — Unified Finance MCP Server with fully abstracted exchange backends for equities, crypto, and derivatives trading. CONCEPT:EE-001"
 readme = "README.md"
 authors = [{ name = "Project Maintainers", email = "maintainers@users.noreply.github.com" }]
