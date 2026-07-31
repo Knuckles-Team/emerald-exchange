@@ -3,7 +3,7 @@ connector: emerald-exchange
 ontology_source: banking
 sync:
 - preset: emerald-positions
-  server: emerald-exchange
+  server: emerald-exchange-mcp
   tool: emerald_portfolio
   action: positions
   records_path: ''
