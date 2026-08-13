@@ -68,6 +68,9 @@ emerald-exchange = "emerald_exchange.connectors"
 [project.entry-points."agent_utilities.ontology_providers"]
 emerald-exchange = "emerald_exchange.ontology"
 
+[tool.uv.workspace]
+members = ["."]
+
 [tool.setuptools.package-data]
 emerald_exchange = [ "mcp_config.json", "prompts/**", "skills/**", "ontology/**", "connectors/**",]
 
