@@ -146,19 +146,19 @@ uv run emerald-exchange-mcp --transport streamable-http --port 8000
 ### 4. Remote URL (deployed behind Caddy)
 
 When the server is deployed remotely (e.g. as a Docker service) and published through
-Caddy on the internal `*.arpa` zone, connect with the `"url"` key — no local process or
+Caddy at a deployment-selected HTTPS hostname, connect with the `"url"` key — no local process or
 image required:
 
 ```json
 {
   "mcpServers": {
-    "emerald-exchange-mcp": { "url": "http://emerald-exchange-mcp.arpa/mcp" }
+    "emerald-exchange-mcp": { "url": "https://emerald-exchange-mcp.example.invalid/mcp" }
   }
 }
 ```
 
-Caddy reverse-proxies `http://emerald-exchange-mcp.arpa` to the container's `:8000`
-streamable-http listener; `http://emerald-exchange-mcp.arpa/health` returns
+Caddy reverse-proxies `https://emerald-exchange-mcp.example.invalid` to the container's `:8000`
+streamable-http listener; `https://emerald-exchange-mcp.example.invalid/health` returns
 `{"status":"OK"}` when the service is live. Keep the real remote URL, outbound
 identity references, and TLS trust profile in `AgentConfig`
 (`~/.config/agent-utilities/config.json`) rather than duplicating them across
@@ -323,8 +323,8 @@ emerald-exchange-agent --host 0.0.0.0 --port 9100 \
 Expose the HTTP server on a hostname with automatic TLS. Add to your `Caddyfile`:
 
 ```caddy
-# Internal (self-signed) — homelab .arpa zone
-emerald-exchange.arpa {
+# Deployment-selected HTTPS hostname
+emerald-exchange.example.invalid {
     tls internal
     reverse_proxy emerald-exchange-mcp:8100
 }
@@ -348,17 +348,17 @@ docker compose -f services/caddy/compose.yml exec caddy caddy reload --config /e
 Point the hostname at the host running Caddy. Via the Technitium API:
 
 ```bash
-curl -s "http://technitium.arpa:5380/api/zones/records/add" \
+curl -s "https://dns-admin.example.invalid/api/zones/records/add" \
   --data-urlencode "token=$TECHNITIUM_DNS_TOKEN" \
-  --data-urlencode "domain=emerald-exchange.arpa" \
+  --data-urlencode "domain=emerald-exchange.example.invalid" \
   --data-urlencode "zone=arpa" \
   --data-urlencode "type=A" \
   --data-urlencode "ipAddress=10.0.0.10" \
   --data-urlencode "ttl=3600"
 ```
 
-…or add an **A record** `emerald-exchange.arpa → <caddy-host-ip>` in the Technitium
-web console (`http://technitium.arpa:5380`). The ecosystem
+…or add an **A record** `emerald-exchange.example.invalid → <caddy-host-ip>` in the Technitium
+web console (`https://dns-admin.example.invalid`). The ecosystem
 [`technitium-dns-mcp`](https://knuckles-team.github.io/technitium-dns-mcp/) automates
 this as a tool.
 
@@ -378,5 +378,5 @@ Add to your client's `mcp_config.json` (multiplexer nickname `ee`):
 }
 ```
 
-For a remote HTTP server, point the client at `http://emerald-exchange.arpa/mcp`
+For a remote HTTP server, point the client at `https://emerald-exchange.example.invalid/mcp`
 instead.

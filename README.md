@@ -183,7 +183,7 @@ consumed from a **remote deployment**. The
   filesystem, dropped capabilities, non-root user, no published port), or point
   at a local streamable-http container by `url`.
 - **Remote URL** — connect to a server deployed behind Caddy at
-  `http://emerald-exchange-mcp.arpa/mcp` using the `"url"` key. Keep the real
+  `https://emerald-exchange-mcp.example.invalid/mcp` using the `"url"` key. Keep the real
   URL, outbound identity references, trust profile, and exact
   `MCP_ALLOWED_HOSTS` in `AgentConfig` (`~/.config/agent-utilities/config.json`),
   not hardcoded in `mcp_config.json`.
