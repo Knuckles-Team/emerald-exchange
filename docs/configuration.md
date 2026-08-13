@@ -32,7 +32,7 @@ agents; expose verbose per-operation tools only for compatibility or debugging.
 - Enable optional agent, embedding, evolution, or observability features only
   when their dependencies and backends are configured and healthy.
 
-Deployment/README examples use this homelab's internal `*.arpa` DNS zone and
+Deployment/README examples use neutral `example.invalid` hostnames and
 RFC 1918 addresses (e.g. `10.0.0.10`) — private-use identifiers that resolve
 nowhere outside the LAN — plus `localhost` for loopback-only development.
 Treat all of these as illustrative, not secrets: never substitute a real
