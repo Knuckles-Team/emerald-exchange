@@ -44,7 +44,7 @@ _Auto-generated from the live MCP server — do not edit by hand._
 
 <!-- MCP-TOOLS-TABLE:START -->
 
-#### Condensed action-routed tools (default — `MCP_TOOL_MODE=condensed`)
+#### Condensed action-routed tools (`MCP_TOOL_MODE=condensed`)
 
 | MCP Tool | Toggle Env Var | Description |
 |----------|----------------|-------------|
@@ -53,6 +53,7 @@ _Auto-generated from the live MCP server — do not edit by hand._
 | `emerald_debate` | `DEBATETOOL` | Multi-agent trading debate engine. CONCEPT:EX-AHE.harness.ee-13 |
 | `emerald_derivatives` | `DERIVATIVESTOOL` | SABR volatility surface + vol-arb. CONCEPT:AU-AHE.assimilation.decision-distillation |
 | `emerald_fundamentals` | `FUNDAMENTALSTOOL` | SEC EDGAR fundamentals operations. CONCEPT:EX-AHE.harness.ee-26. |
+| `emerald_ingest_snapshot` | `KG_INGESTTOOL` | Ingest a live trading snapshot into epistemic-graph as typed nodes. |
 | `emerald_market_data` | `MARKET_DATATOOL` | Market data operations. CONCEPT:EX-AHE.harness.ee-7 |
 | `emerald_market_making` | `MARKET_MAKINGTOOL` | Market-making controller, fee model, and forensic screener. CONCEPT:EX-AHE.harness.ee-22 |
 | `emerald_orders` | `ORDERTOOL` | Order management with pre-trade risk validation. CONCEPT:EX-AHE.harness.ee-8 |
@@ -82,7 +83,7 @@ _Auto-generated from the live MCP server — do not edit by hand._
 
 </details>
 
-_14 action-routed tool(s) (default) · 9 verbose 1:1 tool(s). Each is enabled unless its `<DOMAIN>TOOL` toggle is set false; `MCP_TOOL_MODE` selects the surface (`condensed` default · `verbose` 1:1 · `both`). Auto-generated — do not edit._
+_15 action-routed tool(s) · 9 verbose 1:1 tool(s). Each is enabled unless its `<DOMAIN>TOOL` toggle is set false; `MCP_TOOL_MODE` selects the surface (**`intent` default** — the six verb-tools, granular set loaded on demand · `condensed` action-routed · `verbose` 1:1 · `both`). Auto-generated — do not edit._
 <!-- MCP-TOOLS-TABLE:END -->
 
 ## Exchange Backends
@@ -239,11 +240,11 @@ One multi-stage `docker/Dockerfile` builds two right-sized images, selected by `
 | Image tag | Build target | Contents | Entrypoint |
 |-----------|--------------|----------|------------|
 | `knucklessg1/emerald-exchange:mcp` | `--target mcp` | `emerald-exchange[mcp]` — **slim**: no `pydantic-ai`/`dspy`/`llama-index`/`tree-sitter` agent-orchestration stack (the mandatory `epistemic-graph[full]` engine is still present — it's a base dependency of `agent-utilities`) | `emerald-exchange-mcp` |
-| `knucklessg1/emerald-exchange:latest` | `--target agent` (default) | `emerald-exchange[agent]` — **full** agent runtime (`agent-utilities[agent-runtime,logfire]`) + `epistemic-graph[full]` | `emerald-exchange-agent` |
+| `knucklessg1/emerald-exchange:2.1.0` | `--target agent` (default) | `emerald-exchange[agent]` — **full** agent runtime (`agent-utilities[agent-runtime,logfire]`) + `epistemic-graph[full]` | `emerald-exchange-agent` |
 
 ```bash
 docker build --target mcp   -t knucklessg1/emerald-exchange:mcp    docker/   # slim MCP server
-docker build --target agent -t knucklessg1/emerald-exchange:latest docker/   # full agent
+docker build --target agent -t knucklessg1/emerald-exchange:2.1.0 docker/   # full agent
 docker compose -f docker/mcp.compose.yml up -d                               # run the slim :mcp server
 docker compose -f docker/compose.yml up -d                                   # full stack
 ```
@@ -294,7 +295,7 @@ to just this package. Ask your agent to **"deploy `emerald-exchange` with agent-
 |------|---------|
 | Bare-metal, prod (PyPI) | `uvx emerald-exchange-mcp` · or `uv tool install emerald-exchange` |
 | Bare-metal, dev (editable) | `uv pip install -e ".[all]"` · or `pip install -e ".[all]"` |
-| Container, prod | deploy `knucklessg1/emerald-exchange:latest` via docker-compose / swarm / podman / podman-compose / kubernetes |
+| Container, prod | deploy `knucklessg1/emerald-exchange:2.1.0` via docker-compose / swarm / podman / podman-compose / kubernetes |
 | Container, dev (editable) | deploy `docker/compose.dev.yml` (source-mounted at `/src`; edits live on restart) |
 
 Secrets are read-existing + seeded via `vault_sync` — you are only prompted for what's missing.
@@ -312,7 +313,7 @@ agent to **"deploy `emerald-exchange` with agent-utilities-deployment"**.
 |------|---------|
 | Installed package | `uv tool install "emerald-exchange[mcp]"`, then run `emerald-exchange-mcp` |
 | Editable source | `uv pip install -e ".[agent]"`, then run `emerald-exchange-mcp` |
-| Immutable container | deploy `knucklessg1/emerald-exchange:latest` through the operator-selected orchestrator |
+| Immutable container | deploy `knucklessg1/emerald-exchange:2.1.0` through the operator-selected orchestrator |
 
 Either path: the repository embeds no deployment profile, credential value,
 certificate path, or environment-specific endpoint. Runtime secrets, TLS trust
@@ -327,8 +328,8 @@ material, and endpoints come from `AgentConfig` / the configured secret provider
 
 | Variable | Example | Description |
 |----------|---------|-------------|
-| `BINANCE_API_KEY` | — | Other exchanges (Alpaca, Coinbase, ...) supply credentials via operator config. |
-| `BINANCE_SECRET_KEY` | — |  |
+| `BINANCE_API_KEY` | secret-injected | Per-exchange credentials are resolved at runtime from the trading config's *_env keys; only the agent-utilities-inherited Binance pair is read statically. Other exchanges (Alpaca, Coinbase, ...) supply credentials via operator config. |
+| `BINANCE_SECRET_KEY` | secret-injected |  |
 | `CRYPTOTOOL` | `True` | crypto market tools |
 | `DEBATETOOL` | `True` | multi-agent debate tools |
 | `DERIVATIVESTOOL` | `True` | options/futures derivatives tools |
@@ -343,10 +344,11 @@ material, and endpoints come from `AgentConfig` / the configured secret provider
 | `STATARBTOOL` | `True` | statistical-arbitrage tools |
 | `STRATEGYTOOL` | `True` | strategy tools |
 | `WALLET_INTELTOOL` | `True` | Polymarket wallet-intelligence tools |
+| `KG_INGESTTOOL` | `True` | knowledge-graph ingest tools |
 | `EDGAR_IDENTITY` | `Your Name your.email@example.com` | SEC EDGAR identity ("Name email") |
 | `EDGAR_USER_AGENT` | `Your Name your.email@example.com` | legacy fallback for EDGAR_IDENTITY |
 | `POLY_TRADES_PATH` | `/path/to/poly_trades.parquet` | Polymarket trade dataset for wallet-intel |
-| `EMERALD_STAGE_APPROVAL_TOKEN` | — | human approval token to promote execution stage |
+| `EMERALD_STAGE_APPROVAL_TOKEN` | secret-injected | human approval token to promote execution stage |
 | `EPISTEMIC_GRAPH_SOCKET` | `/run/epistemic-graph.sock` | UDS path to the epistemic-graph engine |
 | `GRAPH_SERVICE_SOCKET` | `/run/epistemic-graph.sock` | alternate UDS path env var |
 | `EPISTEMIC_GRAPH_TCP` | `127.0.0.1:50051` | host:port for a TCP engine endpoint |
@@ -355,22 +357,24 @@ material, and endpoints come from `AgentConfig` / the configured secret provider
 
 | Variable | Example | Description |
 |----------|---------|-------------|
-| `TRANSPORT` | `stdio` | MCP transport: `stdio` | `streamable-http` | `sse` |
-| `HOST` | `0.0.0.0` | Bind host (HTTP transports) |
+| `TRANSPORT` | `stdio` | MCP transport: `stdio` \| `streamable-http` \| `sse` |
+| `HOST` | `127.0.0.1` | Loopback bind host (set an authenticated ingress explicitly) |
 | `PORT` | `8000` | Bind port (HTTP transports) |
-| `MCP_TOOL_MODE` | `condensed` | Tool surface: `condensed` | `verbose` | `both` |
+| `MCP_TOOL_MODE` | `intent` | Tool surface: `intent` \| `condensed` \| `verbose` \| `both` |
 | `MCP_ENABLED_TOOLS` | — | Comma-separated tool allow-list |
 | `MCP_DISABLED_TOOLS` | — | Comma-separated tool deny-list |
 | `MCP_ENABLED_TAGS` | — | Comma-separated tag allow-list |
 | `MCP_DISABLED_TAGS` | — | Comma-separated tag deny-list |
-| `EUNOMIA_TYPE` | `none` | Authorization mode: `none` | `embedded` | `remote` |
+| `EUNOMIA_TYPE` | `none` | Authorization mode: `none` \| `embedded` \| `remote` |
 | `EUNOMIA_POLICY_FILE` | `mcp_policies.json` | Embedded Eunomia policy file |
 | `EUNOMIA_REMOTE_URL` | — | Remote Eunomia authorization server URL |
 | `ENABLE_OTEL` | `False` | Enable OpenTelemetry export |
 | `OTEL_EXPORTER_OTLP_ENDPOINT` | — | OTLP collector endpoint |
-| `MCP_CLIENT_AUTH` | — | Outbound MCP auth (`oidc-client-credentials` for fleet calls) |
+| `MCP_CLIENT_AUTH` | — | Outbound MCP child auth: `oidc-client-credentials` \| `basic` \| `none` |
 | `OIDC_CLIENT_ID` | — | OIDC client id (service-account auth) |
-| `OIDC_CLIENT_SECRET` | — | OIDC client secret (service-account auth) |
+| `OIDC_CLIENT_SECRET_REF` | `secret://identity/oidc-client-secret` | Runtime secret reference for the OIDC service account |
+| `MCP_BASIC_AUTH_USERNAME` | — | HTTP Basic username (`MCP_CLIENT_AUTH=basic`) |
+| `MCP_BASIC_AUTH_PASSWORD_REF` | `secret://identity/mcp-basic-password` | Runtime secret reference for HTTP Basic auth (`MCP_CLIENT_AUTH=basic`) |
 | `DEBUG` | `False` | Verbose logging |
 | `PYTHONUNBUFFERED` | `1` | Unbuffered stdout (recommended in containers) |
 | `MCP_URL` | `http://localhost:8000/mcp` | URL of the MCP server the agent connects to |
@@ -378,7 +382,7 @@ material, and endpoints come from `AgentConfig` / the configured secret provider
 | `MODEL_ID` | `gpt-4o` | Model id for the agent |
 | `ENABLE_WEB_UI` | `True` | Serve the AG-UI web interface |
 
-_23 package + 22 inherited variable(s). Auto-generated from `.env.example` + the shared agent-utilities set — do not edit._
+_24 package + 24 inherited variable(s). Auto-generated from `.env.example` + the shared agent-utilities set — do not edit._
 <!-- ENV-VARS-TABLE:END -->
 
 <!-- GOVERNED-CAPABILITY:START -->
