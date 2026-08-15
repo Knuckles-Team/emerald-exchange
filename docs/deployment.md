@@ -91,7 +91,7 @@ no ports to manage). Swap `docker` for `podman` for a daemonless runtime:
       "args": [
         "run", "-i", "--rm",
         "-e", "TRANSPORT=stdio",
-        "knucklessg1/emerald-exchange:latest"
+        "knucklessg1/emerald-exchange:2.1.0"
       ]
     }
   }
@@ -114,7 +114,7 @@ docker run -i --rm \
   knucklessg1/emerald-exchange@sha256:<digest> emerald-exchange-mcp
 ```
 
-Pin the immutable release digest (rather than the mutable `:latest` tag) for this
+Pin the immutable release digest (rather than the mutable floating tag) for this
 form, and project the selected `AgentConfig` profile into the process at runtime —
 the image itself carries no environment-specific connection profile.
 
@@ -124,7 +124,7 @@ the image itself carries no environment-specific connection profile.
 docker run -d --name emerald-exchange-mcp -p 8000:8000 \
   -e TRANSPORT=streamable-http \
   -e PORT=8000 \
-  knucklessg1/emerald-exchange:latest
+  knucklessg1/emerald-exchange:2.1.0
 # or, from a clone of this repo:
 docker compose -f docker/mcp.compose.yml up -d
 ```
@@ -251,7 +251,7 @@ companion agent server on `:9100`:
 ```yaml
 services:
   emerald-exchange-mcp:
-    image: knucklessg1/emerald-exchange:latest
+    image: knucklessg1/emerald-exchange:2.1.0
     container_name: emerald-exchange-mcp
     hostname: emerald-exchange-mcp
     command: ["emerald-exchange-mcp"]
@@ -288,7 +288,7 @@ and listens on `:9100`:
 
 ```yaml
   emerald-exchange-agent:
-    image: knucklessg1/emerald-exchange:latest
+    image: knucklessg1/emerald-exchange:2.1.0
     container_name: emerald-exchange-agent
     hostname: emerald-exchange-agent
     command: ["emerald-exchange-agent"]

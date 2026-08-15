@@ -58,14 +58,14 @@ A multi-stage, slim runtime image (non-root, least-privilege) is published on ev
 release (entrypoint `emerald-exchange-mcp`):
 
 ```bash
-docker pull knucklessg1/emerald-exchange:latest
+docker pull knucklessg1/emerald-exchange:2.1.0
 
 docker run --rm -i \
-  knucklessg1/emerald-exchange:latest        # stdio transport (default)
+  knucklessg1/emerald-exchange:2.1.0        # stdio transport (default)
 ```
 
 For a pinned, reproducible pull, reference the release digest instead of the
-mutable `:latest` tag (see the [Deployment](deployment.md) guide for the
+mutable floating tag (see the [Deployment](deployment.md) guide for the
 least-privilege `docker run` flags):
 
 ```bash
