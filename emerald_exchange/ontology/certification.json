@@ -1,8 +1,7 @@
 {
   "api_version": "graphos.io/v1",
   "artifacts": {
-    "a2a.json": "4357fb58ab0af8c521c7020be938f09086bd597d2e44d95c41053173cc1685fc",
-    "connector_manifest.yml": "24fb7602a8cd2721c9f4a2283168a866a4792c9c75360175793296708da3df93",
+    "connector_manifest.yml": "e392e9f5dee988cc514fd91c3d8e6df5aa20fd25019a46c4c362241b5cfe17e0",
     "emerald_exchange/connectors/mcp_source_presets.json": "bcabae57623be833ba70e44382cc0c190420401e86a78ae3dd7dcb6e233d5cf5",
     "emerald_exchange/connectors/tool_schema_fingerprints.json": "b014ccce11c77e0b61bc6d8ab60c5d241b9246b6077f9827d9f3c1cf8f07f1c5",
     "emerald_exchange/ontology/banking.ttl": "8c6b7591f2d1d6fd6560abee627775be051c8f8f9c08743656199ec4c07db072",
@@ -22,19 +21,19 @@
     "synthetic_fixture_contract": "passed"
   },
   "compatibility": {
-    "agent_utilities": ">=2.1.0,<3",
+    "agent_utilities": ">=2.4.0,<3",
     "bundle_schema": "2",
-    "epistemic_graph": ">=2.23.0,<3"
+    "epistemic_graph": ">=2.26.0,<3"
   },
   "connector": "emerald-exchange",
   "kind": "ConnectorSourceAttestation",
   "live_certified": false,
   "mode": "offline-source",
   "schema_version": "2",
-  "signature": "iH6ua9I34gauaHLT5MW42Tl0iyo6_6A595AmGUQ_cWEtzTAiD96qggn-8l2-zYK8Ma622UQ0VDzRGeg5FhsXAA",
-  "signature_algorithm": "ed25519",
-  "signer": "ontology-manifest-generator",
-  "signing_public_key": "QkigdPNpcUU7x7NcSkwCsUXIQpaFncMQbYSoiSgI2SY",
+  "signature": null,
+  "signature_algorithm": "none",
+  "signer": "UNSIGNED-PREVIEW",
+  "signing_public_key": "",
   "status": "source-validated",
-  "validated_at": "2026-07-31T04:00:00Z"
+  "validated_at": "2026-08-21T04:30:39Z"
 }
