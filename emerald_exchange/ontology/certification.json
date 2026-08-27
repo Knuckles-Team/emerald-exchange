@@ -1,7 +1,7 @@
 {
   "api_version": "graphos.io/v1",
   "artifacts": {
-    "connector_manifest.yml": "e392e9f5dee988cc514fd91c3d8e6df5aa20fd25019a46c4c362241b5cfe17e0",
+    "connector_manifest.yml": "fd48fc42aa199ba2bd495c569f50fb4a63dc4a93b9b71ebe3e861885487a8909",
     "emerald_exchange/connectors/mcp_source_presets.json": "bcabae57623be833ba70e44382cc0c190420401e86a78ae3dd7dcb6e233d5cf5",
     "emerald_exchange/connectors/tool_schema_fingerprints.json": "b014ccce11c77e0b61bc6d8ab60c5d241b9246b6077f9827d9f3c1cf8f07f1c5",
     "emerald_exchange/ontology/banking.ttl": "8c6b7591f2d1d6fd6560abee627775be051c8f8f9c08743656199ec4c07db072",
@@ -21,9 +21,9 @@
     "synthetic_fixture_contract": "passed"
   },
   "compatibility": {
-    "agent_utilities": ">=2.4.0,<3",
+    "agent_utilities": ">=2.5.0,<3",
     "bundle_schema": "2",
-    "epistemic_graph": ">=2.26.0,<3"
+    "epistemic_graph": ">=2.27.0,<3"
   },
   "connector": "emerald-exchange",
   "kind": "ConnectorSourceAttestation",
@@ -35,5 +35,5 @@
   "signer": "UNSIGNED-PREVIEW",
   "signing_public_key": "",
   "status": "source-validated",
-  "validated_at": "2026-08-21T04:30:39Z"
+  "validated_at": "2026-08-26T13:42:55Z"
 }
