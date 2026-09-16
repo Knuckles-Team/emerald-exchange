@@ -173,21 +173,16 @@ All trading settings are configured via `~/.config/agent-utilities/config.json`:
 <!-- BEGIN GENERATED: additional-deployment-options -->
 ### Additional Deployment Options
 
-`emerald-exchange` can also run as a **local container** (Docker / Podman / `uv`) or be
-consumed from a **remote deployment**. The
-[Deployment guide](https://knuckles-team.github.io/emerald-exchange/deployment/) has full, copy-paste
-`mcp_config.json` for all four transports — **stdio**, **streamable-http**,
-**local container / uv**, and **remote URL**:
+`emerald-exchange` can run as a local stdio process or container, or behind a remote
+network boundary. The
+[Deployment guide](https://knuckles-team.github.io/emerald-exchange/deployment/) carries
+the detailed transport contract.
 
-- **Local container / uv** — launch the server from `mcp_config.json` via `uvx`,
-  `docker run`, or `podman run` as a least-privilege stdio child (read-only
-  filesystem, dropped capabilities, non-root user, no published port), or point
-  at a local streamable-http container by `url`.
-- **Remote URL** — connect to a server deployed behind Caddy at
-  `https://emerald-exchange-mcp.example.invalid/mcp` using the `"url"` key. Keep the real
-  URL, outbound identity references, trust profile, and exact
-  `MCP_ALLOWED_HOSTS` in `AgentConfig` (`~/.config/agent-utilities/config.json`),
-  not hardcoded in `mcp_config.json`.
+- **Local container** — launch a reviewed immutable image as a least-privilege
+  stdio child with no listener or published port.
+- **Remote URL** — connect through an operator-supplied authenticated HTTPS
+  ingress. Keep its URL, outbound identity references, trust profile, and exact
+  `MCP_ALLOWED_HOSTS` in `AgentConfig`.
 <!-- END GENERATED: additional-deployment-options -->
 
 ## ⚙️ Dynamic Tool Selection & Visibility
@@ -378,8 +373,8 @@ material, and endpoints come from `AgentConfig` / the configured secret provider
 | `DEBUG` | `False` | Verbose logging |
 | `PYTHONUNBUFFERED` | `1` | Unbuffered stdout (recommended in containers) |
 | `MCP_URL` | `http://localhost:8000/mcp` | URL of the MCP server the agent connects to |
-| `PROVIDER` | `openai` | LLM provider for the agent |
-| `MODEL_ID` | `gpt-4o` | Model id for the agent |
+| `PROVIDER` | — | Operator-configured LLM provider for the agent |
+| `MODEL_ID` | — | Operator-configured model id for the agent |
 | `ENABLE_WEB_UI` | `True` | Serve the AG-UI web interface |
 
 _24 package + 24 inherited variable(s). Auto-generated from `.env.example` + the shared agent-utilities set — do not edit._
@@ -400,3 +395,26 @@ and observability policy are deployment inputs and are never packaged values.
 See [Configuration, trust, and privacy](docs/configuration.md) before enabling a
 network transport, connector ingestion, GraphOS delegation, or trace export.
 <!-- GOVERNED-CAPABILITY:END -->
+
+
+<!-- BEGIN agent-utilities-deployment (generated; do not edit between markers) -->
+
+## Deploy with `agent-utilities-deployment`
+
+Provision this package with the consolidated **`agent-utilities-deployment`**
+workflow. It selects an installed-package, editable-source, or immutable-container
+path; records only runtime secret and TLS-profile references in `AgentConfig`; and
+runs doctor, registration, policy, observability, and rollback gates. Ask your agent
+to **"deploy `emerald-exchange` with agent-utilities-deployment"**.
+
+| Install mode | Command |
+|------|---------|
+| Installed package | `uv tool install "emerald-exchange[mcp]"`, then run `emerald-exchange-mcp` |
+| Editable source | `uv pip install -e ".[agent]"`, then run `emerald-exchange-mcp` |
+| Immutable container | deploy `registry.example.invalid/emerald-exchange@sha256:<digest>` through the operator-selected orchestrator |
+
+The repository embeds no deployment profile, credential value, certificate path, or
+environment-specific endpoint. Supply those at runtime through `AgentConfig` and the
+configured secret provider.
+
+<!-- END agent-utilities-deployment -->

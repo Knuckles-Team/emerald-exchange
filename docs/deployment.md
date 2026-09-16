@@ -3,105 +3,36 @@
 <!-- BEGIN GENERATED: deployment-options -->
 ## Deployment Options
 
-`emerald-exchange` exposes its MCP server (console script `emerald-exchange-mcp`) four ways. Pick the row that
-matches where the server runs relative to your MCP client, then copy the matching
-`mcp_config.json` below. Add the service-connection environment variables documented in the **Configuration** section.
-Provider endpoint, credential, selector, identity, and trust material are supplied at
-runtime through `AgentConfig` (`~/.config/agent-utilities/config.json`) or environment —
-none of it is stored in this repository or belongs hardcoded in `mcp_config.json`.
+`emerald-exchange` supports local stdio, a loopback-only development listener, a
+least-privilege stdio container, and a remote authenticated HTTPS boundary.
+Provider endpoint, credential, selector, identity, and trust material are supplied
+at runtime through `AgentConfig`; none is stored in this repository.
 
-| # | Option | Transport | Where it runs | `mcp_config.json` key |
-|---|--------|-----------|---------------|------------------------|
-| 1 | stdio | `stdio` | client launches a subprocess | `command` |
-| 2 | Streamable-HTTP (local) | `streamable-http` | a local network port | `command` or `url` |
-| 3 | Local container / uv | `stdio` or `streamable-http` | Docker / Podman / uv on this host | `command` or `url` |
-| 4 | Remote URL | `streamable-http` | a remote host behind Caddy | `url` |
-
-### 1. stdio (local subprocess)
-
-The client launches the server over stdio via `uvx` — best for local IDEs
-(Cursor, Claude Desktop, VS Code):
+### Installed stdio process
 
 ```json
 {
   "mcpServers": {
-    "emerald-exchange-mcp": {
-      "command": "uvx",
-      "args": ["--from", "emerald-exchange", "emerald-exchange-mcp"],
-      "env": {"MCP_TOOL_MODE": "condensed"}
+    "emerald-exchange": {
+      "command": "emerald-exchange-mcp",
+      "args": [],
+      "env": {"MCP_TOOL_MODE": "intent"}
     }
   }
 }
 ```
 
-### 2. Streamable-HTTP (local process)
-
-Run the server as a long-lived HTTP process:
+### Loopback development listener
 
 ```bash
-uvx --from emerald-exchange emerald-exchange-mcp --transport streamable-http --host 0.0.0.0 --port 8000
-curl -s http://localhost:8000/health        # {"status":"OK"}
+emerald-exchange-mcp --transport streamable-http --host 127.0.0.1 --port 8000
 ```
 
-> For a **loopback-only development listener** (no published port, nothing else on the
-> host or network can reach it), bind `--host 127.0.0.1` instead of `0.0.0.0`. Do not
-> expose a `0.0.0.0` listener beyond a trusted network boundary: a real network
-> deployment needs direct TLS or an explicitly trusted TLS-terminating ingress,
-> configured authentication, an exact `MCP_ALLOWED_HOSTS`, and an exact trusted-proxy
-> CIDR policy (see [Behind a Caddy reverse proxy](#behind-a-caddy-reverse-proxy) below).
+Do not expose this listener beyond loopback. Network deployments require direct TLS
+or an explicitly trusted TLS-terminating ingress, configured authentication, exact
+`MCP_ALLOWED_HOSTS`, and an exact trusted-proxy CIDR policy.
 
-Then either let the client launch it:
-
-```json
-{
-  "mcpServers": {
-    "emerald-exchange-mcp": {
-      "command": "uvx",
-      "args": ["--from", "emerald-exchange", "emerald-exchange-mcp", "--transport", "streamable-http", "--port", "8000"],
-      "env": {
-        "TRANSPORT": "streamable-http",
-        "HOST": "0.0.0.0",
-        "PORT": "8000"
-      }
-    }
-  }
-}
-```
-
-…or connect to the already-running process by URL:
-
-```json
-{
-  "mcpServers": {
-    "emerald-exchange-mcp": { "url": "http://localhost:8000/mcp" }
-  }
-}
-```
-
-### 3. Local container / uv
-
-**(a) Launch a container directly from `mcp_config.json`** (stdio over the container —
-no ports to manage). Swap `docker` for `podman` for a daemonless runtime:
-
-```json
-{
-  "mcpServers": {
-    "emerald-exchange-mcp": {
-      "command": "docker",
-      "args": [
-        "run", "-i", "--rm",
-        "-e", "TRANSPORT=stdio",
-        "knucklessg1/emerald-exchange:2.1.0"
-      ]
-    }
-  }
-}
-```
-
-**(a2) Least-privilege container run** — the same launch, hardened for an
-untrusted or shared host (read-only root filesystem, all capabilities dropped, no
-privilege escalation, a bounded process count, and a `noexec` tmpfs for the one
-writable path the process needs):
+### Least-privilege local container
 
 ```bash
 docker run -i --rm \
@@ -111,58 +42,24 @@ docker run -i --rm \
   --pids-limit=256 \
   --tmpfs /tmp:rw,noexec,nosuid,nodev,size=64m \
   -e TRANSPORT=stdio \
-  knucklessg1/emerald-exchange@sha256:<digest> emerald-exchange-mcp
+  registry.example.invalid/emerald-exchange@sha256:<digest> emerald-exchange-mcp
 ```
 
-Pin the immutable release digest (rather than the mutable floating tag) for this
-form, and project the selected `AgentConfig` profile into the process at runtime —
-the image itself carries no environment-specific connection profile.
+The operator projects the selected AgentConfig profile into the process at runtime;
+the image remains immutable and contains no environment connection profile.
 
-**(b) Run a local streamable-http container, then connect by URL:**
-
-```bash
-docker run -d --name emerald-exchange-mcp -p 8000:8000 \
-  -e TRANSPORT=streamable-http \
-  -e PORT=8000 \
-  knucklessg1/emerald-exchange:2.1.0
-# or, from a clone of this repo:
-docker compose -f docker/mcp.compose.yml up -d
-```
+### Remote authenticated HTTPS endpoint
 
 ```json
 {
   "mcpServers": {
-    "emerald-exchange-mcp": { "url": "http://localhost:8000/mcp" }
+    "emerald-exchange": {"url": "https://service.example.invalid/mcp"}
   }
 }
 ```
 
-**(c) From a local checkout with `uv`:**
-
-```bash
-uv run emerald-exchange-mcp --transport streamable-http --port 8000
-```
-
-### 4. Remote URL (deployed behind Caddy)
-
-When the server is deployed remotely (e.g. as a Docker service) and published through
-Caddy at a deployment-selected HTTPS hostname, connect with the `"url"` key — no local process or
-image required:
-
-```json
-{
-  "mcpServers": {
-    "emerald-exchange-mcp": { "url": "https://emerald-exchange-mcp.example.invalid/mcp" }
-  }
-}
-```
-
-Caddy reverse-proxies `https://emerald-exchange-mcp.example.invalid` to the container's `:8000`
-streamable-http listener; `https://emerald-exchange-mcp.example.invalid/health` returns
-`{"status":"OK"}` when the service is live. Keep the real remote URL, outbound
-identity references, and TLS trust profile in `AgentConfig`
-(`~/.config/agent-utilities/config.json`) rather than duplicating them across
-`mcp_config.json` files or documentation.
+Store the real remote URL, outbound identity reference, and TLS-profile reference in
+`AgentConfig`, not in MCP client JSON or documentation.
 <!-- END GENERATED: deployment-options -->
 
 This page covers running `emerald-exchange` as a long-lived service: the
