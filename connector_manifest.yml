@@ -25670,7 +25670,7 @@ sync:
   updated_field: ''
   pagination: null
   doc_type: position
-  tool_schema_sha256: a0b30e7c48412de793324d32ce2303aaa61dc946d44d42a0e49b10c6a69144db
+  tool_schema_sha256: ce45a196ce046d87d37404b4d9bf46a4d23d1f8cde1bc1a1e93b113e4208be0e
   raw:
     server: emerald-exchange-mcp
     tool: emerald_portfolio
@@ -25681,6 +25681,7 @@ sync:
     text_field: symbol
     updated_field: ''
     doc_type: position
+    params_style: args
 provenance:
   generated_by: scripts/generate_connector_manifests.py
   generated_at: '2026-08-26T13:42:55Z'

@@ -1,6 +1,6 @@
 """Portfolio MCP Tools — CONCEPT:EX-AHE.harness.ee-9."""
 
-from typing import Any
+from typing import Any, Literal
 
 import json
 
@@ -10,7 +10,7 @@ from emerald_exchange.backends import ExchangeBackend
 def register_portfolio_tools(mcp: Any, backend: ExchangeBackend) -> None:
 
     @mcp.tool(tags=["portfolio"])
-    def emerald_portfolio(action: str) -> str:
+    def emerald_portfolio(action: Literal["account", "positions"]) -> str:
         """Portfolio management operations. CONCEPT:EX-AHE.harness.ee-9
 
         Actions:
