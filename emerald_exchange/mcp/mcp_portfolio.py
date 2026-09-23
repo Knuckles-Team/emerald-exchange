@@ -9,7 +9,18 @@ from emerald_exchange.backends import ExchangeBackend
 
 def register_portfolio_tools(mcp: Any, backend: ExchangeBackend) -> None:
 
-    @mcp.tool(tags=["portfolio"])
+    @mcp.tool(
+        tags=["portfolio"],
+        annotations={
+            "readOnlyHint": True,
+            "destructiveHint": False,
+            "idempotentHint": True,
+            "openWorldHint": True,
+        },
+        meta={
+            "eg.annotations": {"modalities_in": ["text"], "modalities_out": ["text"]}
+        },
+    )
     def emerald_portfolio(action: Literal["account", "positions"]) -> str:
         """Portfolio management operations. CONCEPT:EX-AHE.harness.ee-9
 
