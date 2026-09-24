@@ -16,7 +16,7 @@ classifiers = [
     "Operating System :: POSIX :: Linux",
     "Programming Language :: Python :: 3"]
 requires-python = ">=3.12,<3.15"
-dependencies = [
+dependencies = [ "agent-connector-sdk>=0.1.0,<1.0.0",
     "agent-utilities[mcp]>=2.0.0,<3.0.0",
     "numpy>=2.5.1",
     # CONCEPT:PHASE2-RECONCILE — relaxed off the pandas 3.x floor to match
@@ -44,11 +44,9 @@ all = [
     "edgartools>=5.43.0",
     "polars>=1.43.0",
 ]
-agent = ["agent-utilities[agent-runtime,logfire]>=2.0.0,<3.0.0"]
 
 [project.scripts]
 emerald-exchange-mcp = "emerald_exchange.mcp_server:mcp_server"
-emerald-exchange-agent = "emerald_exchange.agent_server:agent_server"
 emerald-cockpit = "emerald_exchange.cockpit:main"
 
 [project.entry-points."agent_utilities.skill_providers"]
@@ -83,4 +81,5 @@ override-dependencies = [
 ]
 
 [tool.uv.sources]
+agent-connector-sdk = { path = ".uv-workspace-siblings/agent-connector-sdk", editable = true }
 agent-utilities = { path = ".uv-workspace-siblings/agent-utilities", editable = true }
