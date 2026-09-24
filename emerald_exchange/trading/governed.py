@@ -38,7 +38,7 @@ __all__ = ["LIVE_ORDER_GUIDANCE", "GovernedBackend", "LiveOrderRefused"]
 #: What a refused live effect tells its caller to do instead.
 LIVE_ORDER_GUIDANCE = (
     "Live orders are placed only through an approved D18 change set: propose "
-    "the order with graph-os `finance_order_propose`, have a person approve it "
+    "the order with graph-os `graph_finance` action `propose_order`, have a person approve it "
     "at the operator console, then run `emerald_live_orders("
     "action='execute_approved', approval_id=...)`."
 )

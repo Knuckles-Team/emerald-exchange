@@ -2,7 +2,7 @@
 
 A live order has exactly one path to a venue:
 
-1. graph-os ``finance_order_propose`` issues a ``finance.order.approval``
+1. graph-os ``graph_finance(action="propose_order")`` issues a ``finance.order.approval``
    ``ControlLease`` (``active`` = pending) whose grant holds the order
    ``intent`` and the ``proposer`` principal.
 2. A person approves it at the graph-os operator console

@@ -10,7 +10,7 @@ switch can halt all trading instantly.
 
 **Live orders (EH-423).** In `live` mode `emerald_orders` `submit`/`cancel` answer
 `approval_required` and touch nothing. A live order exists only as a D18 change set:
-1. Propose it with the graph-os `finance_order_propose` tool (it records the intent
+1. Propose it with the graph-os `graph_finance` tool, action `propose_order` (it records the intent
    and who proposed it; it places nothing).
 2. A person approves it at the graph-os operator console — no agent tool can.
 3. `emerald_live_orders(action="execute_approved", approval_id=...)` places exactly
