@@ -13,6 +13,89 @@ from typing import Any, Protocol, runtime_checkable
 logger = logging.getLogger(__name__)
 
 
+class UnsupportedIntervalError(ValueError):
+    """A caller asked for an OHLCV interval this backend/exchange does not support.
+
+    Never silently substitute a different interval (e.g. daily bars) for one a
+    caller explicitly requested — CONCEPT:EX-AHE.harness.ee-4 fail-loud contract.
+    """
+
+
+class HistoricalDataError(RuntimeError):
+    """Historical OHLCV data could not be retrieved from the backend.
+
+    Raised instead of returning an empty/partial result, so a data-source
+    failure is never mistaken for "the asset has no history".
+    """
+
+
+#: Unified ccxt timeframe strings this backend accepts, in ascending order.
+#: A specific exchange may support a subset; ``CCXTBackend.get_historical``
+#: intersects this with the connected exchange's own ``.timeframes`` (when the
+#: exchange publishes one) before accepting a request.
+CCXT_TIMEFRAMES: tuple[str, ...] = (
+    "1m",
+    "3m",
+    "5m",
+    "15m",
+    "30m",
+    "1h",
+    "2h",
+    "4h",
+    "6h",
+    "8h",
+    "12h",
+    "1d",
+    "3d",
+    "1w",
+    "1M",
+)
+
+#: Milliseconds per unit, used to advance the pagination cursor and to size
+#: the lookback window from a ``period`` string.
+_INTERVAL_MS: dict[str, int] = {
+    "1m": 60_000,
+    "3m": 3 * 60_000,
+    "5m": 5 * 60_000,
+    "15m": 15 * 60_000,
+    "30m": 30 * 60_000,
+    "1h": 3_600_000,
+    "2h": 2 * 3_600_000,
+    "4h": 4 * 3_600_000,
+    "6h": 6 * 3_600_000,
+    "8h": 8 * 3_600_000,
+    "12h": 12 * 3_600_000,
+    "1d": 86_400_000,
+    "3d": 3 * 86_400_000,
+    "1w": 7 * 86_400_000,
+    "1M": 30 * 86_400_000,
+}
+
+#: Maximum OHLCV pages fetched for one ``get_historical`` call — a safety cap,
+#: not a silent truncation: hitting it raises ``HistoricalDataError`` instead
+#: of returning a quietly short result.
+MAX_HISTORICAL_PAGES = 200
+
+
+def _period_to_lookback_ms(period: str) -> int:
+    """Parse a yfinance-style period string (``"30d"``, ``"6mo"``, ``"1y"``, ``"max"``).
+
+    Raises:
+        ValueError: the period string has no recognized suffix.
+    """
+    if period == "max":
+        return 10 * 365 * 86_400_000
+    normalized = period.strip().lower()
+    for suffix, unit_days in (("mo", 30), ("d", 1), ("w", 7), ("y", 365)):
+        if normalized.endswith(suffix):
+            digits = normalized[: -len(suffix)]
+            if digits.isdigit() and digits:
+                return int(digits) * unit_days * 86_400_000
+    raise ValueError(
+        f"unrecognized period {period!r}: expected e.g. '30d', '6mo', '1y', 'max'"
+    )
+
+
 class OrderSide(StrEnum):
     BUY = "buy"
     SELL = "sell"
@@ -416,6 +499,111 @@ class AlpacaBackend:
         return []
 
 
+def _validate_ccxt_interval(interval: str, exchange: Any, exchange_id: str) -> None:
+    """Raise :class:`UnsupportedIntervalError` rather than silently degrade.
+
+    Checked against this module's own ccxt timeframe table, and — when the
+    connected exchange publishes one — the exchange's own narrower
+    ``.timeframes`` set, so a request for an interval the exchange itself
+    does not offer is caught before wasting a round trip.
+    """
+    if interval not in _INTERVAL_MS:
+        raise UnsupportedIntervalError(
+            f"interval {interval!r} is not a supported ccxt timeframe "
+            f"(supported: {', '.join(CCXT_TIMEFRAMES)})"
+        )
+    exchange_timeframes = getattr(exchange, "timeframes", None) or {}
+    if exchange_timeframes and interval not in exchange_timeframes:
+        raise UnsupportedIntervalError(
+            f"exchange {exchange_id!r} does not support interval {interval!r} "
+            f"(it supports: {', '.join(sorted(exchange_timeframes))})"
+        )
+
+
+def _fetch_ccxt_ohlcv_page(
+    exchange: Any,
+    symbol: str,
+    interval: str,
+    exchange_id: str,
+    since_ms: int,
+    page_limit: int,
+) -> list[list[float]]:
+    """One paced ``fetch_ohlcv`` call, wrapped so any failure fails loud."""
+    try:
+        return exchange.fetch_ohlcv(symbol, interval, since=since_ms, limit=page_limit)
+    except Exception as exc:
+        raise HistoricalDataError(
+            f"fetch_ohlcv failed for {symbol!r} on {exchange_id!r}: {type(exc).__name__}"
+        ) from exc
+
+
+def _fetch_ccxt_ohlcv_pages(
+    exchange: Any,
+    symbol: str,
+    interval: str,
+    exchange_id: str,
+    floor_ms: int,
+    now_ms: int,
+    page_limit: int = 1000,
+) -> list[list[float]]:
+    """Walk ``since`` forward one ccxt page at a time to cover ``[floor_ms, now_ms)``.
+
+    Stops on a short page (end of available history), on zero forward
+    progress, or once ``now_ms`` is reached; raises :class:`HistoricalDataError`
+    if :data:`MAX_HISTORICAL_PAGES` is exceeded rather than returning a
+    quietly truncated result.
+    """
+    interval_ms = _INTERVAL_MS[interval]
+    since_ms = floor_ms
+    candles: list[list[float]] = []
+    for pages in range(MAX_HISTORICAL_PAGES + 1):
+        if since_ms >= now_ms:
+            return candles
+        if pages == MAX_HISTORICAL_PAGES:
+            raise HistoricalDataError(
+                f"get_historical({symbol!r}, interval={interval!r}) exceeded "
+                f"{MAX_HISTORICAL_PAGES} pages without covering the requested "
+                "period — narrow the period or widen the interval"
+            )
+        page = _fetch_ccxt_ohlcv_page(
+            exchange, symbol, interval, exchange_id, since_ms, page_limit
+        )
+        if not page:
+            return candles
+        candles.extend(page)
+        next_since = int(page[-1][0]) + interval_ms
+        if next_since <= since_ms or len(page) < page_limit:
+            return candles
+        since_ms = next_since
+    return candles  # pragma: no cover — loop always returns via one of the above
+
+
+def _dedupe_and_clip(candles: list[list[float]], floor_ms: int) -> list[list[float]]:
+    """Drop timestamp duplicates from overlapping pages; clip to the lookback floor."""
+    seen: set[float] = set()
+    deduped = []
+    for c in candles:
+        if c[0] not in seen and c[0] >= floor_ms:
+            seen.add(c[0])
+            deduped.append(c)
+    return deduped
+
+
+def _candles_to_ohlcv(candles: list[list[float]]) -> list[OHLCV]:
+    """Project raw ``[ts, o, h, l, c, v]`` ccxt rows onto :class:`OHLCV`."""
+    return [
+        OHLCV(
+            timestamp=datetime.fromtimestamp(c[0] / 1000, tz=UTC).isoformat(),
+            open=c[1],
+            high=c[2],
+            low=c[3],
+            close=c[4],
+            volume=c[5],
+        )
+        for c in candles
+    ]
+
+
 class CCXTBackend:
     """CCXT unified crypto exchange backend — CONCEPT:EX-AHE.harness.ee-4.
     Supports 100+ exchanges: Binance, Coinbase, Kraken, etc.
@@ -595,23 +783,27 @@ class CCXTBackend:
     def get_historical(
         self, symbol: str, period: str = "1y", interval: str = "1d"
     ) -> list[OHLCV]:
-        try:
-            tf_map = {"1m": "1m", "5m": "5m", "1h": "1h", "1d": "1d"}
-            tf = tf_map.get(interval, "1d")
-            candles = self._exchange.fetch_ohlcv(symbol, tf, limit=365)
-            return [
-                OHLCV(
-                    timestamp=datetime.fromtimestamp(c[0] / 1000, tz=UTC).isoformat(),
-                    open=c[1],
-                    high=c[2],
-                    low=c[3],
-                    close=c[4],
-                    volume=c[5],
-                )
-                for c in candles
-            ]
-        except Exception:
-            return []
+        """Fetch OHLCV bars for ``period`` at exactly ``interval``, paginated.
+
+        Fails loud instead of silently degrading: an unsupported ``interval``
+        raises :class:`UnsupportedIntervalError` rather than being remapped to
+        daily bars, and a connection/exchange failure raises
+        :class:`HistoricalDataError` rather than returning ``[]`` (an asset
+        that legitimately has no history still returns ``[]``, from a call
+        that actually succeeded). See :func:`_validate_ccxt_interval` and
+        :func:`_fetch_ccxt_ohlcv_pages` for the pagination mechanics.
+        """
+        _validate_ccxt_interval(interval, self._exchange, self._exchange_id)
+        if not self._exchange:
+            raise HistoricalDataError(
+                f"CCXT backend {self._exchange_id!r} is not connected; call connect() first"
+            )
+        now_ms = int(datetime.now(UTC).timestamp() * 1000)
+        floor_ms = now_ms - _period_to_lookback_ms(period)
+        candles = _fetch_ccxt_ohlcv_pages(
+            self._exchange, symbol, interval, self._exchange_id, floor_ms, now_ms
+        )
+        return _candles_to_ohlcv(_dedupe_and_clip(candles, floor_ms))
 
 
 class FreqtradeBackend:
