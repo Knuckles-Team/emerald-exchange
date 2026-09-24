@@ -5,17 +5,14 @@ type, venue) into a routed order through the existing
 :class:`~emerald_exchange.backends.ExchangeBackend` Protocol, with the live
 trading safety gate enforced at the single choke point.
 
-CRITICAL SAFETY CONTRACT
-------------------------
-Every LIVE order path MUST pass :meth:`RiskGuard.pre_trade_check` and is
-BLOCKED whenever ``RiskLimits.require_human_approval_live`` is set (the
-default). Paper / simulated routing runs freely; live routing returns an
-``approval_required`` result unless the caller *explicitly* approves the
-decision (``approve=True``) AND a human-approval requirement is not in force.
-
-This module never relaxes the gate — it composes the same
-``RiskGuard.pre_trade_check`` used by ``mcp_orders``; the live block here and
-there are one and the same control.
+CRITICAL SAFETY CONTRACT (EH-423)
+---------------------------------
+The bridge never places a LIVE order. Paper / simulated routing runs freely
+(still through :meth:`RiskGuard.pre_trade_check`); a decision on a live
+backend returns ``approval_required`` whatever the caller passes. A live order
+is placed only by :func:`emerald_exchange.trading.live_orders.execute_approved_order`
+for a change set a person approved at the graph-os operator console -- a
+boolean argument is not an approval.
 """
 
 from __future__ import annotations
@@ -32,7 +29,8 @@ from emerald_exchange.backends import (
     OrderType,
     TradingMode,
 )
-from emerald_exchange.risk_guards import RiskGuard
+from emerald_exchange.risk_guards import RiskCheckResult, RiskGuard
+from emerald_exchange.trading.governed import LIVE_ORDER_GUIDANCE
 
 logger = logging.getLogger(__name__)
 
@@ -128,12 +126,9 @@ class ExecutionBridge:
     CONCEPT:AU-AHE.assimilation.trading-ecosystem-changelog. The bridge is the single seam between *deciding* (strategy /
     debate / optimizer) and *acting* (the ``ExchangeBackend``). It guarantees:
 
-    1. Paper / simulated backends execute freely.
-    2. Live backends are BLOCKED while ``require_human_approval_live`` is set —
-       returning ``APPROVAL_REQUIRED`` rather than ever silently routing a live
-       order.
-    3. Even an explicitly-approved live order still clears
-       ``RiskGuard.pre_trade_check`` (cash / position cap / kill switch).
+    1. Paper / simulated backends execute, after ``RiskGuard.pre_trade_check``.
+    2. Live backends are never routed: the answer is ``APPROVAL_REQUIRED``
+       with the D18 approval path, and no order reaches the backend.
     """
 
     def __init__(self, backend: ExchangeBackend, risk_guard: RiskGuard):
@@ -157,82 +152,55 @@ class ExecutionBridge:
             logger.debug("Operation failed: error_type=%s", type(exc).__name__)
         return 100.0
 
-    def route(
-        self, decision: TradeDecision, approve: bool = False
-    ) -> ExecutionDecisionResult:
-        """Route one decision. Live is gated; paper executes.
-
-        Args:
-            decision: the normalized trade decision.
-            approve: explicit human approval for a LIVE order. Ignored for
-                paper. Even when ``True``, the order still passes through
-                ``pre_trade_check`` and is blocked if a standing
-                ``require_human_approval_live`` policy is active.
-        """
+    def route(self, decision: TradeDecision) -> ExecutionDecisionResult:
+        """Route one decision: paper executes, live answers approval_required."""
         if not decision.symbol or decision.qty <= 0:
-            return ExecutionDecisionResult(
-                status=RoutingStatus.REJECTED,
-                reason="symbol and qty > 0 required",
-                decision=decision,
-                is_live=self.is_live,
-                approved=False,
+            return self._refused(
+                decision, RoutingStatus.REJECTED, "symbol and qty > 0 required"
             )
-
-        is_live = self.is_live
-        price = self._resolve_price(decision)
-        acct = self._backend.get_account()
-
-        # --- THE LIVE GATE -------------------------------------------------
-        # A live order is only allowed to even reach pre_trade_check's live arm
-        # when the operator explicitly approved AND the standing policy permits
-        # it. With the default require_human_approval_live=True, an unapproved
-        # live decision short-circuits to APPROVAL_REQUIRED and NEVER routes.
-        if is_live and self._risk.limits.require_human_approval_live and not approve:
+        if self.is_live:
             logger.warning(
-                "LIVE order for %s blocked — human approval required (source=%s)",
+                "LIVE decision for %s not routed — D18 approval required (source=%s)",
                 decision.symbol,
                 decision.source or "?",
             )
-            return ExecutionDecisionResult(
-                status=RoutingStatus.APPROVAL_REQUIRED,
-                reason=(
-                    "Live trading requires explicit human approval "
-                    "(require_human_approval_live is set). Re-route with "
-                    "approve=True after a human signs off."
-                ),
-                decision=decision,
-                is_live=True,
-                approved=False,
+            return self._refused(
+                decision, RoutingStatus.APPROVAL_REQUIRED, LIVE_ORDER_GUIDANCE
             )
-
-        # For an explicitly-approved live order we still must clear the guard,
-        # but we must NOT trip its own require_human_approval_live arm (the
-        # human already approved at this seam). For paper, is_live=False keeps
-        # that arm dormant regardless.
-        guard_is_live = is_live and not approve
+        acct = self._backend.get_account()
         check = self._risk.pre_trade_check(
             decision.symbol,
             decision.qty,
-            price,
+            self._resolve_price(decision),
             acct.equity,
             acct.cash,
-            is_live=guard_is_live,
+            is_live=False,
         )
         if not check.approved:
-            status = (
-                RoutingStatus.APPROVAL_REQUIRED
-                if "human approval" in check.reason.lower()
-                else RoutingStatus.BLOCKED
+            return self._refused(
+                decision, RoutingStatus.BLOCKED, check.reason, check.risk_score
             )
-            return ExecutionDecisionResult(
-                status=status,
-                reason=check.reason,
-                decision=decision,
-                is_live=is_live,
-                approved=False,
-                risk_score=check.risk_score,
-            )
+        return self._execute(decision, check)
 
+    def _refused(
+        self,
+        decision: TradeDecision,
+        status: RoutingStatus,
+        reason: str,
+        risk_score: float = 0.0,
+    ) -> ExecutionDecisionResult:
+        return ExecutionDecisionResult(
+            status=status,
+            reason=reason,
+            decision=decision,
+            is_live=self.is_live,
+            approved=False,
+            risk_score=risk_score,
+        )
+
+    def _execute(
+        self, decision: TradeDecision, check: RiskCheckResult
+    ) -> ExecutionDecisionResult:
         final_qty = check.adjusted_qty if check.adjusted_qty > 0 else decision.qty
         execution = self._backend.submit_order(
             decision.symbol,
@@ -242,21 +210,19 @@ class ExecutionBridge:
             decision.limit_price,
         )
         logger.info(
-            "Routed %s %s %.4f %s via %s (live=%s, approved=%s)",
+            "Routed paper %s %s %.4f %s via %s",
             decision.side,
             decision.symbol,
             final_qty,
             decision.order_type,
             self._backend.name,
-            is_live,
-            approve,
         )
         return ExecutionDecisionResult(
             status=RoutingStatus.EXECUTED,
             reason=check.reason,
             decision=decision,
-            is_live=is_live,
-            approved=(approve if is_live else True),
+            is_live=False,
+            approved=True,
             risk_score=check.risk_score,
             adjusted_qty=final_qty,
             execution=execution,

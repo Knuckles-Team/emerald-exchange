@@ -30,6 +30,63 @@ _UNPROBED = object()
 _CLIENT_CACHE: Any = _UNPROBED
 
 
+def engine_endpoint() -> dict[str, str]:
+    """The configured engine endpoint as client ``connect`` keyword arguments.
+
+    ``EPISTEMIC_GRAPH_TCP`` (host:port) wins over ``EPISTEMIC_GRAPH_SOCKET`` /
+    ``GRAPH_SERVICE_SOCKET`` (UDS); neither means the client's own default.
+    """
+    tcp_addr = os.environ.get("EPISTEMIC_GRAPH_TCP")
+    if tcp_addr:
+        return {"tcp_addr": tcp_addr}
+    socket_path = os.environ.get("EPISTEMIC_GRAPH_SOCKET") or os.environ.get(
+        "GRAPH_SERVICE_SOCKET"
+    )
+    return {"socket_path": socket_path} if socket_path else {}
+
+
+#: Exactly what the live-order executor needs: read the approval lease, read
+#: the durable change set and append its receipts (EH-423). Nothing else.
+LIVE_ORDER_SCOPES = ("connector:write-back", "connector:write-back-read", "lease:read")
+
+
+class EngineIdentityMissing(RuntimeError):
+    """A workload-identity setting the verified engine context needs is unset."""
+
+
+def _required_env(name: str) -> str:
+    value = os.environ.get(name, "").strip()
+    if not value:
+        raise EngineIdentityMissing(f"{name} is not set")
+    return value
+
+
+def live_order_context() -> dict[str, Any]:
+    """The engine v2 verified context of emerald's live-order identity.
+
+    Built from workload-identity-projected settings, like graph-os's own
+    service contexts: ``EMERALD_EG_PRINCIPAL``, ``EPISTEMIC_GRAPH_TENANT``,
+    ``AUTH_JWT_AUDIENCE`` and ``KG_POLICY_VERSION``. Fails closed when any is
+    unset -- there is no default identity.
+    """
+    principal = _required_env("EMERALD_EG_PRINCIPAL")
+    return {
+        "principal": principal,
+        "agent_id": principal,
+        "tenant": _required_env("EPISTEMIC_GRAPH_TENANT"),
+        "audience": _required_env("AUTH_JWT_AUDIENCE"),
+        "roles": ["connector"],
+        "scopes": list(LIVE_ORDER_SCOPES),
+        "delegation": [],
+        "policy_version": _required_env("KG_POLICY_VERSION"),
+    }
+
+
+def live_order_auth_secret() -> str:
+    """The engine service secret the live-order client authenticates with."""
+    return _required_env("GRAPH_SERVICE_AUTH_SECRET")
+
+
 def finance_engine() -> Any:
     """Return a cached ``SyncEpistemicGraphClient``, or ``None`` if unreachable.
 
@@ -43,19 +100,10 @@ def finance_engine() -> Any:
         return _CLIENT_CACHE
 
     client = None
-    socket_path = os.environ.get("EPISTEMIC_GRAPH_SOCKET") or os.environ.get(
-        "GRAPH_SERVICE_SOCKET"
-    )
-    tcp_addr = os.environ.get("EPISTEMIC_GRAPH_TCP")
     try:
         from epistemic_graph.client import SyncEpistemicGraphClient
 
-        if tcp_addr:
-            client = SyncEpistemicGraphClient.connect(tcp_addr=tcp_addr)
-        elif socket_path:
-            client = SyncEpistemicGraphClient.connect(socket_path=socket_path)
-        else:
-            client = SyncEpistemicGraphClient.connect()
+        client = SyncEpistemicGraphClient.connect(**engine_endpoint())
         logger.info("epistemic-graph engine connected; Rust quant compute enabled")
     except Exception as exc:  # noqa: BLE001 — degrade gracefully when unreachable
         logger.warning("Operation failed: error_type=%s", type(exc).__name__)

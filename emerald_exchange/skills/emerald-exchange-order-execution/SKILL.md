@@ -7,8 +7,9 @@ description: >-
   switch — via the domain-typed emerald_orders tool (every order is routed through
   the risk guard). Use when the agent must submit a market/limit order, cancel or
   status an existing order by id, or halt all trading. Do NOT use to read quotes
-  or positions (use emerald-exchange-market-data), and be deliberate in live mode —
-  paper is the default. Do NOT bypass the risk guard with raw backend calls.
+  or positions (use emerald-exchange-market-data). Paper is the default; in live
+  mode no tool places an order on its own — a live order is a human-approved D18
+  change set executed with emerald_live_orders.
 license: MIT
 tags: [emerald-exchange, orders, execution, risk, trading, mcp]
 metadata:
@@ -17,9 +18,18 @@ metadata:
 ---
 # Emerald Exchange — Order Execution
 
-Backend-abstracted order management. **Every** order passes a pre-trade
-`RiskGuard.pre_trade_check` (sizing, exposure, live-mode gating) before it reaches
-the exchange, and a global kill switch can halt all trading instantly.
+Backend-abstracted order management. **Every** paper order passes a pre-trade
+`RiskGuard.pre_trade_check` (sizing, exposure) before it fills, and a global kill
+switch can halt all trading instantly.
+
+**Live orders (EH-423).** In `live` mode `emerald_orders` `submit`/`cancel` answer
+`approval_required` and touch nothing. A live order exists only as a D18 change set:
+1. Propose it with the graph-os `finance_order_propose` tool (it records the intent
+   and who proposed it; it places nothing).
+2. A person approves it at the graph-os operator console — no agent tool can.
+3. `emerald_live_orders(action="execute_approved", approval_id=...)` places exactly
+   that order, once. An agent can only execute what a person already approved; a
+   second call returns the recorded receipt instead of placing again.
 
 ## When to use
 - Submit a market or limit order (buy/sell) with risk validation.
@@ -45,7 +55,8 @@ and `trading.risk_limits`. Default is `paper` — no credentials, simulated fill
 ## Tools & actions
 | Condensed tool | Actions |
 |----------------|---------|
-| `emerald_orders` | `submit`, `cancel`, `status`, `halt`, `resume` |
+| `emerald_orders` | `submit`, `cancel` (paper only), `status`, `halt`, `resume` |
+| `emerald_live_orders` (live mode only) | `execute_approved` |
 
 ### Key parameters
 - `symbol` + `qty` (> 0) — required for `submit`.
@@ -73,8 +84,9 @@ Emergency halt / resume:
   the order — the response's `filled_qty` may be smaller than requested (`adjusted_qty`).
   Always read the returned `risk_check`/`risk_score`, don't assume the full qty filled.
 - `halt` trips the kill switch for the whole server; nothing submits until `resume`.
-- Live mode applies stricter checks and touches real money — confirm the active `mode`
-  via `emerald_market_data action=exchanges` before submitting.
+- Live mode never places an order from `emerald_orders`; follow the approval flow
+  above. An `outcome_uncertain` live result is never retried automatically — a
+  person checks the venue.
 - A `limit`/`stop_limit` order with `limit_price` <= 0 is treated as a market fill in
   paper; set an explicit `limit_price`.
 

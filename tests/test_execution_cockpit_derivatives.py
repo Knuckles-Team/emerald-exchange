@@ -84,11 +84,13 @@ def test_live_decision_blocked_while_paper_executes():
     assert paper_result.execution is not None
 
 
-def test_live_blocked_even_with_approval_when_policy_set():
-    """Explicit approve=True does NOT bypass a standing human-approval policy
-    via the kill-switch/halt path; with the policy set we only allow the
-    approved order when require_human_approval_live is the only gate."""
-    risk_guard = RiskGuard(RiskLimits(require_human_approval_live=True))
+def test_live_is_never_routed_even_without_a_standing_policy():
+    """EH-423: no boolean approves a live order. Even with the standing policy
+    off (``bounded_autonomous``), a live decision answers approval_required and
+    places nothing; a live order is an approved D18 change set only."""
+    risk_guard = RiskGuard(
+        RiskLimits(require_human_approval_live=False, stage="bounded_autonomous")
+    )
     backend = LiveLabeledPaperBackend(initial_cash=100_000.0)
     backend.connect()
     bridge = ExecutionBridge(backend, risk_guard)
@@ -99,12 +101,10 @@ def test_live_blocked_even_with_approval_when_policy_set():
         order_type=OrderType.LIMIT,
         limit_price=100.0,
     )
-    # Unapproved -> approval required.
-    assert bridge.route(decision).status == RoutingStatus.APPROVAL_REQUIRED
-    # Approved by a human at this seam -> executes (still risk-checked).
-    approved = bridge.route(decision, approve=True)
-    assert approved.status == RoutingStatus.EXECUTED
-    assert approved.approved is True
+    result = bridge.route(decision)
+    assert result.status == RoutingStatus.APPROVAL_REQUIRED
+    assert result.execution is None
+    assert backend.get_positions() == []
 
 
 def test_halted_guard_blocks_even_paper():
