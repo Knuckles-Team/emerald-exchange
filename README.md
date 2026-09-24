@@ -114,15 +114,11 @@ _15 action-routed tool(s) · 9 verbose 1:1 tool(s). Each is enabled unless its `
 
 ### MCP Configuration
 
-> **Install the slim `[mcp]` extra.** The examples below install
+> **Install the `[mcp]` extra.** The examples below install
 > `emerald-exchange[mcp]` — the MCP-server extra that pulls only the FastMCP /
-> FastAPI tooling (`agent-utilities[mcp]`). It deliberately **excludes** the heavy
-> agent-orchestration runtime (`pydantic-ai`, `dspy`, `llama-index`, `tree-sitter`
-> and the agent frontends), so `uvx`/container installs stay smaller and faster —
-> note the mandatory `epistemic-graph[full]` engine is still present either way,
-> since it is a base dependency of `agent-utilities` itself, not gated behind an
-> extra. Use the full `[agent]` extra only when you need the integrated Pydantic AI
-> agent (see [Installation](#installation)). Add trading-backend extras
+> FastAPI tooling (`agent-utilities[mcp]`); the mandatory `epistemic-graph[full]`
+> engine is still present either way, since it is a base dependency of
+> `agent-utilities` itself, not gated behind an extra. Add trading-backend extras
 > (`[alpaca]`, `[crypto]`, `[prediction_markets]`, …) on top as needed.
 
 #### stdio Mode
@@ -214,12 +210,9 @@ Pick the extra that matches what you want to run, then layer trading-backend ext
 | Extra | Installs | Use when |
 |-------|----------|----------|
 | `emerald-exchange[mcp]` | Slim MCP server (`agent-utilities[mcp]` — FastMCP/FastAPI; still carries the mandatory `epistemic-graph[full]` base engine) + paper backend | You only run the **MCP server** (smallest install / image) |
-| `emerald-exchange[agent]` | Full agent runtime (`agent-utilities[agent-runtime,logfire]` — Pydantic AI/DSPy orchestration + `epistemic-graph[full]`) | You run the **integrated agent** |
-| `emerald-exchange[all]` | Everything (`mcp` + `agent` + every trading backend) | Development / full surface |
 
 ```bash
 pip install "emerald-exchange[mcp]"                # MCP server only (slim deps)
-pip install "emerald-exchange[agent]"              # Full agent runtime (Pydantic AI + engine)
 pip install "emerald-exchange[mcp,alpaca]"         # + Alpaca equities
 pip install "emerald-exchange[mcp,crypto]"         # + CCXT crypto
 pip install "emerald-exchange[mcp,prediction_markets]"  # + Kalshi & Polymarket
@@ -228,29 +221,25 @@ pip install "emerald-exchange[all]"                # Everything
 
 ## Docker
 
-### Container images (`:mcp` vs `:agent`)
+### Container images (`:mcp`)
 
-One multi-stage `docker/Dockerfile` builds two right-sized images, selected by `--target`:
+One `docker/Dockerfile` builds a single slim MCP-server image:
 
-| Image tag | Build target | Contents | Entrypoint |
-|-----------|--------------|----------|------------|
-| `knucklessg1/emerald-exchange:mcp` | `--target mcp` | `emerald-exchange[mcp]` — **slim**: no `pydantic-ai`/`dspy`/`llama-index`/`tree-sitter` agent-orchestration stack (the mandatory `epistemic-graph[full]` engine is still present — it's a base dependency of `agent-utilities`) | `emerald-exchange-mcp` |
-| `knucklessg1/emerald-exchange:2.1.0` | `--target agent` (default) | `emerald-exchange[agent]` — **full** agent runtime (`agent-utilities[agent-runtime,logfire]`) + `epistemic-graph[full]` | `emerald-exchange-agent` |
+| Image tag | Contents | Entrypoint |
+|-----------|----------|------------|
+| `knucklessg1/emerald-exchange:mcp` | `emerald-exchange[mcp]` — **slim**: no `pydantic-ai`/`dspy`/`llama-index`/`tree-sitter` agent-orchestration stack (the mandatory `epistemic-graph[full]` engine is still present — it's a base dependency of `agent-utilities`) | `emerald-exchange-mcp` |
 
 ```bash
-docker build --target mcp   -t knucklessg1/emerald-exchange:mcp    docker/   # slim MCP server
-docker build --target agent -t knucklessg1/emerald-exchange:2.1.0 docker/   # full agent
-docker compose -f docker/mcp.compose.yml up -d                               # run the slim :mcp server
-docker compose -f docker/compose.yml up -d                                   # full stack
+docker build -t knucklessg1/emerald-exchange:mcp docker/   # slim MCP server
+docker compose -f docker/mcp.compose.yml up -d              # run the slim :mcp server
 ```
 
 ### Knowledge-graph database (`epistemic-graph`)
 
-Both `[mcp]` and `[agent]` carry the **epistemic-graph** engine through the required
+The `[mcp]` extra carries the **epistemic-graph** engine through the required
 Agent Utilities core dependency (`epistemic-graph[full]`) — it is a mandatory base
-dependency of `agent-utilities`, not gated behind an extra. The `[mcp]` extra keeps
-the server slim/connector-focused (no agent-orchestration stack); `[agent]`
-additionally enables Pydantic AI/DSPy model orchestration. Local deployments can use
+dependency of `agent-utilities`, not gated behind an extra; the server stays
+slim/connector-focused. Local deployments can use
 the bundled engine. For production — or to share one knowledge graph across multiple
 agents — run **epistemic-graph as its own dedicated database service** and point the
 runtime at it instead of embedding it. Deployment recipes (single-node + Raft HA),
@@ -307,7 +296,7 @@ agent to **"deploy `emerald-exchange` with agent-utilities-deployment"**.
 | Install mode | Command |
 |------|---------|
 | Installed package | `uv tool install "emerald-exchange[mcp]"`, then run `emerald-exchange-mcp` |
-| Editable source | `uv pip install -e ".[agent]"`, then run `emerald-exchange-mcp` |
+| Editable source | `uv pip install -e ".[mcp]"`, then run `emerald-exchange-mcp` |
 | Immutable container | deploy `knucklessg1/emerald-exchange:2.1.0` through the operator-selected orchestrator |
 
 Either path: the repository embeds no deployment profile, credential value,
@@ -410,7 +399,7 @@ to **"deploy `emerald-exchange` with agent-utilities-deployment"**.
 | Install mode | Command |
 |------|---------|
 | Installed package | `uv tool install "emerald-exchange[mcp]"`, then run `emerald-exchange-mcp` |
-| Editable source | `uv pip install -e ".[agent]"`, then run `emerald-exchange-mcp` |
+| Editable source | `uv pip install -e ".[mcp]"`, then run `emerald-exchange-mcp` |
 | Immutable container | deploy `registry.example.invalid/emerald-exchange@sha256:<digest>` through the operator-selected orchestrator |
 
 The repository embeds no deployment profile, credential value, certificate path, or
