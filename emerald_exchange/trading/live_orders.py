@@ -11,8 +11,10 @@ A live order has exactly one path to a venue:
    change set ``finance-order:<approval id>`` under the approver's verified
    session -- EG refuses a change set whose ``actor`` is not the verified
    caller, so the record names who authorised the effect.
-3. :func:`execute_approved_order` reads that durable change set, checks it
-   against the lease (:func:`require_approved`), and applies it through the
+3. :func:`execute_approved_order` reads that durable change set, checks its
+   actor is one of the operator-configured approvers (:func:`require_approver`)
+   and that it matches the lease (:func:`require_approved`), and applies it
+   through the
    SDK's :class:`~agent_connector_sdk.writeback.connector.DurableWritableConnector`,
    which appends the attempt receipt before returning. The lease is checked
    again immediately before the venue call.
@@ -68,6 +70,7 @@ __all__ = [
     "change_set_id_for",
     "execute_approved_order",
     "require_approved",
+    "require_approver",
 ]
 
 #: The ControlLease kind of a pending/decided live-order approval.
@@ -350,10 +353,27 @@ class LiveOrderTransport:
         )
 
 
+def require_approver(change_set: SourceChangeSet, approvers: frozenset[str]) -> None:
+    """Refuse unless a configured approver authorised the change set.
+
+    EG refuses a change set whose ``actor`` is not the verified caller, so the
+    actor IS who authorised the effect. Only the operator-configured approvers
+    (the people in the live-order approval group) count; an agent that holds
+    write-back and lease scopes still cannot authorise an order. An empty set
+    authorises nothing.
+    """
+    if change_set.actor not in approvers:
+        raise ApprovalRefused("the change set was not authorised by an approver")
+
+
 def _lease_gate(
-    leases: ApprovalLeaseReader, tenant: str, clock_ms: Callable[[], int]
+    leases: ApprovalLeaseReader,
+    tenant: str,
+    approvers: frozenset[str],
+    clock_ms: Callable[[], int],
 ) -> Callable[[SourceChangeSet], Awaitable[None]]:
     async def gate(change_set: SourceChangeSet) -> None:
+        require_approver(change_set, approvers)
         approval_id = change_set.authorization.authorization_ref
         lease = await leases.get(tenant=tenant, lease_id=approval_id)
         require_approved(lease, change_set, clock_ms())
@@ -368,13 +388,14 @@ async def execute_approved_order(
     venue: ExchangeBackend,
     ledger: WriteBackLedger,
     leases: ApprovalLeaseReader,
+    approvers: frozenset[str],
     clock_ms: Callable[[], int] = _now_ms,
 ) -> dict[str, Any]:
     """Place the order one approval authorised, once, and report the receipt."""
     change_set = await ledger.get(tenant, change_set_id_for(approval_id))
     if change_set is None:
         raise ApprovalRefused("no approved change set exists for this approval")
-    gate = _lease_gate(leases, tenant, clock_ms)
+    gate = _lease_gate(leases, tenant, approvers, clock_ms)
     await gate(change_set)
     transport = LiveOrderTransport(venue, ledger, gate)
     attempt = await DurableWritableConnector(CONNECTOR_ID, transport, ledger).apply(

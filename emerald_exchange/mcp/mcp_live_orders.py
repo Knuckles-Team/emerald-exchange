@@ -19,6 +19,7 @@ from agent_connector_sdk.writeback.errors import WriteBackError
 from emerald_exchange._engine import (
     EngineIdentityMissing,
     engine_endpoint,
+    live_order_approvers,
     live_order_auth_secret,
     live_order_context,
 )
@@ -54,6 +55,7 @@ async def _execute(venue: ExchangeBackend, approval_id: str) -> dict[str, Any]:
             venue=venue,
             ledger=EpistemicGraphWriteBackLedger(client),
             leases=client.control_leases,
+            approvers=live_order_approvers(),
         )
 
 

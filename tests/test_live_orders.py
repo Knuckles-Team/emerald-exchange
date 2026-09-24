@@ -34,8 +34,8 @@ from emerald_exchange.trading.live_orders import (
 
 TENANT = "tenant-a"
 APPROVAL = "finance_order:1"
-PROPOSER = "principal:agent"
-APPROVER = "principal:operator"
+PROPOSER = "principal:sha256:" + "b" * 64
+APPROVER = "principal:sha256:" + "a" * 64
 INTENT = {
     "symbol": "AAPL",
     "side": "buy",
@@ -126,12 +126,23 @@ def ledger_with(tmp_path: Path, stored: SourceChangeSet | None) -> FileWriteBack
     return ledger
 
 
+APPROVERS = frozenset({APPROVER})
+
+
 def execute(
-    ledger: FileWriteBackLedger, venue: Venue, leases: Leases
+    ledger: FileWriteBackLedger,
+    venue: Venue,
+    leases: Leases,
+    approvers: frozenset[str] = APPROVERS,
 ) -> dict[str, Any]:
     return asyncio.run(
         execute_approved_order(
-            APPROVAL, tenant=TENANT, venue=venue, ledger=ledger, leases=leases
+            APPROVAL,
+            tenant=TENANT,
+            venue=venue,
+            ledger=ledger,
+            leases=leases,
+            approvers=approvers,
         )
     )
 
@@ -192,6 +203,29 @@ def test_a_change_set_that_is_not_the_approved_order_is_refused(
     with pytest.raises(ApprovalRefused):
         execute(ledger, venue, Leases())
     assert venue.calls == []
+
+
+@pytest.mark.parametrize("approvers", [frozenset(), frozenset({PROPOSER})])
+def test_only_a_configured_approver_can_authorise_an_order(
+    tmp_path: Path, approvers: frozenset[str]
+) -> None:
+    """An agent holding write-back and lease scopes still cannot authorise one:
+    the change set's EG-verified actor must be a configured approver."""
+    ledger, venue = ledger_with(tmp_path, change_set()), Venue()
+    with pytest.raises(ApprovalRefused, match="not authorised by an approver"):
+        execute(ledger, venue, Leases(), approvers)
+    assert venue.calls == []
+
+
+def test_the_approver_list_names_principals_or_their_eg_ids(monkeypatch) -> None:
+    from emerald_exchange._engine import live_order_approvers
+
+    monkeypatch.setenv("EMERALD_LIVE_ORDER_APPROVERS", f"ops-1, {APPROVER} ,")
+    approvers = live_order_approvers()
+    assert APPROVER in approvers and len(approvers) == 2
+    assert all(a.startswith("principal:") for a in approvers)
+    monkeypatch.delenv("EMERALD_LIVE_ORDER_APPROVERS")
+    assert live_order_approvers() == frozenset()
 
 
 def test_no_durable_change_set_means_no_order(tmp_path: Path) -> None:

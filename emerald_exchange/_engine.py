@@ -14,6 +14,7 @@ Callers must treat ``None`` as "engine unreachable" and degrade gracefully.
 
 from __future__ import annotations
 
+import hashlib
 import logging
 import os
 from typing import Any
@@ -80,6 +81,23 @@ def live_order_context() -> dict[str, Any]:
         "delegation": [],
         "policy_version": _required_env("KG_POLICY_VERSION"),
     }
+
+
+def _principal_ref(principal: str) -> str:
+    if principal.startswith("principal:sha256:"):
+        return principal
+    return "principal:sha256:" + hashlib.sha256(principal.encode()).hexdigest()
+
+
+def live_order_approvers() -> frozenset[str]:
+    """The people whose approval can authorise a live order (EH-423).
+
+    ``EMERALD_LIVE_ORDER_APPROVERS`` is a comma-separated list of verified
+    principals (or their EG persistence ids, ``principal:sha256:<hex>``). Unset
+    or empty authorises nothing -- every live order is refused.
+    """
+    raw = os.environ.get("EMERALD_LIVE_ORDER_APPROVERS", "")
+    return frozenset(_principal_ref(p.strip()) for p in raw.split(",") if p.strip())
 
 
 def live_order_auth_secret() -> str:
