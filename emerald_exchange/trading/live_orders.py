@@ -2,7 +2,7 @@
 
 A live order has exactly one path to a venue:
 
-1. graph-os ``graph_finance(action="propose_order")`` issues a ``finance.order.approval``
+1. graph-os ``graph_finance(action="propose_order")`` issues a ``finance.order-proposal``
    ``ControlLease`` (``active`` = pending) whose grant holds the order
    ``intent`` and the ``proposer`` principal.
 2. A person approves it at the graph-os operator console
@@ -74,7 +74,7 @@ __all__ = [
 ]
 
 #: The ControlLease kind of a pending/decided live-order approval.
-LIVE_ORDER_APPROVAL_KIND = "finance.order.approval"
+LIVE_ORDER_APPROVAL_KIND = "finance.order-proposal"
 #: The D18 connector id every live-order change set names.
 CONNECTOR_ID = "emerald-exchange"
 #: The order fields a change set patches, in the order the venue takes them.
