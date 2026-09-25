@@ -9,6 +9,7 @@
     "title_field": "symbol",
     "text_field": "symbol",
     "updated_field": "",
-    "doc_type": "position"
+    "doc_type": "position",
+    "params_style": "args"
   }
 }
