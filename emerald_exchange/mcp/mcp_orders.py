@@ -1,10 +1,12 @@
 """Order Management MCP Tools — CONCEPT:EX-AHE.harness.ee-8."""
 
-from typing import Any
-from pydantic import Field
-
+import hashlib
 import json
+import re
+import threading
 
+from typing import Any, Literal
+from pydantic import Field
 
 from emerald_exchange.backends import ExchangeBackend, OrderSide, OrderType, TradingMode
 from emerald_exchange.risk_guards import RiskGuard
@@ -27,6 +29,8 @@ def register_order_tools(
     ``submit``/``cancel`` answer ``approval_required`` -- a live order is
     placed only by ``emerald_live_orders(action='execute_approved')``.
     """
+    paper_lock = threading.Lock()
+    paper_receipts: dict[str, tuple[str, str]] = {}
 
     @mcp.tool(tags=["orders"])
     def emerald_orders(
@@ -67,7 +71,7 @@ def register_order_tools(
             acct = backend.get_account()
             price = limit_price if limit_price > 0 else backend.get_quote(symbol).last
             if price <= 0:
-                price = 100.0  # Fallback for paper
+                return json.dumps({"error": "a usable quote is required"})
 
             is_live = backend.mode == "live"
             check = risk_guard.pre_trade_check(
@@ -124,3 +128,62 @@ def register_order_tools(
             )
 
         return json.dumps({"error": f"Unknown action: {action}"})
+
+    @mcp.tool(tags=["orders", "paper"])
+    def emerald_paper_orders(
+        action: Literal["submit"],
+        request_id: str,
+        symbol: str = "",
+        side: Literal["buy", "sell"] = "buy",
+        qty: float = 0.0,
+        order_type: Literal["market", "limit", "stop", "stop_limit"] = "market",
+        limit_price: float = 0.0,
+    ) -> str:
+        """Paper-only order seam for GraphOS's durable request fence.
+
+        This local fence handles concurrent and repeated calls in one process.
+        GraphOS owns durable at-most-once admission across connector restarts.
+        """
+        if backend.mode is not TradingMode.PAPER:
+            return json.dumps(
+                {"status": "refused", "error": "paper mode is unavailable"}
+            )
+        if not re.fullmatch(r"[A-Za-z0-9:._-]{8,128}", request_id):
+            return json.dumps({"status": "refused", "error": "invalid request id"})
+        if action != "submit":
+            return json.dumps(
+                {"status": "refused", "error": "paper action is unavailable"}
+            )
+        payload = [action, symbol, side, qty, order_type, limit_price]
+        digest = hashlib.sha256(
+            json.dumps(payload, separators=(",", ":")).encode()
+        ).hexdigest()
+        with paper_lock:
+            previous = paper_receipts.get(request_id)
+            if previous is not None:
+                if previous[0] != digest:
+                    return json.dumps(
+                        {"status": "refused", "error": "request id conflict"}
+                    )
+                return previous[1]
+            if len(paper_receipts) >= 100_000:
+                return json.dumps(
+                    {"status": "refused", "error": "paper request fence is full"}
+                )
+            paper_receipts[request_id] = (
+                digest,
+                json.dumps({"status": "indeterminate"}),
+            )
+            try:
+                result = emerald_orders(
+                    action=action,
+                    symbol=symbol,
+                    side=side,
+                    qty=qty,
+                    order_type=order_type,
+                    limit_price=limit_price,
+                )
+            except Exception:
+                return paper_receipts[request_id][1]
+            paper_receipts[request_id] = (digest, result)
+            return result
