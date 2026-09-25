@@ -6,14 +6,27 @@ from pydantic import Field
 import json
 
 
-from emerald_exchange.backends import ExchangeBackend, OrderSide, OrderType
+from emerald_exchange.backends import ExchangeBackend, OrderSide, OrderType, TradingMode
 from emerald_exchange.risk_guards import RiskGuard
+from emerald_exchange.trading.governed import LIVE_ORDER_GUIDANCE
+
+
+def _approval_required(action: str) -> str:
+    return json.dumps(
+        {"status": "approval_required", "action": action, "how": LIVE_ORDER_GUIDANCE}
+    )
 
 
 def register_order_tools(
     mcp: Any, backend: ExchangeBackend, risk_guard: RiskGuard
 ) -> None:
-    """Register order management tools. All orders go through risk guard."""
+    """Register order management tools. All orders go through risk guard.
+
+    ``backend`` is the :class:`~emerald_exchange.trading.GovernedBackend`: in
+    paper mode (the default) orders fill on the paper account; in live mode
+    ``submit``/``cancel`` answer ``approval_required`` -- a live order is
+    placed only by ``emerald_live_orders(action='execute_approved')``.
+    """
 
     @mcp.tool(tags=["orders"])
     def emerald_orders(
@@ -28,8 +41,9 @@ def register_order_tools(
         """Order management with pre-trade risk validation. CONCEPT:EX-AHE.harness.ee-8
 
         Actions:
-        - 'submit': Submit an order (goes through risk guard)
-        - 'cancel': Cancel an existing order
+        - 'submit': Submit a PAPER order (goes through risk guard); in live
+          mode this answers ``approval_required`` and places nothing
+        - 'cancel': Cancel a paper order (``approval_required`` in live mode)
         - 'status': Get order status
         - 'halt': Emergency kill switch — halts ALL trading
         - 'resume': Resume trading after halt
@@ -41,6 +55,9 @@ def register_order_tools(
         if action == "resume":
             risk_guard.resume()
             return json.dumps({"status": "RESUMED"})
+
+        if action in ("submit", "cancel") and backend.mode == TradingMode.LIVE:
+            return _approval_required(action)
 
         if action == "submit":
             if not symbol or qty <= 0:

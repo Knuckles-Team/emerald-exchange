@@ -9,13 +9,21 @@ from typing import Any
 
 import httpx
 
-from agent_utilities.domains.finance.cross_market_arb import (
-    CostAwareThresholdFilter,
-)
-from agent_utilities.domains.finance.signal_fusion import LaplaceEnsembleFusion
 from emerald_exchange.risk_guards import RiskGuard
 
 logger = logging.getLogger(__name__)
+
+
+def laplace_probability(condition_met: int, members: int) -> float:
+    """Laplace-smoothed ensemble probability ``(k + 1) / (n + 2)``; 0.5 when empty."""
+    if members <= 0:
+        return 0.5
+    return (condition_met + 1) / (members + 2)
+
+
+def passes_cost_threshold(model_prob: float, price: float, threshold: float) -> bool:
+    """An edge is worth taking only when it covers the venue's round-trip cost."""
+    return abs(model_prob - price) >= threshold
 
 
 def register_prediction_market_tools(mcp: Any, risk_guard: RiskGuard | None = None) -> None:
@@ -70,7 +78,7 @@ def register_prediction_market_tools(mcp: Any, risk_guard: RiskGuard | None = No
                 kalshi_price = params.get("kalshi_price", 0.5)
 
                 # Use Laplace Smoothing
-                model_prob = LaplaceEnsembleFusion.compute_probability(condition_met_count, total_members)
+                model_prob = laplace_probability(condition_met_count, total_members)
 
                 # Use default risk limits or explicit threshold
                 pm_threshold = 0.08
@@ -80,10 +88,10 @@ def register_prediction_market_tools(mcp: Any, risk_guard: RiskGuard | None = No
                     kalshi_threshold = risk_guard.limits.prediction_market_cost_thresholds.get("kalshi", 0.08)
 
                 opportunities = {}
-                if CostAwareThresholdFilter.passes_threshold(model_prob, pm_price, pm_threshold):
+                if passes_cost_threshold(model_prob, pm_price, pm_threshold):
                     opportunities["polymarket"] = model_prob - pm_price
 
-                if CostAwareThresholdFilter.passes_threshold(model_prob, kalshi_price, kalshi_threshold):
+                if passes_cost_threshold(model_prob, kalshi_price, kalshi_threshold):
                     opportunities["kalshi"] = model_prob - kalshi_price
 
                 return json.dumps({

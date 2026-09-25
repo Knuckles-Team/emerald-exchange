@@ -27,6 +27,9 @@ dependencies = [
 
 [project.optional-dependencies]
 mcp = ["agent-utilities[mcp]>=2.0.0,<3.0.0"]
+# EH-423: the live-order executor applies approved D18 change sets through the
+# SDK's durable write-back connector. Paper trading needs none of it.
+live = ["agent-connector-sdk>=0.1.0,<1.0.0"]
 alpaca = ["alpaca-py>=0.43.5"]
 binance = ["python-binance>=1.0.37"]
 crypto = ["ccxt>=4.5.67"]

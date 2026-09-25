@@ -213,11 +213,23 @@ class ExchangeBackend(Protocol):
 class PaperBackend:
     """Local simulation backend — DEFAULT for all trading. CONCEPT:EX-AHE.harness.ee-2."""
 
-    def __init__(self, initial_cash: float = 100000.0):
+    def __init__(
+        self,
+        initial_cash: float = 100000.0,
+        price_source: "ExchangeBackend | None" = None,
+    ):
+        """``price_source`` makes this a paper account on REAL prices.
+
+        With a source (a venue backend used read-only), market orders fill at
+        the venue's quote -- ask for a buy, bid for a sell -- and an order with
+        no usable quote is REJECTED instead of filled at an invented price.
+        Without one this is the standalone synthetic simulator.
+        """
         self._cash = initial_cash
         self._positions: dict[str, Position] = {}
         self._orders: dict[str, ExecutionResult] = {}
         self._order_counter = 0
+        self._price_source = price_source
 
     @property
     def name(self) -> str:
@@ -248,7 +260,19 @@ class PaperBackend:
     ) -> ExecutionResult:
         self._order_counter += 1
         oid = f"PAPER-{self._order_counter:06d}"
-        price = limit_price or 100.0  # Placeholder
+        price = self._fill_price(symbol, side, limit_price)
+        if price <= 0:
+            rejected = ExecutionResult(
+                order_id=oid,
+                status=OrderStatus.REJECTED,
+                filled_qty=0,
+                average_price=0,
+                fees=0,
+                exchange="paper",
+                raw={"reason": f"no usable quote for {symbol}"},
+            )
+            self._orders[oid] = rejected
+            return rejected
         fees = price * qty * 0.001
         result = ExecutionResult(
             order_id=oid,
@@ -304,7 +328,24 @@ class PaperBackend:
             exchange="paper",
         )
 
+    def _fill_price(
+        self, symbol: str, side: OrderSide, limit_price: float | None
+    ) -> float:
+        if limit_price:
+            return limit_price
+        if self._price_source is None:
+            return 100.0  # standalone synthetic simulator
+        quote = self._price_source.get_quote(symbol)
+        touch = quote.ask if side == OrderSide.BUY else quote.bid
+        return touch if touch > 0 else quote.last
+
     def get_positions(self) -> list[Position]:
+        if self._price_source is not None:
+            for pos in self._positions.values():
+                mark = self._price_source.get_quote(pos.symbol).last
+                if mark > 0:
+                    pos.current_price = mark
+                    pos.unrealized_pnl = (mark - pos.avg_entry_price) * pos.qty
         return list(self._positions.values())
 
     def get_account(self) -> AccountInfo:
@@ -316,11 +357,15 @@ class PaperBackend:
         )
 
     def get_quote(self, symbol: str) -> Quote:
+        if self._price_source is not None:
+            return self._price_source.get_quote(symbol)
         return Quote(symbol=symbol, bid=99.99, ask=100.01, last=100.0, volume=1000000)
 
     def get_historical(
         self, symbol: str, period: str = "1y", interval: str = "1d"
     ) -> list[OHLCV]:
+        if self._price_source is not None:
+            return self._price_source.get_historical(symbol, period, interval)
         return []
 
 

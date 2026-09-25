@@ -278,13 +278,32 @@ def test_bayesian_kelly_fallback_when_no_engine(monkeypatch):
     assert 0.0 <= f <= 0.05
 
 
-def test_emerald_signals_fuse_degrades_without_engine(monkeypatch):
-    """CONCEPT:AU-AHE.assimilation.microstructure-signal-fusion — fuse seeds from KG priors but still fuses supplied
-    directions (with neutral sources) when no engine/priors are reachable."""
-    import emerald_exchange._engine as eng
-    import emerald_exchange.mcp.mcp_signals as ms
+class _FuseEngine:
+    """A fake engine answering EG ``FinanceSignalModels.bayes_fuse``."""
 
-    monkeypatch.setattr(eng, "finance_engine", lambda: None)
+    def __init__(self) -> None:
+        self.requests: list[dict] = []
+        self.finance = self
+        self.nodes = self
+
+    def list(self):
+        return [("sig:ofi", "microstructure_signal")]
+
+    def properties(self, node_id):
+        return {"directional_accuracy": 0.7, "standalone_sharpe": 0.8, "pbo": 0.1}
+
+    def signal_models(self, op, request):
+        self.requests.append({"op": op, **request})
+        names = sorted(request["directions"])
+        return {
+            "posterior_up": 0.6,
+            "seeded": len(request["priors"]),
+            "sources": [{"name": n, "weight": 0.5, "accuracy": 0.55, "seeded": False} for n in names],
+        }
+
+
+def _capture_signal_tools():
+    import emerald_exchange.mcp.mcp_signals as ms
 
     captured = {}
 
@@ -297,14 +316,38 @@ def test_emerald_signals_fuse_degrades_without_engine(monkeypatch):
             return deco
 
     ms.register_signal_tools(_MCP())
+    return captured["emerald_signals"]
+
+
+def test_emerald_signals_fuse_needs_the_engine(monkeypatch):
+    """CONCEPT:AU-AHE.assimilation.microstructure-signal-fusion — the fusion math
+    lives in epistemic-graph (EH-423/AUD-30): with no engine, fuse says so
+    instead of computing a local answer."""
+    import emerald_exchange._engine as eng
+
+    monkeypatch.setattr(eng, "finance_engine", lambda: None)
     out = json.loads(
-        captured["emerald_signals"](
-            action="fuse", signals_json='{"ofi": 1, "queue": 1}'
-        )
+        _capture_signal_tools()(action="fuse", signals_json='{"ofi": 1, "queue": 1}')
     )
-    assert out["seeded_from_kg"] == 0
-    assert out["posterior_up"] > 0.5  # two bullish sources push the prior up
-    assert set(out["sources"]) == {"ofi", "queue"}
+    assert "engine unavailable" in out["error"]
+
+
+def test_emerald_signals_fuse_sends_kg_priors_to_the_engine(monkeypatch):
+    import emerald_exchange._engine as eng
+
+    engine = _FuseEngine()
+    monkeypatch.setattr(eng, "finance_engine", lambda: engine)
+    out = json.loads(
+        _capture_signal_tools()(action="fuse", signals_json='{"ofi": 1, "queue": 1}')
+    )
+    [sent] = engine.requests
+    assert sent["op"] == "bayes_fuse"
+    assert sent["directions"] == {"ofi": 1, "queue": 1}
+    assert sent["priors"] == [
+        {"name": "sig:ofi", "directional_accuracy": 0.7, "standalone_sharpe": 0.8, "pbo": 0.1}
+    ]
+    assert out["seeded_from_kg"] == 1 and out["posterior_up"] == 0.6
+    assert out["sources"] == ["ofi", "queue"]
 
 
 def test_emerald_strategy_backtest_writeback(engine_client):

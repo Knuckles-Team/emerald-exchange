@@ -6,8 +6,32 @@ Unified Finance MCP exposing all trading tools via action-routed domains.
 import json
 import logging
 import sys
+from typing import Any
 
 logger = logging.getLogger(__name__)
+
+
+def build_trading_backends(trading_config: dict, setting: Any) -> tuple[Any, Any, Any]:
+    """The venue backend, the governed backend every tool sees, and the mode.
+
+    ``default_mode`` defaults to ``paper``. The venue is returned only so the
+    live-order tool (registered in live mode) can apply approved change sets;
+    nothing else may hold it.
+    """
+    from emerald_exchange.backends import TradingMode, create_backend
+    from emerald_exchange.trading import GovernedBackend
+
+    default_exchange = trading_config.get("default_exchange", "paper")
+    default_mode = TradingMode(trading_config.get("default_mode", "paper"))
+    exchange_config = trading_config.get("exchanges", {}).get(default_exchange, {})
+    resolved_config: dict = {}
+    for key, val in exchange_config.items():
+        if isinstance(val, str) and key.endswith("_env"):
+            resolved_config[key.replace("_env", "")] = setting(val, "")
+        elif key not in ("enabled",):
+            resolved_config[key] = val
+    venue = create_backend(default_exchange, resolved_config, default_mode)
+    return venue, GovernedBackend(venue, default_mode), default_mode
 
 
 def get_mcp_instance():
@@ -59,24 +83,15 @@ def get_mcp_instance():
         except Exception as e:
             logger.warning("Operation failed: error_type=%s", type(e).__name__)
 
-    # Initialize exchange backend
-    from emerald_exchange.backends import TradingMode, create_backend
+    # EH-423: the venue backend is held only here and by the live-order tool.
+    # Every other tool, and the verbose 1:1 surface, gets the governed
+    # backend: venue reads, paper effects, and no live effect at all.
+    from emerald_exchange.backends import TradingMode
     from emerald_exchange.risk_guards import RiskGuard, RiskLimits
 
-    default_exchange = trading_config.get("default_exchange", "paper")
-    default_mode = TradingMode(trading_config.get("default_mode", "paper"))
-    exchange_config = trading_config.get("exchanges", {}).get(default_exchange, {})
-
-    # Resolve env vars for API keys
-    resolved_config: dict = {}
-    for key, val in exchange_config.items():
-        if isinstance(val, str) and key.endswith("_env"):
-            resolved_config[key.replace("_env", "")] = setting(val, "")
-        elif key not in ("enabled",):
-            resolved_config[key] = val
-
-    backend = create_backend(default_exchange, resolved_config, default_mode)
+    venue, backend, default_mode = build_trading_backends(trading_config, setting)
     backend.connect()
+    default_exchange = venue.name
 
     # Initialize risk guard
     risk_config = trading_config.get("risk_limits", {})
@@ -120,6 +135,16 @@ def get_mcp_instance():
             lambda m: register_kg_ingest_tools(m, backend),
         ),
     ]
+    if default_mode == TradingMode.LIVE:
+        from emerald_exchange.mcp.mcp_live_orders import register_live_order_tools
+
+        registrars.append(
+            (
+                "live_order",
+                "LIVE_ORDERTOOL",
+                lambda m: register_live_order_tools(m, venue),
+            )
+        )
     registered_tags = register_tool_surface(
         mcp,
         service="emerald-exchange",
