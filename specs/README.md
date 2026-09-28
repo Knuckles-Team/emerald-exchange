@@ -2,6 +2,8 @@
 
 This tracked directory is the build contract for Emerald Exchange work. Each feature has `spec.md` (outcome and requirements), `plan.md` (architecture, interfaces and reuse), `test-spec.md` (acceptance and quality proof), `tasks.md` (implementation order), and `status.json` (delivery and acceptance state). The files stand alone for public contributors; draft notes and private infrastructure are not prerequisites.
 
+Start a feature from [`_template/`](_template/) and follow the [repository constitution](../.specify/memory/constitution.md). `specs/` is the canonical feature tree; historical records under `.specify/specs/` remain legacy drafts until distilled. Run `python -m pytest tests/test_public_specs.py` to check the file and status contract.
+
 | ID | Feature | State |
 | --- | --- | --- |
 | [EH-707](leveraged-trading-guide/spec.md) | Leveraged trading guide, gold example, skill and explainer contract | SPECIFIED / NOT_AUDITED |
