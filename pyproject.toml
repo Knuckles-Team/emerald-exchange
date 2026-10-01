@@ -30,8 +30,8 @@ mcp = ["agent-utilities[mcp]>=2.0.0,<3.0.0"]
 alpaca = ["alpaca-py>=0.43.5"]
 binance = ["python-binance>=1.0.37"]
 crypto = ["ccxt>=4.5.67"]
-prediction_markets = ["httpx>=0.28.1", "kalshi-python>=2.1.4", "py-clob-client>=0.34.6", "websockets>=16.1.1"]
-fundamentals = ["edgartools>=5.43.0"]
+prediction_markets = ["httpx>=0.28.1", "kalshi-python>=2.1.4", "py-clob-client>=0.34.6", "websockets>=17.1"]
+fundamentals = ["edgartools>=5.59.1"]
 wallet_intel = ["polars>=1.43.0", "py-clob-client>=0.34.6"]
 all = [
     "agent-utilities[mcp,agent-runtime,logfire]>=2.0.0,<3.0.0",
@@ -40,8 +40,8 @@ all = [
     "httpx>=0.28.1",
     "kalshi-python>=2.1.4",
     "py-clob-client>=0.34.6",
-    "websockets>=16.1.1",
-    "edgartools>=5.43.0",
+    "websockets>=17.1",
+    "edgartools>=5.59.1",
     "polars>=1.43.0",
 ]
 agent = ["agent-utilities[agent-runtime,logfire]>=2.0.0,<3.0.0"]
