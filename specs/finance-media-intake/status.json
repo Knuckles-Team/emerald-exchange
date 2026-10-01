@@ -1,9 +1,19 @@
 {
   "schema_version": 1,
-  "spec_id": "EH-708",
+  "spec_id": "EMERALD-MEDIA-001",
   "owner_repo": "emerald-exchange",
-  "requirement_ids": ["EH-708"],
+  "requirement_ids": [
+    "EMERALD-MEDIA-R001"
+  ],
   "delivery_state": "SPECIFIED",
   "acceptance_state": "NOT_AUDITED",
-  "evidence": []
+  "evidence": [],
+  "requirements": [
+    {
+      "id": "EMERALD-MEDIA-R001",
+      "title": "Finance media intake into reviewable Emerald skills",
+      "delivery_state": "SPECIFIED",
+      "evidence": []
+    }
+  ]
 }

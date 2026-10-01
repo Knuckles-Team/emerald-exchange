@@ -1,6 +1,8 @@
-# EH-708 — Finance media intake
+# EMERALD-MEDIA-001 — Finance media intake
 
 **Owner:** Emerald Exchange for the resulting finance skills and claim/strategy linkage. **Delivery:** SPECIFIED. **Acceptance:** NOT_AUDITED.
+
+See [`requirements.md`](requirements.md) for the definition of every requirement ID this spec owns and [`status.json`](status.json) for their current delivery and acceptance state.
 
 ## Outcome and sources
 
@@ -19,19 +21,19 @@ An external contributor can capture designated DCA and gold/leverage material, s
 1. A contributor runs `media-watch` for each video and records the public URL, capture time, media/caption/frames state, caption language, transcript origin, and time-coded evidence. They request `en` explicitly; a wildcard must not trigger extra language downloads or rate limits.
 2. A reviewer can distinguish source steps, screen-observed details, warnings, source claims, editor inference, and independently verified mechanics. Missing captions or frames remain visible; no fabricated observation fills a gap. For missing captions, use the audio-transcriber fallback only when the lawful local media file is available and label ASR output.
 3. A published Emerald skill contains a versioned source table, reproducible steps, warnings, claim statuses, and `What would change this skill`. Each mechanical trading rule links to an EG `StrategySpec` stable ID and version, or is marked `UNMAPPED` and cannot drive a recommendation. The DCA skill references schedule, amount/share policy and value-averaging variants only when the tested strategy contract supports them.
-4. A claim can affect a recommendation only after EG EH-703 produces a `BacktestRun` with out-of-sample/purged validation, deflated Sharpe, probability-of-backtest-overfitting, costs and versioned evidence; the recommendation remains informational and can abstain. Media popularity or narrator confidence is never an evidence substitute.
+4. A claim can affect a recommendation only after EG-FINANCE-PRIMITIVES-R008 produces a `BacktestRun` with out-of-sample/purged validation, deflated Sharpe, probability-of-backtest-overfitting, costs and versioned evidence; the recommendation remains informational and can abstain. Media popularity or narrator confidence is never an evidence substitute.
 
 ## Requirements
 
 | ID | Requirement | Evidence |
 | --- | --- | --- |
-| MI-01 | Exact source set, URL, capture time and availability manifest are recorded | Public source table and sanitized manifest |
-| MI-02 | English captions are requested as `en`; failures and ASR provenance are explicit | Capture log/fixture |
-| MI-03 | Time-coded steps, claims, warnings and observed frames are distinct; inferred content is labeled | Reviewer sample |
-| MI-04 | Reusable skills use the existing Emerald catalog and media-watch provenance contract, with no duplicate source ingestion store | Skill parser and catalog check |
-| MI-05 | Mechanical rules map to versioned `StrategySpec` or `UNMAPPED`; claimed outcomes cannot self-promote to recommendation | Contract and negative tests |
-| MI-06 | Backtest evidence and abstention are required before recommendation consumption | EG/AU consumer receipt |
+| MEDIA-1 | Exact source set, URL, capture time and availability manifest are recorded | Public source table and sanitized manifest |
+| MEDIA-2 | English captions are requested as `en`; failures and ASR provenance are explicit | Capture log/fixture |
+| MEDIA-3 | Time-coded steps, claims, warnings and observed frames are distinct; inferred content is labeled | Reviewer sample |
+| MEDIA-4 | Reusable skills use the existing Emerald catalog and media-watch provenance contract, with no duplicate source ingestion store | Skill parser and catalog check |
+| MEDIA-5 | Mechanical rules map to versioned `StrategySpec` or `UNMAPPED`; claimed outcomes cannot self-promote to recommendation | Contract and negative tests |
+| MEDIA-6 | Backtest evidence and abstention are required before recommendation consumption | EG/AU consumer receipt |
 
 ## Boundaries and completion
 
-[media-downloader](https://github.com/Knuckles-Team/media-downloader/tree/main/media_downloader/skills/media-watch) owns `watch_media`, frame extraction, caption capture, manifests and `build_watch_skill`. [epistemic-graph](https://github.com/Knuckles-Team/epistemic-graph/tree/main/specs) owns `StrategySpec`, deterministic evaluation and `BacktestRun` (EH-702/703). Emerald owns curated DCA and leverage skills and their links; [agent-webui Finance](https://github.com/Knuckles-Team/agent-webui/tree/main/specs/finance-asset-manager) consumes only reviewed informational content. EH-707 consumes the leverage intake. No media-derived content invokes `mcp_orders` or authorizes a live trade. Completion requires all five source receipts or explicit unavailable results, reviewed skills, rule mappings, negative gating tests and a merged Emerald revision; acceptance requires exact consumer evidence.
+[media-downloader](https://github.com/Knuckles-Team/media-downloader/tree/main/media_downloader/skills/media-watch) owns `watch_media`, frame extraction, caption capture, manifests and `build_watch_skill`. [epistemic-graph](https://github.com/Knuckles-Team/epistemic-graph/tree/main/specs) owns `StrategySpec`, deterministic evaluation and `BacktestRun` (EG-FINANCE-PRIMITIVES-R007/703). Emerald owns curated DCA and leverage skills and their links; [agent-webui Finance](https://github.com/Knuckles-Team/agent-webui/tree/main/specs/finance-asset-manager) consumes only reviewed informational content. EMERALD-GUIDE-R001 consumes the leverage intake. No media-derived content invokes `mcp_orders` or authorizes a live trade. Completion requires all five source receipts or explicit unavailable results, reviewed skills, rule mappings, negative gating tests and a merged Emerald revision; acceptance requires exact consumer evidence.

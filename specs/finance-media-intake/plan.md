@@ -1,4 +1,4 @@
-# EH-708 — Design and architecture
+# EMERALD-MEDIA-001 — Design and architecture
 
 ## Existing wiring
 

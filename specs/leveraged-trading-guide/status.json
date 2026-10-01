@@ -1,9 +1,19 @@
 {
   "schema_version": 1,
-  "spec_id": "EH-707",
+  "spec_id": "EMERALD-GUIDE-001",
   "owner_repo": "emerald-exchange",
-  "requirement_ids": ["EH-707"],
+  "requirement_ids": [
+    "EMERALD-GUIDE-R001"
+  ],
   "delivery_state": "SPECIFIED",
   "acceptance_state": "NOT_AUDITED",
-  "evidence": []
+  "evidence": [],
+  "requirements": [
+    {
+      "id": "EMERALD-GUIDE-R001",
+      "title": "Leveraged trading guide across docs, skill, and explainer",
+      "delivery_state": "SPECIFIED",
+      "evidence": []
+    }
+  ]
 }
