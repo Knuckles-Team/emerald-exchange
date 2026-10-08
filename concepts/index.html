@@ -983,7 +983,7 @@
 <tr>
 <td><code>CONCEPT:AU-AHE.assimilation.trading-ecosystem-changelog</code></td>
 <td>Execution Bridge</td>
-<td>Routes a strategy/debate/optimizer <code>TradeDecision</code> (side/size/symbol/type/venue) to an <code>ExchangeBackend</code> behind the live-approval gate: paper executes freely, LIVE is BLOCKED while <code>require_human_approval_live</code> is set (returns <code>approval_required</code>), and every routed order still clears <code>RiskGuard.pre_trade_check</code>. Decision→action seam (<code>execution_bridge.py</code>)</td>
+<td>Routes a strategy/debate/optimizer <code>TradeDecision</code> (side/size/symbol/type/venue) to an <code>ExchangeBackend</code> behind the live-approval gate: paper runs freely, LIVE is BLOCKED while <code>require_human_approval_live</code> is set (returns <code>approval_required</code>), and every routed order still clears <code>RiskGuard.pre_trade_check</code>. Decision→action seam (<code>execution_bridge.py</code>)</td>
 </tr>
 <tr>
 <td><code>CONCEPT:AU-AHE.assimilation.microstructure-signal-fusion</code></td>
