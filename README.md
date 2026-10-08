@@ -12,7 +12,7 @@
 ## Overview
 
 Emerald Exchange is a unified Finance MCP Server providing fully abstracted exchange backends
-for equities, crypto, and derivatives trading. All trading functionality is tool-driven via MCP,
+for equities, crypto, and derivatives trading. All trading feature is tool-driven via MCP,
 with built-in financial hardening controls (OS-5.1).
 
 **Key Features:**
@@ -121,7 +121,7 @@ _15 action-routed tool(s) · 9 verbose 1:1 tool(s). Each is enabled unless its `
 > and the agent frontends), so `uvx`/container installs stay smaller and faster —
 > note the mandatory `epistemic-graph[full]` engine is still present either way,
 > since it is a base dependency of `agent-utilities` itself, not gated behind an
-> extra. Use the full `[agent]` extra only when you need the integrated Pydantic AI
+> extra. Use the full `[agent]` extra only when the operator need the integrated Pydantic AI
 > agent (see [Installation](#installation)). Add trading-backend extras
 > (`[alpaca]`, `[crypto]`, `[prediction_markets]`, …) on top as needed.
 
@@ -187,9 +187,9 @@ the detailed transport contract.
 
 ## ⚙️ Dynamic Tool Selection & Visibility
 
-This MCP server supports dynamic toolset selection and visibility filtering at runtime. This allows you to restrict the set of exposed tools in order to prevent blowing up the LLM's context window.
+This MCP server supports dynamic toolset selection and visibility filtering at runtime. This allows the operator to restrict the set of exposed tools to prevent blowing up the LLM's context window.
 
-You can configure tool filtering via multiple input channels:
+The operator can configure tool filtering via multiple input channels:
 
 - **CLI Arguments:** Pass `--tools` or `--toolsets` (or their disabled counterparts `--disabled-tools` and `--disabled-toolsets`) during startup.
 - **Environment Variables:** Define standard environment variables:
@@ -198,23 +198,23 @@ You can configure tool filtering via multiple input channels:
 - **HTTP SSE Request Headers:** Pass custom headers during transport initialization:
   - `x-mcp-enabled-tools` / `x-mcp-disabled-tools`
   - `x-mcp-enabled-tags` / `x-mcp-disabled-tags`
-- **HTTP SSE Request Query Parameters:** Append query parameters directly to your transport connection URL:
+- **HTTP SSE Request Query Parameters:** Append query parameters directly to the operator's transport connection URL:
   - `?tools=tool1,tool2`
   - `?tags=tag1`
 
-When query strings or parameters are supplied, an LLM-free **Knowledge Graph resolution layer** (using `DynamicToolOrchestrator`) matches query intents against known tool tags, names, or descriptions, with safe fallback and automated 24-hour background cache refreshing.
+When query strings or parameters are provided, an LLM-free **Knowledge Graph resolution layer** (using `DynamicToolOrchestrator`) matches query intents against known tool tags, names, or descriptions, with safe fallback and automated 24-hour background cache refreshing.
 
 
 ---
 
 ## Installation
 
-Pick the extra that matches what you want to run, then layer trading-backend extras on top:
+Pick the extra that matches what the operator want to run, then layer trading-backend extras on top:
 
 | Extra | Installs | Use when |
 |-------|----------|----------|
-| `emerald-exchange[mcp]` | Slim MCP server (`agent-utilities[mcp]` — FastMCP/FastAPI; still carries the mandatory `epistemic-graph[full]` base engine) + paper backend | You only run the **MCP server** (smallest install / image) |
-| `emerald-exchange[agent]` | Full agent runtime (`agent-utilities[agent-runtime,logfire]` — Pydantic AI/DSPy orchestration + `epistemic-graph[full]`) | You run the **integrated agent** |
+| `emerald-exchange[mcp]` | Slim MCP server (`agent-utilities[mcp]` — FastMCP/FastAPI; still carries the mandatory `epistemic-graph[full]` base engine) + paper backend | The operator only run the **MCP server** (smallest install / image) |
+| `emerald-exchange[agent]` | Full agent runtime (`agent-utilities[agent-runtime,logfire]` — Pydantic AI/DSPy orchestration + `epistemic-graph[full]`) | The operator run the **integrated agent** |
 | `emerald-exchange[all]` | Everything (`mcp` + `agent` + every trading backend) | Development / full surface |
 
 ```bash
@@ -250,7 +250,7 @@ Both `[mcp]` and `[agent]` carry the **epistemic-graph** engine through the requ
 Agent Utilities core dependency (`epistemic-graph[full]`) — it is a mandatory base
 dependency of `agent-utilities`, not gated behind an extra. The `[mcp]` extra keeps
 the server slim/connector-focused (no agent-orchestration stack); `[agent]`
-additionally enables Pydantic AI/DSPy model orchestration. Local deployments can use
+also enables Pydantic AI/DSPy model orchestration. Local deployments can use
 the bundled engine. For production — or to share one knowledge graph across multiple
 agents — run **epistemic-graph as its own dedicated database service** and point the
 runtime at it instead of embedding it. Deployment recipes (single-node + Raft HA),
@@ -301,7 +301,7 @@ Secrets are read-existing + seeded via `vault_sync` — you are only prompted fo
 
 For a `tiny`/`single-node-prod` profile scoped to just this package (no whole-homelab
 genesis), the **`agent-utilities-deployment`** skill runs the equivalent
-install-mode/secrets/doctor/registration/observability/rollback sequence. Ask your
+install-mode/secrets/doctor/registration/observability/rollback sequence. Ask the operator's
 agent to **"deploy `emerald-exchange` with agent-utilities-deployment"**.
 
 | Install mode | Command |

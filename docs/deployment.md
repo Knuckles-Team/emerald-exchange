@@ -81,7 +81,7 @@ The transport is selected with `--transport` (or the `TRANSPORT` env var):
     ```bash
     emerald-exchange-mcp
     ```
-    For IDE / desktop MCP clients that launch the server as a subprocess.
+    For IDE / desktop MCP clients that start the server as a subprocess.
 
 === "streamable-http"
 
@@ -177,7 +177,7 @@ docker compose -f docker/mcp.compose.yml logs -f
 
 ## A2A agent server
 
-The agent server (`emerald-exchange-agent`) launches `emerald-exchange` as a full
+The agent server (`emerald-exchange-agent`) starts `emerald-exchange` as a full
 Pydantic-AI agent with Agent-to-Agent support, wired to the MCP toolset via
 `MCP_URL`. It is defined alongside the MCP server in
 [`docker/mcp.compose.yml`](https://github.com/Knuckles-Team/emerald-exchange/blob/main/docker/mcp.compose.yml)
@@ -217,7 +217,7 @@ emerald-exchange-agent --host 0.0.0.0 --port 9100 \
 
 ## Behind a Caddy reverse proxy
 
-Expose the HTTP server on a hostname with automatic TLS. Add to your `Caddyfile`:
+Expose the HTTP server on a hostname with automatic TLS. Add to the operator's `Caddyfile`:
 
 ```caddy
 # Deployment-selected HTTPS hostname
@@ -261,7 +261,7 @@ this as a tool.
 
 ## Register with an MCP client
 
-Add to your client's `mcp_config.json` (multiplexer nickname `ee`):
+Add to the operator's client's `mcp_config.json` (multiplexer nickname `ee`):
 
 ```json
 {

@@ -1,7 +1,7 @@
 # Usage — API / CLI / MCP
 
 `emerald-exchange` exposes the same capability three ways: as **MCP tools** an
-agent calls, as a **Python API** you import, and as a **cockpit CLI**. The complete
+agent calls, as a **Python API** the operator import, and as a **cockpit CLI**. The complete
 tool surface and architecture are in [Overview](overview.md).
 
 ## As an MCP server
