@@ -1,7 +1,7 @@
 # Installation
 
 `emerald-exchange` is a standard Python package and a prebuilt container image.
-Pick the path that matches how you want to run it.
+Pick the path that matches how the operator want to run it.
 
 ## Requirements
 
@@ -19,7 +19,7 @@ pip install emerald-exchange
 ### Optional extras
 
 The base install ships the core MCP server and the Paper backend. Install the
-extra for the venues and data providers you need:
+extra for the venues and data providers the operator need:
 
 | Extra | Install | Pulls in |
 |---|---|---|
