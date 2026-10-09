@@ -7,9 +7,8 @@ it into the ONE epistemic-graph knowledge graph as typed :Portfolio / :Position 
 when no engine is reachable.
 """
 
-from typing import Any
-
 import json
+from typing import Any
 
 from emerald_exchange.backends import ExchangeBackend
 
@@ -18,7 +17,7 @@ def register_kg_ingest_tools(mcp: Any, backend: ExchangeBackend) -> None:
     """Register the native KG-ingestion tool on the MCP server."""
 
     @mcp.tool(tags=["kg-ingest"])
-    def emerald_ingest_snapshot(
+    async def emerald_ingest_snapshot(
         symbols: str = "",
         include_history: bool = False,
         period: str = "1mo",
@@ -36,7 +35,7 @@ def register_kg_ingest_tools(mcp: Any, backend: ExchangeBackend) -> None:
         from emerald_exchange.kg_ingest import ingest_backend_snapshot
 
         syms = [s.strip() for s in symbols.split(",") if s.strip()]
-        result = ingest_backend_snapshot(
+        result = await ingest_backend_snapshot(
             backend,
             syms,
             include_history=include_history,

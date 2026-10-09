@@ -1,12 +1,13 @@
-"""Native epistemic-graph ingestion for Emerald Exchange records (typed graph nodes).
+"""Epistemic-graph ingestion for Emerald Exchange records (typed graph nodes).
 
-CONCEPT:AU-KG.ingest.enterprise-source-extractor. The connector natively pushes its live
+CONCEPT:AU-KG.ingest.enterprise-source-extractor. The connector pushes its live
 trading data into the ONE epistemic-graph knowledge graph as **typed OWL nodes** —
 :Instrument, :Portfolio, :Position, :Trade, :Quote, :MarketBar (OHLCV timeseries) — plus
 their links (:ofInstrument / :holdsPosition / :tradesInstrument / :settledInPortfolio)
-through the required ``agent_utilities.knowledge_graph.memory.native_ingest`` authority.
-Node ids follow ``emerald:<class>:<externalId>`` and every ``node_type`` matches a class
-federated by ``emerald_exchange.ontology`` (emerald.ttl / quant.ttl).
+through ``agent_connector_sdk.ingest`` -- the generated ``SourceIngest`` client, not a
+local ingestion helper. Node ids follow ``emerald:<class>:<externalId>`` and every
+``node_type`` matches a class federated by ``emerald_exchange.ontology`` (emerald.ttl /
+quant.ttl).
 """
 
 from __future__ import annotations
@@ -14,51 +15,98 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from agent_utilities.knowledge_graph.memory.native_ingest import (
-    ingest_documents as _native_ingest_documents,
-)
-from agent_utilities.knowledge_graph.memory.native_ingest import (
-    ingest_entities as _native_ingest_entities,
+from agent_connector_sdk.ingest import (
+    ChangeSet,
+    Document,
+    Entity,
+    IngestBinding,
+    IngestError,
+    KnowledgeIngest,
+    Relationship,
+    current_ingest,
 )
 
 logger = logging.getLogger("emerald_exchange.kg")
 
-_SOURCE = "emerald-exchange"
-_DOMAIN = "emerald"
+_BINDING = IngestBinding(connector="emerald-exchange", stream="emerald")
+
+_ENTITY_RESERVED_KEYS = frozenset({"id", "node_type"})
+_RELATIONSHIP_RESERVED_KEYS = frozenset({"source", "target", "relationship"})
 
 
-def ingest_entities(
+def _to_entity(record: dict[str, Any]) -> Entity:
+    return Entity(
+        id=record.get("id"),
+        node_type=record.get("node_type"),
+        properties={
+            key: value
+            for key, value in record.items()
+            if key not in _ENTITY_RESERVED_KEYS
+        },
+    )
+
+
+def _to_relationship(record: dict[str, Any]) -> Relationship:
+    properties = {
+        key: value
+        for key, value in record.items()
+        if key not in _RELATIONSHIP_RESERVED_KEYS
+    }
+    return Relationship(
+        source=record["source"],
+        target=record["target"],
+        relationship=record["relationship"],
+        properties=properties or None,
+    )
+
+
+async def ingest_entities(
     entities: list[dict[str, Any]],
     relationships: list[dict[str, Any]] | None = None,
     *,
-    source: str = _SOURCE,
-    domain: str = _DOMAIN,
-    client: Any | None = None,
-    graph: str | None = None,
+    ingest: KnowledgeIngest | None = None,
 ) -> dict[str, int]:
-    """Write canonical typed nodes and relationships through native ingestion."""
-    return _native_ingest_entities(
-        entities,
-        relationships,
-        source=source,
-        domain=domain,
-        client=client,
-        graph=graph,
+    """Write canonical typed nodes and relationships through the SDK ingest facade."""
+    if not entities:
+        raise IngestError("ingest_entities needs at least one entity")
+    change_set = ChangeSet(
+        entities=tuple(_to_entity(entity) for entity in entities),
+        relationships=tuple(
+            _to_relationship(relationship) for relationship in relationships or ()
+        ),
     )
+    service = ingest or current_ingest()
+    receipt = await service.submit(_BINDING, change_set)
+    return {"nodes": receipt.affected_count, "edges": receipt.relationship_count}
 
 
-def ingest_documents(
+async def ingest_documents(
     documents: list[dict[str, Any]],
     *,
-    source: str = _SOURCE,
-    domain: str = _DOMAIN,
-    client: Any | None = None,
-    graph: str | None = None,
+    ingest: KnowledgeIngest | None = None,
 ) -> dict[str, int]:
     """Write text records as ``:Document`` nodes for semantic search."""
-    return _native_ingest_documents(
-        documents, source=source, domain=domain, client=client, graph=graph
+    if not documents:
+        raise IngestError("ingest_documents needs at least one document")
+    change_set = ChangeSet(
+        documents=tuple(
+            Document(
+                id=doc["id"],
+                text=doc["text"],
+                title=doc.get("title"),
+                source_uri=doc.get("source_uri"),
+                properties={
+                    key: value
+                    for key, value in doc.items()
+                    if key not in {"id", "text", "title", "source_uri"}
+                },
+            )
+            for doc in documents
+        )
     )
+    service = ingest or current_ingest()
+    receipt = await service.submit(_BINDING, change_set)
+    return {"nodes": receipt.affected_count, "edges": receipt.relationship_count}
 
 
 # --------------------------------------------------------------------------- #
@@ -257,15 +305,14 @@ def map_trade(trade: dict[str, Any]) -> tuple[list[dict], list[dict]]:
 # --------------------------------------------------------------------------- #
 # High-level: pull a live snapshot off a backend and push it into the KG.
 # --------------------------------------------------------------------------- #
-def ingest_backend_snapshot(
+async def ingest_backend_snapshot(
     backend: Any,
     symbols: list[str] | None = None,
     *,
     include_history: bool = False,
     period: str = "1mo",
     interval: str = "1d",
-    client: Any | None = None,
-    graph: str | None = None,
+    ingest: KnowledgeIngest | None = None,
 ) -> dict[str, int]:
     """List account + positions (+ optional quotes/bars for ``symbols``) off a live
     ExchangeBackend and push them into the KG as canonical typed nodes.
@@ -314,7 +361,7 @@ def ingest_backend_snapshot(
     deduped: dict[str, dict] = {}
     for entity in entities:
         deduped.setdefault(entity["id"], entity)
-    return ingest_entities(list(deduped.values()), rels, client=client, graph=graph)
+    return await ingest_entities(list(deduped.values()), rels, ingest=ingest)
 
 
 def _as_dict(obj: Any) -> dict[str, Any]:
