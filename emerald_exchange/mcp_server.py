@@ -17,14 +17,17 @@ def get_mcp_instance():
     warnings.filterwarnings("ignore", category=UserWarning, module="urllib3")
     warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-    from agent_utilities.core.config import load_config, setting
-    from agent_utilities.mcp.server_factory import create_mcp_server
-    from agent_utilities.mcp.verbose_tools import register_tool_surface
+    from agent_connector_sdk.config import load_config, setting
+    from agent_connector_sdk.mcp.server import create_mcp_server
+    from agent_connector_sdk.mcp.tool_surface import register_tool_surface
 
     load_config()
 
+    from emerald_exchange import __version__
+
     args, mcp, middlewares = create_mcp_server(
         name="emerald-exchange",
+        version=__version__,
         instructions="Unified Finance MCP — Exchange backends, risk management, and trading tools",
     )
 
@@ -56,7 +59,7 @@ def get_mcp_instance():
             with open(config_path) as f:
                 full_config = json.load(f)
             trading_config = full_config.get("trading", {})
-        except Exception as e:
+        except (OSError, json.JSONDecodeError) as e:
             logger.warning("Operation failed: error_type=%s", type(e).__name__)
 
     # Initialize exchange backend
