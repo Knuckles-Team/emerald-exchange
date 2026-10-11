@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "spec_id": "EMERALD-GUIDE-001",
+  "spec_id": "EMERALD-GUIDE",
   "owner_repo": "emerald-exchange",
   "delivery_state": "SPECIFIED",
   "requirement_ids": [
