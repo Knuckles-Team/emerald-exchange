@@ -1,4 +1,4 @@
-# EMERALD-MEDIA-001 — Test specification
+# EMERALD-MEDIA — Test specification
 
 | Case | Fixture/action | Expected result |
 | --- | --- | --- |

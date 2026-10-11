@@ -1,4 +1,4 @@
-# EMERALD-GUIDE-001 — Design and architecture
+# EMERALD-GUIDE — Design and architecture
 
 ## Existing wiring and reuse
 

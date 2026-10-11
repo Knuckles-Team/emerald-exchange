@@ -1,4 +1,4 @@
-# EMERALD-MEDIA-001 — Design and architecture
+# EMERALD-MEDIA — Design and architecture
 
 ## Existing wiring
 

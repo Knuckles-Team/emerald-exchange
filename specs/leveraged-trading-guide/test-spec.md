@@ -1,4 +1,4 @@
-# EMERALD-GUIDE-001 — Test specification
+# EMERALD-GUIDE — Test specification
 
 | Case | Fixture/action | Expected result |
 | --- | --- | --- |
