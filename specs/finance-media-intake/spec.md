@@ -1,4 +1,4 @@
-# EMERALD-MEDIA-001 — Finance media intake
+# EMERALD-MEDIA — Finance media intake
 
 **Owner:** Emerald Exchange for the resulting finance skills and claim/strategy linkage. **Delivery:** SPECIFIED. **Acceptance:** NOT_AUDITED.
 

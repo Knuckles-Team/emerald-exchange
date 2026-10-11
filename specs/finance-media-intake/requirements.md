@@ -1,4 +1,4 @@
-# EMERALD-MEDIA-001 requirements
+# EMERALD-MEDIA requirements
 
 Every requirement this specification owns, with the proof that closes it. Delivery state and
 public evidence for each ID are recorded in [`status.json`](status.json); this file defines what

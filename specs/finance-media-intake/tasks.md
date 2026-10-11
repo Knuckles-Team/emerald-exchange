@@ -1,4 +1,4 @@
-# EMERALD-MEDIA-001 — Delivery tasks
+# EMERALD-MEDIA — Delivery tasks
 
 - [ ] Capture the three DCA videos and gold/leverage video with `media-watch` using `en` only; read the DCA article directly. Record each success or unavailable receipt.
 - [ ] Review manifest, full transcript, timestamped frames and article; extract steps, observations, warnings and claims with provenance.

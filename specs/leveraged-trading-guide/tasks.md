@@ -1,4 +1,4 @@
-# EMERALD-GUIDE-001 — Delivery tasks
+# EMERALD-GUIDE — Delivery tasks
 
 - [ ] Confirm EMERALD-MEDIA-R001 intake provenance and independently check current official exchange/regulator sources and publication rights.
 - [ ] Agree the fixed illustrative gold fixture and EG-FINANCE-PRIMITIVES-R010 request/response contract with the EG owner.

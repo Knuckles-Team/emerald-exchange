@@ -1,4 +1,4 @@
-# EMERALD-GUIDE-001 — Leveraged trading guide
+# EMERALD-GUIDE — Leveraged trading guide
 
 **Owner:** Emerald Exchange. **Delivery:** SPECIFIED. **Acceptance:** NOT_AUDITED.
 
