@@ -2,12 +2,12 @@
 name: emerald-exchange-operations
 skill_type: skill
 description: >-
-  Operate emerald-exchange through its governed MCP and GraphOS capabilities, including emerald exchange kg ingestion, emerald exchange market data, emerald exchange order execution. Use when a request requires this provider's read, change, automation, ingestion, troubleshooting, or evidence workflows.
+  Operate emerald-exchange through its governed MCP and Arbora capabilities, including emerald exchange kg ingestion, emerald exchange market data, emerald exchange order execution. Use when a request requires this provider's read, change, automation, ingestion, troubleshooting, or evidence workflows.
 ---
 
 # Emerald Exchange Operations
 
-Use the provider's governed MCP tools through GraphOS delegation.
+Use the provider's governed MCP tools through Arbora delegation.
 
 ## Workflow
 

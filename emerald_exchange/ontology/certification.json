@@ -1,5 +1,5 @@
 {
-  "api_version": "graphos.io/v1",
+  "api_version": "arbora.io/v1",
   "artifacts": {
     "connector_manifest.yml": "fd48fc42aa199ba2bd495c569f50fb4a63dc4a93b9b71ebe3e861885487a8909",
     "emerald_exchange/connectors/mcp_source_presets.json": "bcabae57623be833ba70e44382cc0c190420401e86a78ae3dd7dcb6e233d5cf5",
