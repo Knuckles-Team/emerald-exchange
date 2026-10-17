@@ -29,7 +29,7 @@ def register_strategy_tools(mcp: Any) -> None:
         """
         try:
             if action == "backtest":
-                from ..backtester import probability_overfit, validate_returns
+                from .. import analyses
                 from .._engine import finance_engine
 
                 try:
@@ -39,20 +39,22 @@ def register_strategy_tools(mcp: Any) -> None:
                 if len(returns) < 2:
                     return json.dumps({"error": "need >= 2 returns to backtest"})
 
-                metrics = validate_returns(returns, n_trials=n_trials)
+                metrics = analyses.validate_returns(returns, n_trials=n_trials)
                 if "error" in metrics:
                     return json.dumps(metrics)
-                deflated = float(metrics.get("deflated_sharpe", 0.0))
-                hit_rate = sum(1 for r in returns if r > 0) / len(returns)
+                deflated = metrics.get("deflated_sharpe")
+                hit = analyses.hit_rate(returns)
+                hit_rate = hit.get("hit_rate", hit)
                 # Split-half PBO as a lightweight overfit guard on a single series.
                 half = len(returns) // 2
-                pbo_out = probability_overfit([returns[:half]], [returns[half:]])
-                pbo = float(pbo_out.get("pbo", 0.0))
+                pbo_out = analyses.probability_overfit([returns[:half]], [returns[half:]])
+                pbo = pbo_out.get("pbo", pbo_out)
+                measured = all(isinstance(v, float) for v in (deflated, hit_rate, pbo))
 
                 # Write priors back to the KG (same store the fuse path reads).
                 engine = finance_engine()
                 written = False
-                if engine is not None and strategy_id:
+                if engine is not None and strategy_id and measured:
                     from emerald_exchange.signal_records import (
                         microstructure_signal_record,
                     )

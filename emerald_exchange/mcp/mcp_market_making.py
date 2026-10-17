@@ -1,9 +1,9 @@
-"""Market-Making / Fees / Forensic MCP Tools — CONCEPT:EX-AHE.harness.ee-22 / EE-022 / EE-026.
+"""Market-Making / Backtest-Validation / Forensic MCP Tools — CONCEPT:EX-AHE.harness.ee-22.
 
-Action-routed tool exposing the HFT controller surface:
-  - quote: compute intended market-making quotes (decision only, no live order).
-  - fee: Polymarket V2 taker fee / maker rebate for a fill.
-  - forensic: two-year forensic accounting screen → verdict.
+Action-routed tool over epistemic-graph analyses (``ontology/quant.ttl``):
+  - quote: intended market-making quotes (decision only, no live order).
+  - fee / backtest: refused (not_served) until epistemic-graph serves them.
+  - forensic, brier, validate, pbo: served analyses.
 
 CRITICAL SAFETY: the ``quote`` action returns a *decision* (intended bid/ask +
 withdraw flag); it never places an order. Live execution stays gated behind
@@ -34,8 +34,13 @@ def register_market_making_tools(mcp: Any) -> None:
             triggers the CONVICTION GATE, on by default), config{gamma,kappa,
             sigma,tau,tick,bounded,boundary_m,ofi_drift_coef,max_inventory,
             conviction_gate,conviction_strong_threshold,conviction_min_agree}.
-          - 'fee': Polymarket V2 fee for a fill. params: price, size, category,
-            is_maker.
+          - 'fee': venue fee for a fill — refused (not_served).
+          - 'backtest': event-driven L2-queue backtest — refused (not_served).
+          - 'validate': performance, deflated Sharpe and purged CPCV of
+            backtest returns. params: returns (list), n_trials, cpcv_groups,
+            cpcv_test_groups.
+          - 'pbo': probability of backtest overfit. params: insample, oos
+            (matrices: rows = CV splits, cols = strategies).
           - 'forensic': Two-year forensic accounting screen. params: this_year,
             prior_year (standardized financial line items).
           - 'brier': Brier calibration score of forecasts vs outcomes. params:
@@ -91,38 +96,46 @@ def register_market_making_tools(mcp: Any) -> None:
                 )
                 return json.dumps(decision.to_dict())
 
-            elif action == "fee":
-                from emerald_exchange.fees import maker_rebate, net_fee, taker_fee
+            from emerald_exchange import analyses
 
-                price = float(params.get("price", 0.5))
-                size = float(params.get("size", 0.0))
-                category = params.get("category", "other")
-                is_maker = bool(params.get("is_maker", False))
+            if action == "fee":
                 return json.dumps(
-                    {
-                        "taker_fee": taker_fee(price, size, category),
-                        "maker_rebate": maker_rebate(price, size, category),
-                        "net_fee": net_fee(price, size, category, is_maker=is_maker),
-                        "is_maker": is_maker,
-                        "category": category,
-                    }
+                    analyses.venue_fee(
+                        float(params.get("price", 0.5)),
+                        float(params.get("size", 0.0)),
+                        str(params.get("category", "other")),
+                        is_maker=bool(params.get("is_maker", False)),
+                    )
                 )
-
-            elif action == "forensic":
-                from emerald_exchange.forensic import forensic_screen
-
-                report = forensic_screen(
-                    params.get("this_year", {}), params.get("prior_year", {})
-                )
-                return json.dumps(report)
-
-            elif action == "brier":
-                from emerald_exchange.market_making import brier_score
-
+            if action == "backtest":
+                return json.dumps(analyses.event_backtest(params.get("events", [])))
+            if action == "forensic":
                 return json.dumps(
-                    brier_score(params.get("forecasts", []), params.get("outcomes", []))
+                    analyses.forensic_screen(
+                        params.get("this_year", {}), params.get("prior_year", {})
+                    )
                 )
-
+            if action == "brier":
+                return json.dumps(
+                    analyses.brier_score(
+                        params.get("forecasts", []), params.get("outcomes", [])
+                    )
+                )
+            if action == "validate":
+                return json.dumps(
+                    analyses.validate_returns(
+                        [float(x) for x in params.get("returns", [])],
+                        n_trials=int(params.get("n_trials", 1)),
+                        cpcv_groups=int(params.get("cpcv_groups", 6)),
+                        cpcv_test_groups=int(params.get("cpcv_test_groups", 2)),
+                    )
+                )
+            if action == "pbo":
+                return json.dumps(
+                    analyses.probability_overfit(
+                        params.get("insample", []), params.get("oos", [])
+                    )
+                )
             return json.dumps({"error": f"Unknown action: {action}"})
         except Exception as exc:  # noqa: BLE001
             logger.error("Operation failed: error_type=%s", type(exc).__name__)

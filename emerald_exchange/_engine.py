@@ -15,7 +15,7 @@ Callers must treat ``None`` as "engine unreachable" and degrade gracefully.
 from __future__ import annotations
 
 import logging
-from typing import Any
+from typing import Any, NoReturn
 
 logger = logging.getLogger(__name__)
 
@@ -64,6 +64,44 @@ def finance_engine() -> Any:
 def analysis_iri(name: str) -> str:
     """The IRI of one analysis declared in ``ontology/quant.ttl``."""
     return f"{QUANT_VOCABULARY}{name}"
+
+
+#: Owner the missing served methods are handed off to.
+HANDOFF_OWNER = "epistemic-graph EG-FINANCE"
+
+
+def run_analysis(name: str, /, **params: Any) -> Any:
+    """Run one ``quant.ttl`` analysis in epistemic-graph.
+
+    The graph selects the algorithm by SPARQL over the analysis bindings and
+    runs its served method through :mod:`agent_connector_sdk.compute`.
+
+    Raises:
+        ComputeUnavailableError: the engine is not configured or unreachable.
+        MethodNotServedError: no served algorithm is bound to the analysis.
+    """
+    from agent_connector_sdk.compute import ComputeUnavailableError
+
+    compute = finance_compute()
+    if compute is None:
+        raise ComputeUnavailableError(ENGINE_REQUIRED_ERR)
+    return compute.analyse(analysis_iri(name), vocabulary=QUANT_VOCABULARY, **params)
+
+
+def refuse(name: str) -> NoReturn:
+    """Refuse an analysis epistemic-graph does not serve yet."""
+    from agent_connector_sdk.compute import MethodNotServedError
+
+    raise MethodNotServedError(analysis_iri(name), handoff=HANDOFF_OWNER)
+
+
+def engine_error(exc: BaseException) -> dict[str, Any]:
+    """The tool payload for an unavailable engine or an unserved analysis."""
+    from agent_connector_sdk.compute import MethodNotServedError
+
+    if isinstance(exc, MethodNotServedError):
+        return {"error": "not_served", "method": exc.method, "handoff": exc.handoff or HANDOFF_OWNER}
+    return {"error": ENGINE_REQUIRED_ERR}
 
 
 def reset_engine_cache() -> None:

@@ -21,7 +21,7 @@
     "synthetic_fixture_contract": "passed"
   },
   "compatibility": {
-    "agent_utilities": ">=2.5.0,<3",
+    "agent_connector_sdk": ">=0.2.0,<1.0.0",
     "bundle_schema": "2",
     "epistemic_graph": ">=2.27.0,<3"
   },

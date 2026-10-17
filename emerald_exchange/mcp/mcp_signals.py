@@ -201,7 +201,9 @@ def register_signal_tools(mcp: Any) -> None:
                     return json.dumps({"error": f"invalid signals_json: {type(exc).__name__}"})
 
                 try:
-                    scores = engine.finance.surveillance_risk(
+                    scores = compute.analyse(
+                        analysis_iri("SurveillanceAnalysis"),
+                        vocabulary=VOCAB,
                         buy_vol=[float(x) for x in book.get("buy_vol", [])],
                         sell_vol=[float(x) for x in book.get("sell_vol", [])],
                         p_mean=[float(x) for x in book.get("p_mean", [])],
@@ -209,6 +211,8 @@ def register_signal_tools(mcp: Any) -> None:
                         price_changes=[float(x) for x in book.get("price_changes", [])],
                         baseline_sigma=float(book.get("baseline_sigma", 0.0)),
                     )
+                except MethodNotServedError:
+                    raise
                 except Exception:  # noqa: BLE001 — degrade cleanly
                     return json.dumps({"error": "Operation failed"})
 

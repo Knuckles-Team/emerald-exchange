@@ -1645,7 +1645,7 @@ bfo:0000002 owl:disjointWith bfo:0000003 .
 
 :KernelPackage a owl:Class ;
     rdfs:label "Kernel Package" ;
-    rdfs:comment "The core agent-utilities kernel package." ;
+    rdfs:comment "The core harness kernel package." ;
     rdfs:subClassOf :EcosystemPackage .
 
 :KnowledgeGap a owl:Class ;
@@ -2109,7 +2109,7 @@ transitive, enabling automatic lineage tracking across manifests.""" ;
 
 :EcosystemPackage a owl:Class ;
     rdfs:label "Ecosystem Package" ;
-    rdfs:comment "A software package within the agent-utilities ecosystem." ;
+    rdfs:comment "A software package within the agent-packages ecosystem." ;
     rdfs:subClassOf bfo:0000004 .
 
 :EngineeringRule a owl:Class ;
@@ -2196,3 +2196,243 @@ and AHE efficacy scoring for evolutionary rule selection.""" ;
 
 :LaplaceEnsembleProbability a :FinanceAlgorithm ;
     rdfs:label "Laplace ensemble probability with cost-aware edge threshold" .
+
+# Venue-engine analyses: every computation the connector used to hold.
+:ForensicAccountingAnalysis a :FinanceAnalysis ;
+    rdfs:label "Forensic accounting analysis" ;
+    :appliesAlgorithm :BeneishAltmanPiotroskiReport .
+
+:BeneishAltmanPiotroskiReport a :FinanceAlgorithm ;
+    rdfs:label "Beneish M, Altman Z, Piotroski F and Sloan accruals report" ;
+    :servedBy "finance.forensic_report" .
+
+:HedgeBetaAnalysis a :FinanceAnalysis ;
+    rdfs:label "Dynamic hedge beta analysis" ;
+    :appliesAlgorithm :KalmanBetaFilter .
+
+:KalmanBetaFilter a :FinanceAlgorithm ;
+    rdfs:label "Kalman time-varying CAPM beta" ;
+    :servedBy "finance.kalman_beta" .
+
+:SpreadStationarityAnalysis a :FinanceAnalysis ;
+    rdfs:label "Spread stationarity analysis" ;
+    :appliesAlgorithm :AugmentedDickeyFuller .
+
+:AugmentedDickeyFuller a :FinanceAlgorithm ;
+    rdfs:label "Augmented Dickey-Fuller test" ;
+    :servedBy "finance.adf_test" .
+
+:MeanReversionCalibrationAnalysis a :FinanceAnalysis ;
+    rdfs:label "Mean-reversion calibration analysis" ;
+    :appliesAlgorithm :OrnsteinUhlenbeckCalibration .
+
+:OrnsteinUhlenbeckCalibration a :FinanceAlgorithm ;
+    rdfs:label "Ornstein-Uhlenbeck calibration" ;
+    :servedBy "finance.ou_calibrate" .
+
+:MeanReversionThresholdAnalysis a :FinanceAnalysis ;
+    rdfs:label "Mean-reversion threshold analysis" ;
+    :appliesAlgorithm :OrnsteinUhlenbeckOptimalThresholds .
+
+:OrnsteinUhlenbeckOptimalThresholds a :FinanceAlgorithm ;
+    rdfs:label "Ornstein-Uhlenbeck optimal entry and exit bands" ;
+    :servedBy "finance.ou_optimal_thresholds" .
+
+:ImpliedVolatilityAnalysis a :FinanceAnalysis ;
+    rdfs:label "Implied volatility analysis" ;
+    :appliesAlgorithm :SabrImpliedVolatility .
+
+:SabrImpliedVolatility a :FinanceAlgorithm ;
+    rdfs:label "SABR lognormal implied volatility (Hagan 2002)" ;
+    :servedBy "finance.sabr_implied_vol" .
+
+:VolatilitySmileAnalysis a :FinanceAnalysis ;
+    rdfs:label "Volatility smile analysis" ;
+    :appliesAlgorithm :SabrSmile .
+
+:SabrSmile a :FinanceAlgorithm ;
+    rdfs:label "SABR implied-volatility smile" ;
+    :servedBy "finance.sabr_smile" .
+
+:VolatilityCalibrationAnalysis a :FinanceAnalysis ;
+    rdfs:label "Volatility calibration analysis" ;
+    :appliesAlgorithm :SabrCalibration .
+
+:SabrCalibration a :FinanceAlgorithm ;
+    rdfs:label "SABR calibration with fixed beta" ;
+    :servedBy "finance.sabr_calibrate" .
+
+:ForecastCalibrationAnalysis a :FinanceAnalysis ;
+    rdfs:label "Forecast calibration analysis" ;
+    :appliesAlgorithm :BrierScore .
+
+:BrierScore a :FinanceAlgorithm ;
+    rdfs:label "Brier score" ;
+    :servedBy "finance.brier_score" .
+
+:FairValueAnalysis a :FinanceAnalysis ;
+    rdfs:label "Fair value analysis" ;
+    :appliesAlgorithm :Microprice .
+
+:Microprice a :FinanceAlgorithm ;
+    rdfs:label "Size-weighted microprice" ;
+    :servedBy "finance.microprice_series" .
+
+:OrderFlowImbalanceAnalysis a :FinanceAnalysis ;
+    rdfs:label "Order-flow imbalance analysis" ;
+    :appliesAlgorithm :ContKukanovStoikovOfi .
+
+:ContKukanovStoikovOfi a :FinanceAlgorithm ;
+    rdfs:label "Cont-Kukanov-Stoikov order-flow imbalance" ;
+    :servedBy "finance.ofi_series" .
+
+:FlowToxicityAnalysis a :FinanceAnalysis ;
+    rdfs:label "Flow toxicity analysis" ;
+    :appliesAlgorithm :PredictionMarketVpin .
+
+:PredictionMarketVpin a :FinanceAlgorithm ;
+    rdfs:label "VPIN normalised for binary payoffs" ;
+    :servedBy "finance.vpin_pm" .
+
+:BreakevenAlphaAnalysis a :FinanceAnalysis ;
+    rdfs:label "Breakeven alpha analysis" ;
+    :appliesAlgorithm :GlostenMilgromBreakevenAlpha .
+
+:GlostenMilgromBreakevenAlpha a :FinanceAlgorithm ;
+    rdfs:label "Glosten-Milgrom breakeven informed share" ;
+    :servedBy "finance.breakeven_alpha" .
+
+:QueuePositionAnalysis a :FinanceAnalysis ;
+    rdfs:label "Queue position analysis" ;
+    :appliesAlgorithm :QueueImbalance .
+
+:QueueImbalance a :FinanceAlgorithm ;
+    rdfs:label "Queue imbalance and time to fill" ;
+    :servedBy "finance.queue_imbalance" .
+
+:ConvictionAnalysis a :FinanceAnalysis ;
+    rdfs:label "Conviction analysis" ;
+    :appliesAlgorithm :ConvergenceGate .
+
+:ConvergenceGate a :FinanceAlgorithm ;
+    rdfs:label "Strong-signal convergence gate" ;
+    :servedBy "finance.convergence_gate" .
+
+:BoundedQuoteAnalysis a :FinanceAnalysis ;
+    rdfs:label "Bounded quote analysis" ;
+    :appliesAlgorithm :LogitAvellanedaStoikov .
+
+:LogitAvellanedaStoikov a :FinanceAlgorithm ;
+    rdfs:label "Logit-space Avellaneda-Stoikov quotes" ;
+    :servedBy "finance.logit_quotes" .
+
+:QuoteAnalysis a :FinanceAnalysis ;
+    rdfs:label "Quote analysis" ;
+    :appliesAlgorithm :AvellanedaStoikov .
+
+:AvellanedaStoikov a :FinanceAlgorithm ;
+    rdfs:label "Avellaneda-Stoikov quotes" ;
+    :servedBy "finance.avellaneda_stoikov" .
+
+:PerformanceAnalysis a :FinanceAnalysis ;
+    rdfs:label "Performance analysis" ;
+    :appliesAlgorithm :ReturnRiskMetrics .
+
+:ReturnRiskMetrics a :FinanceAlgorithm ;
+    rdfs:label "Return risk metrics" ;
+    :servedBy "finance.risk_metrics" .
+
+:DeflatedSharpeAnalysis a :FinanceAnalysis ;
+    rdfs:label "Deflated Sharpe analysis" ;
+    :appliesAlgorithm :DeflatedSharpeRatio .
+
+:DeflatedSharpeRatio a :FinanceAlgorithm ;
+    rdfs:label "Deflated Sharpe ratio" ;
+    :servedBy "finance.deflated_sharpe" .
+
+:CrossValidationSplitAnalysis a :FinanceAnalysis ;
+    rdfs:label "Cross-validation split analysis" ;
+    :appliesAlgorithm :PurgedCombinatorialCv .
+
+:PurgedCombinatorialCv a :FinanceAlgorithm ;
+    rdfs:label "Purged combinatorial cross-validation" ;
+    :servedBy "finance.purged_cpcv" .
+
+:BacktestOverfitAnalysis a :FinanceAnalysis ;
+    rdfs:label "Backtest overfit analysis" ;
+    :appliesAlgorithm :ProbabilityBacktestOverfit .
+
+:ProbabilityBacktestOverfit a :FinanceAlgorithm ;
+    rdfs:label "Probability of backtest overfit" ;
+    :servedBy "finance.probability_backtest_overfit" .
+
+:PointKellyAnalysis a :FinanceAnalysis ;
+    rdfs:label "Point Kelly analysis" ;
+    :appliesAlgorithm :FractionalKelly .
+
+:FractionalKelly a :FinanceAlgorithm ;
+    rdfs:label "Fractional Kelly for a binary contract" ;
+    :servedBy "finance.kelly_fraction" .
+
+:BayesianKellyAnalysis a :FinanceAnalysis ;
+    rdfs:label "Bayesian Kelly analysis" ;
+    :appliesAlgorithm :BetaPosteriorKelly .
+
+:BetaPosteriorKelly a :FinanceAlgorithm ;
+    rdfs:label "Kelly under a Beta posterior" ;
+    :servedBy "finance.bayesian_kelly" .
+
+:EmpiricalKellyAnalysis a :FinanceAnalysis ;
+    rdfs:label "Empirical Kelly analysis" ;
+    :appliesAlgorithm :ResampledKelly .
+
+:ResampledKelly a :FinanceAlgorithm ;
+    rdfs:label "Uncertainty-adjusted resampled Kelly" ;
+    :servedBy "finance.empirical_kelly" .
+
+:VolatilityArbitrageAnalysis a :FinanceAnalysis ;
+    rdfs:label "Volatility arbitrage analysis" ;
+    rdfs:comment "SABR residual rich/cheap classification; no served method yet." ;
+    :appliesAlgorithm :SabrResidualClassification .
+
+:SabrResidualClassification a :FinanceAlgorithm ;
+    rdfs:label "Rich/cheap strike classification against the SABR-fair smile" .
+
+:EventBacktestAnalysis a :FinanceAnalysis ;
+    rdfs:label "Event backtest analysis" ;
+    rdfs:comment "Event-driven backtest with L2 queue position, latency injection and venue fees; no served method yet." ;
+    :appliesAlgorithm :L2QueueEventBacktest .
+
+:L2QueueEventBacktest a :FinanceAlgorithm ;
+    rdfs:label "Event-driven L2-queue backtest with latency and maker/taker fees" .
+
+:VenueFeeAnalysis a :FinanceAnalysis ;
+    rdfs:label "Venue fee analysis" ;
+    rdfs:comment "Per-venue, per-category taker fee and maker rebate; no served method yet." ;
+    :appliesAlgorithm :CategoryFeeSchedule .
+
+:CategoryFeeSchedule a :FinanceAlgorithm ;
+    rdfs:label "Category taker fee and maker rebate schedule" .
+
+:DistributionShiftAnalysis a :FinanceAnalysis ;
+    rdfs:label "Distribution shift analysis" ;
+    rdfs:comment "Two-sample return distribution shift test; no served method yet." ;
+    :appliesAlgorithm :KolmogorovSmirnovTwoSample .
+
+:KolmogorovSmirnovTwoSample a :FinanceAlgorithm ;
+    rdfs:label "Two-sample Kolmogorov-Smirnov test" .
+:SharpeRatioAnalysis a :FinanceAnalysis ;
+    rdfs:label "Sharpe ratio analysis" ;
+    rdfs:comment "Observed per-period Sharpe ratio of a return series; no served method yet." ;
+    :appliesAlgorithm :SampleSharpeRatio .
+
+:SampleSharpeRatio a :FinanceAlgorithm ;
+    rdfs:label "Sample Sharpe ratio" .
+
+:HitRateAnalysis a :FinanceAnalysis ;
+    rdfs:label "Hit rate analysis" ;
+    rdfs:comment "Share of positive returns (directional accuracy); no served method yet." ;
+    :appliesAlgorithm :PositiveReturnShare .
+
+:PositiveReturnShare a :FinanceAlgorithm ;
+    rdfs:label "Positive return share" .

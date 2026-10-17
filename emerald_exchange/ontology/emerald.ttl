@@ -191,5 +191,5 @@
     rdfs:comment """Live trading-execution surface of the emerald-exchange MCP server —
     tradable instruments, executed trades/fills, top-of-book quotes, and OHLCV market-bar
     timeseries, plus their links to the analytical :Portfolio / :Position / :Account model
-    defined in quant.ttl — federated into the agent-utilities knowledge-graph hub.""" ;
+    defined in quant.ttl — federated into the epistemic-graph ontology hub.""" ;
     owl:imports <http://knuckles.team/kg> .

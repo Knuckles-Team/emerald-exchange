@@ -83,8 +83,8 @@ def test_risk_guard_kill_switch():
     assert not guard.is_halted
 
 
-def test_kelly_criterion():
-    """Kelly criterion produces valid position sizes."""
+def test_kelly_criterion(live_engine):
+    """Point Kelly, run by the live engine, produces a capped position size."""
     size = RiskGuard.kelly_criterion(0.6, 2.0, half_kelly=True, max_risk=0.02)
     assert 0 < size <= 0.02
 
