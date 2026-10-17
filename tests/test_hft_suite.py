@@ -278,13 +278,13 @@ def test_bayesian_kelly_fallback_when_no_engine(monkeypatch):
     assert 0.0 <= f <= 0.05
 
 
-def test_emerald_signals_fuse_degrades_without_engine(monkeypatch):
-    """CONCEPT:AU-AHE.assimilation.microstructure-signal-fusion — fuse seeds from KG priors but still fuses supplied
-    directions (with neutral sources) when no engine/priors are reachable."""
+def test_emerald_signals_fuse_requires_engine(monkeypatch):
+    """Fusion runs in epistemic-graph; without an engine the tool says so and
+    computes nothing locally."""
     import emerald_exchange._engine as eng
     import emerald_exchange.mcp.mcp_signals as ms
 
-    monkeypatch.setattr(eng, "finance_engine", lambda: None)
+    monkeypatch.setattr(eng, "_COMPUTE_CACHE", None)
 
     captured = {}
 
@@ -302,9 +302,7 @@ def test_emerald_signals_fuse_degrades_without_engine(monkeypatch):
             action="fuse", signals_json='{"ofi": 1, "queue": 1}'
         )
     )
-    assert out["seeded_from_kg"] == 0
-    assert out["posterior_up"] > 0.5  # two bullish sources push the prior up
-    assert set(out["sources"]) == {"ofi", "queue"}
+    assert out == {"error": eng.ENGINE_REQUIRED_ERR}
 
 
 def test_emerald_strategy_backtest_writeback(engine_client):

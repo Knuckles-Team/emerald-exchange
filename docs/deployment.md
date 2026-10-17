@@ -124,7 +124,7 @@ most commonly set:
 
 All trading behavior — the default backend, default mode, risk limits, and
 per-exchange settings — is configured in the `trading` block of
-`~/.config/agent-utilities/config.json`. The full schema, the backend matrix, and
+`~/.config/agent-connectors/config.json`. The full schema, the backend matrix, and
 the complete environment-variable list are documented in the
 [Configuration schema](config_schema.md). See also
 [Configuration, trust, and privacy](configuration.md) for the runtime-only-secrets

@@ -19,7 +19,7 @@ with built-in financial hardening controls (OS-5.1).
 - **5 Exchange Backends**: Paper (default), Alpaca (FREE), CCXT (100+ exchanges), Freqtrade
 - **6 MCP Tool Domains**: market-data, orders, portfolio, risk, signals, strategy
 - **Financial Hardening**: Paper-first default, Kelly criterion position sizing, circuit breakers, kill switch
-- **Config-Driven**: All settings via `~/.config/agent-utilities/config.json`
+- **Config-Driven**: All settings via `~/.config/agent-connectors/config.json`
 
 ## Architecture
 
@@ -59,7 +59,7 @@ _Auto-generated from the live MCP server — do not edit by hand._
 | `emerald_orders` | `ORDERTOOL` | Order management with pre-trade risk validation. CONCEPT:EX-AHE.harness.ee-8 |
 | `emerald_portfolio` | `PORTFOLIOTOOL` | Portfolio management operations. CONCEPT:EX-AHE.harness.ee-9 |
 | `emerald_risk` | `RISKTOOL` | Risk management and monitoring. CONCEPT:AU-AHE.assimilation.skill-workflow-ingest |
-| `emerald_signals` | `SIGNALTOOL` | Signal generation and fusion. Routes to agent-utilities finance domain. CONCEPT:EX-AHE.harness.ee-11 |
+| `emerald_signals` | `SIGNALTOOL` | Signal generation and fusion. Routes to agent-connector-sdk finance domain. CONCEPT:EX-AHE.harness.ee-11 |
 | `emerald_statarb` | `STATARBTOOL` | OU statistical-arbitrage signal + dynamic-beta hedge. CONCEPT:EX-AHE.harness.ee-29 |
 | `emerald_strategy` | `STRATEGYTOOL` | Strategy lifecycle management. CONCEPT:AU-AHE.assimilation.trading-ecosystem-spec |
 | `emerald_wallet_intel` | `WALLET_INTELTOOL` | Polymarket wallet-intelligence operations. CONCEPT:EX-AHE.harness.ee-27. |
@@ -116,11 +116,11 @@ _15 action-routed tool(s) · 9 verbose 1:1 tool(s). Each is enabled unless its `
 
 > **Install the slim `[mcp]` extra.** The examples below install
 > `emerald-exchange[mcp]` — the MCP-server extra that pulls only the FastMCP /
-> FastAPI tooling (`agent-utilities[mcp]`). It deliberately **excludes** the heavy
+> FastAPI tooling (`agent-connector-sdk`). It deliberately **excludes** the heavy
 > agent-orchestration runtime (`pydantic-ai`, `dspy`, `llama-index`, `tree-sitter`
 > and the agent frontends), so `uvx`/container installs stay smaller and faster —
 > note the mandatory `epistemic-graph[full]` engine is still present either way,
-> since it is a base dependency of `agent-utilities` itself, not gated behind an
+> since it is a base dependency of `agent-connector-sdk` itself, not gated behind an
 > extra. Use the full `[agent]` extra only when the operator need the integrated Pydantic AI
 > agent (see [Installation](#installation)). Add trading-backend extras
 > (`[alpaca]`, `[crypto]`, `[prediction_markets]`, …) on top as needed.
@@ -145,7 +145,7 @@ emerald-exchange-mcp --transport streamable-http --port 8100
 
 ### Configuration
 
-All trading settings are configured via `~/.config/agent-utilities/config.json`:
+All trading settings are configured via `~/.config/agent-connectors/config.json`:
 
 ```json
 {
@@ -213,8 +213,8 @@ Pick the extra that matches what the operator want to run, then layer trading-ba
 
 | Extra | Installs | Use when |
 |-------|----------|----------|
-| `emerald-exchange[mcp]` | Slim MCP server (`agent-utilities[mcp]` — FastMCP/FastAPI; still carries the mandatory `epistemic-graph[full]` base engine) + paper backend | The operator only run the **MCP server** (smallest install / image) |
-| `emerald-exchange[agent]` | Full agent runtime (`agent-utilities[agent-runtime,logfire]` — Pydantic AI/DSPy orchestration + `epistemic-graph[full]`) | The operator run the **integrated agent** |
+| `emerald-exchange[mcp]` | Slim MCP server (`agent-connector-sdk` — FastMCP/FastAPI; still carries the mandatory `epistemic-graph[full]` base engine) + paper backend | The operator only run the **MCP server** (smallest install / image) |
+| `emerald-exchange[agent]` | Full agent runtime (`agent-connector-sdk` — Pydantic AI/DSPy orchestration + `epistemic-graph[full]`) | The operator run the **integrated agent** |
 | `emerald-exchange[all]` | Everything (`mcp` + `agent` + every trading backend) | Development / full surface |
 
 ```bash
@@ -234,8 +234,8 @@ One multi-stage `docker/Dockerfile` builds two right-sized images, selected by `
 
 | Image tag | Build target | Contents | Entrypoint |
 |-----------|--------------|----------|------------|
-| `knucklessg1/emerald-exchange:mcp` | `--target mcp` | `emerald-exchange[mcp]` — **slim**: no `pydantic-ai`/`dspy`/`llama-index`/`tree-sitter` agent-orchestration stack (the mandatory `epistemic-graph[full]` engine is still present — it's a base dependency of `agent-utilities`) | `emerald-exchange-mcp` |
-| `knucklessg1/emerald-exchange:2.1.0` | `--target agent` (default) | `emerald-exchange[agent]` — **full** agent runtime (`agent-utilities[agent-runtime,logfire]`) + `epistemic-graph[full]` | `emerald-exchange-agent` |
+| `knucklessg1/emerald-exchange:mcp` | `--target mcp` | `emerald-exchange[mcp]` — **slim**: no `pydantic-ai`/`dspy`/`llama-index`/`tree-sitter` agent-orchestration stack (the mandatory `epistemic-graph[full]` engine is still present — it's a base dependency of `agent-connector-sdk`) | `emerald-exchange-mcp` |
+| `knucklessg1/emerald-exchange:2.1.0` | `--target agent` (default) | `emerald-exchange[agent]` — **full** agent runtime (`agent-connector-sdk`) + `epistemic-graph[full]` | `emerald-exchange-agent` |
 
 ```bash
 docker build --target mcp   -t knucklessg1/emerald-exchange:mcp    docker/   # slim MCP server
@@ -247,8 +247,8 @@ docker compose -f docker/compose.yml up -d                                   # f
 ### Knowledge-graph database (`epistemic-graph`)
 
 Both `[mcp]` and `[agent]` carry the **epistemic-graph** engine through the required
-Agent Utilities core dependency (`epistemic-graph[full]`) — it is a mandatory base
-dependency of `agent-utilities`, not gated behind an extra. The `[mcp]` extra keeps
+Agent Connector SDK core dependency (`epistemic-graph[full]`) — it is a mandatory base
+dependency of `agent-connector-sdk`, not gated behind an extra. The `[mcp]` extra keeps
 the server slim/connector-focused (no agent-orchestration stack); `[agent]`
 also enables Pydantic AI/DSPy model orchestration. Local deployments can use
 the bundled engine. For production — or to share one knowledge graph across multiple
@@ -297,12 +297,12 @@ Secrets are read-existing + seeded via `vault_sync` — you are only prompted fo
 
 <!-- END agent-os-genesis-deploy -->
 
-### Single-package self-setup: `agent-utilities-deployment`
+### Single-package self-setup: `deployment`
 
 For a `tiny`/`single-node-prod` profile scoped to just this package (no whole-homelab
-genesis), the **`agent-utilities-deployment`** skill runs the equivalent
+genesis), the **`deployment`** skill runs the equivalent
 install-mode/secrets/doctor/registration/observability/rollback sequence. Ask the operator's
-agent to **"deploy `emerald-exchange` with agent-utilities-deployment"**.
+agent to **"deploy `emerald-exchange` with deployment"**.
 
 | Install mode | Command |
 |------|---------|
@@ -323,7 +323,7 @@ material, and endpoints come from `AgentConfig` / the configured secret provider
 
 | Variable | Example | Description |
 |----------|---------|-------------|
-| `BINANCE_API_KEY` | secret-injected | Per-exchange credentials are resolved at runtime from the trading config's *_env keys; only the agent-utilities-inherited Binance pair is read statically. Other exchanges (Alpaca, Coinbase, ...) supply credentials via operator config. |
+| `BINANCE_API_KEY` | secret-injected | Per-exchange credentials are resolved at runtime from the trading config's *_env keys; only the agent-connector-sdk-inherited Binance pair is read statically. Other exchanges (Alpaca, Coinbase, ...) supply credentials via operator config. |
 | `BINANCE_SECRET_KEY` | secret-injected |  |
 | `CRYPTOTOOL` | `True` | crypto market tools |
 | `DEBATETOOL` | `True` | multi-agent debate tools |
@@ -348,7 +348,7 @@ material, and endpoints come from `AgentConfig` / the configured secret provider
 | `GRAPH_SERVICE_SOCKET` | `/run/epistemic-graph.sock` | alternate UDS path env var |
 | `EPISTEMIC_GRAPH_TCP` | `127.0.0.1:50051` | host:port for a TCP engine endpoint |
 
-#### Inherited agent-utilities variables (apply to every connector)
+#### Inherited agent-connector-sdk variables (apply to every connector)
 
 | Variable | Example | Description |
 |----------|---------|-------------|
@@ -377,7 +377,7 @@ material, and endpoints come from `AgentConfig` / the configured secret provider
 | `MODEL_ID` | — | Operator-configured model id for the agent |
 | `ENABLE_WEB_UI` | `True` | Serve the AG-UI web interface |
 
-_24 package + 24 inherited variable(s). Auto-generated from `.env.example` + the shared agent-utilities set — do not edit._
+_24 package + 24 inherited variable(s). Auto-generated from `.env.example` + the shared agent-connector-sdk set — do not edit._
 <!-- ENV-VARS-TABLE:END -->
 
 <!-- GOVERNED-CAPABILITY:START -->
@@ -397,24 +397,3 @@ network transport, connector ingestion, GraphOS delegation, or trace export.
 <!-- GOVERNED-CAPABILITY:END -->
 
 
-<!-- BEGIN agent-utilities-deployment (generated; do not edit between markers) -->
-
-## Deploy with `agent-utilities-deployment`
-
-Provision this package with the consolidated **`agent-utilities-deployment`**
-workflow. It selects an installed-package, editable-source, or immutable-container
-path; records only runtime secret and TLS-profile references in `AgentConfig`; and
-runs doctor, registration, policy, observability, and rollback gates. Ask your agent
-to **"deploy `emerald-exchange` with agent-utilities-deployment"**.
-
-| Install mode | Command |
-|------|---------|
-| Installed package | `uv tool install "emerald-exchange[mcp]"`, then run `emerald-exchange-mcp` |
-| Editable source | `uv pip install -e ".[agent]"`, then run `emerald-exchange-mcp` |
-| Immutable container | deploy `registry.example.invalid/emerald-exchange@sha256:<digest>` through the operator-selected orchestrator |
-
-The repository embeds no deployment profile, credential value, certificate path, or
-environment-specific endpoint. Supply those at runtime through `AgentConfig` and the
-configured secret provider.
-
-<!-- END agent-utilities-deployment -->

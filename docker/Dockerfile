@@ -3,15 +3,15 @@
 # slim multi-stage (build in a builder, ship only /usr/local — no dev-tools/source):
 #
 #   --target agent  (DEFAULT)  installs emerald-exchange[agent] = the FULL runtime
-#                              (agent-utilities[agent-runtime]: pydantic-ai + dspy +
+#                              (agent-connector-sdk: pydantic-ai + dspy +
 #                              skills; the full epistemic-graph engine is a mandatory
-#                              base dependency of agent-utilities, present in both
+#                              base dependency of agent-connector-sdk, present in both
 #                              images). Because [agent] also includes [mcp], this image
 #                              can run EITHER the agent OR the mcp server. Push as the
 #                              default tags: latest / main / <version>.
 #
 #   --target mcp               installs emerald-exchange[mcp]   = MCP-server tooling ONLY
-#                              (agent-utilities[mcp]: fastmcp/fastapi — NO pydantic-ai,
+#                              (agent-connector-sdk: fastmcp/fastapi — NO pydantic-ai,
 #                              dspy, llama-index, tree-sitter agent-orchestration stack;
 #                              the epistemic-graph engine is still present, it's a base
 #                              dependency). The slim variant. Push as the

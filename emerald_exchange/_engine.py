@@ -15,56 +15,58 @@ Callers must treat ``None`` as "engine unreachable" and degrade gracefully.
 from __future__ import annotations
 
 import logging
-import os
 from typing import Any
 
 logger = logging.getLogger(__name__)
 
 ENGINE_REQUIRED_ERR = (
-    "epistemic-graph engine unavailable. Set EPISTEMIC_GRAPH_SOCKET or "
-    "EPISTEMIC_GRAPH_TCP and ensure the engine is running."
+    "epistemic-graph engine unavailable. Set EPISTEMIC_GRAPH_ENDPOINT, "
+    "EPISTEMIC_GRAPH_AUTH_SECRET_REF, EPISTEMIC_GRAPH_TENANT and "
+    "EPISTEMIC_GRAPH_GRAPH and ensure the engine is running."
 )
+
+#: Namespace of the analysis -> algorithm -> served-method bindings in
+#: ``ontology/quant.ttl``; epistemic-graph selects algorithms from it by SPARQL.
+QUANT_VOCABULARY = "http://knuckles.team/kg#"
 
 # Sentinel so a cached None ("engine not reachable") is distinct from "unprobed".
 _UNPROBED = object()
-_CLIENT_CACHE: Any = _UNPROBED
+_COMPUTE_CACHE: Any = _UNPROBED
+
+
+def finance_compute() -> Any:
+    """Return the cached SDK compute adapter, or ``None`` if unreachable.
+
+    Connects through :func:`agent_connector_sdk.compute.connect_compute`
+    (``EPISTEMIC_GRAPH_*`` settings, compute scopes only). A failed probe is
+    cached so a dead endpoint is never re-probed per call.
+    """
+    global _COMPUTE_CACHE
+    if _COMPUTE_CACHE is not _UNPROBED:
+        return _COMPUTE_CACHE
+    from agent_connector_sdk.compute import ComputeUnavailableError, connect_compute
+
+    try:
+        _COMPUTE_CACHE = connect_compute()
+        logger.info("epistemic-graph engine connected; Rust quant compute enabled")
+    except ComputeUnavailableError as exc:
+        logger.warning("Operation failed: error_type=%s", type(exc).__name__)
+        _COMPUTE_CACHE = None
+    return _COMPUTE_CACHE
 
 
 def finance_engine() -> Any:
-    """Return a cached ``SyncEpistemicGraphClient``, or ``None`` if unreachable.
+    """Return the connected epistemic-graph client, or ``None`` if unreachable."""
+    compute = finance_compute()
+    return None if compute is None else compute.client
 
-    Connects when an endpoint is configured via ``EPISTEMIC_GRAPH_SOCKET`` /
-    ``GRAPH_SERVICE_SOCKET`` (UDS) or ``EPISTEMIC_GRAPH_TCP`` (host:port), and
-    otherwise tries the client's own default socket. The result (including a
-    failed probe) is cached so we never re-probe a dead endpoint per call.
-    """
-    global _CLIENT_CACHE
-    if _CLIENT_CACHE is not _UNPROBED:
-        return _CLIENT_CACHE
 
-    client = None
-    socket_path = os.environ.get("EPISTEMIC_GRAPH_SOCKET") or os.environ.get(
-        "GRAPH_SERVICE_SOCKET"
-    )
-    tcp_addr = os.environ.get("EPISTEMIC_GRAPH_TCP")
-    try:
-        from epistemic_graph.client import SyncEpistemicGraphClient
-
-        if tcp_addr:
-            client = SyncEpistemicGraphClient.connect(tcp_addr=tcp_addr)
-        elif socket_path:
-            client = SyncEpistemicGraphClient.connect(socket_path=socket_path)
-        else:
-            client = SyncEpistemicGraphClient.connect()
-        logger.info("epistemic-graph engine connected; Rust quant compute enabled")
-    except Exception as exc:  # noqa: BLE001 — degrade gracefully when unreachable
-        logger.warning("Operation failed: error_type=%s", type(exc).__name__)
-        client = None
-    _CLIENT_CACHE = client
-    return client
+def analysis_iri(name: str) -> str:
+    """The IRI of one analysis declared in ``ontology/quant.ttl``."""
+    return f"{QUANT_VOCABULARY}{name}"
 
 
 def reset_engine_cache() -> None:
     """Drop the cached client probe (primarily for tests)."""
-    global _CLIENT_CACHE
-    _CLIENT_CACHE = _UNPROBED
+    global _COMPUTE_CACHE
+    _COMPUTE_CACHE = _UNPROBED

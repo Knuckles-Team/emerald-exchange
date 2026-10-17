@@ -1,6 +1,6 @@
 # Emerald Exchange — Config Schema
 
-The `trading` section in `~/.config/agent-utilities/config.json` controls all trading behavior.
+The `trading` section in `~/.config/agent-connectors/config.json` controls all trading behavior.
 
 ## Full Schema
 

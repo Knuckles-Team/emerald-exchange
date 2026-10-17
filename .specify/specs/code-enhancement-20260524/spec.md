@@ -14,7 +14,7 @@
 
 ## Functional Requirements
 
-- **FR-001**: Minor update: agent-utilities 0.2.40 (installed) -> 0.16.0
+- **FR-001**: Minor update: agent-connector-sdk 0.2.40 (installed) -> 0.16.0
 - **FR-002**: Minor update: alpaca-py 0.30.0 (constraint — not installed) -> 0.43.4
 - **FR-003**: MAJOR update: pandas 2.0.0 (constraint — not installed) -> 3.0.3
 - **FR-004**: Minor update: ccxt 4.0.0 (constraint — not installed) -> 4.5.54
@@ -41,7 +41,7 @@
 - **FR-025**: Low fixture usage: only 0% of tests use fixtures
 - **FR-026**: No @pytest.mark.parametrize usage — consider data-driven tests
 - **FR-027**: No environment variables detected in codebase
-- **FR-028**: Analysis error: No module named 'agent_utilities.knowledge_graph'
+- **FR-028**: Analysis error: No module named 'agent_connector_sdk.knowledge_graph'
 
 ## Success Criteria
 

@@ -53,12 +53,12 @@ def register_strategy_tools(mcp: Any) -> None:
                 engine = finance_engine()
                 written = False
                 if engine is not None and strategy_id:
-                    from agent_utilities.models.domains.finance import (
-                        MicrostructureSignalNode,
+                    from emerald_exchange.signal_records import (
+                        microstructure_signal_record,
                     )
 
-                    node = MicrostructureSignalNode(
-                        id=strategy_id,
+                    record = microstructure_signal_record(
+                        strategy_id,
                         name=name or strategy_id,
                         prediction_horizon=prediction_horizon,
                         directional_accuracy=hit_rate,
@@ -67,7 +67,7 @@ def register_strategy_tools(mcp: Any) -> None:
                         provenance=f"backtest:{strategy_id}",
                     )
                     try:
-                        engine.nodes.add(strategy_id, node.model_dump(mode="json"))
+                        engine.nodes.add(strategy_id, record)
                         written = True
                     except Exception as exc:  # noqa: BLE001 — degrade, still report
                         metrics["write_error"] = type(exc).__name__
