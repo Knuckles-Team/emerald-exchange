@@ -5,6 +5,8 @@ from typing import Any
 import json
 import logging
 
+from emerald_exchange.signal_records import microstructure_signal_record
+
 logger = logging.getLogger(__name__)
 
 
@@ -41,6 +43,40 @@ def _load_microstructure_priors() -> list[dict]:
     return priors
 
 
+#: Insider-equilibrium inputs and their defaults (epistemic-graph ``InsiderInputs``).
+_INSIDER_DEFAULTS: dict[str, float] = {
+    "sigma_v": 0.30,
+    "sigma_u": 1.00,
+    "enforcement": 0.50,
+    "surveillance_kappa": 1.0,
+    "criminal_penalty": 0.0,
+    "civil_penalty_rate": 0.0,
+    "horizon": 1.0,
+}
+
+
+def _number(record: dict, key: str, default: float) -> float:
+    try:
+        value = record.get(key, default)
+        return float(value) if value is not None else default
+    except (TypeError, ValueError):
+        return default
+
+
+def _fusion_priors(records: list[dict]) -> list[dict]:
+    """Stored MicrostructureSignal records as epistemic-graph ``FusionPrior`` rows."""
+    return [
+        {
+            "name": str(record.get("name") or record.get("id")),
+            "directional_accuracy": _number(record, "directional_accuracy", 0.5),
+            "standalone_sharpe": _number(record, "standalone_sharpe", 0.0),
+            "pbo": _number(record, "pbo", 0.0),
+        }
+        for record in records
+        if record.get("name") or record.get("id")
+    ]
+
+
 def register_signal_tools(mcp: Any) -> None:
 
     @mcp.tool(tags=["signals"])
@@ -50,7 +86,7 @@ def register_signal_tools(mcp: Any) -> None:
         asset_class: str = "equity",
         signals_json: str = "{}",
     ) -> str:
-        """Signal generation and fusion. Routes to agent-utilities finance domain. CONCEPT:EX-AHE.harness.ee-11
+        """Signal generation and fusion. Epistemic-graph selects and runs each algorithm. CONCEPT:EX-AHE.harness.ee-11
 
         Actions:
         - 'regime': Detect current market regime
@@ -75,19 +111,44 @@ def register_signal_tools(mcp: Any) -> None:
           tool, not a trade-concealment aid — it quantifies which enforcement
           levers constrain an insider.
         """
+        from agent_connector_sdk.compute import MethodNotServedError
+
+        from .._engine import ENGINE_REQUIRED_ERR, analysis_iri, finance_compute
+        from .._engine import QUANT_VOCABULARY as VOCAB
+
         try:
             if action == "regime":
-                from agent_utilities.domains.finance.regime_detector import (
-                    RegimeDetector,
+                try:
+                    payload = json.loads(signals_json) if signals_json else {}
+                    prices = [float(x) for x in payload.get("close_prices", [])]
+                except (ValueError, TypeError, AttributeError) as exc:
+                    return json.dumps({"error": f"invalid signals_json: {type(exc).__name__}"})
+                if len(prices) < 3:
+                    return json.dumps(
+                        {
+                            "ticker": ticker,
+                            "action": "regime",
+                            "note": "Pass close_prices in signals_json",
+                        }
+                    )
+                compute = finance_compute()
+                if compute is None:
+                    return json.dumps({"error": ENGINE_REQUIRED_ERR})
+                returns = [
+                    (current / previous) - 1.0
+                    for previous, current in zip(prices[:-1], prices[1:], strict=True)
+                    if previous
+                ]
+                fitted = compute.analyse(
+                    analysis_iri("RegimeAnalysis"),
+                    vocabulary=VOCAB,
+                    observations=returns,
+                    n_states=2,
+                    max_iter=100,
+                    tol=1e-4,
                 )
-
-                _ = RegimeDetector()
                 return json.dumps(
-                    {
-                        "ticker": ticker,
-                        "action": "regime",
-                        "note": "Use with historical DataFrame via data-science-mcp",
-                    }
+                    {"ticker": ticker, "action": "regime", "regimes": fitted}
                 )
 
             elif action == "alpha":
@@ -100,10 +161,6 @@ def register_signal_tools(mcp: Any) -> None:
                 )
 
             elif action == "fuse":
-                from agent_utilities.domains.finance.signal_fusion import (
-                    BayesianSignalFusion,
-                )
-
                 try:
                     directions = {
                         str(k): int(v) for k, v in json.loads(signals_json).items()
@@ -111,30 +168,31 @@ def register_signal_tools(mcp: Any) -> None:
                 except (ValueError, TypeError, AttributeError) as exc:
                     return json.dumps({"error": f"invalid signals_json: {type(exc).__name__}"})
 
-                fusion = BayesianSignalFusion()
-                priors = _load_microstructure_priors()
-                seeded = fusion.seed_from_kg(priors)
-                # Any directions without a KG prior get a neutral source so the
-                # fuse still incorporates them (unseeded = default accuracy 0.6).
-                for name in directions:
-                    if name not in fusion.sources:
-                        fusion.register_source(name, weight=0.5, accuracy=0.55)
-
-                posterior = fusion.fuse(directions)
+                compute = finance_compute()
+                if compute is None:
+                    return json.dumps({"error": ENGINE_REQUIRED_ERR})
+                fused = compute.analyse(
+                    analysis_iri("SignalFusionAnalysis"),
+                    vocabulary=VOCAB,
+                    request={
+                        "prior": 0.5,
+                        "priors": _fusion_priors(_load_microstructure_priors()),
+                        "directions": directions,
+                    },
+                )
                 return json.dumps(
                     {
                         "ticker": ticker,
                         "action": "fuse",
-                        "posterior_up": posterior,
-                        "seeded_from_kg": seeded,
-                        "sources": sorted(fusion.sources),
+                        "posterior_up": fused["posterior_up"],
+                        "seeded_from_kg": fused["seeded"],
+                        "sources": sorted(src["name"] for src in fused["sources"]),
                     }
                 )
 
             elif action == "surveillance":
-                from .._engine import ENGINE_REQUIRED_ERR, finance_engine
-
-                engine = finance_engine()
+                compute = finance_compute()
+                engine = None if compute is None else compute.client
                 if engine is None:
                     return json.dumps({"error": ENGINE_REQUIRED_ERR})
                 try:
@@ -143,7 +201,9 @@ def register_signal_tools(mcp: Any) -> None:
                     return json.dumps({"error": f"invalid signals_json: {type(exc).__name__}"})
 
                 try:
-                    scores = engine.finance.surveillance_risk(
+                    scores = compute.analyse(
+                        analysis_iri("SurveillanceAnalysis"),
+                        vocabulary=VOCAB,
                         buy_vol=[float(x) for x in book.get("buy_vol", [])],
                         sell_vol=[float(x) for x in book.get("sell_vol", [])],
                         p_mean=[float(x) for x in book.get("p_mean", [])],
@@ -151,6 +211,8 @@ def register_signal_tools(mcp: Any) -> None:
                         price_changes=[float(x) for x in book.get("price_changes", [])],
                         baseline_sigma=float(book.get("baseline_sigma", 0.0)),
                     )
+                except MethodNotServedError:
+                    raise
                 except Exception:  # noqa: BLE001 — degrade cleanly
                     return json.dumps({"error": "Operation failed"})
 
@@ -160,18 +222,14 @@ def register_signal_tools(mcp: Any) -> None:
                 signal_id = f"kyle_surveillance:{ticker}" if ticker else "kyle_surveillance"
                 registered = False
                 try:
-                    from agent_utilities.models.domains.finance import (
-                        MicrostructureSignalNode,
-                    )
-
-                    node = MicrostructureSignalNode(
-                        id=signal_id,
+                    record = microstructure_signal_record(
+                        signal_id,
                         name="Kyle insider/stealth surveillance",
                         asset_class=asset_class,
                         decay_regime="regime_dependent",
                         provenance="paper:arxiv:2605.27684",
                     )
-                    engine.nodes.add(signal_id, node.model_dump(mode="json"))
+                    engine.nodes.add(signal_id, record)
                     registered = True
                 except Exception as exc:  # noqa: BLE001 — scores still returned
                     logger.debug("Operation failed: error_type=%s", type(exc).__name__)
@@ -187,41 +245,42 @@ def register_signal_tools(mcp: Any) -> None:
                 )
 
             elif action == "insider_equilibrium":
-                from agent_utilities.domains.finance.insider_equilibrium import (
-                    InsiderEquilibriumInputs,
-                    intensity_schedule,
-                    penalty_policy_analysis,
-                    solve_equilibrium,
-                )
-
                 try:
                     params = json.loads(signals_json) if signals_json else {}
                 except (ValueError, TypeError) as exc:
                     return json.dumps({"error": f"invalid signals_json: {type(exc).__name__}"})
 
-                steps = int(params.pop("steps", 10))
-                allowed = InsiderEquilibriumInputs.__dataclass_fields__
                 try:
-                    kwargs = {k: float(v) for k, v in params.items() if k in allowed}
+                    steps = int(params.pop("steps", 10))
+                    inputs = {**_INSIDER_DEFAULTS}
+                    inputs.update(
+                        {k: float(v) for k, v in params.items() if k in _INSIDER_DEFAULTS}
+                    )
+                    if params.get("gap_var") is not None:
+                        inputs["gap_var"] = float(params["gap_var"])
                 except (ValueError, TypeError) as exc:
                     return json.dumps({"error": f"invalid equilibrium params: {type(exc).__name__}"})
 
-                inputs = InsiderEquilibriumInputs(**kwargs)
-                eq = solve_equilibrium(inputs)
-                schedule = intensity_schedule(inputs, steps=steps)
-                policy = penalty_policy_analysis(inputs)
+                compute = finance_compute()
+                if compute is None:
+                    return json.dumps({"error": ENGINE_REQUIRED_ERR})
+                analysis = compute.analyse(
+                    analysis_iri("InsiderEquilibriumAnalysis"),
+                    vocabulary=VOCAB,
+                    request={"inputs": inputs, "steps": steps},
+                )
                 return json.dumps(
                     {
                         "ticker": ticker,
                         "action": "insider_equilibrium",
-                        "equilibrium": eq.to_dict(),
-                        "schedule": schedule,
-                        "policy": policy.to_dict(),
+                        "equilibrium": analysis["equilibrium"],
+                        "schedule": analysis["schedule"],
+                        "policy": analysis["policy"],
                     }
                 )
 
             return json.dumps({"error": f"Unknown action: {action}"})
-        except ImportError as e:
+        except MethodNotServedError as exc:
             return json.dumps(
-                {"error": f"agent-utilities finance module not available: {type(e).__name__}"}
+                {"error": "not_served", "action": action, "method": exc.method}
             )

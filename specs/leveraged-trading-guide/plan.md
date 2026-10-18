@@ -2,7 +2,7 @@
 
 ## Existing wiring and reuse
 
-Emerald already has `emerald_exchange/skills/`, public documentation, `RiskGuard`, `ExecutionBridge`, `create_backend()` and a paper default. Use a single reviewed Markdown/content revision as the source for the skill and WebUI projection; avoid independent copies with drifting figures. The skill follows the existing `SKILL.md`/`WORKFLOW.md` catalog pattern. Numeric leverage analysis stays in EG finance rather than new Python finance math. The WebUI consumes a read-only guide projection from Graph OS; it does not read Emerald files from a browser or embed broker credentials.
+Emerald already has `emerald_exchange/skills/`, public documentation, `RiskGuard`, `ExecutionBridge`, `create_backend()` and a paper default. Use a single reviewed Markdown/content revision as the source for the skill and WebUI projection; avoid independent copies with drifting figures. The skill follows the existing `SKILL.md`/`WORKFLOW.md` catalog pattern. Numeric leverage analysis stays in EG finance rather than new Python finance math. The WebUI consumes a read-only guide projection from Arbora; it does not read Emerald files from a browser or embed broker credentials.
 
 ## Content contract
 
@@ -12,7 +12,7 @@ The worked gold example has an **illustrative fixed input fixture**, never a cur
 
 ## Data flow and failure behavior
 
-EMERALD-MEDIA-R001 intake → editor/source verification → canonical guide revision → Emerald skill + public guide → Graph OS read-only projection → WebUI explainer. EG-FINANCE-PRIMITIVES-R010 supplies calculations when a simulation is requested; if unavailable, stale, terms missing, unsupported, or jurisdiction ineligible, show explanatory content and a clear simulation-unavailable reason. Do not substitute a guessed price, margin rate or instrument. No edge from the content/projection flow enters `mcp_orders` or `ExecutionBridge.route()`.
+EMERALD-MEDIA-R001 intake → editor/source verification → canonical guide revision → Emerald skill + public guide → Arbora read-only projection → WebUI explainer. EG-FINANCE-PRIMITIVES-R010 supplies calculations when a simulation is requested; if unavailable, stale, terms missing, unsupported, or jurisdiction ineligible, show explanatory content and a clear simulation-unavailable reason. Do not substitute a guessed price, margin rate or instrument. No edge from the content/projection flow enters `mcp_orders` or `ExecutionBridge.route()`.
 
 ## Quality and compatibility
 

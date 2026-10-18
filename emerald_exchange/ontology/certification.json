@@ -1,5 +1,5 @@
 {
-  "api_version": "graphos.io/v1",
+  "api_version": "arbora.io/v1",
   "artifacts": {
     "connector_manifest.yml": "fd48fc42aa199ba2bd495c569f50fb4a63dc4a93b9b71ebe3e861885487a8909",
     "emerald_exchange/connectors/mcp_source_presets.json": "bcabae57623be833ba70e44382cc0c190420401e86a78ae3dd7dcb6e233d5cf5",
@@ -9,7 +9,7 @@
     "emerald_exchange/ontology/fixtures/records.json": "6cc1b3c488d6395dd422f1c0bff916188298d0e1955d5c95d611553b7c4f663c",
     "emerald_exchange/ontology/mappings/source.yaml": "f773a5a1ca0d80c9388dcd0e89311593a04d8c9b883d195372d422b2eafb639b",
     "emerald_exchange/ontology/migrations/manifest.json": "833c95f0bafa618f006c21d928fedf1bcbb9b72ce4b7d4d308cffc7ad099ea99",
-    "emerald_exchange/ontology/quant.ttl": "661551b9bb43a1c8e0041a75ea3e45934744999d29367c1a0b1affb1e2693def",
+    "emerald_exchange/ontology/quant.ttl": "a0b27556eeb7a0a510efa0afb097fc54f2b1f7c40543b95c1847651810a071cd",
     "emerald_exchange/ontology/shapes/connector.shacl.ttl": "0b3adc21465b6a253db627484c14c622ecb6ef18a14c9427f0fe0dbd8231c80a",
     "emerald_exchange/ontology/trading.ttl": "508352b9bc8ab84e8a6d1f027ef2d5aa4b96562cf14da471ac504c0697986e04"
   },
@@ -21,7 +21,7 @@
     "synthetic_fixture_contract": "passed"
   },
   "compatibility": {
-    "agent_utilities": ">=2.5.0,<3",
+    "agent_connector_sdk": ">=0.2.0,<1.0.0",
     "bundle_schema": "2",
     "epistemic_graph": ">=2.27.0,<3"
   },

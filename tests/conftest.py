@@ -6,6 +6,7 @@ import pytest
 
 from emerald_exchange.backends import PaperBackend, OrderSide, TradingMode
 from emerald_exchange.risk_guards import RiskGuard, RiskLimits
+from tests.live_engine import live_compute, live_engine  # noqa: F401
 
 
 # Synthetic Polymarket trade dataset: two wallets with resolved positions so
@@ -52,22 +53,6 @@ def trades_csv(tmp_path):
         writer.writeheader()
         writer.writerows(_TRADE_ROWS)
     return str(path)
-
-
-@pytest.fixture
-def engine_client():
-    """Return a live epistemic-graph client, or skip if none is reachable.
-
-    Engine-backed assertions (market-making quotes, Bayesian Kelly, backtest
-    validation, forensic screen) gate on this so the suite passes cleanly in
-    offline / no-socket environments.
-    """
-    from emerald_exchange._engine import finance_engine
-
-    client = finance_engine()
-    if client is None:
-        pytest.skip("epistemic-graph engine not reachable (set EPISTEMIC_GRAPH_SOCKET)")
-    return client
 
 
 @pytest.fixture

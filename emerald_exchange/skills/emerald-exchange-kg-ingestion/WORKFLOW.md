@@ -23,7 +23,7 @@ etc.). Best-effort — no-ops cleanly when no KG engine is reachable.
 
 ## Prerequisites & environment
 Connect via the `mcp-client` skill against the **`emerald-exchange`** MCP server. Ingestion
-targets a running graph-os / epistemic-graph engine. Engine, validation, and transaction
+targets a running arbora / epistemic-graph engine. Engine, validation, and transaction
 failures propagate instead of acknowledging an unwritten result. The active backend/mode is the one
 configured under `config.json` → `trading` (default `paper`).
 

@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools>=80.9.0", "wheel"]
+requires = ["setuptools>=84.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "emerald-exchange"
-version = "2.1.0"
+version = "2.2.0"
 description = "Emerald Exchange — Unified Finance MCP Server with fully abstracted exchange backends for equities, crypto, and derivatives trading. CONCEPT:EE-001"
 readme = "README.md"
 authors = [{ name = "Project Maintainers", email = "maintainers@users.noreply.github.com" }]
@@ -17,56 +17,56 @@ classifiers = [
     "Programming Language :: Python :: 3"]
 requires-python = ">=3.12,<3.15"
 dependencies = [
-    "agent-connector-sdk>=0.1.0,<1.0.0",
-    "agent-utilities[mcp]>=2.0.0,<3.0.0",
-    "numpy>=2.5.1",
+    "agent-connector-sdk[mcp]>=0.2.1,<1.0.0",
+    "numpy>=2.5.4",
     # CONCEPT:PHASE2-RECONCILE — relaxed off the pandas 3.x floor to match
-    # agent-utilities[finance]'s ecosystem-compatible range (the two must
+    # agent-connector-sdk's ecosystem-compatible range (the two must
     # resolve to the same pandas major across the workspace lock).
     "pandas>=2.2,<3",
 ]
 
 [project.optional-dependencies]
-mcp = ["agent-utilities[mcp]>=2.0.0,<3.0.0"]
-alpaca = ["alpaca-py>=0.43.5"]
+mcp = ["agent-connector-sdk[mcp]>=0.2.1,<1.0.0"]
+alpaca = ["alpaca-py>=0.44.0"]
 binance = ["python-binance>=1.0.37"]
-crypto = ["ccxt>=4.5.67"]
-prediction_markets = ["httpx>=0.28.1", "kalshi-python>=2.1.4", "py-clob-client>=0.34.6", "websockets>=17.1"]
-fundamentals = ["edgartools>=5.59.1"]
-wallet_intel = ["polars>=1.43.0", "py-clob-client>=0.34.6"]
+crypto = ["ccxt>=4.5.88"]
+prediction_markets = ["httpx>=0.28.1", "kalshi-python>=2.1.4", "py-clob-client>=0.34.6", "websockets>=17.2"]
+fundamentals = ["edgartools>=5.62.0"]
+wallet_intel = ["polars>=2.0.0", "py-clob-client>=0.34.6"]
 all = [
-    "agent-utilities[mcp,agent-runtime,logfire]>=2.0.0,<3.0.0",
-    "alpaca-py>=0.43.5",
-    "ccxt>=4.5.67",
+    "alpaca-py>=0.44.0",
+    "ccxt>=4.5.88",
     "httpx>=0.28.1",
     "kalshi-python>=2.1.4",
     "py-clob-client>=0.34.6",
-    "websockets>=17.1",
-    "edgartools>=5.59.1",
-    "polars>=1.43.0",
+    "websockets>=17.2",
+    "edgartools>=5.62.0",
+    "polars>=2.0.0",
 ]
-agent = ["agent-utilities[agent-runtime,logfire]>=2.0.0,<3.0.0"]
+# Live-engine test run: the suite starts epistemic-graph-server from this extra.
+test = [
+    "epistemic-graph[server]==2.27.1",
+    "pyoxigraph>=0.5.11",
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
+]
 
 [project.scripts]
 emerald-exchange-mcp = "emerald_exchange.mcp_server:mcp_server"
-emerald-exchange-agent = "emerald_exchange.agent_server:agent_server"
 emerald-cockpit = "emerald_exchange.cockpit:main"
 
-[project.entry-points."agent_utilities.skill_providers"]
+[project.entry-points."agent_connector_sdk.skill_providers"]
 emerald-exchange = "emerald_exchange.skills"
-
-[project.entry-points."agent_utilities.prompt_providers"]
-emerald-exchange = "emerald_exchange.prompts"
 
 # CONCEPT:AU-KG.ingest.mcp-tool-connector — Tier-1 declarative source preset(s) that sync
 # this package's records into the KG via its own MCP server, resolved via iter_provider_dirs.
-[project.entry-points."agent_utilities.source_connector_providers"]
+[project.entry-points."agent_connector_sdk.source_connector_providers"]
 emerald-exchange = "emerald_exchange.connectors"
 
 # CONCEPT:AU-KG.ontology.package-federation-migration — federate this package's OWL/RDF ontology modules into the
-# agent-utilities hub (quant, trading, banking). Resolved via iter_provider_dirs
+# agent-connector-sdk ontology hub (quant, trading, banking). Resolved via iter_provider_dirs
 # like the skill/prompt providers; the hub globs every *.ttl in the dir.
-[project.entry-points."agent_utilities.ontology_providers"]
+[project.entry-points."agent_connector_sdk.ontology_providers"]
 emerald-exchange = "emerald_exchange.ontology"
 
 [tool.uv.workspace]
@@ -80,12 +80,8 @@ where = ["."]
 
 [tool.uv]
 override-dependencies = [
-    "fastmcp-slim[client,server]>=4.0.0b1",
+    "fastmcp-slim[client,server]>=4.1.0",
 ]
-
-[tool.uv.sources]
-agent-connector-sdk = { path = ".uv-workspace-siblings/agent-connector-sdk", editable = true }
-agent-utilities = { path = ".uv-workspace-siblings/agent-utilities", editable = true }
 
 [tool.pipelines_hooks.ste]
 exempt = ["specs/*", "specs/**/*"]

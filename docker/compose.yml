@@ -22,7 +22,7 @@ services:
     ports:
       - "127.0.0.1:8100:8000"
     volumes:
-      - ${AGENT_UTILITIES_CONFIG_DIR:?set AGENT_UTILITIES_CONFIG_DIR}:/tmp/.config/agent-utilities:ro
+      - ${CONNECTOR_CONFIG_DIR:?set CONNECTOR_CONFIG_DIR}:/tmp/.config/agent-connectors:ro
     healthcheck:
       test: ["CMD", "python", "-c", "import emerald_exchange"]
       interval: 30s

@@ -32,7 +32,7 @@ def get_mcp_instance():
     )
 
     # Load config
-    from agent_utilities.core import paths
+    from agent_connector_sdk import paths
 
     from emerald_exchange.mcp.mcp_crypto import register_crypto_tools
     from emerald_exchange.mcp.mcp_debate import register_debate_tools

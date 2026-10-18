@@ -35,9 +35,9 @@ def register_derivatives_tools(mcp: Any) -> None:
           - 'calibrate': calibrate SABR (α, ρ, ν) to a market smile with β
             fixed. params: f, t, strikes (list), market_vols (list), beta.
             Returns {alpha, beta, rho, nu, rmse, converged}.
-          - 'vol_arb': calibrate then compare market vs SABR-fair smile,
-            flagging rich (sell-vol) / cheap (buy-vol) strikes. params: f, t,
-            strikes (list), market_vols (list), beta. Decision-only.
+          - 'vol_arb': rich/cheap strike classification against the
+            SABR-fair smile. Refused (not_served) until epistemic-graph
+            serves it.
 
         Args:
             action: operation to perform.
@@ -48,7 +48,7 @@ def register_derivatives_tools(mcp: Any) -> None:
         except json.JSONDecodeError as exc:
             return json.dumps({"error": f"invalid params_json: {type(exc).__name__}"})
 
-        from emerald_exchange import derivatives
+        from emerald_exchange import analyses as derivatives
 
         try:
             if action == "implied_vol":

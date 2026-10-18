@@ -9,10 +9,7 @@ from typing import Any
 
 import httpx
 
-from agent_utilities.domains.finance.cross_market_arb import (
-    CostAwareThresholdFilter,
-)
-from agent_utilities.domains.finance.signal_fusion import LaplaceEnsembleFusion
+from agent_connector_sdk.compute import MethodNotServedError
 from emerald_exchange.risk_guards import RiskGuard
 
 logger = logging.getLogger(__name__)
@@ -69,9 +66,6 @@ def register_prediction_market_tools(mcp: Any, risk_guard: RiskGuard | None = No
                 pm_price = params.get("polymarket_price", 0.5)
                 kalshi_price = params.get("kalshi_price", 0.5)
 
-                # Use Laplace Smoothing
-                model_prob = LaplaceEnsembleFusion.compute_probability(condition_met_count, total_members)
-
                 # Use default risk limits or explicit threshold
                 pm_threshold = 0.08
                 kalshi_threshold = 0.08
@@ -79,17 +73,40 @@ def register_prediction_market_tools(mcp: Any, risk_guard: RiskGuard | None = No
                     pm_threshold = risk_guard.limits.prediction_market_cost_thresholds.get("polymarket", 0.08)
                     kalshi_threshold = risk_guard.limits.prediction_market_cost_thresholds.get("kalshi", 0.08)
 
-                opportunities = {}
-                if CostAwareThresholdFilter.passes_threshold(model_prob, pm_price, pm_threshold):
-                    opportunities["polymarket"] = model_prob - pm_price
+                from emerald_exchange._engine import (
+                    ENGINE_REQUIRED_ERR,
+                    QUANT_VOCABULARY,
+                    analysis_iri,
+                    finance_compute,
+                )
 
-                if CostAwareThresholdFilter.passes_threshold(model_prob, kalshi_price, kalshi_threshold):
-                    opportunities["kalshi"] = model_prob - kalshi_price
-
-                return json.dumps({
-                    "model_probability": model_prob,
-                    "opportunities": opportunities
-                })
+                compute = finance_compute()
+                if compute is None:
+                    return json.dumps({"error": ENGINE_REQUIRED_ERR})
+                # Epistemic-graph selects and runs the ensemble-probability and
+                # edge-threshold algorithm; it is refused until EG serves it.
+                try:
+                    return json.dumps(
+                        compute.analyse(
+                            analysis_iri("EnsembleProbabilityAnalysis"),
+                            vocabulary=QUANT_VOCABULARY,
+                            condition_met_count=int(condition_met_count),
+                            total_members=int(total_members),
+                            prices={"polymarket": pm_price, "kalshi": kalshi_price},
+                            cost_thresholds={
+                                "polymarket": pm_threshold,
+                                "kalshi": kalshi_threshold,
+                            },
+                        )
+                    )
+                except MethodNotServedError as exc:
+                    return json.dumps(
+                        {
+                            "error": "not_served",
+                            "action": action,
+                            "method": exc.method,
+                        }
+                    )
 
             else:
                 return json.dumps({"error": f"Unknown action: {action}"})

@@ -120,7 +120,7 @@ def _forensic_screen(client: EdgarApi, ticker: str) -> dict[str, Any]:
     used, or an ``{"error": ...}`` payload when the engine is unreachable / the
     filing could not be standardized.
     """
-    from emerald_exchange.forensic import forensic_screen as engine_forensic_screen
+    from emerald_exchange.analyses import forensic_screen as engine_forensic_screen
 
     # standardize_financials already emits the exact 17-key forensic_report
     # schema the engine kernel expects, so the two years pass straight through.

@@ -15,7 +15,7 @@ from emerald_exchange.backends import (
     TradingMode,
 )
 from emerald_exchange.cockpit import build_snapshot, cockpit, render_snapshot
-from emerald_exchange.derivatives import calibrate, implied_vol, smile, vol_arb
+from emerald_exchange.analyses import calibrate, implied_vol, smile, vol_arb
 from emerald_exchange.execution_bridge import (
     ExecutionBridge,
     RoutingStatus,
@@ -207,39 +207,27 @@ def test_cockpit_signals_render(paper_backend, risk_guard):
 
 
 def test_derivatives_offline_returns_error(monkeypatch):
-    monkeypatch.setattr(
-        "emerald_exchange.derivatives.finance_engine", lambda: None, raising=True
-    )
-    assert "error" in implied_vol(1.0, 1.0, 1.0, 0.2, 0.5, 0.0, 0.3)
+    from emerald_exchange import _engine
+
+    monkeypatch.setattr(_engine, "_COMPUTE_CACHE", None)
+    assert implied_vol(1.0, 1.0, 1.0, 0.2, 0.5, 0.0, 0.3) == {
+        "error": _engine.ENGINE_REQUIRED_ERR
+    }
     assert "error" in smile(1.0, [0.9, 1.1], 1.0, 0.2, 0.5, 0.0, 0.3)
     assert "error" in calibrate(1.0, 1.0, [0.9, 1.1], [0.2, 0.21])
-    assert "error" in vol_arb(1.0, 1.0, [0.9, 1.1], [0.2, 0.21])
 
 
 def test_derivatives_length_mismatch():
-    # Length validation happens before the engine call (still error offline).
     res = calibrate(1.0, 1.0, [0.9, 1.0, 1.1], [0.2, 0.21])
     assert "error" in res
 
 
-def _skip_if_unknown_variant(res: dict) -> None:
-    """Skip when the live engine daemon is a version behind and lacks the SABR
-    kernel (KG-2.20j). The engine surfaces that as an 'unknown variant'
-    MessagePack error — mirror the no-socket skip so engine-backed tests never
-    hard-fail on a stale daemon."""
-    err = str(res.get("error", "")).lower()
-    if "unknown variant" in err or "unknown method" in err:
-        pytest.skip(f"engine lacks SABR kernel (version behind): {res['error']}")
-
-
-def test_sabr_implied_vol_engine(engine_client):
+def test_sabr_implied_vol_engine(live_engine):
     res = implied_vol(f=1.0, k=1.0, t=1.0, alpha=0.2, beta=0.5, rho=-0.3, nu=0.4)
-    _skip_if_unknown_variant(res)
-    assert "error" not in res
     assert res["implied_vol"] > 0
 
 
-def test_sabr_smile_engine(engine_client):
+def test_sabr_smile_engine(live_engine):
     res = smile(
         f=1.0,
         strikes=[0.8, 0.9, 1.0, 1.1, 1.2],
@@ -249,26 +237,15 @@ def test_sabr_smile_engine(engine_client):
         rho=-0.3,
         nu=0.4,
     )
-    _skip_if_unknown_variant(res)
-    assert "error" not in res
     assert len(res["vols"]) == 5
     assert all(v > 0 for v in res["vols"])
 
 
-def test_sabr_calibrate_and_vol_arb_engine(engine_client):
+def test_sabr_calibrate_engine_and_vol_arb_refused(live_engine):
     strikes = [0.8, 0.9, 1.0, 1.1, 1.2]
-    # Generate a self-consistent market smile, then calibrate back.
-    gen = smile(1.0, strikes, 1.0, 0.25, 0.5, -0.2, 0.5)
-    _skip_if_unknown_variant(gen)
-    if "error" in gen:
-        pytest.skip("engine smile unavailable")
-    market_vols = gen["vols"]
+    market_vols = smile(1.0, strikes, 1.0, 0.25, 0.5, -0.2, 0.5)["vols"]
     cal = calibrate(f=1.0, t=1.0, strikes=strikes, market_vols=market_vols, beta=0.5)
-    assert "error" not in cal
     assert {"alpha", "beta", "rho", "nu", "rmse", "converged"} <= set(cal.keys())
-
     arb = vol_arb(f=1.0, t=1.0, strikes=strikes, market_vols=market_vols, beta=0.5)
-    assert "error" not in arb
-    assert len(arb["rows"]) == len(strikes)
-    # Self-consistent smile -> residuals tiny.
-    assert all(abs(r["residual"]) < 0.05 for r in arb["rows"])
+    assert arb["error"] == "not_served"
+    assert arb["method"].endswith("#VolatilityArbitrageAnalysis")

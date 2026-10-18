@@ -1,23 +1,22 @@
 """Market-Making Controller — CONCEPT:EX-AHE.harness.ee-22.
 
-A per-book-update quoting *policy* implementing the §9 HFT skeleton. It is the
-CONTROLLER + venue-decision layer only: it computes intended bid/ask quotes and a
-withdraw decision, but it **never places live orders**. Order placement stays in
-the backends, gated by ``RiskGuard.require_human_approval_live``.
+A per-book-update quoting *policy* (the §9 HFT skeleton). Every quantity is an
+analysis epistemic-graph runs (``ontology/quant.ttl`` bindings, selected by
+SPARQL through :func:`emerald_exchange._engine.run_analysis`):
 
-Math is delegated to the Rust ``epistemic-graph`` engine via the lazy sync client
-(``client.finance.*``):
+* ConvictionAnalysis — convergence gate over signal strengths.
+* FairValueAnalysis — microprice fair value.
+* OrderFlowImbalanceAnalysis — optional OFI drift.
+* BoundedQuoteAnalysis / QuoteAnalysis — logit or Avellaneda-Stoikov quotes.
+* FlowToxicityAnalysis + BreakevenAlphaAnalysis — toxicity withdraw gate.
+* SurveillanceAnalysis — Kyle legal-risk withdraw gate.
+* QueuePositionAnalysis — queue skew and fill time.
 
-* ``microprice_series`` — size-weighted fair value from the top of book.
-* ``ofi_series`` — Cont-Kukanov-Stoikov order-flow imbalance → optional drift.
-* ``logit_quotes`` — bounded (0,1) Avellaneda-Stoikov for prediction markets.
-* ``avellaneda_stoikov`` — unbounded AS for equities/crypto.
-* ``vpin_pm`` + ``breakeven_alpha`` — toxicity gate: widen / withdraw when the
-  estimated informed-trader rate exceeds the spread's breakeven alpha.
-
-When the engine is unreachable the controller degrades to a transparent
-local-arithmetic fallback (mid ± a configured half-spread) and flags it, so the
-caller can choose to withdraw rather than quote blind.
+The connector keeps only venue order rules: tick snap, post-only
+non-crossing, inventory caps and the (0, 1) price bounds. There is no local
+fallback: an unreachable engine or unserved analysis withdraws both sides.
+It never places orders; placement stays in the backends behind
+``RiskGuard.require_human_approval_live``.
 """
 
 from __future__ import annotations
@@ -26,37 +25,11 @@ import logging
 from dataclasses import dataclass, field
 from typing import Any
 
-from emerald_exchange._engine import ENGINE_REQUIRED_ERR, finance_engine
+from agent_connector_sdk.compute import ComputeUnavailableError, MethodNotServedError
+
+from emerald_exchange._engine import engine_error, run_analysis
 
 logger = logging.getLogger(__name__)
-
-
-def brier_score(forecasts: list[float], outcomes: list[float]) -> dict[str, Any]:
-    """Brier calibration score of probabilistic forecasts vs realized outcomes.
-
-    CONCEPT:EX-AHE.harness.by-default. Tracks how well the quoting/conviction signals are calibrated
-    over time (lower = better; 0 = perfect, 0.25 = uninformative coin flip).
-    Delegates to the engine ``client.finance.brier_score``; degrades to a clean
-    ``{"error": ...}`` when the engine is unreachable or the kernel is missing.
-
-    Args:
-        forecasts: probability forecasts in [0, 1].
-        outcomes: realized 0/1 outcomes (same length as ``forecasts``).
-    """
-    if len(forecasts) != len(outcomes):
-        return {"error": "forecasts and outcomes must be the same length"}
-    if not forecasts:
-        return {"error": "forecasts/outcomes are empty"}
-
-    engine = finance_engine()
-    if engine is None:
-        return {"error": ENGINE_REQUIRED_ERR}
-    try:
-        score = float(engine.finance.brier_score(forecasts, outcomes))
-        return {"brier_score": score, "n": len(forecasts), "engine_used": True}
-    except Exception as exc:  # noqa: BLE001 — degrade cleanly (incl. stale daemon)
-        logger.debug("brier_score failed: error_type=%s", type(exc).__name__)
-        return {"error": "Operation failed"}
 
 
 @dataclass
@@ -179,7 +152,7 @@ class QuoteDecision:
 
 
 class MarketMakingController:
-    """Pure decision policy — computes intended quotes, never places orders.
+    """Quoting policy over epistemic-graph analyses — never places orders.
 
     CONCEPT:EX-AHE.harness.ee-22.
     """
@@ -187,346 +160,183 @@ class MarketMakingController:
     def __init__(self, config: MMConfig | None = None) -> None:
         self.config = config or MMConfig()
 
-    # ── helpers ────────────────────────────────────────────────────────
     def _snap(self, px: float) -> float:
         tick = self.config.tick
         if tick <= 0:
             return px
         return round(round(px / tick) * tick, 10)
 
-    def _fair_value(self, book: BookSnapshot, engine: Any) -> tuple[float, bool]:
-        """Microprice fair value (engine) with mid fallback."""
-        if engine is not None and book.bid_px and book.ask_px:
-            try:
-                series = engine.finance.microprice_series(
-                    book.bid_px, book.bid_sz, book.ask_px, book.ask_sz
-                )
-                if series:
-                    return float(series[-1]), True
-            except Exception as exc:  # noqa: BLE001 — degrade to mid
-                logger.debug("Operation failed: error_type=%s", type(exc).__name__)
-        return book.mid, False
+    @staticmethod
+    def _withdrawn(reason: str, **extra: Any) -> QuoteDecision:
+        return QuoteDecision(
+            bid=None,
+            ask=None,
+            reservation=0.0,
+            fair_value=0.0,
+            half_spread=0.0,
+            withdraw=True,
+            reason=reason,
+            **extra,
+        )
 
-    def _ofi_drift(self, book: BookSnapshot, engine: Any) -> float:
-        coef = self.config.ofi_drift_coef
-        if coef == 0.0 or engine is None or len(book.ts) < 2:
-            return 0.0
-        try:
-            ofi = engine.finance.ofi_series(
-                book.ts,
-                book.bid_px,
-                book.bid_sz,
-                book.ask_px,
-                book.ask_sz,
-                self.config.ofi_window_secs,
-            )
-            if ofi:
-                return coef * float(ofi[-1])
-        except Exception as exc:  # noqa: BLE001
-            logger.debug("Operation failed: error_type=%s", type(exc).__name__)
-        return 0.0
-
-    def _toxicity(
-        self, book: BookSnapshot, half_spread: float, fair_value: float, engine: Any
-    ) -> tuple[float, float]:
-        """Return (estimated informed-trader alpha, breakeven alpha)."""
-        if engine is None or not book.buy_vol or not book.sell_vol:
-            return 0.0, 1.0
-        try:
-            alpha = float(
-                engine.finance.vpin_pm(book.buy_vol, book.sell_vol, book.p_mean)
-            )
-            be = float(
-                engine.finance.breakeven_alpha(
-                    half_spread, fair_value, self.config.vh, self.config.vl
-                )
-            )
-            return alpha, be
-        except Exception as exc:  # noqa: BLE001
-            logger.debug("Operation failed: error_type=%s", type(exc).__name__)
-            return 0.0, 1.0
-
-    def _surveillance(self, book: BookSnapshot, engine: Any) -> tuple[float, float]:
-        """Return ``(legal_risk_score, informed_share)`` from the Kyle surveillance
-        kernel (CONCEPT:EX-AHE.harness.sustained-adverse-selection, distils arXiv:2605.27684). Derives signed flow and
-        price changes from the book's volume/price buckets. Degrades to
-        ``(0.0, 0.0)`` — never blocking blind — when the engine is unreachable or
-        the window is too thin. DEFENSIVE: adverse-selection protection only.
-        """
-        if engine is None or not book.buy_vol or not book.sell_vol:
-            return 0.0, 0.0
-        try:
-            n = min(len(book.buy_vol), len(book.sell_vol))
-            signed_flow = [book.buy_vol[i] - book.sell_vol[i] for i in range(n)]
-            pm = book.p_mean or []
-            price_changes = [pm[i] - pm[i - 1] for i in range(1, len(pm))]
-            out = engine.finance.surveillance_risk(
-                book.buy_vol,
-                book.sell_vol,
-                book.p_mean,
-                signed_flow,
-                price_changes,
-                self.config.surveillance_baseline_sigma,
-            )
-            if isinstance(out, dict):
-                return (
-                    float(out.get("legal_risk_score", 0.0)),
-                    float(out.get("informed_share", 0.0)),
-                )
-        except Exception as exc:  # noqa: BLE001 — degrade, never block blind
-            logger.debug("Operation failed: error_type=%s", type(exc).__name__)
-        return 0.0, 0.0
-
-    def _queue_skew(self, book: BookSnapshot, engine: Any) -> tuple[float, float]:
-        """Return ``(queue_skew ∈ [-1, 1], worst-side fill_time)``.
-
-        CONCEPT:AU-AHE.assimilation.trading-ecosystem-changelog. ``skew = (ask_q - bid_q)/(ask_q + bid_q)`` — positive ⇒ the
-        ask queue is heavier, so a resting bid fills relatively faster. A longer
-        ``fill_time`` means more adverse-selection exposure while resting. Uses the
-        engine ``queue_imbalance`` kernel with a local-fallback mirror so the
-        signal is never silently dropped offline. Falls back to ``bid_sz``/
-        ``ask_sz`` for queue lengths when explicit queue sizes aren't supplied.
-        """
-        bq = book.bid_q or book.bid_sz
-        aq = book.ask_q or book.ask_sz
-        if not bq or not aq:
-            return 0.0, 0.0
-        if engine is not None:
-            try:
-                out = engine.finance.queue_imbalance(
-                    bq,
-                    aq,
-                    book.bid_rate or [1.0] * len(bq),
-                    book.ask_rate or [1.0] * len(aq),
-                )
-                if isinstance(out, dict) and out.get("skew"):
-                    fill_time = max(
-                        float(out["bid_fill_time"][-1]),
-                        float(out["ask_fill_time"][-1]),
-                    )
-                    return float(out["skew"][-1]), fill_time
-            except Exception as exc:  # noqa: BLE001 — degrade to local mirror
-                logger.debug("Operation failed: error_type=%s", type(exc).__name__)
-        # Local fallback mirroring the kernel: (ask_q - bid_q)/(ask_q + bid_q).
-        b, a = float(bq[-1]), float(aq[-1])
-        total = a + b
-        skew = (a - b) / total if total > 0 else 0.0
-        return skew, 0.0
-
-    def _conviction_gate(
-        self, signal_strengths: list[float] | None, engine: Any
-    ) -> dict[str, Any]:
-        """Run the engine convergence gate over the supplied signal strengths.
-
-        CONCEPT:EX-AHE.harness.by-default. Returns the engine's ``convergence_gate`` payload
-        ``{agree, total, fraction, direction, pass}``. When no strengths are
-        supplied the gate is vacuously *open* (``pass=True``) so the controller
-        behaves exactly as before for callers that don't feed signals — but as
-        soon as strengths are present, N/N agreement is required to quote.
-        Degrades to a local count when the engine is unreachable so the gate is
-        never silently bypassed offline.
-        """
-        cfg = self.config
-        if not cfg.conviction_gate or not signal_strengths:
-            return {"pass": True, "reason": "gate_off_or_no_signals"}
-
-        if engine is not None:
-            try:
-                out = engine.finance.convergence_gate(
-                    signal_strengths,
-                    cfg.conviction_strong_threshold,
-                    cfg.conviction_min_agree,
-                )
-                if isinstance(out, dict):
-                    return out
-            except Exception as exc:  # noqa: BLE001 — local fallback below
-                logger.debug("Operation failed: error_type=%s", type(exc).__name__)
-
-        # Local fallback mirroring the engine's gate semantics.
-        thr = cfg.conviction_strong_threshold
-        longs = sum(1 for s in signal_strengths if s >= thr)
-        shorts = sum(1 for s in signal_strengths if s <= -thr)
-        agree = max(longs, shorts)
-        direction = 1 if longs >= shorts else -1
-        total = len(signal_strengths)
-        return {
-            "agree": agree,
-            "total": total,
-            "fraction": (agree / total) if total else 0.0,
-            "direction": direction if agree else 0,
-            "pass": agree >= cfg.conviction_min_agree,
-            "engine_used": False,
-        }
-
-    # ── main policy ────────────────────────────────────────────────────
     def decide(
         self,
         book: BookSnapshot,
         inventory: float,
         signal_strengths: list[float] | None = None,
     ) -> QuoteDecision:
-        """Compute intended quotes for a single book update (no look-ahead).
+        """Compute intended quotes for a single book update (no look-ahead)."""
+        try:
+            return self._decide(book, inventory, signal_strengths)
+        except (ComputeUnavailableError, MethodNotServedError) as exc:
+            payload = engine_error(exc)
+            return self._withdrawn(str(payload["error"]), conviction=payload)
 
-        Implements the §9 skeleton: conviction gate → fair value → optional OFI
-        drift → AS/logit quotes → VPIN toxicity gate → tick snap → post-only /
-        non-crossing.
-
-        The CONVICTION GATE (CONCEPT:EX-AHE.harness.by-default) runs FIRST and is **ON by default**
-        (``MMConfig.conviction_gate=True``): when ``signal_strengths`` are
-        supplied they must reach ``conviction_min_agree`` strong agreeing votes
-        (via the engine ``convergence_gate``) before any quote is emitted —
-        otherwise the controller withdraws. With no strengths supplied the gate
-        is vacuously open, preserving the prior behavior for unsignalled callers.
-        """
+    def _decide(
+        self,
+        book: BookSnapshot,
+        inventory: float,
+        signal_strengths: list[float] | None,
+    ) -> QuoteDecision:
         cfg = self.config
-        engine = finance_engine()
-
-        # ── Conviction gate FIRST: no agreement ⇒ no quote (decision only). ──
-        conviction = self._conviction_gate(signal_strengths, engine)
-        if not conviction.get("pass", True):
-            return QuoteDecision(
-                bid=None,
-                ask=None,
-                reservation=0.0,
-                fair_value=0.0,
-                half_spread=0.0,
-                withdraw=True,
-                reason="conviction_gate_blocked",
-                engine_used=engine is not None,
-                conviction_pass=False,
-                conviction=conviction,
+        conviction: dict[str, Any] = {"pass": True, "reason": "gate_off_or_no_signals"}
+        if cfg.conviction_gate and signal_strengths:
+            conviction = dict(
+                run_analysis(
+                    "ConvictionAnalysis",
+                    strengths=signal_strengths,
+                    strong_threshold=cfg.conviction_strong_threshold,
+                    min_agree=cfg.conviction_min_agree,
+                )
             )
-
-        fair_value, engine_used = self._fair_value(book, engine)
+            if not conviction.get("pass", False):
+                return self._withdrawn(
+                    "conviction_gate_blocked",
+                    engine_used=True,
+                    conviction_pass=False,
+                    conviction=conviction,
+                )
+        if not (book.bid_px and book.ask_px):
+            return self._withdrawn("no_fair_value", conviction=conviction)
+        series = run_analysis(
+            "FairValueAnalysis",
+            bid_px=book.bid_px,
+            bid_sz=book.bid_sz,
+            ask_px=book.ask_px,
+            ask_sz=book.ask_sz,
+        )
+        fair_value = float(series[-1]) if series else 0.0
         if fair_value <= 0:
-            return QuoteDecision(
-                bid=None,
-                ask=None,
-                reservation=0.0,
-                fair_value=0.0,
-                half_spread=0.0,
-                withdraw=True,
-                reason="no_fair_value",
-                engine_used=engine_used,
-                conviction_pass=True,
-                conviction=conviction,
+            return self._withdrawn("no_fair_value", engine_used=True, conviction=conviction)
+        if cfg.ofi_drift_coef != 0.0 and len(book.ts) >= 2:
+            ofi = run_analysis(
+                "OrderFlowImbalanceAnalysis",
+                ts=book.ts,
+                bid_px=book.bid_px,
+                bid_sz=book.bid_sz,
+                ask_px=book.ask_px,
+                ask_sz=book.ask_sz,
+                window_secs=cfg.ofi_window_secs,
             )
-
-        fair_value += self._ofi_drift(book, engine)
+            if ofi:
+                fair_value += cfg.ofi_drift_coef * float(ofi[-1])
         if cfg.bounded:
             fair_value = min(max(fair_value, 1e-6), 1.0 - 1e-6)
-
-        # AS / logit quotes from the engine, else local symmetric fallback.
-        quotes = None
-        if engine is not None:
-            try:
-                if cfg.bounded:
-                    quotes = engine.finance.logit_quotes(
-                        fair_value,
-                        inventory,
-                        cfg.sigma,
-                        cfg.gamma,
-                        cfg.kappa,
-                        cfg.tau,
-                        cfg.boundary_m,
-                    )
-                else:
-                    quotes = engine.finance.avellaneda_stoikov(
-                        fair_value, inventory, cfg.sigma, cfg.gamma, cfg.kappa, cfg.tau
-                    )
-                engine_used = True
-            except Exception as exc:  # noqa: BLE001 — degrade locally
-                logger.debug(
-                    "AS/logit quotes failed; using local fallback: error_type=%s",
-                    type(exc).__name__,
-                )
-                quotes = None
-
-        if quotes is not None:
-            bid = float(quotes.get("bid", fair_value))
-            ask = float(quotes.get("ask", fair_value))
-            reservation = float(quotes.get("reservation", fair_value))
-            half_spread = float(quotes.get("half_spread", abs(ask - bid) / 2.0))
-            withdraw = bool(quotes.get("withdraw", False))
-            reason = "engine_quotes"
+            quotes = run_analysis(
+                "BoundedQuoteAnalysis",
+                p_mid=fair_value,
+                inventory=inventory,
+                sigma=cfg.sigma,
+                gamma=cfg.gamma,
+                kappa=cfg.kappa,
+                tau=cfg.tau,
+                boundary_m=cfg.boundary_m,
+            )
         else:
-            # Transparent local fallback: inventory-skewed mid ± vol-scaled half-spread.
-            half_spread = max(cfg.tick, cfg.gamma * cfg.sigma)
-            reservation = fair_value - inventory * cfg.gamma * (cfg.sigma**2) * cfg.tau
-            bid = reservation - half_spread
-            ask = reservation + half_spread
-            withdraw = False
-            reason = "local_fallback"
-            engine_used = False
+            quotes = run_analysis(
+                "QuoteAnalysis",
+                mid=fair_value,
+                inventory=inventory,
+                sigma=cfg.sigma,
+                gamma=cfg.gamma,
+                kappa=cfg.kappa,
+                tau=cfg.tau,
+            )
+        bid = float(quotes["bid"])
+        ask = float(quotes["ask"])
+        reservation = float(quotes.get("reservation", fair_value))
+        half_spread = float(quotes.get("half_spread", abs(ask - bid) / 2.0))
+        withdraw = bool(quotes.get("withdraw", False))
+        reason = "engine_quotes"
 
-        # VPIN toxicity gate: widen / withdraw when estimated alpha > breakeven.
-        tox_alpha, be_alpha = self._toxicity(book, half_spread, fair_value, engine)
-        if tox_alpha > 0.0 and be_alpha > 0.0 and tox_alpha > be_alpha:
-            # Informed flow exceeds what the spread can survive → pull quotes.
-            withdraw = True
-            reason = "toxicity_withdraw"
+        tox_alpha, be_alpha = 0.0, 0.0
+        legal_risk_score, informed_share = 0.0, 0.0
+        if book.buy_vol and book.sell_vol:
+            tox_alpha = float(
+                run_analysis(
+                    "FlowToxicityAnalysis",
+                    buy_vol=book.buy_vol,
+                    sell_vol=book.sell_vol,
+                    p_mean=book.p_mean,
+                )
+            )
+            be_alpha = float(
+                run_analysis(
+                    "BreakevenAlphaAnalysis",
+                    delta=half_spread,
+                    p=fair_value,
+                    v_h=cfg.vh,
+                    v_l=cfg.vl,
+                )
+            )
+            if tox_alpha > 0.0 and be_alpha > 0.0 and tox_alpha > be_alpha:
+                withdraw, reason = True, "toxicity_withdraw"
+            n = min(len(book.buy_vol), len(book.sell_vol))
+            pm = book.p_mean or []
+            surveillance = run_analysis(
+                "SurveillanceAnalysis",
+                buy_vol=book.buy_vol,
+                sell_vol=book.sell_vol,
+                p_mean=book.p_mean,
+                signed_flow=[book.buy_vol[i] - book.sell_vol[i] for i in range(n)],
+                price_changes=[pm[i] - pm[i - 1] for i in range(1, len(pm))],
+                baseline_sigma=cfg.surveillance_baseline_sigma,
+            )
+            legal_risk_score = float(surveillance.get("legal_risk_score", 0.0))
+            informed_share = float(surveillance.get("informed_share", 0.0))
+            if legal_risk_score > cfg.legal_risk_max and not withdraw:
+                withdraw, reason = True, "legal_risk_withdraw"
 
-        # Kyle legal-risk / adverse-selection gate (CONCEPT:EX-AHE.harness.sustained-adverse-selection). Always
-        # computed + surfaced; withdraws only when the operator threshold trips.
-        legal_risk_score, informed_share = self._surveillance(book, engine)
-        if legal_risk_score > cfg.legal_risk_max and not withdraw:
-            withdraw = True
-            reason = "legal_risk_withdraw"
-
-        # Queue-position / adverse-selection (CONCEPT:AU-AHE.assimilation.trading-ecosystem-changelog). Both coefs default
-        # to 0 ⇒ no effect, so existing callers are behavior-identical.
-        q_skew, fill_time = self._queue_skew(book, engine)
+        q_skew, fill_time = 0.0, 0.0
+        bq = book.bid_q or book.bid_sz
+        aq = book.ask_q or book.ask_sz
+        if bq and aq:
+            queue = run_analysis(
+                "QueuePositionAnalysis",
+                bid_q=bq,
+                ask_q=aq,
+                bid_rate=book.bid_rate or [1.0] * len(bq),
+                ask_rate=book.ask_rate or [1.0] * len(aq),
+            )
+            if queue.get("skew"):
+                q_skew = float(queue["skew"][-1])
+                fill_time = max(
+                    float(queue["bid_fill_time"][-1]), float(queue["ask_fill_time"][-1])
+                )
         if cfg.queue_skew_coef != 0.0 and not withdraw:
-            # Nudge the reservation (and quotes) toward the thicker queue so we
-            # rest where we're less likely to be adversely selected.
             reservation -= cfg.queue_skew_coef * q_skew * half_spread
             bid = reservation - half_spread
             ask = reservation + half_spread
         if cfg.queue_fill_time_max > 0.0 and fill_time > cfg.queue_fill_time_max:
-            withdraw = True
-            reason = "queue_adverse_selection"
+            withdraw, reason = True, "queue_adverse_selection"
 
-        # Inventory limit: withdraw the side that worsens our position.
-        over_long = inventory >= cfg.max_inventory
-        over_short = inventory <= -cfg.max_inventory
-
-        # Tick snap.
-        bid_s: float | None = self._snap(bid)
-        ask_s: float | None = self._snap(ask)
-
-        # Non-crossing / post-only: a bid must not lift the resting ask, and an
-        # ask must not hit the resting bid. Otherwise pull that side.
-        if cfg.post_only:
-            if book.top_ask > 0 and bid_s is not None and bid_s >= book.top_ask:
-                bid_s = None
-            if book.top_bid > 0 and ask_s is not None and ask_s <= book.top_bid:
-                ask_s = None
-
+        bid_s, ask_s = self._venue_sides(book, bid, ask, inventory)
         if bid_s is not None and ask_s is not None and bid_s >= ask_s:
-            # Degenerate locked/crossed quote → withdraw entirely.
             withdraw = True
-            reason = reason or "crossed_self"
-
-        if over_long:
-            bid_s = None  # stop accumulating more longs
-        if over_short:
-            ask_s = None  # stop accumulating more shorts
-
-        if cfg.bounded:
-            # Keep quotes strictly inside (0, 1).
-            if bid_s is not None and bid_s <= 0.0:
-                bid_s = None
-            if ask_s is not None and ask_s >= 1.0:
-                ask_s = None
-
         if withdraw:
-            bid_s = None
-            ask_s = None
-
-        if bid_s is None and ask_s is None and not withdraw:
-            withdraw = True
-            reason = reason or "no_postable_side"
-
+            bid_s = ask_s = None
+        elif bid_s is None and ask_s is None:
+            withdraw, reason = True, "no_postable_side"
         return QuoteDecision(
             bid=bid_s,
             ask=ask_s,
@@ -539,9 +349,32 @@ class MarketMakingController:
             queue_skew=q_skew,
             queue_fill_time=fill_time,
             reason=reason,
-            engine_used=engine_used,
+            engine_used=True,
             conviction_pass=True,
             conviction=conviction,
             legal_risk_score=legal_risk_score,
             informed_share=informed_share,
         )
+
+    def _venue_sides(
+        self, book: BookSnapshot, bid: float, ask: float, inventory: float
+    ) -> tuple[float | None, float | None]:
+        """Venue order rules: tick snap, post-only, inventory caps, (0, 1) bounds."""
+        cfg = self.config
+        bid_s: float | None = self._snap(bid)
+        ask_s: float | None = self._snap(ask)
+        if cfg.post_only:
+            if book.top_ask > 0 and bid_s is not None and bid_s >= book.top_ask:
+                bid_s = None
+            if book.top_bid > 0 and ask_s is not None and ask_s <= book.top_bid:
+                ask_s = None
+        if inventory >= cfg.max_inventory:
+            bid_s = None
+        if inventory <= -cfg.max_inventory:
+            ask_s = None
+        if cfg.bounded:
+            if bid_s is not None and bid_s <= 0.0:
+                bid_s = None
+            if ask_s is not None and ask_s >= 1.0:
+                ask_s = None
+        return bid_s, ask_s

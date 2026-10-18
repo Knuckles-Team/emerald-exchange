@@ -1,15 +1,16 @@
 """Statistical-Arbitrage / Dynamic-Beta Hedging MCP Tools.
 
-CONCEPT:EX-AHE.harness.ee-28 (dynamic-beta hedge) / EE-030 (OU stat-arb signal).
+CONCEPT:EX-AHE.harness.ee-28 (dynamic-beta hedge) / EE-030 (OU stat-arb).
 
-Action-routed tool exposing two engine-backed stat-arb surfaces:
-  - 'ou_signal': two venues' price series for the same outcome → spread → ADF
-    stationarity gate → OU calibration + thresholds → entry/exit signal.
-  - 'dynamic_beta': asset + market return series → current Kalman beta →
-    beta-neutral hedge ratio + uncertainty band.
+Action-routed tool over epistemic-graph analyses (``ontology/quant.ttl``):
+  - 'ou_signal': spread → ADF stationarity, OU calibration and optimal
+    entry/exit bands (SpreadStationarityAnalysis,
+    MeanReversionCalibrationAnalysis, MeanReversionThresholdAnalysis).
+  - 'dynamic_beta': asset + market returns → Kalman hedge beta
+    (HedgeBetaAnalysis).
 
-CRITICAL SAFETY: both actions return *decisions* only; they never place orders.
-Live execution stays gated behind ``RiskGuard.require_human_approval_live``.
+CRITICAL SAFETY: both actions return measurements only; they never place
+orders. Live execution stays gated behind ``RiskGuard.require_human_approval_live``.
 """
 
 import json
@@ -27,19 +28,13 @@ def register_statarb_tools(mcp: Any) -> None:
         action: str,
         params_json: str = "{}",
     ) -> str:
-        """OU statistical-arbitrage signal + dynamic-beta hedge. CONCEPT:EX-AHE.harness.ee-29
+        """OU statistical-arbitrage bands + dynamic-beta hedge. CONCEPT:EX-AHE.harness.ee-29
 
         Actions:
-          - 'ou_signal': OU stat-arb entry/exit signal between two venues.
-            params: px_a (list), px_b (list), hedge_ratio (float, default 1.0),
-            dt (float), adf_max_lag (int), cost (float),
-            require_stationary (bool, default true). Builds the spread, gates on
-            ADF stationarity, OU-calibrates, derives optimal thresholds, and
-            emits entry_long/entry_short/exit/hold/no_trade (decision only).
-          - 'dynamic_beta': beta-neutral hedge ratio via Kalman beta.
-            params: asset_returns (list), market_returns (list), q, r, beta0, p0,
-            n_sigma (float, default 1.0). Returns the current beta, its variance,
-            the hedge ratio (-beta), and a ±n_sigma uncertainty band.
+          - 'ou_signal': params: spread (list), dt (float), adf_max_lag (int),
+            cost (float). Returns {adf, ou, thresholds} from epistemic-graph.
+          - 'dynamic_beta': params: asset_returns (list), market_returns (list),
+            q, r, beta0, p0. Returns the current Kalman beta and its variance.
 
         Args:
             action: operation to perform.
@@ -50,35 +45,29 @@ def register_statarb_tools(mcp: Any) -> None:
         except json.JSONDecodeError as exc:
             return json.dumps({"error": f"invalid params_json: {type(exc).__name__}"})
 
+        from emerald_exchange import analyses
+
         try:
             if action == "ou_signal":
-                from emerald_exchange.stat_arb import ou_stat_arb_signal
-
-                result = ou_stat_arb_signal(
-                    px_a=params.get("px_a", []),
-                    px_b=params.get("px_b", []),
-                    hedge_ratio=float(params.get("hedge_ratio", 1.0)),
-                    dt=float(params.get("dt", 1.0)),
-                    adf_max_lag=int(params.get("adf_max_lag", 1)),
-                    cost=float(params.get("cost", 0.0)),
-                    require_stationary=bool(params.get("require_stationary", True)),
+                return json.dumps(
+                    analyses.ou_stat_arb_signal(
+                        spread=[float(x) for x in params.get("spread", [])],
+                        dt=float(params.get("dt", 1.0)),
+                        adf_max_lag=int(params.get("adf_max_lag", 1)),
+                        cost=float(params.get("cost", 0.0)),
+                    )
                 )
-                return json.dumps(result)
-
-            elif action == "dynamic_beta":
-                from emerald_exchange.hedging import dynamic_beta_hedge
-
-                result = dynamic_beta_hedge(
-                    asset_returns=params.get("asset_returns", []),
-                    market_returns=params.get("market_returns", []),
-                    q=float(params.get("q", 1e-5)),
-                    r=float(params.get("r", 1e-3)),
-                    beta0=float(params.get("beta0", 1.0)),
-                    p0=float(params.get("p0", 1.0)),
-                    n_sigma=float(params.get("n_sigma", 1.0)),
+            if action == "dynamic_beta":
+                return json.dumps(
+                    analyses.dynamic_beta_hedge(
+                        asset_returns=params.get("asset_returns", []),
+                        market_returns=params.get("market_returns", []),
+                        q=float(params.get("q", 1e-5)),
+                        r=float(params.get("r", 1e-3)),
+                        beta0=float(params.get("beta0", 1.0)),
+                        p0=float(params.get("p0", 1.0)),
+                    )
                 )
-                return json.dumps(result)
-
             return json.dumps({"error": f"Unknown action: {action}"})
         except Exception as exc:  # noqa: BLE001
             logger.error("Statarb tool error: error_type=%s", type(exc).__name__)

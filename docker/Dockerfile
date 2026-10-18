@@ -3,21 +3,21 @@
 # slim multi-stage (build in a builder, ship only /usr/local — no dev-tools/source):
 #
 #   --target agent  (DEFAULT)  installs emerald-exchange[agent] = the FULL runtime
-#                              (agent-utilities[agent-runtime]: pydantic-ai + dspy +
+#                              (agent-connector-sdk: pydantic-ai + dspy +
 #                              skills; the full epistemic-graph engine is a mandatory
-#                              base dependency of agent-utilities, present in both
+#                              base dependency of agent-connector-sdk, present in both
 #                              images). Because [agent] also includes [mcp], this image
 #                              can run EITHER the agent OR the mcp server. Push as the
 #                              default tags: latest / main / <version>.
 #
 #   --target mcp               installs emerald-exchange[mcp]   = MCP-server tooling ONLY
-#                              (agent-utilities[mcp]: fastmcp/fastapi — NO pydantic-ai,
+#                              (agent-connector-sdk: fastmcp/fastapi — NO pydantic-ai,
 #                              dspy, llama-index, tree-sitter agent-orchestration stack;
 #                              the epistemic-graph engine is still present, it's a base
 #                              dependency). The slim variant. Push as the
 #                              :mcp / :mcp-<version> tag.
 #
-#   docker build --target agent -t emerald-exchange:2.1.0 .
+#   docker build --target agent -t emerald-exchange:2.2.0 .
 #   docker build --target mcp   -t emerald-exchange:mcp    .
 FROM python:3.14-slim@sha256:cea0e6040540fb2b965b6e7fb5ffa00871e632eef63719f0ea54bca189ce14a6 AS builder-base
 COPY --from=ghcr.io/astral-sh/uv:0.11.7@sha256:240fb85ab0f263ef12f492d8476aa3a2e4e1e333f7d67fbdd923d00a506a516a /uv /uvx /bin/
@@ -32,12 +32,7 @@ RUN apt-get update \
 # Slim MCP-only dependency closure.
 FROM builder-base AS builder-mcp
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv pip install --system --upgrade --break-system-packages --prerelease=allow emerald-exchange[mcp]>=1.0.1
-
-# Full agent runtime dependency closure.
-FROM builder-base AS builder-agent
-RUN --mount=type=cache,target=/root/.cache/uv \
-    uv pip install --system --upgrade --break-system-packages --prerelease=allow emerald-exchange[agent]>=1.0.1
+    uv pip install --system --upgrade --break-system-packages emerald-exchange[mcp]==2.2.0
 
 FROM python:3.14-slim@sha256:cea0e6040540fb2b965b6e7fb5ffa00871e632eef63719f0ea54bca189ce14a6 AS runtime-base
 ARG HOST=127.0.0.1
@@ -68,9 +63,3 @@ FROM runtime-base AS mcp
 USER 10001:10001
 COPY --from=builder-mcp /usr/local /usr/local
 CMD ["emerald-exchange-mcp"]
-
-# Full image (DEFAULT target): agent runtime; can also run the mcp server.
-FROM runtime-base AS agent
-USER 10001:10001
-COPY --from=builder-agent /usr/local /usr/local
-CMD ["emerald-exchange-agent"]

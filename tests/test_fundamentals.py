@@ -129,23 +129,23 @@ def test_unknown_action_returns_error():
 
 
 # --------------------------------------------------------------------------- #
-# forensic.py controller schema must equal the standardize output schema
+# analyses.py forensic schema must equal the standardize output schema
 # --------------------------------------------------------------------------- #
 def test_forensic_standard_line_items_match_standardize_schema():
-    """forensic.py STANDARD_LINE_ITEMS must equal the 17-key standardize schema
+    """analyses.STANDARD_LINE_ITEMS must equal the 17-key standardize schema
     so the controller does not zero-out keys the engine kernel needs."""
-    from emerald_exchange.forensic import STANDARD_LINE_ITEMS
+    from emerald_exchange.analyses import STANDARD_LINE_ITEMS
 
     assert set(STANDARD_LINE_ITEMS) == EXPECTED_KEYS
 
 
-def test_forensic_screen_uses_engine_when_reachable(engine_client):
+def test_forensic_screen_uses_engine_when_reachable(live_engine):
     """When the engine socket is live, forensic_screen returns a verdict dict.
 
     The two years use the exact 17-key standardize_financials schema the engine
     forensic_report kernel expects (ppe_net / market_cap / shares).
     """
-    from emerald_exchange.forensic import forensic_screen
+    from emerald_exchange.analyses import forensic_screen
 
     this_year = {
         "sales": 1000.0, "cogs": 600.0, "sga": 100.0, "net_income": 100.0,

@@ -40,7 +40,40 @@ def register_risk_tools(
           distribution (engine-backed). params: p, b, historical_returns_json
           (JSON list), fraction, n_simulations, seed. Capped at max_position_pct.
         - 'limits': Show current risk limits configuration
+
+        Kelly sizes are run by epistemic-graph; an unreachable engine or an
+        unserved analysis returns its error payload.
         """
+        from agent_connector_sdk.compute import (
+            ComputeUnavailableError,
+            MethodNotServedError,
+        )
+
+        from emerald_exchange._engine import engine_error
+
+        try:
+            return _dispatch(
+                action, daily_pnl, win_rate, win_loss_ratio, wins, losses, cost,
+                fraction, p, b, historical_returns_json, n_simulations, seed,
+            )
+        except (ComputeUnavailableError, MethodNotServedError) as exc:
+            return json.dumps(engine_error(exc))
+
+    def _dispatch(
+        action: str,
+        daily_pnl: float,
+        win_rate: float,
+        win_loss_ratio: float,
+        wins: int,
+        losses: int,
+        cost: float,
+        fraction: float,
+        p: float,
+        b: float,
+        historical_returns_json: str,
+        n_simulations: int,
+        seed: int,
+    ) -> str:
         if action == "status":
             acct = backend.get_account()
             return json.dumps(

@@ -2,7 +2,7 @@
 
 > **Prefix**: `CONCEPT:EE-*`
 > **Version**: 0.1.0
-> **Bridge**: [`CONCEPT:AU-ECO.messaging.native-backend-abstraction`](https://github.com/Knuckles-Team/agent-utilities/blob/main/docs/concepts.md) (Unified Toolkit Ingestion)
+> **Bridge**: [`CONCEPT:AU-ECO.messaging.native-backend-abstraction`](https://github.com/Knuckles-Team/agent-connector-sdk/blob/main/docs/concepts.md) (Unified Toolkit Ingestion)
 
 ---
 
@@ -47,27 +47,27 @@
 | `CONCEPT:EX-AHE.harness.bounded-autonomous-allows-small` | Paper-First Staged Execution | Execution-policy gating (`data/execution_policy.json`): default `paper` stage, human-only promotion (`RiskGuard.approve_stage` + token; the agent never self-escalates), and `evaluate_graduation` reporting paper→advisory→bounded_autonomous eligibility against policy thresholds. `risk_guards.py` |
 | `CONCEPT:EX-AHE.harness.ee-31` | Kyle Insider/Stealth Surveillance Signal | `emerald_signals` action `surveillance` calling the engine `surveillance_risk` kernel (EG-KG.domains.concept-2, distils arXiv:2605.27684) → informed-flow/detection-hazard/legal-risk scores; registers a discoverable `MicrostructureSignal` whose priors are set later by `emerald_strategy` backtest (AU-AHE.assimilation.microstructure-signal-fusion). DEFENSIVE: informed-flow detection, not trade concealment. `mcp/mcp_signals.py` |
 | `CONCEPT:EX-AHE.harness.sustained-adverse-selection` | Kyle Legal-Risk / Adverse-Selection Gate | Market-making `decide` always computes + surfaces the Kyle `legal_risk_score`/`informed_share` (engine `surveillance_risk`) and withdraws quotes when it exceeds `MMConfig.legal_risk_max` (default 1.0 ⇒ no-op until tightened); `RiskGuard.evaluate_graduation` blocks promotion on `max_legal_risk`. `market_making.py`/`risk_guards.py` |
-| `CONCEPT:EX-AHE.harness.ee-32` | Insider Equilibrium under Dynamic Legal Risk | `emerald_signals` action `insider_equilibrium` routes to `agent_utilities.domains.finance.insider_equilibrium` (KG-2.6, distils arXiv:2605.27684 Qiao & Xia) — deepens the snapshot EX-AHE.harness.ee-31 surveillance score into the full continuous-time Kyle game: solves equilibrium trading intensity β*, the end-of-window acceleration schedule, and a penalty-policy verdict (criminal cost suppresses β* exactly; civil fines have diminishing, enforcement-gated effect). DEFENSIVE: surveillance/enforcement-design tool, not a concealment aid. `mcp/mcp_signals.py` |
+| `CONCEPT:EX-AHE.harness.ee-32` | Insider Equilibrium under Dynamic Legal Risk | `emerald_signals` action `insider_equilibrium` routes to `agent_connector_sdk.domains.finance.insider_equilibrium` (KG-2.6, distils arXiv:2605.27684 Qiao & Xia) — deepens the snapshot EX-AHE.harness.ee-31 surveillance score into the full continuous-time Kyle game: solves equilibrium trading intensity β*, the end-of-window acceleration schedule, and a penalty-policy verdict (criminal cost suppresses β* exactly; civil fines have diminishing, enforcement-gated effect). DEFENSIVE: surveillance/enforcement-design tool, not a concealment aid. `mcp/mcp_signals.py` |
 
-## Cross-Project References (from agent-utilities)
+## Cross-Project References (from agent-connector-sdk)
 
 | Concept ID | Name | Origin |
 |------------|------|--------|
-| `CONCEPT:AU-ECO.messaging.native-backend-abstraction` | Unified Toolkit Ingestion | agent-utilities |
-| `CONCEPT:AU-ORCH.adapter.hot-cache-invalidation` | Confidence-Gated Router | agent-utilities |
-| `CONCEPT:AU-OS.config.secrets-authentication` | Prompt Injection Defense / Financial Hardening | agent-utilities |
-| `CONCEPT:AU-OS.state.cognitive-scheduler-preemption` | Cognitive Scheduler | agent-utilities |
-| `CONCEPT:AU-OS.governance.reactive-multi-axis-budget` | Guardrail Engine | agent-utilities |
-| `CONCEPT:AU-OS.governance.wasm-micro-agent-sandbox` | Audit Logging | agent-utilities |
-| `CONCEPT:AU-KG.query.object-graph-mapper` | Knowledge Graph Core | agent-utilities |
-| `CONCEPT:AU-KG.research.research-pipeline-runner` | Finance Domain | agent-utilities |
+| `CONCEPT:AU-ECO.messaging.native-backend-abstraction` | Unified Toolkit Ingestion | agent-connector-sdk |
+| `CONCEPT:AU-ORCH.adapter.hot-cache-invalidation` | Confidence-Gated Router | agent-connector-sdk |
+| `CONCEPT:AU-OS.config.secrets-authentication` | Prompt Injection Defense / Financial Hardening | agent-connector-sdk |
+| `CONCEPT:AU-OS.state.cognitive-scheduler-preemption` | Cognitive Scheduler | agent-connector-sdk |
+| `CONCEPT:AU-OS.governance.reactive-multi-axis-budget` | Guardrail Engine | agent-connector-sdk |
+| `CONCEPT:AU-OS.governance.wasm-micro-agent-sandbox` | Audit Logging | agent-connector-sdk |
+| `CONCEPT:AU-KG.query.object-graph-mapper` | Knowledge Graph Core | agent-connector-sdk |
+| `CONCEPT:AU-KG.research.research-pipeline-runner` | Finance Domain | agent-connector-sdk |
 
-## Synergy with agent-utilities
+## Synergy with agent-connector-sdk
 
-This project integrates with `agent-utilities` via `CONCEPT:AU-ECO.messaging.native-backend-abstraction` (Unified Toolkit Ingestion). The `emerald_exchange` MCP server registers its tools with the agent-utilities FastMCP middleware, enabling automatic discovery, telemetry, and Knowledge Graph ingestion of all EE-* concepts.
+This project integrates with `agent-connector-sdk` via `CONCEPT:AU-ECO.messaging.native-backend-abstraction` (Unified Toolkit Ingestion). The `emerald_exchange` MCP server registers its tools with the agent-connector-sdk FastMCP middleware, enabling automatic discovery, telemetry, and Knowledge Graph ingestion of all EE-* concepts.
 
 **Finance Domain Integration**:
-- Signal generation routes to `agent_utilities.domains.finance` (regime_detector, alpha_factors, signal_fusion)
-- Strategy lifecycle uses `agent_utilities.domains.finance.strategy_engine`
+- Signal generation routes to `agent_connector_sdk.domains.finance` (regime_detector, alpha_factors, signal_fusion)
+- Strategy lifecycle uses `agent_connector_sdk.domains.finance.strategy_engine`
 - Heavy compute (qlib backtest, model training) routes to `data-science-mcp`
 - Risk monitoring integrates with KG-native cron scheduling
