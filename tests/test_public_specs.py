@@ -32,7 +32,7 @@ def test_public_spec_scaffold_and_status() -> None:
         assert re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", feature.name), feature
         assert REGISTER <= {path.name for path in feature.iterdir()}, feature
         status = json.loads((feature / "status.json").read_text())
-        assert status["schema_version"] == 1, feature
+        assert status["schema_version"] in (1, 2), feature
         assert status["owner_repo"] == "emerald-exchange", feature
         assert status["spec_id"] not in owned_ids, feature
         owned_ids.add(status["spec_id"])
@@ -41,11 +41,16 @@ def test_public_spec_scaffold_and_status() -> None:
         defined = (feature / "requirements.md").read_text()
         for entry in entries:
             assert entry["title"] and entry["delivery_state"] in DELIVERY, entry
-            assert isinstance(entry["evidence"], list), entry
+            if status["schema_version"] == 1:
+                assert isinstance(entry["evidence"], list), entry
+            else:
+                assert isinstance(entry["landed_in"], list), entry
+                assert isinstance(entry["verified_by"], list), entry
             assert f"`{entry['id']}`" in defined, entry
         assert status["delivery_state"] in DELIVERY, feature
-        assert status["acceptance_state"] in ACCEPTANCE, feature
-        assert isinstance(status["evidence"], list), feature
+        if status["schema_version"] == 1:
+            assert status["acceptance_state"] in ACCEPTANCE, feature
+            assert isinstance(status["evidence"], list), feature
         assert status["spec_id"] in (feature / "spec.md").read_text(), feature
 
 

@@ -1,8 +1,8 @@
 {
-  "algorithm": "agent-utilities:mcp-tool-schema-compat:v1",
+  "algorithm": "agent-connector-sdk:mcp-tool-contract-compat:v2",
   "connector": "emerald-exchange",
   "schema_version": "1",
   "tools": {
-    "emerald_portfolio": "a0b30e7c48412de793324d32ce2303aaa61dc946d44d42a0e49b10c6a69144db"
+    "emerald_exchange_get_positions": "36e13dd556c8d7da25b86cb8a82f310425eed8233993d3f522776c602b91836e"
   }
 }

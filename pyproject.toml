@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "emerald-exchange"
-version = "2.2.1"
+version = "2.3.0"
 description = "Emerald Exchange — Unified Finance MCP Server with fully abstracted exchange backends for equities, crypto, and derivatives trading. CONCEPT:EE-001"
 readme = "README.md"
 authors = [{ name = "Project Maintainers", email = "maintainers@users.noreply.github.com" }]
@@ -17,7 +17,7 @@ classifiers = [
     "Programming Language :: Python :: 3"]
 requires-python = ">=3.12,<3.15"
 dependencies = [
-    "agent-connector-sdk[mcp]>=0.2.1,<1.0.0",
+    "agent-connector-sdk[mcp]>=0.3.0,<1.0.0",
     "numpy>=2.5.4",
     # CONCEPT:PHASE2-RECONCILE — relaxed off the pandas 3.x floor to match
     # agent-connector-sdk's ecosystem-compatible range (the two must
@@ -26,7 +26,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-mcp = ["agent-connector-sdk[mcp]>=0.2.1,<1.0.0"]
+mcp = ["agent-connector-sdk[mcp]>=0.3.0,<1.0.0"]
 alpaca = ["alpaca-py>=0.44.0"]
 binance = ["python-binance>=1.0.37"]
 crypto = ["ccxt>=4.5.88"]
