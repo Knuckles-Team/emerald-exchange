@@ -39,10 +39,8 @@ def get_mcp_instance():
     from emerald_exchange.mcp.mcp_derivatives import register_derivatives_tools
     from emerald_exchange.mcp.mcp_fundamentals import register_fundamentals_tools
     from emerald_exchange.mcp.mcp_kg_ingest import register_kg_ingest_tools
-    from emerald_exchange.mcp.mcp_market_data import register_market_data_tools
     from emerald_exchange.mcp.mcp_market_making import register_market_making_tools
     from emerald_exchange.mcp.mcp_orders import register_order_tools
-    from emerald_exchange.mcp.mcp_portfolio import register_portfolio_tools
     from emerald_exchange.mcp.mcp_prediction_markets import (
         register_prediction_market_tools,
     )
@@ -98,14 +96,8 @@ def get_mcp_instance():
         ("crypto", "CRYPTOTOOL", lambda m: register_crypto_tools(m, backend)),
         ("debate", "DEBATETOOL", register_debate_tools),
         ("derivatives", "DERIVATIVESTOOL", register_derivatives_tools),
-        (
-            "market_data",
-            "MARKET_DATATOOL",
-            lambda m: register_market_data_tools(m, backend),
-        ),
         ("market_making", "MARKET_MAKINGTOOL", register_market_making_tools),
         ("order", "ORDERTOOL", lambda m: register_order_tools(m, backend, risk_guard)),
-        ("portfolio", "PORTFOLIOTOOL", lambda m: register_portfolio_tools(m, backend)),
         ("risk", "RISKTOOL", lambda m: register_risk_tools(m, backend, risk_guard)),
         ("signal", "SIGNALTOOL", register_signal_tools),
         ("statarb", "STATARBTOOL", register_statarb_tools),
@@ -123,10 +115,13 @@ def get_mcp_instance():
             lambda m: register_kg_ingest_tools(m, backend),
         ),
     ]
+    # Exchange API operations: one typed tool per backend method. Quotes,
+    # history, positions and account reads are these operation tools, so the
+    # old market_data/portfolio action tools are not served again.
     registered_tags = register_tool_surface(
         mcp,
         service="emerald-exchange",
-        registrars=registrars,
+        registrars=[],
         verbose_targets=[
             {
                 "client_cls": type(backend),
@@ -136,6 +131,13 @@ def get_mcp_instance():
         ],
     )
     logger.debug("Registered tool domains: %s", registered_tags)
+
+    # Computed/analytic tools (not exchange operations): one typed tool per action.
+    from emerald_exchange.analytic_tools import serve_analytic_actions
+
+    serve_analytic_actions(
+        mcp, registrars, rename={"ee_prediction_markets": "emerald_prediction_markets"}
+    )
 
     for mw in middlewares:
         mcp.add_middleware(mw)
