@@ -25661,8 +25661,8 @@ schema_mappings:
 sync:
 - preset: emerald-positions
   server: emerald-exchange-mcp
-  tool: emerald_portfolio
-  action: positions
+  tool: emerald_exchange_get_positions
+  action: null
   records_path: ''
   id_field: symbol
   title_field: symbol
@@ -25670,11 +25670,10 @@ sync:
   updated_field: ''
   pagination: null
   doc_type: position
-  tool_schema_sha256: a0b30e7c48412de793324d32ce2303aaa61dc946d44d42a0e49b10c6a69144db
+  tool_schema_sha256: 36e13dd556c8d7da25b86cb8a82f310425eed8233993d3f522776c602b91836e
   raw:
     server: emerald-exchange-mcp
-    tool: emerald_portfolio
-    action: positions
+    tool: emerald_exchange_get_positions
     records_path: ''
     id_field: symbol
     title_field: symbol
