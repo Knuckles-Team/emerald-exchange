@@ -118,14 +118,18 @@ def get_mcp_instance():
     # Exchange API operations: one typed tool per backend method. Quotes,
     # history, positions and account reads are these operation tools, so the
     # old market_data/portfolio action tools are not served again.
+    from emerald_exchange.exchange_operations import ExchangeReadOperations
+
+    read_operations = ExchangeReadOperations(backend)
     registered_tags = register_tool_surface(
         mcp,
         service="emerald-exchange",
         registrars=[],
         verbose_targets=[
             {
-                "client_cls": type(backend),
-                "get_client": lambda: backend,
+                # Reads only: order writes stay behind the risk guard.
+                "client_cls": ExchangeReadOperations,
+                "get_client": lambda: read_operations,
                 "tool_prefix": "emerald",
             }
         ],
