@@ -3,7 +3,7 @@
 ![PyPI - Version](https://img.shields.io/pypi/v/emerald-exchange)
 ![MCP Server](https://badge.mcpx.dev?type=server 'MCP Server')
 
-*Version: 2.1.0*
+*Version: 2.2.0*
 
 > **Documentation** — Installation, deployment, usage across the API, CLI, and MCP
 > interfaces, the A2A agent server, and the trading configuration schema are
@@ -235,11 +235,11 @@ One multi-stage `docker/Dockerfile` builds two right-sized images, selected by `
 | Image tag | Build target | Contents | Entrypoint |
 |-----------|--------------|----------|------------|
 | `knucklessg1/emerald-exchange:mcp` | `--target mcp` | `emerald-exchange[mcp]` — **slim**: no `pydantic-ai`/`dspy`/`llama-index`/`tree-sitter` agent-orchestration stack (the mandatory `epistemic-graph[full]` engine is still present — it's a base dependency of `agent-connector-sdk`) | `emerald-exchange-mcp` |
-| `knucklessg1/emerald-exchange:2.1.0` | `--target agent` (default) | `emerald-exchange[agent]` — **full** agent runtime (`agent-connector-sdk`) + `epistemic-graph[full]` | `emerald-exchange-agent` |
+| `knucklessg1/emerald-exchange:2.2.0` | `--target agent` (default) | `emerald-exchange[agent]` — **full** agent runtime (`agent-connector-sdk`) + `epistemic-graph[full]` | `emerald-exchange-agent` |
 
 ```bash
 docker build --target mcp   -t knucklessg1/emerald-exchange:mcp    docker/   # slim MCP server
-docker build --target agent -t knucklessg1/emerald-exchange:2.1.0 docker/   # full agent
+docker build --target agent -t knucklessg1/emerald-exchange:2.2.0 docker/   # full agent
 docker compose -f docker/mcp.compose.yml up -d                               # run the slim :mcp server
 docker compose -f docker/compose.yml up -d                                   # full stack
 ```
@@ -290,7 +290,7 @@ to just this package. Ask your agent to **"deploy `emerald-exchange` with agent-
 |------|---------|
 | Bare-metal, prod (PyPI) | `uvx emerald-exchange-mcp` · or `uv tool install emerald-exchange` |
 | Bare-metal, dev (editable) | `uv pip install -e ".[all]"` · or `pip install -e ".[all]"` |
-| Container, prod | deploy `knucklessg1/emerald-exchange:2.1.0` via docker-compose / swarm / podman / podman-compose / kubernetes |
+| Container, prod | deploy `knucklessg1/emerald-exchange:2.2.0` via docker-compose / swarm / podman / podman-compose / kubernetes |
 | Container, dev (editable) | deploy `docker/compose.dev.yml` (source-mounted at `/src`; edits live on restart) |
 
 Secrets are read-existing + seeded via `vault_sync` — you are only prompted for what's missing.
@@ -308,7 +308,7 @@ agent to **"deploy `emerald-exchange` with deployment"**.
 |------|---------|
 | Installed package | `uv tool install "emerald-exchange[mcp]"`, then run `emerald-exchange-mcp` |
 | Editable source | `uv pip install -e ".[agent]"`, then run `emerald-exchange-mcp` |
-| Immutable container | deploy `knucklessg1/emerald-exchange:2.1.0` through the operator-selected orchestrator |
+| Immutable container | deploy `knucklessg1/emerald-exchange:2.2.0` through the operator-selected orchestrator |
 
 Either path: the repository embeds no deployment profile, credential value,
 certificate path, or environment-specific endpoint. Runtime secrets, TLS trust
@@ -395,5 +395,3 @@ and observability policy are deployment inputs and are never packaged values.
 See [Configuration, trust, and privacy](docs/configuration.md) before enabling a
 network transport, connector ingestion, Arbora delegation, or trace export.
 <!-- GOVERNED-CAPABILITY:END -->
-
-

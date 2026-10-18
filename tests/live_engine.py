@@ -31,10 +31,10 @@ TENANT = "tenant:emerald-test"
 POLICY = "policy:current"
 PRINCIPAL = "service:connector"
 GRAPH = "emerald-live"
-_SECRET = "emerald-live-engine-" + "test-secret-0123456789abcdef"  # nosec B105
+_HMAC_KEY = "emerald-live-engine-" + "test-secret-0123456789abcdef"  # nosec B105
 _SIGNER_KEY = "emerald-live-engine-" + "signer-key-0123456789abcdef"  # nosec B105
 _DATA_KEY = "emerald-live-engine-" + "encryption-key-0123456789abcdef"  # nosec B105
-_SECRET_ENV = "EMERALD_LIVE_ENGINE_SECRET"
+_HMAC_ENV = "EMERALD_LIVE_ENGINE_SECRET"
 
 
 def _context(roles: list[str], scopes: list[str]) -> dict[str, object]:
@@ -66,7 +66,7 @@ def _bootstrap(socket_path: Path) -> None:
 
     client = SyncEpistemicGraphClient.connect(
         socket_path=str(socket_path),
-        auth_secret=_SECRET,
+        auth_secret=_HMAC_KEY,
         verified_context=_context([], ["security:bootstrap"]),
     )
     try:
@@ -77,7 +77,7 @@ def _bootstrap(socket_path: Path) -> None:
         client.close()
     client = SyncEpistemicGraphClient.connect(
         socket_path=str(socket_path),
-        auth_secret=_SECRET,
+        auth_secret=_HMAC_KEY,
         verified_context=_context(["test"], ["*"]),
     )
     try:
@@ -86,7 +86,7 @@ def _bootstrap(socket_path: Path) -> None:
         client.close()
     client = SyncEpistemicGraphClient.connect(
         socket_path=str(socket_path),
-        auth_secret=_SECRET,
+        auth_secret=_HMAC_KEY,
         graph_name=GRAPH,
         verified_context=_context(["test"], ["*"]),
     )
@@ -116,7 +116,7 @@ def live_compute(
     (root / "security").mkdir()
     env = {
         **os.environ,
-        "GRAPH_SERVICE_AUTH_SECRET": _SECRET,
+        "GRAPH_SERVICE_AUTH_SECRET": _HMAC_KEY,
         "EPISTEMIC_GRAPH_AUDIENCE": AUDIENCE,
         "EPISTEMIC_GRAPH_TENANT": TENANT,
         "EPISTEMIC_GRAPH_POLICY_VERSION": POLICY,
@@ -140,7 +140,7 @@ def live_compute(
                 "--socket-path",
                 str(socket_path),
                 "--auth-secret",
-                _SECRET,
+                _HMAC_KEY,
                 "--persist-dir",
                 str(root / "data"),
             ],
@@ -151,11 +151,11 @@ def live_compute(
         try:
             _wait_for(socket_path, proc)
             _bootstrap(socket_path)
-            os.environ[_SECRET_ENV] = _SECRET
+            os.environ[_HMAC_ENV] = _HMAC_KEY
             compute = connect_compute(
                 EngineSettings(
                     endpoint=f"unix://{socket_path}",
-                    auth_secret_ref=f"env://{_SECRET_ENV}",
+                    auth_secret_ref=f"env://{_HMAC_ENV}",
                     tenant=TENANT,
                     graph=GRAPH,
                     principal=PRINCIPAL,
