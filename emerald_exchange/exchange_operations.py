@@ -10,7 +10,10 @@ per-operation tools, a way around the guard.
 
 from __future__ import annotations
 
+from typing import Any
+
 from emerald_exchange.backends import (
+    BACKEND_REGISTRY,
     OHLCV,
     AccountInfo,
     ExchangeBackend,
@@ -26,6 +29,7 @@ READ_OPERATIONS = (
     "get_positions",
     "get_account",
     "get_order_status",
+    "exchanges",
 )
 
 
@@ -52,6 +56,14 @@ class ExchangeReadOperations:
     def get_account(self) -> AccountInfo:
         """Account balances and buying power."""
         return self._backend.get_account()
+
+    def exchanges(self) -> dict[str, Any]:
+        """Available exchange backends, the active backend and its mode."""
+        return {
+            "available": list(BACKEND_REGISTRY),
+            "active": self._backend.name,
+            "mode": self._backend.mode,
+        }
 
     def get_order_status(self, order_id: str) -> ExecutionResult:
         """Status of one submitted order."""

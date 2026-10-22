@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.3.3]
+
+### Added
+- `emerald_exchange_exchanges`: read-only per-operation tool listing the exchange backends, the active backend and its mode (EMERALD-OPS-R001).
+
 ### Added
 - **Kyle insider/stealth surveillance signal (CONCEPT:EE-042).** `emerald_signals`
   action `surveillance` calls the engine `surveillance_risk` kernel (KG-2.20k,

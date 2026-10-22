@@ -11,7 +11,7 @@ overrides = [{ name = "fastmcp-slim", extras = ["client", "server"], specifier =
 
 [[package]]
 name = "agent-connector-sdk"
-version = "0.3.0"
+version = "0.3.9"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
@@ -23,8 +23,9 @@ dependencies = [
     { name = "pydantic" },
     { name = "pyyaml" },
 ]
+sdist = { url = "https://files.pythonhosted.org/packages/fc/d1/a132f17265bebda5acda56eccceb0b6c60e08e710e60e1f57fdc03ddc3c3/agent_connector_sdk-0.3.9.tar.gz", hash = "sha256:4ecf26876e6bd5209751b43e7257695edaa0d27b21e58f723144cc7a93a68b71", size = 741183, upload-time = "2026-10-22T19:47:10.385Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/43/67/0bd17fcf77c53560aeda1a7801920e6783a8f2575080da72158e14833657/agent_connector_sdk-0.3.0-py3-none-any.whl", hash = "sha256:4bbbf66a04bff9b80dfa48d3cbb1c8697ebc78b562f1b8e3a859f9336943c18c", size = 714783, upload-time = "2026-10-18T05:05:24.058Z" },
+    { url = "https://files.pythonhosted.org/packages/4d/d0/d2b1b21c89675207b5a442d529293bb5f01e135c403a8f92065f71044127/agent_connector_sdk-0.3.9-py3-none-any.whl", hash = "sha256:17ab75e2cf171f68ab70b5f385b6676c576f5833dd5ce7152662d07816679ecb", size = 740744, upload-time = "2026-10-22T19:47:11.896Z" },
 ]
 
 [package.optional-dependencies]
@@ -905,7 +906,7 @@ wheels = [
 
 [[package]]
 name = "emerald-exchange"
-version = "2.3.2"
+version = "2.3.3"
 source = { editable = "." }
 dependencies = [
     { name = "agent-connector-sdk", extra = ["mcp"] },
