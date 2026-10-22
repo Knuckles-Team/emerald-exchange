@@ -28,7 +28,7 @@ from agent_connector_sdk.ingest import (
 
 logger = logging.getLogger("emerald_exchange.kg")
 
-_BINDING = IngestBinding(connector="emerald-exchange", stream="emerald")
+_BINDING = IngestBinding(connector="emerald-exchange-mcp", stream="emerald")
 
 _ENTITY_RESERVED_KEYS = frozenset({"id", "node_type"})
 _RELATIONSHIP_RESERVED_KEYS = frozenset({"source", "target", "relationship"})

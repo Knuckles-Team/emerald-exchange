@@ -69,6 +69,10 @@ emerald-exchange = "emerald_exchange.connectors"
 [project.entry-points."agent_connector_sdk.ontology_providers"]
 emerald-exchange = "emerald_exchange.ontology"
 
+# The one declared connector identity: the fleet name (SDK-CONNECTOR-CONTROL-R071).
+[project.entry-points."agent_connector_sdk.connector"]
+emerald-exchange-mcp = "emerald_exchange"
+
 [tool.uv.workspace]
 members = ["."]
 
