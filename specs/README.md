@@ -8,6 +8,7 @@ Start a feature from [`_template/`](_template/) and follow the [repository const
 
 | ID | Feature | State |
 | --- | --- | --- |
+| [EMERALD-OPS-001](exchange-operations/spec.md) | Read-only exchange operations as per-operation tools | SPECIFIED / NOT_AUDITED |
 | [EMERALD-GUIDE-001](leveraged-trading-guide/spec.md) | Leveraged trading guide, gold example, skill and explainer contract | SPECIFIED / NOT_AUDITED |
 | [EMERALD-MEDIA-001](finance-media-intake/spec.md) | Finance media evidence intake and strategy linkage | SPECIFIED / NOT_AUDITED |
 
@@ -15,5 +16,6 @@ Start a feature from [`_template/`](_template/) and follow the [repository const
 
 Cross-repository owners: [epistemic-graph](https://github.com/Knuckles-Team/epistemic-graph/tree/main/specs) owns finance ontology, strategy evaluation, backtests and leverage math; [media-downloader](https://github.com/Knuckles-Team/media-downloader) owns caption/frame capture; [agent-webui](https://github.com/Knuckles-Team/agent-webui/tree/main/specs/finance-asset-manager) owns browser presentation; Emerald owns the derived finance skill, guide and governed effect boundary. Contributors may use [universal-skills](https://github.com/Knuckles-Team/universal-skills) spec-generator, spec-verifier and task-planner with [arbora-development](https://github.com/Knuckles-Team/arbora/tree/main/arbora/skills/arbora-development) to provision and navigate the ecosystem.
 
+- [`EMERALD-OPS`](exchange-operations/spec.md) — Exchange read operations
 - [`EMERALD-MEDIA`](finance-media-intake/spec.md) — Finance media intake
 - [`EMERALD-GUIDE`](leveraged-trading-guide/spec.md) — Leveraged trading guide

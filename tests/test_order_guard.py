@@ -45,3 +45,19 @@ def test_guarded_submit_refuses_while_halted(monkeypatch):
     )
     assert "halt" in str(result).lower()
     asyncio.run(tools["emerald_orders_resume"].fn(symbol="", side="buy", qty=0.0, order_type="market", limit_price=0.0, order_id=""))
+
+
+def test_exchanges_info_operation_is_served_and_read_only():
+    tools = _served()
+    assert "emerald_exchange_exchanges" in tools
+
+
+def test_exchanges_reports_backends_active_and_mode():
+    from emerald_exchange.backends import BACKEND_REGISTRY
+
+    class Backend:
+        name = "paper"
+        mode = "paper"
+
+    info = ExchangeReadOperations(Backend()).exchanges()
+    assert info == {"available": list(BACKEND_REGISTRY), "active": "paper", "mode": "paper"}
