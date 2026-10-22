@@ -1,6 +1,6 @@
 {
   "algorithm": "agent-connector-sdk:mcp-tool-contract-compat:v2",
-  "connector": "emerald-exchange",
+  "connector": "emerald-exchange-mcp",
   "schema_version": "1",
   "tools": {
     "emerald_exchange_get_positions": "36e13dd556c8d7da25b86cb8a82f310425eed8233993d3f522776c602b91836e"

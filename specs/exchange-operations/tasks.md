@@ -2,3 +2,4 @@
 
 - [x] Serve `exchanges` as a read-only per-operation tool.
 - [ ] Record `LANDED` after the merged commit and `ACCEPTED` after a fleet acceptance run that calls `emerald_exchange_exchanges`.
+- [x] **EMERALD-OPS-R002:** File the pack, manifest and ingest binding under the fleet name `emerald-exchange-mcp`.

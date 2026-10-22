@@ -4,7 +4,8 @@
   "owner_repo": "emerald-exchange",
   "delivery_state": "SPECIFIED",
   "requirement_ids": [
-    "EMERALD-OPS-R001"
+    "EMERALD-OPS-R001",
+    "EMERALD-OPS-R002"
   ],
   "requirements": [
     {
@@ -13,6 +14,18 @@
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
+    },
+    {
+      "id": "EMERALD-OPS-R002",
+      "title": "Fleet name",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "6dd77942c19a",
+        "d78c758350ae"
+      ],
+      "verified_by": [
+        "tests/test_fleet_name.py:35"
+      ]
     }
   ]
 }
