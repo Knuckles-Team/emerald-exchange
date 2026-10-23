@@ -12,7 +12,7 @@ SPECS = ROOT / "specs"
 REQUIRED = {"spec.md", "plan.md", "test-spec.md", "tasks.md", "status.json"}
 REGISTER = REQUIRED | {"requirements.md"}
 DELIVERY = {
-    "UNKNOWN", "SPECIFIED", "BUILDING", "BUILT", "LANDED", "CLOSED", "DEFERRED", "REJECTED"
+    "UNKNOWN", "SPECIFIED", "BUILDING", "BUILT", "LANDED", "VERIFIED", "CLOSED", "DEFERRED", "REJECTED"
 }
 ACCEPTANCE = {"NOT_AUDITED", "PENDING", "ACCEPTED", "FAILED"}
 PRIVATE_REFERENCE = re.compile(
