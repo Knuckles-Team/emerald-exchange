@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "spec_id": "CONN-EMERALD-EXCHANGE-CONNECTOR-CONTENT",
+  "owner_repo": "emerald-exchange",
+  "delivery_state": "VERIFIED",
+  "requirement_ids": [
+    "CONN-EMERALD-EXCHANGE-CONNECTOR-CONTENT-R001"
+  ],
+  "requirements": [
+    {
+      "id": "CONN-EMERALD-EXCHANGE-CONNECTOR-CONTENT-R001",
+      "title": "Default content",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "f6464463a85d"
+      ],
+      "verified_by": [
+        "tests/test_default_content_surfaces.py:15"
+      ]
+    }
+  ]
+}
