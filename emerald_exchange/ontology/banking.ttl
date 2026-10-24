@@ -125,8 +125,8 @@ BFO:Process. Aligned to fibo-fbc transaction semantics (CONCEPT:KG-2.164).""" ;
     rdfs:label "Enterprise Banking Ontology" ;
     rdfs:comment """Banking-specific extensions for enterprise financial services.
 Covers ISO 20022 messaging, KYC/AML, correspondent banking,
-regulatory capital (Basel III), and credit risk modeling.""" ;
-    owl:imports <http://knuckles.team/kg> .
+regulatory capital (Basel III), and credit risk modeling.""" .
+
 
 :AMLAlert a owl:Class ;
     rdfs:label "AML Alert" ;
@@ -187,4 +187,3 @@ identity verification, and risk classification. FATF/FinCEN aligned.""" ;
     rdfs:label "Bank Account" ;
     rdfs:comment "A bank account with IBAN/SWIFT identifiers. Extends Account." ;
     rdfs:subClassOf :Account .
-

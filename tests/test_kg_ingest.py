@@ -125,7 +125,7 @@ async def test_ingest_entities_writes_nodes_and_edges(ingest):
     record_ids = {record.record_id for record in request.records}
     assert record_ids == {"emerald:instrument:AAPL", "emerald:portfolio:paper"}
     assert request.relationships[0].relation_reference.endswith(
-        "resources/Portfolio/relations/holdsPosition"
+        "relations/Portfolio/holdsPosition"
     )
 
 

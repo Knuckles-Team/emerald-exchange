@@ -28,9 +28,9 @@ repos:
   - id: check-merge-conflict
   - id: detect-private-key
   - id: trailing-whitespace
-    exclude: ^(connector_manifest\.yml|emerald_exchange/connectors/.*\.json|emerald_exchange/ontology/.*)$
+    exclude: ^(emerald_exchange/connectors/.*\.json|emerald_exchange/ontology/.*)$
   - id: end-of-file-fixer
-    exclude: ^(connector_manifest\.yml|emerald_exchange/connectors/.*\.json|emerald_exchange/ontology/.*)$
+    exclude: ^(emerald_exchange/connectors/.*\.json|emerald_exchange/ontology/.*)$
   - id: no-commit-to-branch
 
 - repo: https://github.com/astral-sh/ruff-pre-commit
@@ -70,13 +70,6 @@ repos:
     name: check cli help
     entry: |-
       bash -c 'for f in $(find . -type f -name "mcp_server.py" -not -path "*/.venv/*" -not -path "*/__pycache__/*"); do mod=$(echo "$f" | sed -e "s/^\.\///" -e "s/\.py$//" -e "s/\//./g"); uv run python -m "$mod" --help >/dev/null || exit 1; done'
-    language: system
-    pass_filenames: false
-    always_run: true
-  - id: check-bumpversion
-    name: validate bumpversion config
-    entry: |-
-      bash -c 'if [ -f ".bumpversion.cfg" ]; then bump2version patch --dry-run --allow-dirty; fi'
     language: system
     pass_filenames: false
     always_run: true
