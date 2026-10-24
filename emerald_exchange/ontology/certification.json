@@ -1,9 +1,6 @@
 {
   "api_version": "arbora.io/v1",
   "artifacts": {
-    "connector_manifest.yml": "14eabd824bb47f86b281ceb8170fd911c473110c8812b4633e46483be5b7b317",
-    "emerald_exchange/connectors/mcp_source_presets.json": "5e01797af6013ff2f6bf6e2365cf4b08fdc449d601d9c8f2bf1799649f2d77ac",
-    "emerald_exchange/connectors/tool_schema_fingerprints.json": "a445e934c63ddc9184bda7ab4523031ad059a8f60c81dd3f1fce79bf4b479546",
     "emerald_exchange/ontology/banking.ttl": "8c6b7591f2d1d6fd6560abee627775be051c8f8f9c08743656199ec4c07db072",
     "emerald_exchange/ontology/emerald.ttl": "b1ee79cbca51b5b01f50c80eab85e5144c0a6bff8e0f486fd9b5780d76075204",
     "emerald_exchange/ontology/fixtures/records.json": "6cc1b3c488d6395dd422f1c0bff916188298d0e1955d5c95d611553b7c4f663c",

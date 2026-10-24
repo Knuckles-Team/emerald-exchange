@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "emerald-exchange"
-version = "2.3.5"
+version = "2.3.6"
 description = "Emerald Exchange — Unified Finance MCP Server with fully abstracted exchange backends for equities, crypto, and derivatives trading. CONCEPT:EE-001"
 readme = "README.md"
 authors = [{ name = "Project Maintainers", email = "maintainers@users.noreply.github.com" }]
@@ -17,7 +17,7 @@ classifiers = [
     "Programming Language :: Python :: 3"]
 requires-python = ">=3.12,<3.15"
 dependencies = [
-    "agent-connector-sdk[mcp]>=0.3.18,<1.0.0",
+    "agent-connector-sdk[mcp]>=0.4.1,<1.0.0",
     "numpy>=2.5.4",
     # CONCEPT:PHASE2-RECONCILE — relaxed off the pandas 3.x floor to match
     # agent-connector-sdk's ecosystem-compatible range (the two must
@@ -26,7 +26,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-mcp = ["agent-connector-sdk[mcp]>=0.3.18,<1.0.0"]
+mcp = ["agent-connector-sdk[mcp]>=0.4.1,<1.0.0"]
 alpaca = ["alpaca-py>=0.44.0"]
 binance = ["python-binance>=1.0.37"]
 crypto = ["ccxt>=4.5.88"]
@@ -57,11 +57,6 @@ emerald-cockpit = "emerald_exchange.cockpit:main"
 
 [project.entry-points."agent_connector_sdk.skill_providers"]
 emerald-exchange = "emerald_exchange.skills"
-
-# CONCEPT:AU-KG.ingest.mcp-tool-connector — Tier-1 declarative source preset(s) that sync
-# this package's records into the KG via its own MCP server, resolved via iter_provider_dirs.
-[project.entry-points."agent_connector_sdk.source_connector_providers"]
-emerald-exchange = "emerald_exchange.connectors"
 
 # CONCEPT:AU-KG.ontology.package-federation-migration — federate this package's OWL/RDF ontology modules into the
 # agent-connector-sdk ontology hub (quant, trading, banking). Resolved via iter_provider_dirs

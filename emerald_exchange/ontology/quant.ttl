@@ -28,10 +28,8 @@
     rdfs:seeAlso <https://pubs.opengroup.org/architecture/archimate3-doc/chap09.html#_Toc489946063> ;
     rdfs:subClassOf :Concept .
 
-:BacktestResult a owl:Class ;
-    rdfs:label "Backtest Result" ;
-    rdfs:comment "The outcome of a strategy backtest." ;
-    rdfs:subClassOf :OutcomeEvaluation .
+:BacktestResult a owl:Class .
+
 
 :BrierScoreValidator a owl:Class ;
     rdfs:label "Brier Score Validator" ;
@@ -49,10 +47,8 @@
     rdfs:subClassOf :Agent .
 
 :BusinessProcess a owl:Class ;
-    rdfs:label "Business Process" ;
-    rdfs:comment "An ArchiMate Business Process representing a sequence of business behaviors that achieves a specific outcome. Maps to ArchiMate 3.1 BusinessProcess." ;
-    rdfs:seeAlso <https://pubs.opengroup.org/architecture/archimate3-doc/chap08.html#_Toc489946042> ;
-    rdfs:subClassOf :Concept .
+    rdfs:seeAlso <https://pubs.opengroup.org/architecture/archimate3-doc/chap08.html#_Toc489946042> .
+
 
 :BusinessRole a owl:Class ;
     rdfs:label "Business Role" ;
@@ -82,10 +78,8 @@ partOf transitivity enables multi-level code navigation.""" ;
     rdfs:comment "A statistical arbitrage modeling framework." ;
     rdfs:subClassOf bfo:0000031 .
 
-:Commit a owl:Class ;
-    rdfs:label "Commit" ;
-    rdfs:comment "A version control commit. BFO:GenericallyDependentContinuant." ;
-    rdfs:subClassOf bfo:0000031 .
+:Commit a owl:Class .
+
 
 :CommunicationMCP a owl:Class ;
     rdfs:label "Communication MCP" ;
@@ -191,10 +185,8 @@ Tracks task_id, pass/fail, root_cause, and component attribution.""" ;
     rdfs:comment "A stub entity representing a node in an external Knowledge Graph." ;
     rdfs:subClassOf bfo:0000031 .
 
-:ExternalGraphReference a owl:Class ;
-    rdfs:label "External Graph Reference" ;
-    rdfs:comment "A reference to an external Knowledge Graph (e.g., EAR)." ;
-    rdfs:subClassOf bfo:0000031 .
+:ExternalGraphReference a owl:Class .
+
 
 :FactorModel a owl:Class ;
     rdfs:label "Factor Model" ;
@@ -236,10 +228,8 @@ Tracks task_id, pass/fail, root_cause, and component attribution.""" ;
     rdfs:comment "A provable mathematical property that holds true across all valid state transitions." ;
     rdfs:subClassOf :Policy .
 
-:Issue a owl:Class ;
-    rdfs:label "Issue" ;
-    rdfs:comment "A project management issue or ticket." ;
-    rdfs:subClassOf bfo:0000031 .
+:Issue a owl:Class .
+
 
 :KalmanFilter a owl:Class ;
     rdfs:label "Kalman Filter" ;
@@ -366,10 +356,8 @@ partOf transitivity enables flow → step → sub-step reasoning.""" ;
     rdfs:comment "MCP server for productivity tools (Atlassian, Nextcloud, etc.)." ;
     rdfs:subClassOf :MCPServerPackage .
 
-:Prompt a owl:Class ;
-    rdfs:label "Prompt" ;
-    rdfs:comment "A prompt template or instruction set. BFO:GenericallyDependentContinuant." ;
-    rdfs:subClassOf bfo:0000031 .
+:Prompt a owl:Class .
+
 
 :ProposedSkill a owl:Class ;
     rdfs:label "Proposed Skill" ;
@@ -379,8 +367,8 @@ enables tracking skill evolution lineage.""" ;
     rdfs:subClassOf :Skill .
 
 :PullRequest a owl:Class ;
-    rdfs:label "Pull Request" ;
     owl:equivalentClass :MergeRequest .
+
 
 :RLMActor a owl:Class ;
     rdfs:label "RLM Actor" ;
@@ -392,10 +380,8 @@ enables tracking skill evolution lineage.""" ;
     rdfs:comment "A comprehensive framework of regulations." ;
     rdfs:subClassOf bfo:0000031 .
 
-:Repository a owl:Class ;
-    rdfs:label "Repository" ;
-    rdfs:comment "A source code repository (e.g. GitHub, GitLab)." ;
-    rdfs:subClassOf :SoftwareProject .
+:Repository a owl:Class .
+
 
 :RiskVeto a owl:Class ;
     rdfs:label "Risk Veto" ;
@@ -435,10 +421,8 @@ enables tracking skill evolution lineage.""" ;
 wasDerivedFrom enables prompt version chain reasoning.""" ;
     rdfs:subClassOf bfo:0000031 .
 
-:TradingDebate a owl:Class ;
-    rdfs:label "Trading Debate" ;
-    rdfs:comment "A debate session between agents regarding a trading hypothesis." ;
-    rdfs:subClassOf :Event .
+:TradingDebate a owl:Class .
+
 
 :TrailingStop a owl:Class ;
     rdfs:label "Trailing Stop" ;
@@ -1583,8 +1567,8 @@ with A. Conflict resolution uses deterministic conflict_weight comparison.""" ;
 
 <http://knuckles.team/kg/quant> a owl:Ontology ;
     rdfs:label "Quant & Finance Domain Extension" ;
-    rdfs:comment "Domain extension for quant trading, crypto, and finance." ;
-    owl:imports <http://knuckles.team/kg> .
+    rdfs:comment "Domain extension for quant trading, crypto, and finance." .
+
 
 bfo:0000002 owl:disjointWith bfo:0000003 .
 
@@ -1668,10 +1652,8 @@ bfo:0000002 owl:disjointWith bfo:0000003 .
     rdfs:comment "A specific topological state of the market." ;
     rdfs:subClassOf :Phase .
 
-:MergeRequest a owl:Class ;
-    rdfs:label "Merge Request" ;
-    rdfs:comment "A merge request or pull request. BFO:Process." ;
-    rdfs:subClassOf bfo:0000015 .
+:MergeRequest a owl:Class .
+
 
 :PaymentProofEntity a owl:Class ;
     rdfs:label "Payment Proof" ;
@@ -1695,10 +1677,8 @@ bfo:0000002 owl:disjointWith bfo:0000003 .
     rdfs:comment "A declarative multi-step prompt pipeline with intermediate validation and conditional branching. BFO:Process via Procedure." ;
     rdfs:subClassOf :Procedure .
 
-:Region a owl:Class ;
-    rdfs:label "Region" ;
-    rdfs:comment "A geographic region/country affected by a GeopoliticalRisk or in an asset's operating footprint. CONCEPT:KG-2.30" ;
-    rdfs:subClassOf :Concept .
+:Region a owl:Class .
+
 
 :ResearchHypothesis a owl:Class ;
     rdfs:label "Research Hypothesis" ;
@@ -1769,10 +1749,8 @@ Subclass of CreativeWork for Dublin Core / BIBO alignment.""" ;
     rdfs:comment "A platform-specific strategy code export (Pine Script, MQL5, TDX). CONCEPT:KG-2.6" ;
     rdfs:subClassOf bfo:0000031 .
 
-:StrategyLayer a owl:Class ;
-    rdfs:label "Strategy Layer" ;
-    rdfs:comment "ArchiMate Strategy Layer — capabilities, courses of action, resources." ;
-    rdfs:subClassOf :ArchiMateElement .
+:StrategyLayer a owl:Class .
+
 
 :SwarmRun a owl:Class ;
     rdfs:label "swarm run" ;
@@ -1812,10 +1790,8 @@ Subclass of CreativeWork for Dublin Core / BIBO alignment.""" ;
 
 :Belief owl:disjointWith :Fact .
 
-:BusinessLayer a owl:Class ;
-    rdfs:label "Business Layer" ;
-    rdfs:comment "ArchiMate Business Layer — business services, processes, roles." ;
-    rdfs:subClassOf :ArchiMateElement .
+:BusinessLayer a owl:Class .
+
 
 :CitationEdge a owl:Class ;
     rdfs:label "Citation Edge" ;
@@ -1841,15 +1817,11 @@ Subclass of CreativeWork for Dublin Core / BIBO alignment.""" ;
     rdfs:comment "An optimized display representation of a model's __str__() output, decoupled from predict() logic." ;
     rdfs:subClassOf :RegistryNode .
 
-:MotivationLayer a owl:Class ;
-    rdfs:label "Motivation Layer" ;
-    rdfs:comment "ArchiMate Motivation Layer — goals, principles, requirements, constraints." ;
-    rdfs:subClassOf :ArchiMateElement .
+:MotivationLayer a owl:Class .
 
-:Order a owl:Class ;
-    rdfs:label "order" ;
-    rdfs:comment "An order in the trading pipeline lifecycle." ;
-    rdfs:subClassOf :RegistryNode .
+
+:Order a owl:Class .
+
 
 :OrderVersion a owl:Class ;
     rdfs:label "Order Version" ;
@@ -1861,10 +1833,8 @@ Subclass of CreativeWork for Dublin Core / BIBO alignment.""" ;
     rdfs:comment "An aggregation of positions with allocation tracking." ;
     rdfs:subClassOf :RegistryNode .
 
-:Position a owl:Class ;
-    rdfs:label "position" ;
-    rdfs:comment "An open or closed position in a portfolio." ;
-    rdfs:subClassOf :RegistryNode .
+:Position a owl:Class .
+
 
 :ResearchSession a owl:Class ;
     rdfs:label "Research Session" ;
@@ -1905,15 +1875,11 @@ Subclass of CreativeWork for Dublin Core / BIBO alignment.""" ;
     rdfs:comment "Individual task execution record within a swarm run." ;
     rdfs:subClassOf :RegistryNode .
 
-:TechnologyLayer a owl:Class ;
-    rdfs:label "Technology Layer" ;
-    rdfs:comment "ArchiMate Technology Layer — nodes, devices, infrastructure services." ;
-    rdfs:subClassOf :ArchiMateElement .
+:TechnologyLayer a owl:Class .
 
-:TradingSignal a owl:Class ;
-    rdfs:label "trading signal" ;
-    rdfs:comment "A buy/sell/hold signal with confidence and attribution." ;
-    rdfs:subClassOf :RegistryNode .
+
+:TradingSignal a owl:Class .
+
 
 :UnifiedRAGConfig a owl:Class ;
     rdfs:label "Unified RAG Config" ;
@@ -1923,15 +1889,11 @@ Subclass of CreativeWork for Dublin Core / BIBO alignment.""" ;
     (CONCEPT:KG-2.3).""" ;
     rdfs:subClassOf bfo:0000020 .
 
-:Account a owl:Class ;
-    rdfs:label "Account" ;
-    rdfs:comment "A financial account. BFO:GenericallyDependentContinuant." ;
-    rdfs:subClassOf bfo:0000031 .
+:Account a owl:Class .
 
-:ApplicationLayer a owl:Class ;
-    rdfs:label "Application Layer" ;
-    rdfs:comment "ArchiMate Application Layer — application components, services, data objects." ;
-    rdfs:subClassOf :ArchiMateElement .
+
+:ApplicationLayer a owl:Class .
+
 
 :DataConnector a owl:Class ;
     rdfs:label "data connector" ;
@@ -1959,10 +1921,8 @@ Subclass of CreativeWork for Dublin Core / BIBO alignment.""" ;
     rdfs:subClassOf bfo:0000031 .
 
 :FinancialInstrument a owl:Class ;
-    rdfs:label "Financial Instrument" ;
-    rdfs:comment "A financial instrument (stock, bond, derivative, crypto). BFO:GenericallyDependentContinuant. Aligned to FIBO." ;
-    rdfs:seeAlso fibo-fi:FinancialInstrument ;
-    rdfs:subClassOf bfo:0000031 .
+    rdfs:seeAlso fibo-fi:FinancialInstrument .
+
 
 :GeopoliticalRisk a owl:Class ;
     rdfs:label "Geopolitical Risk" ;
@@ -1986,10 +1946,8 @@ Subclass of CreativeWork for Dublin Core / BIBO alignment.""" ;
     rdfs:comment "An individual risk factor contributing to an assessment." ;
     rdfs:subClassOf :RegistryNode .
 
-:BacktestRun a owl:Class ;
-    rdfs:label "backtest run" ;
-    rdfs:comment "A complete backtesting or evaluation run record." ;
-    rdfs:subClassOf :RegistryNode .
+:BacktestRun a owl:Class .
+
 
 :BlastRadiusReport a owl:Class ;
     rdfs:label "Blast Radius Report" ;
@@ -2029,17 +1987,13 @@ violation_count, and escalation history.""" ;
     rdfs:subClassOf :RegistryNode .
 
 :Task a owl:Class ;
-    rdfs:label "Task" ;
-    rdfs:comment """A discrete work unit assigned to an agent. BFO:Process.
-Aligned to prov:Activity for provenance tracking (wasGeneratedBy).""" ;
-    rdfs:seeAlso prov:Activity ;
-    rdfs:subClassOf bfo:0000015 .
+    rdfs:seeAlso prov:Activity .
+
 
 :Tool rdfs:subClassOf :ApplicationLayer .
 
-:ArchiMateElement a owl:Class ;
-    rdfs:label "ArchiMate Element" ;
-    rdfs:comment "Root class for ArchiMate 3.2 metamodel element mappings." .
+:ArchiMateElement a owl:Class .
+
 
 :ComponentEditRecord a owl:Class ;
     rdfs:label "Component Edit Record" ;
@@ -2071,9 +2025,8 @@ git_commit_sha, predicted_fixes, and predicted_regressions.""" ;
     k-selection via eigengap heuristic (CONCEPT:KG-2.5).""" ;
     rdfs:subClassOf skos:Concept .
 
-:ArchitectureDecisionRecord a owl:Class ;
-    rdfs:label "Architecture Decision Record" ;
-    rdfs:comment "Queryable decision trace capturing who decided what, why, under what authority, and what alternatives were considered. Lifecycle: proposed → accepted → deprecated → superseded." .
+:ArchitectureDecisionRecord a owl:Class .
+
 
 :ChangeManifest a owl:Class ;
     rdfs:label "Change Manifest" ;
@@ -2088,10 +2041,8 @@ transitive, enabling automatic lineage tracking across manifests.""" ;
     rdfs:comment "An MCP server package providing tool integrations." ;
     rdfs:subClassOf :EcosystemPackage .
 
-:TradingStrategy a owl:Class ;
-    rdfs:label "Trading Strategy" ;
-    rdfs:comment "An algorithmic trading procedure." ;
-    rdfs:subClassOf :Procedure .
+:TradingStrategy a owl:Class .
+
 
 :EvaluationRecord a owl:Class ;
     rdfs:label "Multi-Dimensional Evaluation Record" ;
@@ -2436,3 +2387,10 @@ and AHE efficacy scoring for evolutionary rule selection.""" ;
 
 :PositiveReturnShare a :FinanceAlgorithm ;
     rdfs:label "Positive return share" .
+
+# ontology-codemod R3
+<http://knuckles.team/kg#BacktestMetric> rdfs:subClassOf <http://knuckles.team/kg#Metric> .
+
+# ontology-codemod R4
+<http://knuckles.team/kg#Portfolio> rdfs:subClassOf <http://knuckles.team/kg#ResourceGroup> .
+<http://knuckles.team/kg#RiskAssessment> rdfs:subClassOf <http://knuckles.team/kg#Assessment> .
