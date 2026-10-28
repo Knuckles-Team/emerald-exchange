@@ -10,6 +10,8 @@ per-operation tools, a way around the guard.
 
 from __future__ import annotations
 
+import hashlib
+import json
 from dataclasses import asdict
 from typing import Any
 
@@ -30,6 +32,7 @@ READ_OPERATIONS = (
     "get_positions",
     "get_account",
     "get_account_snapshot",
+    "get_account_positions",
     "get_order_status",
     "exchanges",
 )
@@ -68,6 +71,26 @@ class ExchangeReadOperations:
             raise ValueError("account snapshot source requires an account identity")
         positions = self._backend.get_positions()
         return [{**asdict(account), "positions": [asdict(item) for item in positions]}]
+
+    def get_account_positions(self) -> list[dict[str, Any]]:
+        """Read positions with stable identities scoped to their Alpaca account."""
+        snapshot = self.get_account_snapshot()[0]
+        account_id = snapshot["account_id"]
+        symbols = [position["symbol"] for position in snapshot["positions"]]
+        if any(not isinstance(symbol, str) or not symbol.strip() for symbol in symbols):
+            raise ValueError("Alpaca position symbol is required")
+        if len(symbols) != len(set(symbols)):
+            raise ValueError("Alpaca position symbols must be unique")
+        return [
+            {
+                **position,
+                "account_id": account_id,
+                "position_id": hashlib.sha256(
+                    json.dumps([account_id, position["symbol"]]).encode()
+                ).hexdigest(),
+            }
+            for position in snapshot["positions"]
+        ]
 
     def exchanges(self) -> dict[str, Any]:
         """Available exchange backends, the active backend and its mode."""

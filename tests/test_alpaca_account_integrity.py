@@ -268,3 +268,53 @@ def test_sdk_mcp_adapter_extracts_the_declared_account_snapshot():
     assert len(page.records) == 1
     assert page.records[0].record_id == "account-1"
     assert page.records[0].payload["positions"][0]["symbol"] == "ABC"
+
+
+def test_account_positions_source_binds_stable_account_and_symbol_identity():
+    from emerald_exchange.connector_sources import SOURCES, SCHEMA_MAPPINGS
+
+    source = next(
+        item
+        for group in SOURCES
+        for item in group["connector_sources"]
+        if item["source_id"] == "alpaca-account-positions"
+    )
+    assert source["tool"] == "emerald_exchange_get_account_positions"
+    assert source["id_field"] == "position_id"
+    first = _operations(Provider()).get_account_positions()
+    repeat = _operations(Provider()).get_account_positions()
+    assert first == repeat
+    assert first[0]["account_id"] == "account-1"
+    assert first[0]["symbol"] == "ABC"
+    assert first[0]["qty"] == 1
+    assert all(key in SCHEMA_MAPPINGS["Position"]["fields"] for key in (
+        "account_id", "symbol", "qty", "avg_entry_price", "current_price", "unrealized_pnl"
+    ))
+
+    provider = Provider()
+    provider.get_account = lambda: SimpleNamespace(
+        id="account-2", currency="USD", equity="10", cash="9", buying_power="8"
+    )
+    assert _operations(provider).get_account_positions()[0]["position_id"] != first[0]["position_id"]
+
+
+def test_account_positions_source_refuses_incomplete_reads():
+    provider = Provider()
+
+    def fail():
+        raise ConnectionError("provider unavailable")
+
+    provider.get_all_positions = fail
+    with pytest.raises(RuntimeError, match="read failed"):
+        _operations(provider).get_account_positions()
+
+
+@pytest.mark.parametrize("symbols", [["", "ABC"], ["ABC", "ABC"]])
+def test_account_positions_refuses_missing_or_duplicate_symbols(symbols):
+    provider = Provider()
+    provider.get_all_positions = lambda: [
+        SimpleNamespace(symbol=symbol, qty="1", avg_entry_price="2", current_price="3", unrealized_pl="1")
+        for symbol in symbols
+    ]
+    with pytest.raises(ValueError, match="symbol"):
+        _operations(provider).get_account_positions()
