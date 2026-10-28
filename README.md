@@ -241,6 +241,15 @@ half-days and holidays follow the returned calendar and Alpaca's schedule.
 Other feeds and wider bars refuse this classification. The default remains
 `feed_native`, which makes no session claim.
 
+To use company profile, income statement, earnings and logo sources alongside
+Alpaca, configure `fmp_api_key_env` in the Alpaca exchange settings to name the
+environment variable containing a Financial Modeling Prep API key. The key is
+sent in a request header, not the URL. Each source requires an operator-provided
+license tag; the operator must ensure their FMP subscription permits the intended
+use. The returned snapshot is bounded and does not claim complete historical
+coverage or real-time availability. Logo data is returned only when FMP names
+the expected symbol image and does not mark it as a default image.
+
 ## Docker
 
 ### Container images (`:mcp` vs `:agent`)

@@ -259,9 +259,11 @@ class AlpacaBackend:
         secret_key: str = "",
         base_url: str = "https://paper-api.alpaca.markets",
         mode: TradingMode = TradingMode.PAPER,
+        fmp_api_key: str = "",
     ):
         self._api_key = api_key
         self._secret_key = secret_key
+        self._fmp_api_key = fmp_api_key
         self._base_url = base_url
         self._mode = mode
         self._client: Any = None
@@ -515,6 +517,17 @@ class AlpacaBackend:
             return read_news_page(self._news_client, **kwargs)
         except self._read_errors:
             raise RuntimeError("Alpaca news read failed") from None
+
+    def get_company_records(self, **kwargs: Any) -> dict[str, Any]:
+        """Read configured FMP company metadata without exposing credentials."""
+        from httpx import HTTPError
+
+        from emerald_exchange.fmp_company_sources import read_company_records
+
+        try:
+            return read_company_records(self._fmp_api_key, **kwargs)
+        except (*self._read_errors, HTTPError):
+            raise RuntimeError("company data read failed") from None
 
     def stock_stream(
         self, bus: Any, symbols: tuple[str, ...], *, feed: str, license_tag: str
