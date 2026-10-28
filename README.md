@@ -226,6 +226,14 @@ pip install "emerald-exchange[mcp,prediction_markets]"  # + Kalshi & Polymarket
 pip install "emerald-exchange[all]"                # Everything
 ```
 
+Alpaca operators can stream live quotes and raw minute bars into an SDK
+`StreamBus` with `AlpacaBackend.stock_stream(bus, symbols, feed=..., license_tag=...)`.
+Subscribe to `market.<symbol>.quotes` and `market.<symbol>.bars` before running
+the returned stream's blocking `run()` in a dedicated thread; call `stop()` from
+another thread to shut it down. Updated bars use the same identity and set
+`updated` to true. Feed and licensing labels remain explicit. The live stream
+does not backfill gaps after reconnect; reconcile with stock history as needed.
+
 ## Docker
 
 ### Container images (`:mcp` vs `:agent`)
