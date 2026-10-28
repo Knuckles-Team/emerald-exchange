@@ -500,6 +500,16 @@ class AlpacaBackend:
         except self._read_errors:
             raise RuntimeError("Alpaca news read failed") from None
 
+    def stock_stream(
+        self, bus: Any, symbols: tuple[str, ...], *, feed: str, license_tag: str
+    ) -> Any:
+        """Create the live quote and bar stream on the caller's SDK bus."""
+        from emerald_exchange.alpaca_stock_stream import AlpacaStockStream
+
+        return AlpacaStockStream.connect(
+            self._api_key, self._secret_key, bus, symbols, feed=feed, license_tag=license_tag
+        )
+
     def get_stock_dividends_page(self, **kwargs: Any) -> dict[str, Any]:
         from emerald_exchange.alpaca_stock_events import read_dividends_page
 
