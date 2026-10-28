@@ -250,6 +250,18 @@ use. The returned snapshot is bounded and does not claim complete historical
 coverage or real-time availability. Logo data is returned only when FMP names
 the expected symbol image and does not mark it as a default image.
 
+Multi-asset source snapshots use `FMP_API_KEY` for FX, `DATABENTO_API_KEY`
+for commodity spot or a specific outright futures contract, and `ATTOM_API_KEY`
+for property valuations. Set the keys in the server environment. The declared
+sources accept a tenant, source identity and operator-supplied license tag. FX
+preserves base/quote direction; commodity requests return at most one trade
+with its matching instrument definition for a range of at most one day. Fixed
+futures contracts carry the provider expiry and an explicit no-roll policy.
+ATTOM uses a property ID and reports its valuation date and age against the
+chosen `max_age_days`. Sources are delta observations, not complete histories.
+Provider subscriptions may charge for requests; access and permitted use depend
+on the operator's agreements. Offline fixtures are not evidence of live rights.
+
 ## Docker
 
 ### Container images (`:mcp` vs `:agent`)
@@ -347,6 +359,9 @@ material, and endpoints come from `AgentConfig` / the configured secret provider
 
 | Variable | Example | Description |
 |----------|---------|-------------|
+| `ATTOM_API_KEY` | secret-injected | ATTOM property valuation API key. |
+| `DATABENTO_API_KEY` | secret-injected | Databento historical market data API key. |
+| `FMP_API_KEY` | secret-injected | Financial Modeling Prep FX API key. |
 | `BINANCE_API_KEY` | secret-injected | Per-exchange credentials are resolved at runtime from the trading config's *_env keys; only the agent-connector-sdk-inherited Binance pair is read statically. Other exchanges (Alpaca, Coinbase, ...) supply credentials via operator config. |
 | `BINANCE_SECRET_KEY` | secret-injected |  |
 | `CRYPTOTOOL` | `True` | crypto market tools |

@@ -5,3 +5,13 @@
 For EMERALD-OPS-R003, the Alpaca backend obtains the account ID and currency from the provider. It validates numeric account and position values and refuses documented provider API or transport failures instead of inventing a zero account or an empty position list. The read facade exposes the account ID to the per-operation MCP tool. This path does not itself prove durable account ingestion or statement re-import.
 
 EMERALD-OPS-R004 exposes a declared list of account snapshots over the same read facade. Each snapshot carries the account ID and its positions. The source refuses a non-Alpaca backend and fails if either provider read fails. The graph mapping and durable re-import proof are separate work.
+
+## Multi-asset provider sources
+
+Extend the read facade with bounded, non-authoritative provider source reads for
+FX, commodity spot and specific futures prices, and dated property valuations.
+Provider credentials come from the operator environment and never tool arguments.
+Prices retain source time and instrument identity; a fixed futures contract has
+an explicit no-roll policy and provider expiry. Property valuations retain the
+provider date and report age against a caller-selected freshness threshold.
+Synthetic provider fixtures establish transport behavior, not live entitlements.

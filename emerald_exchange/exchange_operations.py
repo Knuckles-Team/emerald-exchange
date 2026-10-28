@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 from dataclasses import asdict
 from typing import Any, Literal, cast
 from uuid import uuid4
@@ -42,6 +43,7 @@ READ_OPERATIONS = (
     "get_stock_news",
     "get_stock_dividends",
     "get_company_records",
+    "get_multi_asset_records",
     "get_exchange_history",
     "get_order_status",
     "exchanges",
@@ -65,16 +67,28 @@ class ExchangeReadOperations:
         return self._backend.get_historical(symbol, period=period, interval=interval)
 
     def get_exchange_history(
-        self, symbol: str, start: str, end: str, interval: str, license_tag: str,
-        mode: Literal["delta"], limit: int = 1000, page_token: str | None = None,
+        self,
+        symbol: str,
+        start: str,
+        end: str,
+        interval: str,
+        license_tag: str,
+        mode: Literal["delta"],
+        limit: int = 1000,
+        page_token: str | None = None,
         since: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """Read one bounded CCXT candle page with stable exchange identity."""
         if not self._backend.name.startswith("ccxt:") or mode != "delta":
             raise ValueError("exchange history requires CCXT and delta mode")
         return cast(CCXTBackend, self._backend).get_history_page(
-            symbol=symbol, start=start, end=end, interval=interval,
-            license_tag=license_tag, limit=limit, page_token=page_token,
+            symbol=symbol,
+            start=start,
+            end=end,
+            interval=interval,
+            license_tag=license_tag,
+            limit=limit,
+            page_token=page_token,
         )
 
     def get_positions(self) -> list[Position]:
@@ -188,15 +202,80 @@ class ExchangeReadOperations:
             page_token=page_token,
         )
 
+    def get_multi_asset_records(
+        self,
+        kind: Literal["fx", "commodity", "real_estate"],
+        tenant_id: str,
+        source_id: str,
+        license_tag: str,
+        mode: Literal["delta"],
+        base: str = "",
+        quote: str = "",
+        dataset: str = "",
+        symbol: str = "",
+        start: str = "",
+        end: str = "",
+        attom_id: int = 0,
+        max_age_days: int = 0,
+        since: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Read bounded multi-asset provider observations."""
+        from httpx import HTTPError
+
+        from emerald_exchange.multi_asset_sources import (
+            read_commodity,
+            read_fx,
+            read_valuation,
+        )
+
+        if mode != "delta":
+            raise ValueError("multi-asset source requires delta mode")
+        identity = {
+            "tenant_id": tenant_id, "source_id": source_id, "license_tag": license_tag
+        }
+        try:
+            if kind == "fx":
+                return read_fx(
+                    os.environ.get("FMP_API_KEY", ""),
+                    base=base,
+                    quote=quote,
+                    **identity,
+                )
+            if kind == "commodity":
+                return read_commodity(
+                    os.environ.get("DATABENTO_API_KEY", ""),
+                    dataset=dataset,
+                    symbol=symbol,
+                    start=start,
+                    end=end,
+                    **identity,
+                )
+            if kind == "real_estate":
+                return read_valuation(
+                    os.environ.get("ATTOM_API_KEY", ""),
+                    attom_id=attom_id,
+                    max_age_days=max_age_days,
+                    **identity,
+                )
+            raise ValueError("unsupported multi-asset kind")
+        except (HTTPError, ValueError, TypeError, OverflowError, KeyError):
+            raise RuntimeError("multi-asset provider read failed") from None
+
     def get_company_records(
-        self, symbol: str, dataset: Literal["profile", "income", "earnings", "logo"],
-        license_tag: str, mode: Literal["delta"], since: dict[str, Any] | None = None,
+        self,
+        symbol: str,
+        dataset: Literal["profile", "income", "earnings", "logo"],
+        license_tag: str,
+        mode: Literal["delta"],
+        since: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """Read a bounded FMP company dataset for an Alpaca symbol."""
         if self._backend.name != "alpaca" or mode != "delta":
             raise ValueError("company source requires Alpaca and delta mode")
         return cast(AlpacaBackend, self._backend).get_company_records(
-            symbol=symbol, dataset=dataset, license_tag=license_tag,
+            symbol=symbol,
+            dataset=dataset,
+            license_tag=license_tag,
         )
 
     def get_stock_dividends(
