@@ -14,6 +14,18 @@ CONNECTOR: str = "emerald-exchange-mcp"
 
 SOURCES: tuple[Any, ...] = (
     source_meta(
+        tool="emerald_exchange_get_account_positions",
+        source_id="alpaca-account-positions",
+        record_type="Position",
+        id_field="position_id",
+        cursor_field="",
+        preset={"doc_type": "position", "params_style": "args"},
+        records_path="",
+        server="emerald-exchange-mcp",
+        text_field="symbol",
+        title_field="symbol",
+    ),
+    source_meta(
         tool="emerald_exchange_get_account_snapshot",
         source_id="alpaca-account",
         record_type="Account",
@@ -16173,6 +16185,11 @@ SCHEMA_MAPPINGS: dict[str, Any] = {
     },
     "Position": {
         "fields": {
+            "account_id": "xsd:string",
+            "symbol": "xsd:string",
+            "avg_entry_price": "xsd:double",
+            "current_price": "xsd:double",
+            "unrealized_pnl": "xsd:double",
             "actualScore": "xsd:float",
             "altLabel": "xsd:string",
             "answersQuestion": "xsd:string",
