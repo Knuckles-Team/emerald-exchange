@@ -14,6 +14,21 @@ CONNECTOR: str = "emerald-exchange-mcp"
 
 SOURCES: tuple[Any, ...] = (
     source_meta(
+        tool="emerald_exchange_get_account_snapshot",
+        source_id="alpaca-account",
+        record_type="Account",
+        id_field="account_id",
+        cursor_field="",
+        preset={
+            "doc_type": "account",
+            "params_style": "args",
+        },
+        records_path="",
+        server="emerald-exchange-mcp",
+        text_field="account_id",
+        title_field="account_id",
+    ),
+    source_meta(
         tool="emerald_exchange_get_positions",
         source_id="emerald-positions",
         record_type="Position",

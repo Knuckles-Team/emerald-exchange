@@ -6,7 +6,8 @@
   "requirement_ids": [
     "EMERALD-OPS-R001",
     "EMERALD-OPS-R002",
-    "EMERALD-OPS-R003"
+    "EMERALD-OPS-R003",
+    "EMERALD-OPS-R004"
   ],
   "requirements": [
     {
@@ -38,6 +39,20 @@
       ],
       "verified_by": [
         "tests/test_alpaca_account_integrity.py:11"
+      ]
+    },
+    {
+      "id": "EMERALD-OPS-R004",
+      "title": "Declare an Alpaca account snapshot source",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "2a8cdfb15312",
+        "fbd98f06c9f3"
+      ],
+      "verified_by": [
+        "tests/test_alpaca_account_integrity.py:161",
+        "tests/test_alpaca_account_integrity.py:202",
+        "tests/test_alpaca_account_integrity.py:218"
       ]
     }
   ]
