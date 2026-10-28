@@ -14,6 +14,20 @@ CONNECTOR: str = "emerald-exchange-mcp"
 
 SOURCES: tuple[Any, ...] = (
     source_meta(
+        tool="emerald_exchange_get_csv_activities",
+        source_id="alpaca-csv-activities",
+        record_type="Activity",
+        id_field="record_id",
+        cursor_field="",
+        preset={"doc_type": "account_activity", "params_style": "args",
+                "params": {"mode": "delta"}, "updated_since_param": "since",
+                "checkpoint_path": "checkpoint"},
+        records_path="records",
+        server="emerald-exchange-mcp",
+        text_field="source_event_id",
+        title_field="source_event_id",
+    ),
+    source_meta(
         tool="emerald_exchange_get_account_positions",
         source_id="alpaca-account-positions",
         record_type="Position",
@@ -58,6 +72,19 @@ SOURCES: tuple[Any, ...] = (
 )
 
 SCHEMA_MAPPINGS: dict[str, Any] = {
+    "Activity": {
+        "ontology_class": "Document",
+        "fields": {
+            "tenant_id": "xsd:string", "source_id": "xsd:string",
+            "provider": "xsd:string", "account_id": "xsd:string",
+            "instrument_id": "xsd:string", "source_event_id": "xsd:string",
+            "source_file_digest": "xsd:string", "row_id": "xsd:string",
+            "action": "xsd:string", "quantity": "xsd:double",
+            "price": "xsd:double", "fees": "xsd:double", "currency": "xsd:string",
+            "event_time_utc": "xsd:dateTime", "settlement_time_utc": "xsd:dateTime",
+            "observed_at_utc": "xsd:dateTime", "license_tag": "xsd:string",
+        },
+    },
     "AMLAlert": {
         "fields": {
             "actualScore": "xsd:float",

@@ -6,6 +6,7 @@ Unified Finance MCP exposing all trading tools via action-routed domains.
 import json
 import logging
 import sys
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
@@ -124,6 +125,7 @@ def get_mcp_instance():
     registered_tags = register_tool_surface(
         mcp,
         service="emerald-exchange",
+        package_root=Path(__file__).parent,
         registrars=[],
         verbose_targets=[
             {
