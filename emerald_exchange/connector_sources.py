@@ -13,6 +13,17 @@ from agent_connector_sdk.ingest.sources import IngestSourceDeclaration, IngestSo
 CONNECTOR: str = "emerald-exchange-mcp"
 
 SOURCES: tuple[Any, ...] = (
+    *(
+        source_meta(
+            tool="emerald_exchange_get_multi_asset_records", source_id=f"multi-asset-{kind}",
+            record_type="MultiAssetRecord", id_field="source_event_id", cursor_field="",
+            preset={"doc_type": f"multi_asset_{kind}", "params_style": "args",
+                    "params": {"mode": "delta", "kind": kind},
+                    "updated_since_param": "since", "checkpoint_path": "checkpoint"},
+            records_path="records", server="emerald-exchange-mcp",
+            text_field="instrument_id", title_field="instrument_id",
+        ) for kind in ("fx", "commodity", "real_estate")
+    ),
     source_meta(
         tool="emerald_exchange_get_exchange_history", source_id="ccxt-exchange-history",
         record_type="ExchangeCandle", id_field="candle_id", cursor_field="",
@@ -162,6 +173,18 @@ SOURCES: tuple[Any, ...] = (
 )
 
 SCHEMA_MAPPINGS: dict[str, Any] = {
+    "MultiAssetRecord": {
+        "ontology_class": "Document",
+        "fields": {"tenant_id": "xsd:string", "source_id": "xsd:string", "provider": "xsd:string",
+                   "instrument_id": "xsd:string", "source_event_id": "xsd:string",
+                   "event_time_utc": "xsd:dateTime", "observed_at_utc": "xsd:dateTime",
+                   "license_tag": "xsd:string", "source_digest": "xsd:string",
+                   "base_currency": "xsd:string", "quote_currency": "xsd:string", "rate": "xsd:double",
+                   "basis": "xsd:string", "price": "xsd:double", "currency": "xsd:string",
+                   "contract_code": "xsd:string", "expiry": "xsd:dateTime", "roll_rule": "xsd:string",
+                   "valuation_date": "xsd:dateTime", "method": "xsd:string", "estimated_value": "xsd:double",
+                   "staleness_days": "xsd:integer", "stale": "xsd:boolean"},
+    },
     "ExchangeCandle": {
         "ontology_class": "Document",
         "fields": {"exchange": "xsd:string", "symbol": "xsd:string", "interval": "xsd:string",
