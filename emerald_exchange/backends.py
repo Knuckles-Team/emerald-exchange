@@ -567,6 +567,7 @@ class CCXTBackend:
         self._secret = secret
         self._mode = mode
         self._exchange: Any = None
+        self._read_errors = (OSError, ValueError, TypeError, LookupError, AttributeError, OverflowError)
 
     @property
     def name(self) -> str:
@@ -583,6 +584,8 @@ class CCXTBackend:
     def connect(self) -> bool:
         try:
             import ccxt
+
+            self._read_errors = (*self._read_errors, ccxt.BaseError)
 
             exchange_class = getattr(ccxt, self._exchange_id)
             config: dict[str, Any] = {"apiKey": self._api_key, "secret": self._secret}
@@ -735,24 +738,31 @@ class CCXTBackend:
     def get_historical(
         self, symbol: str, period: str = "1y", interval: str = "1d"
     ) -> list[OHLCV]:
+        from datetime import timedelta
+
+        periods = {"1d": 1, "5d": 5, "1mo": 30, "3mo": 90, "6mo": 180, "1y": 365, "2y": 730}
+        if period not in periods:
+            raise ValueError("unsupported exchange history period")
+        end = datetime.now(UTC).replace(microsecond=0)
+        start = end - timedelta(days=periods[period])
+        cursor = None
+        candles: list[OHLCV] = []
+        for _ in range(20):
+            page = self.get_history_page(symbol=symbol, start=start.isoformat(), end=end.isoformat(), interval=interval, license_tag="legacy", limit=1000, page_token=cursor)
+            candles.extend(OHLCV(timestamp=c["timestamp"], open=c["open"], high=c["high"], low=c["low"], close=c["close"], volume=c["volume"]) for c in page["candles"])
+            cursor = page["next_page_token"]
+            if cursor is None:
+                return candles
+        raise RuntimeError("exchange history exceeds the page limit")
+
+    def get_history_page(self, **kwargs: Any) -> dict[str, Any]:
+        """Read one bounded, explicitly labelled CCXT candle page."""
+        from emerald_exchange.ccxt_history import read_history_page
+
         try:
-            tf_map = {"1m": "1m", "5m": "5m", "1h": "1h", "1d": "1d"}
-            tf = tf_map.get(interval, "1d")
-            candles = self._exchange.fetch_ohlcv(symbol, tf, limit=365)
-            return [
-                OHLCV(
-                    timestamp=datetime.fromtimestamp(c[0] / 1000, tz=UTC).isoformat(),
-                    open=c[1],
-                    high=c[2],
-                    low=c[3],
-                    close=c[4],
-                    volume=c[5],
-                )
-                for c in candles
-            ]
-        except Exception as caught_error:
-            logging.getLogger(__name__).exception("Operation failed (type=%s)", type(caught_error).__name__, exc_info=False)
-            return []
+            return read_history_page(self._exchange, exchange_id=self._exchange_id, **kwargs)
+        except self._read_errors:
+            raise RuntimeError("exchange history read failed") from None
 
 
 class FreqtradeBackend:
