@@ -198,3 +198,14 @@ def test_failed_stock_client_creation_does_not_leave_partial_connection(monkeypa
     assert not backend.connect()
     assert backend._client is None
     assert backend._stock_data_client is None
+
+
+@pytest.mark.parametrize("adjustment", ["raw", "split", "dividend", "spin-off", "all"])
+@pytest.mark.parametrize("feed", ["iex", "sip"])
+def test_provider_bar_request_retains_adjustment_and_feed(adjustment, feed):
+    ops, market = operations({"bars": {"AAPL": [BAR]}, "next_page_token": None})
+    result = ops.get_stock_bars(**{**ARGS, "adjustment": adjustment, "feed": feed})
+    assert market.calls[0][1]["adjustment"] == adjustment
+    assert market.calls[0][1]["feed"] == feed
+    assert result["bars"][0]["adjustment"] == adjustment
+    assert result["bars"][0]["feed"] == feed
