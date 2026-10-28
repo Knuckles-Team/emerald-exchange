@@ -21,6 +21,7 @@ from emerald_exchange.backends import (
     OHLCV,
     AccountInfo,
     AlpacaBackend,
+    CCXTBackend,
     ExchangeBackend,
     ExecutionResult,
     Position,
@@ -41,6 +42,7 @@ READ_OPERATIONS = (
     "get_stock_news",
     "get_stock_dividends",
     "get_company_records",
+    "get_exchange_history",
     "get_order_status",
     "exchanges",
 )
@@ -61,6 +63,19 @@ class ExchangeReadOperations:
     ) -> list[OHLCV]:
         """Historical OHLCV bars for one symbol."""
         return self._backend.get_historical(symbol, period=period, interval=interval)
+
+    def get_exchange_history(
+        self, symbol: str, start: str, end: str, interval: str, license_tag: str,
+        mode: Literal["delta"], limit: int = 1000, page_token: str | None = None,
+        since: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Read one bounded CCXT candle page with stable exchange identity."""
+        if not self._backend.name.startswith("ccxt:") or mode != "delta":
+            raise ValueError("exchange history requires CCXT and delta mode")
+        return cast(CCXTBackend, self._backend).get_history_page(
+            symbol=symbol, start=start, end=end, interval=interval,
+            license_tag=license_tag, limit=limit, page_token=page_token,
+        )
 
     def get_positions(self) -> list[Position]:
         """Open positions."""

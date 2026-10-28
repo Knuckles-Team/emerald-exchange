@@ -13,6 +13,14 @@ from agent_connector_sdk.ingest.sources import IngestSourceDeclaration, IngestSo
 CONNECTOR: str = "emerald-exchange-mcp"
 
 SOURCES: tuple[Any, ...] = (
+    source_meta(
+        tool="emerald_exchange_get_exchange_history", source_id="ccxt-exchange-history",
+        record_type="ExchangeCandle", id_field="candle_id", cursor_field="",
+        preset={"doc_type": "exchange_candle", "params_style": "args", "params": {"mode": "delta"},
+                "pagination": "cursor", "cursor_param": "page_token", "cursor_path": "next_page_token",
+                "updated_since_param": "since", "checkpoint_path": "checkpoint"},
+        records_path="candles", server="emerald-exchange-mcp", text_field="symbol", title_field="symbol",
+    ),
     *(
         source_meta(
             tool="emerald_exchange_get_company_records",
@@ -154,6 +162,13 @@ SOURCES: tuple[Any, ...] = (
 )
 
 SCHEMA_MAPPINGS: dict[str, Any] = {
+    "ExchangeCandle": {
+        "ontology_class": "Document",
+        "fields": {"exchange": "xsd:string", "symbol": "xsd:string", "interval": "xsd:string",
+                   "timestamp": "xsd:dateTime", "open": "xsd:double", "high": "xsd:double",
+                   "low": "xsd:double", "close": "xsd:double", "volume": "xsd:double",
+                   "license_tag": "xsd:string"},
+    },
     "CompanyRecord": {
         "ontology_class": "Document",
         "fields": {"symbol": "xsd:string", "dataset": "xsd:string", "provider": "xsd:string",
