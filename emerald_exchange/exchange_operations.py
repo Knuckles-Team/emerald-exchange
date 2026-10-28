@@ -13,13 +13,14 @@ from __future__ import annotations
 import hashlib
 import json
 from dataclasses import asdict
-from typing import Any, Literal
+from typing import Any, Literal, cast
 from uuid import uuid4
 
 from emerald_exchange.backends import (
     BACKEND_REGISTRY,
     OHLCV,
     AccountInfo,
+    AlpacaBackend,
     ExchangeBackend,
     ExecutionResult,
     Position,
@@ -35,6 +36,8 @@ READ_OPERATIONS = (
     "get_account_snapshot",
     "get_account_positions",
     "get_csv_activities",
+    "get_stock_bars",
+    "get_stock_quote",
     "get_order_status",
     "exchanges",
 )
@@ -93,6 +96,54 @@ class ExchangeReadOperations:
             }
             for position in snapshot["positions"]
         ]
+
+    def get_stock_bars(
+        self,
+        symbol: str,
+        start: str,
+        end: str,
+        timeframe: str,
+        adjustment: str,
+        feed: str,
+        license_tag: str,
+        mode: Literal["delta"],
+        limit: int = 1000,
+        page_token: str | None = None,
+        since: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Read one Alpaca page with explicit adjustment and feed labels."""
+        if self._backend.name != "alpaca":
+            raise ValueError("stock-bars source requires the Alpaca backend")
+        if mode != "delta":
+            raise ValueError("stock-bars source requires delta mode")
+        return cast(AlpacaBackend, self._backend).get_stock_bars_page(
+            symbol=symbol,
+            start=start,
+            end=end,
+            timeframe=timeframe,
+            adjustment=adjustment,
+            feed=feed,
+            license_tag=license_tag,
+            limit=limit,
+            page_token=page_token,
+        )
+
+    def get_stock_quote(
+        self,
+        symbol: str,
+        feed: str,
+        license_tag: str,
+        mode: Literal["delta"],
+        since: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Read an Alpaca quote with explicit feed and source time."""
+        if self._backend.name != "alpaca":
+            raise ValueError("stock-quote source requires the Alpaca backend")
+        if mode != "delta":
+            raise ValueError("stock-quote source requires delta mode")
+        return cast(AlpacaBackend, self._backend).get_stock_quote(
+            symbol=symbol, feed=feed, license_tag=license_tag
+        )
 
     def get_csv_activities(
         self,
