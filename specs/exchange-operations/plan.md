@@ -23,3 +23,7 @@ basis explicit and do not assert live entitlements from offline fixtures.
 The account source proof also exercises the SDK account-bound validator. It
 replays account, position and CSV records into a real graph. This evidence uses
 synthetic provider responses and does not establish live account access.
+
+The stock provider proof also runs the SDK stock adapter with the served pack.
+It replays bars, quotes, news, dividends and company records into a real graph.
+Provider responses are synthetic and do not establish live data rights.
