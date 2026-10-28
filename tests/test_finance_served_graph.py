@@ -8,15 +8,6 @@ from importlib.metadata import version
 from types import SimpleNamespace
 
 import pytest
-from epistemic_graph import EpistemicGraphClient
-from epistemic_graph.connector_pack import ConnectorPackClient
-from epistemic_graph.generated.connector_pack import (
-    AgentLibraryMutationContext,
-    McpCatalogSnapshotBinding,
-    PackProducer,
-)
-from packaging.version import Version
-
 from agent_connector_sdk.adapters.mcp_tool import McpToolSourceAdapter
 from agent_connector_sdk.artifacts.pack import build_content_pack
 from agent_connector_sdk.artifacts.resources import ResourceArtifactKind
@@ -26,11 +17,17 @@ from agent_connector_sdk.ports.session import TransportEndpoint
 from agent_connector_sdk.runner.syncing import SyncTarget, sync_stream
 from agent_connector_sdk.sinks.epistemic_graph import EpistemicGraphSink
 from agent_connector_sdk.transports.mcp import McpTransport
+from epistemic_graph import EpistemicGraphClient
+from epistemic_graph.connector_pack import ConnectorPackClient
+from epistemic_graph.generated.connector_pack import (
+    AgentLibraryMutationContext,
+    McpCatalogSnapshotBinding,
+    PackProducer,
+)
+from packaging.version import Version
 
 from emerald_exchange.backends import AlpacaBackend
 from emerald_exchange.connector_sources import declaration
-
-from tests.live_engine import live_compute  # noqa: F401
 from tests.live_engine import (
     _HMAC_KEY,
     _LIVE_SOCKET,
@@ -38,6 +35,7 @@ from tests.live_engine import (
     TENANT,
     _context,
 )
+from tests.live_engine import live_compute as _live_compute
 
 
 def _catalog():
@@ -109,7 +107,7 @@ class Provider:
         ]
 
 
-async def exercise(mcp):
+async def exercise(mcp, *, validate=False):
     client = await scoped_client(["*"])
     try:
         context = _mutation_context().model_copy(update={"tenant_id": TENANT})
@@ -195,13 +193,24 @@ async def exercise(mcp):
                         "license_tag": "licensed",
                     }
                 preset = ToolPreset.from_mapping(source_id, raw)
-                adapters.append(
-                    McpToolSourceAdapter(
-                        preset,
-                        connector=CONNECTOR,
-                        mapping_reference=f"connector:{CONNECTOR}#mappings/{kind}",
-                    )
+                adapter = McpToolSourceAdapter(
+                    preset,
+                    connector=CONNECTOR,
+                    mapping_reference=f"connector:{CONNECTOR}#mappings/{kind}",
                 )
+                if validate:
+                    from agent_connector_sdk.finance.account_source import (
+                        AccountSourceAdapter,
+                        AccountSourceKind,
+                    )
+
+                    adapter = AccountSourceAdapter(
+                        adapter,
+                        account_kind=AccountSourceKind(kind.lower()),
+                        tenant_id=TENANT,
+                        account_id="account-1",
+                    )
+                adapters.append(adapter)
             for _ in range(2):
                 for adapter in adapters:
                     assert (await sync_stream(session, adapter, target)).accepted == 1
@@ -237,7 +246,9 @@ async def exercise(mcp):
     Version(version("epistemic-graph")) < Version("2.27.6"),
     reason="real connector pack replay requires graph 2.27.6",
 )
-def test_real_served_pack_reimports_account_positions_and_csv(live_compute, monkeypatch):
+def test_real_served_pack_reimports_account_positions_and_csv(
+    account_original_engine, monkeypatch
+):
     from emerald_exchange import backends
     from emerald_exchange.mcp_server import get_mcp_instance
 
@@ -248,3 +259,30 @@ def test_real_served_pack_reimports_account_positions_and_csv(live_compute, monk
     monkeypatch.setattr(sys, "argv", ["emerald-exchange", "--transport", "stdio"])
     mcp = get_mcp_instance()[0]
     asyncio.run(exercise(mcp))
+
+
+@pytest.fixture(scope="session")
+def account_original_engine(tmp_path_factory):
+    yield from _live_compute.__wrapped__(tmp_path_factory)
+
+
+@pytest.fixture
+def account_adapter_engine(tmp_path_factory):
+    yield from _live_compute.__wrapped__(tmp_path_factory)
+
+
+@pytest.mark.skipif(
+    Version(version("epistemic-graph")) < Version("2.27.6"),
+    reason="real connector pack replay requires graph 2.27.6",
+)
+def test_account_validator_replays_all_sources(account_adapter_engine, monkeypatch):
+    pytest.importorskip("agent_connector_sdk.finance.account_source")
+    from emerald_exchange import backends
+    from emerald_exchange.mcp_server import get_mcp_instance
+
+    backend = AlpacaBackend()
+    backend._client = Provider()
+    backend.connect = lambda: True
+    monkeypatch.setattr(backends, "create_backend", lambda *args: backend)
+    monkeypatch.setattr(sys, "argv", ["emerald-exchange", "--transport", "stdio"])
+    asyncio.run(exercise(get_mcp_instance()[0], validate=True))
