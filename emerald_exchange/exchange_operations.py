@@ -13,7 +13,8 @@ from __future__ import annotations
 import hashlib
 import json
 from dataclasses import asdict
-from typing import Any
+from typing import Any, Literal
+from uuid import uuid4
 
 from emerald_exchange.backends import (
     BACKEND_REGISTRY,
@@ -33,6 +34,7 @@ READ_OPERATIONS = (
     "get_account",
     "get_account_snapshot",
     "get_account_positions",
+    "get_csv_activities",
     "get_order_status",
     "exchanges",
 )
@@ -91,6 +93,72 @@ class ExchangeReadOperations:
             }
             for position in snapshot["positions"]
         ]
+
+    def get_csv_activities(
+        self,
+        content: str,
+        mapping: dict[str, str],
+        tenant_id: str,
+        instrument_id: str,
+        license_tag: str,
+        mode: Literal["delta"],
+        since: dict[str, str] | None = None,
+    ) -> dict[str, Any]:
+        """Read validated statement rows for the active Alpaca account."""
+        from agent_connector_sdk.finance.csv_import import (
+            AccountContext,
+            ColumnMapping,
+            import_activities,
+        )
+
+        if self._backend.name != "alpaca":
+            raise ValueError("CSV activity source requires the Alpaca backend")
+        if mode != "delta":
+            raise ValueError("CSV activity source requires delta mode")
+        if any(
+            not isinstance(value, str) or not value.strip()
+            for value in (tenant_id, instrument_id, license_tag)
+        ):
+            raise ValueError(
+                "CSV activity source requires tenant, instrument and license"
+            )
+        account = self._backend.get_account()
+        if not account.account_id:
+            raise ValueError("CSV activity source requires an account identity")
+        context = AccountContext(
+            tenant_id=tenant_id,
+            source_id="alpaca-csv-activities",
+            provider="alpaca",
+            instrument_id=instrument_id,
+            account_id=account.account_id,
+            license_tag=license_tag,
+        )
+        try:
+            activities = import_activities(
+                content.encode(), ColumnMapping(mapping), context
+            )
+        except (ValueError, TypeError, OverflowError):
+            raise ValueError("Invalid CSV activity statement") from None
+        records = []
+        for activity in activities:
+            identity = json.dumps(
+                [
+                    tenant_id,
+                    context.source_id,
+                    context.provider,
+                    account.account_id,
+                    activity.source_event_id,
+                ],
+                ensure_ascii=True,
+                separators=(",", ":"),
+            ).encode()
+            records.append(
+                {
+                    **activity.model_dump(mode="json"),
+                    "record_id": hashlib.sha256(identity).hexdigest(),
+                }
+            )
+        return {"records": records, "checkpoint": {"generation": uuid4().hex}}
 
     def exchanges(self) -> dict[str, Any]:
         """Available exchange backends, the active backend and its mode."""
