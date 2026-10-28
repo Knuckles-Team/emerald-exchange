@@ -33,7 +33,8 @@
       "title": "Alpaca account reads retain provider identity and fail closed",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "20b69831813a"
+        "20b69831813a",
+        "eb8e9c838d5e"
       ],
       "verified_by": [
         "tests/test_alpaca_account_integrity.py:11"
