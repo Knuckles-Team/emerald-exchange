@@ -304,3 +304,44 @@ def read_commodity(
     else:
         record["basis"] = "spot"
     return {"records": [record], "checkpoint": {"generation": uuid4().hex}}
+
+
+def read_gold_spot(
+    api_key: str, *, tenant_id: str, source_id: str, license_tag: str
+) -> dict[str, Any]:
+    """Read Twelve Data's gold spot quote using its last minute timestamp."""
+    _identity(tenant_id, source_id, license_tag)
+    if not api_key:
+        raise ValueError("spot source requires an API key")
+    payload = safe_get_json(
+        "https://api.twelvedata.com/quote",
+        params={"symbol": "XAU/USD", "interval": "1min"},
+        headers={"Authorization": "apikey " + api_key},
+        max_bytes=1024 * 1024,
+        max_redirects=0,
+    )
+    if not isinstance(payload, dict) or payload.get("symbol") != "XAU/USD":
+        raise ValueError("invalid spot provider identity")
+    timestamp = payload.get("last_quote_at")
+    raw_price = payload.get("close")
+    if type(timestamp) is not int or not isinstance(raw_price, str):
+        raise ValueError("invalid spot provider quote")
+    event = datetime.fromtimestamp(timestamp, UTC)
+    observed = datetime.now(UTC)
+    if event > observed:
+        raise ValueError("future spot provider time")
+    record = {
+        "tenant_id": tenant_id,
+        "source_id": source_id,
+        "provider": "twelvedata",
+        "instrument_id": "XAU/USD",
+        "source_event_id": _digest(["XAU/USD", timestamp]),
+        "event_time_utc": event.isoformat(),
+        "observed_at_utc": observed.isoformat(),
+        "license_tag": license_tag,
+        "source_digest": _digest(payload),
+        "basis": "spot",
+        "currency": "USD",
+        "price": _number(float(raw_price), positive=True),
+    }
+    return {"records": [record], "checkpoint": {"generation": uuid4().hex}}

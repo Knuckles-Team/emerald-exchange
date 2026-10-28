@@ -34,12 +34,12 @@ from tests.test_finance_served_graph import (
 from tests.test_multi_asset_sources import stub_providers
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def multi_asset_live_compute(tmp_path_factory):
     yield from _live_compute.__wrapped__(tmp_path_factory)
 
 
-async def _exercise(server):
+async def _exercise(server, *, validate=False):
     client = await scoped_client(["*"])
     try:
         context = _mutation_context().model_copy(update={"tenant_id": TENANT})
@@ -83,7 +83,7 @@ async def _exercise(server):
             async def authority(_):
                 return _catalog(), context
 
-            for kind in ("fx", "commodity", "real_estate"):
+            for kind in ("fx", "commodity", "commodity_spot", "real_estate"):
                 source = next(
                     s
                     for s in declaration().sources
@@ -107,6 +107,8 @@ async def _exercise(server):
                             if kind == "fx"
                             else {"attom_id": 123, "max_age_days": 30}
                             if kind == "real_estate"
+                            else {}
+                            if kind == "commodity_spot"
                             else {
                                 "dataset": "GLBX.MDP3",
                                 "symbol": "GCZ4",
@@ -121,6 +123,21 @@ async def _exercise(server):
                     connector=CONNECTOR,
                     mapping_reference=f"connector:{CONNECTOR}#mappings/MultiAssetRecord",
                 )
+                if validate:
+                    from agent_connector_sdk.finance.multi_asset_source import (
+                        MultiAssetKind,
+                        MultiAssetSourceAdapter,
+                    )
+
+                    adapter = MultiAssetSourceAdapter(
+                        adapter,
+                        asset_kind=MultiAssetKind(
+                            "commodity" if kind == "commodity_spot" else kind
+                        ),
+                        tenant_id=TENANT,
+                        source_id=source.source_id,
+                        real_estate_max_age_days=30 if kind == "real_estate" else None,
+                    )
                 target = SyncTarget(
                     CONNECTOR, EpistemicGraphSink(client, authority), max_pages=1
                 )
@@ -129,7 +146,7 @@ async def _exercise(server):
         rows = await client.query.cypher_read(
             "MATCH (n) WHERE n.source_stream IS NOT NULL RETURN n LIMIT 100"
         )
-        for kind in ("fx", "commodity", "real_estate"):
+        for kind in ("fx", "commodity", "commodity_spot", "real_estate"):
             records = [
                 r["n"]
                 for r in rows
@@ -137,6 +154,23 @@ async def _exercise(server):
             ]
             assert len(records) == 1
             assert records[0]["instrument_id"]
+            if kind == "fx":
+                assert records[0]["base_currency"] == "EUR"
+                assert records[0]["quote_currency"] == "USD"
+                assert records[0]["rate"] == 1.12
+            elif kind == "commodity":
+                assert records[0]["basis"] == "future"
+                assert records[0]["contract_code"] == "GCZ4"
+                assert records[0]["roll_rule"] == "none:fixed-contract"
+                assert records[0]["expiry"].startswith("2024-12-01")
+            elif kind == "commodity_spot":
+                assert records[0]["basis"] == "spot"
+                assert records[0]["price"] == 2020.25
+                assert records[0]["currency"] == "USD"
+            else:
+                assert records[0]["valuation_date"].startswith("2024-01-01")
+                assert records[0]["stale"] is True
+                assert records[0]["estimated_value"] == 500000
     finally:
         await client.close()
 
@@ -154,3 +188,17 @@ def test_served_multi_asset_sources_reimport_into_graph(
     monkeypatch.setattr(backends, "create_backend", lambda *_: backend)
     monkeypatch.setattr(sys, "argv", ["emerald-exchange", "--transport", "stdio"])
     asyncio.run(_exercise(get_mcp_instance()[0]))
+
+
+@pytest.mark.skipif(
+    Version(version("epistemic-graph")) < Version("2.27.6"),
+    reason="real connector pack replay requires graph 2.27.6",
+)
+def test_provider_records_through_sdk_and_graph(multi_asset_live_compute, monkeypatch):
+    pytest.importorskip("agent_connector_sdk.finance.multi_asset_source")
+    stub_providers(monkeypatch)
+    backend = AlpacaBackend(fmp_api_key="test-key")
+    backend.connect = lambda: True
+    monkeypatch.setattr(backends, "create_backend", lambda *_: backend)
+    monkeypatch.setattr(sys, "argv", ["emerald-exchange", "--transport", "stdio"])
+    asyncio.run(_exercise(get_mcp_instance()[0], validate=True))

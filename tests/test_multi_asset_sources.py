@@ -19,6 +19,12 @@ def test_fx_and_dated_valuation_provider_reads(monkeypatch):
         calls.append((url, kwargs))
         if "financialmodelingprep" in url:
             return [{"symbol": "EURUSD", "price": 1.12, "timestamp": 1704067200}]
+        if "twelvedata" in url:
+            return {
+                "symbol": "XAU/USD",
+                "last_quote_at": 1704067200,
+                "close": "2020.25",
+            }
         return {
             "property": [
                 {
@@ -108,10 +114,17 @@ def stub_providers(monkeypatch):
     monkeypatch.setenv("FMP_API_KEY", "fmp-test-key")
     monkeypatch.setenv("ATTOM_API_KEY", "attom-test-key")
     monkeypatch.setenv("DATABENTO_API_KEY", "databento-test-key")
+    monkeypatch.setenv("TWELVE_DATA_API_KEY", "spot-test-key")
 
     def get_json(url, **kwargs):
         if "financialmodelingprep" in url:
             return [{"symbol": "EURUSD", "price": 1.12, "timestamp": 1704067200}]
+        if "twelvedata" in url:
+            return {
+                "symbol": "XAU/USD",
+                "last_quote_at": 1704067200,
+                "close": "2020.25",
+            }
         return {
             "property": [
                 {
@@ -195,3 +208,39 @@ def test_wrong_contract_or_missing_expiry_is_refused(monkeypatch):
             end="2024-01-02T00:00:00Z",
             **IDENTITY,
         )
+
+
+def test_twelve_data_gold_spot_quote_preserves_minute_time(monkeypatch):
+    calls = []
+
+    def get(url, **kwargs):
+        calls.append((url, kwargs))
+        return {"symbol": "XAU/USD", "last_quote_at": 1704067200, "close": "2020.25"}
+
+    monkeypatch.setenv("TWELVE_DATA_API_KEY", "spot-secret")
+    monkeypatch.setattr(sources, "safe_get_json", get)
+    record = ExchangeReadOperations(PaperBackend()).get_multi_asset_records(
+        "commodity_spot", **IDENTITY, mode="delta"
+    )["records"][0]
+    assert record["basis"] == "spot"
+    assert record["instrument_id"] == "XAU/USD"
+    assert record["price"] == 2020.25
+    assert record["event_time_utc"] == "2024-01-01T00:00:00+00:00"
+    assert calls[0][1]["headers"] == {"Authorization": "apikey spot-secret"}
+    assert calls[0][1]["max_redirects"] == 0
+    assert "spot-secret" not in calls[0][0]
+
+
+def test_gold_spot_requires_provider_identity_and_minute_time(monkeypatch):
+    monkeypatch.setenv("TWELVE_DATA_API_KEY", "spot-secret")
+    ops = ExchangeReadOperations(PaperBackend())
+    for payload in (
+        {"symbol": "XAG/USD", "last_quote_at": 1704067200, "close": "20"},
+        {"symbol": "XAU/USD", "close": "2020"},
+        {"symbol": "XAU/USD", "last_quote_at": 1704067200, "close": "NaN"},
+    ):
+        monkeypatch.setattr(
+            sources, "safe_get_json", lambda *_a, result=payload, **_kw: result
+        )
+        with pytest.raises(RuntimeError, match="multi-asset provider read failed"):
+            ops.get_multi_asset_records("commodity_spot", **IDENTITY, mode="delta")

@@ -204,7 +204,7 @@ class ExchangeReadOperations:
 
     def get_multi_asset_records(
         self,
-        kind: Literal["fx", "commodity", "real_estate"],
+        kind: Literal["fx", "commodity", "commodity_spot", "real_estate"],
         tenant_id: str,
         source_id: str,
         license_tag: str,
@@ -225,13 +225,16 @@ class ExchangeReadOperations:
         from emerald_exchange.multi_asset_sources import (
             read_commodity,
             read_fx,
+            read_gold_spot,
             read_valuation,
         )
 
         if mode != "delta":
             raise ValueError("multi-asset source requires delta mode")
         identity = {
-            "tenant_id": tenant_id, "source_id": source_id, "license_tag": license_tag
+            "tenant_id": tenant_id,
+            "source_id": source_id,
+            "license_tag": license_tag,
         }
         try:
             if kind == "fx":
@@ -249,6 +252,10 @@ class ExchangeReadOperations:
                     start=start,
                     end=end,
                     **identity,
+                )
+            if kind == "commodity_spot":
+                return read_gold_spot(
+                    os.environ.get("TWELVE_DATA_API_KEY", ""), **identity
                 )
             if kind == "real_estate":
                 return read_valuation(
