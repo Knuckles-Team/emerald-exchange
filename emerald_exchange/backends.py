@@ -485,7 +485,23 @@ class AlpacaBackend:
         if self._stock_data_client is None:
             raise RuntimeError("Alpaca stock data is not connected")
         try:
-            return read_stock_bars_page(self._stock_data_client, **kwargs)
+            session_scope = kwargs.pop("session_scope", "feed_native")
+            if session_scope not in {"feed_native", "alpaca_calendar"}:
+                raise ValueError("invalid stock session scope")
+            if session_scope == "alpaca_calendar":
+                from emerald_exchange.alpaca_sessions import classify_stock_bar_sessions
+
+                if self._client is None:
+                    raise RuntimeError("Alpaca calendar is not connected")
+                classify_stock_bar_sessions(
+                    self._client, [], feed=kwargs["feed"], timeframe=kwargs["timeframe"]
+                )
+            result = read_stock_bars_page(self._stock_data_client, **kwargs)
+            if session_scope == "alpaca_calendar":
+                classify_stock_bar_sessions(
+                    self._client, result["bars"], feed=kwargs["feed"], timeframe=kwargs["timeframe"]
+                )
+            return result
         except self._read_errors:
             raise RuntimeError("Alpaca stock data read failed") from None
 

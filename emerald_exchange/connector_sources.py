@@ -178,7 +178,7 @@ SCHEMA_MAPPINGS: dict[str, Any] = {
         "ontology_class": "Document",
         "fields": {"symbol": "xsd:string", "timestamp": "xsd:dateTime",
                    "timeframe": "xsd:string", "adjustment": "xsd:string", "feed": "xsd:string",
-                   "session_scope": "xsd:string", "license_tag": "xsd:string",
+                   "session_scope": "xsd:string", "session": "xsd:string", "license_tag": "xsd:string",
                    "open": "xsd:double", "high": "xsd:double", "low": "xsd:double",
                    "close": "xsd:double", "volume": "xsd:double"},
     },
