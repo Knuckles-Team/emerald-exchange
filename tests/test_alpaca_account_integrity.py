@@ -156,3 +156,60 @@ def test_documented_provider_exception_is_redacted():
     with pytest.raises(RuntimeError) as error:
         backend.get_account()
     assert "provider-private-detail" not in str(error.value)
+
+
+@pytest.mark.spec("EMERALD-OPS-R004")
+def test_snapshot_source_is_declared_and_served():
+    from agent_connector_sdk.mcp.server import create_mcp_server
+    from agent_connector_sdk.mcp.tool_surface import register_tool_surface
+    from fastmcp import Client
+
+    from emerald_exchange.connector_sources import SOURCES
+
+    declaration = next(
+        item
+        for group in SOURCES
+        for item in group["connector_sources"]
+        if item["source_id"] == "alpaca-account"
+    )
+    assert declaration["tool"] == "emerald_exchange_get_account_snapshot"
+    assert declaration["id_field"] == "account_id"
+    operations = _operations(Provider())
+    server = create_mcp_server("emerald-exchange-mcp", version="0", command_args=[])[1]
+    register_tool_surface(
+        server,
+        service="emerald-exchange",
+        registrars=[],
+        verbose_targets=[
+            {
+                "client_cls": ExchangeReadOperations,
+                "get_client": lambda: operations,
+                "tool_prefix": "emerald",
+            }
+        ],
+    )
+
+    async def run():
+        async with Client(server) as client:
+            return (await client.call_tool(declaration["tool"], {})).data
+
+    result = asyncio.run(run())
+    assert len(result) == 1
+    assert result[0]["account_id"] == "account-1"
+    assert result[0]["positions"][0]["symbol"] == "ABC"
+
+
+@pytest.mark.spec("EMERALD-OPS-R004")
+def test_snapshot_source_refuses_incomplete_account_or_position_reads():
+    from emerald_exchange.backends import PaperBackend
+
+    with pytest.raises(ValueError, match="Alpaca"):
+        ExchangeReadOperations(PaperBackend()).get_account_snapshot()
+    provider = Provider()
+
+    def fail():
+        raise ConnectionError("provider unavailable")
+
+    provider.get_all_positions = fail
+    with pytest.raises(RuntimeError, match="read failed"):
+        _operations(provider).get_account_snapshot()

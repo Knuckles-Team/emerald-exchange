@@ -10,6 +10,7 @@ per-operation tools, a way around the guard.
 
 from __future__ import annotations
 
+from dataclasses import asdict
 from typing import Any
 
 from emerald_exchange.backends import (
@@ -28,6 +29,7 @@ READ_OPERATIONS = (
     "get_historical",
     "get_positions",
     "get_account",
+    "get_account_snapshot",
     "get_order_status",
     "exchanges",
 )
@@ -56,6 +58,16 @@ class ExchangeReadOperations:
     def get_account(self) -> AccountInfo:
         """Account balances and buying power."""
         return self._backend.get_account()
+
+    def get_account_snapshot(self) -> list[dict[str, Any]]:
+        """Read one Alpaca account and its positions as an ingestible record."""
+        if self._backend.name != "alpaca":
+            raise ValueError("account snapshot source requires the Alpaca backend")
+        account = self._backend.get_account()
+        if not account.account_id:
+            raise ValueError("account snapshot source requires an account identity")
+        positions = self._backend.get_positions()
+        return [{**asdict(account), "positions": [asdict(item) for item in positions]}]
 
     def exchanges(self) -> dict[str, Any]:
         """Available exchange backends, the active backend and its mode."""
