@@ -38,6 +38,8 @@ READ_OPERATIONS = (
     "get_csv_activities",
     "get_stock_bars",
     "get_stock_quote",
+    "get_stock_news",
+    "get_stock_dividends",
     "get_order_status",
     "exchanges",
 )
@@ -143,6 +145,52 @@ class ExchangeReadOperations:
             raise ValueError("stock-quote source requires delta mode")
         return cast(AlpacaBackend, self._backend).get_stock_quote(
             symbol=symbol, feed=feed, license_tag=license_tag
+        )
+
+    def get_stock_news(
+        self,
+        symbol: str,
+        start: str,
+        end: str,
+        license_tag: str,
+        mode: Literal["delta"],
+        limit: int = 50,
+        page_token: str | None = None,
+        since: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Read one bounded page of Alpaca news headlines."""
+        if self._backend.name != "alpaca" or mode != "delta":
+            raise ValueError("stock-news source requires Alpaca and delta mode")
+        return cast(AlpacaBackend, self._backend).get_stock_news_page(
+            symbol=symbol,
+            start=start,
+            end=end,
+            license_tag=license_tag,
+            limit=limit,
+            page_token=page_token,
+        )
+
+    def get_stock_dividends(
+        self,
+        symbol: str,
+        start: str,
+        end: str,
+        license_tag: str,
+        mode: Literal["delta"],
+        limit: int = 100,
+        page_token: str | None = None,
+        since: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Read one bounded page of Alpaca corporate-action dividends."""
+        if self._backend.name != "alpaca" or mode != "delta":
+            raise ValueError("stock-dividends source requires Alpaca and delta mode")
+        return cast(AlpacaBackend, self._backend).get_stock_dividends_page(
+            symbol=symbol,
+            start=start,
+            end=end,
+            license_tag=license_tag,
+            limit=limit,
+            page_token=page_token,
         )
 
     def get_csv_activities(

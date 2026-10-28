@@ -266,6 +266,8 @@ class AlpacaBackend:
         self._mode = mode
         self._client: Any = None
         self._stock_data_client: Any = None
+        self._news_client: Any = None
+        self._corporate_actions_client: Any = None
         self._read_errors = (
             OSError,
             ValueError,
@@ -289,6 +291,8 @@ class AlpacaBackend:
     def connect(self) -> bool:
         try:
             from alpaca.common.exceptions import APIError
+            from alpaca.data.historical.corporate_actions import CorporateActionsClient
+            from alpaca.data.historical.news import NewsClient
             from alpaca.data.historical.stock import StockHistoricalDataClient
             from alpaca.trading.client import TradingClient
 
@@ -299,7 +303,10 @@ class AlpacaBackend:
             stock_data_client = StockHistoricalDataClient(
                 self._api_key, self._secret_key
             )
+            news_client = NewsClient(self._api_key, self._secret_key)
+            corporate_actions_client = CorporateActionsClient(self._api_key, self._secret_key)
             self._client, self._stock_data_client = trading_client, stock_data_client
+            self._news_client, self._corporate_actions_client = news_client, corporate_actions_client
             logger.info("Alpaca connected (mode=%s)", self._mode)
             return True
         except ImportError:
@@ -311,6 +318,8 @@ class AlpacaBackend:
     def disconnect(self) -> None:
         self._client = None
         self._stock_data_client = None
+        self._news_client = None
+        self._corporate_actions_client = None
 
     def submit_order(
         self,
@@ -479,6 +488,27 @@ class AlpacaBackend:
             return read_stock_bars_page(self._stock_data_client, **kwargs)
         except self._read_errors:
             raise RuntimeError("Alpaca stock data read failed") from None
+
+
+    def get_stock_news_page(self, **kwargs: Any) -> dict[str, Any]:
+        from emerald_exchange.alpaca_stock_events import read_news_page
+
+        if self._news_client is None:
+            raise RuntimeError("Alpaca news is not connected")
+        try:
+            return read_news_page(self._news_client, **kwargs)
+        except self._read_errors:
+            raise RuntimeError("Alpaca news read failed") from None
+
+    def get_stock_dividends_page(self, **kwargs: Any) -> dict[str, Any]:
+        from emerald_exchange.alpaca_stock_events import read_dividends_page
+
+        if self._corporate_actions_client is None:
+            raise RuntimeError("Alpaca corporate actions are not connected")
+        try:
+            return read_dividends_page(self._corporate_actions_client, **kwargs)
+        except self._read_errors:
+            raise RuntimeError("Alpaca corporate actions read failed") from None
 
 
 class CCXTBackend:
