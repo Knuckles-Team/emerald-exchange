@@ -265,6 +265,7 @@ class AlpacaBackend:
         self._base_url = base_url
         self._mode = mode
         self._client: Any = None
+        self._stock_data_client: Any = None
         self._read_errors = (
             OSError,
             ValueError,
@@ -288,12 +289,17 @@ class AlpacaBackend:
     def connect(self) -> bool:
         try:
             from alpaca.common.exceptions import APIError
+            from alpaca.data.historical.stock import StockHistoricalDataClient
             from alpaca.trading.client import TradingClient
 
             self._read_errors = (*self._read_errors, APIError)
-            self._client = TradingClient(
+            trading_client = TradingClient(
                 self._api_key, self._secret_key, paper=(self._mode == TradingMode.PAPER)
             )
+            stock_data_client = StockHistoricalDataClient(
+                self._api_key, self._secret_key
+            )
+            self._client, self._stock_data_client = trading_client, stock_data_client
             logger.info("Alpaca connected (mode=%s)", self._mode)
             return True
         except ImportError:
@@ -304,6 +310,7 @@ class AlpacaBackend:
 
     def disconnect(self) -> None:
         self._client = None
+        self._stock_data_client = None
 
     def submit_order(
         self,
@@ -444,12 +451,34 @@ class AlpacaBackend:
             raise RuntimeError("Alpaca account read failed") from None
 
     def get_quote(self, symbol: str) -> Quote:
-        return Quote(symbol=symbol, bid=0, ask=0, last=0, volume=0)
+        raise RuntimeError("Alpaca quote reads require the stock-quote API")
+
+    def get_stock_quote(self, **kwargs: Any) -> dict[str, Any]:
+        """Read the latest provider quote without fabricated last or volume."""
+        from emerald_exchange.alpaca_stock_history import read_stock_quote
+
+        if self._stock_data_client is None:
+            raise RuntimeError("Alpaca stock data is not connected")
+        try:
+            return read_stock_quote(self._stock_data_client, **kwargs)
+        except self._read_errors:
+            raise RuntimeError("Alpaca stock data read failed") from None
 
     def get_historical(
         self, symbol: str, period: str = "1y", interval: str = "1d"
     ) -> list[OHLCV]:
-        return []
+        raise RuntimeError("Alpaca historical reads require the stock-bars page API")
+
+    def get_stock_bars_page(self, **kwargs: Any) -> dict[str, Any]:
+        """Read a single explicitly bounded Alpaca stock-data page."""
+        from emerald_exchange.alpaca_stock_history import read_stock_bars_page
+
+        if self._stock_data_client is None:
+            raise RuntimeError("Alpaca stock data is not connected")
+        try:
+            return read_stock_bars_page(self._stock_data_client, **kwargs)
+        except self._read_errors:
+            raise RuntimeError("Alpaca stock data read failed") from None
 
 
 class CCXTBackend:

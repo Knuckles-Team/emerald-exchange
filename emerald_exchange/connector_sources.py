@@ -14,6 +14,33 @@ CONNECTOR: str = "emerald-exchange-mcp"
 
 SOURCES: tuple[Any, ...] = (
     source_meta(
+        tool="emerald_exchange_get_stock_quote",
+        source_id="alpaca-stock-quotes",
+        record_type="StockQuote",
+        id_field="quote_id",
+        cursor_field="",
+        preset={"doc_type": "stock_quote", "params_style": "args", "params": {"mode": "delta"},
+                "updated_since_param": "since", "checkpoint_path": "checkpoint"},
+        records_path="quotes",
+        server="emerald-exchange-mcp",
+        text_field="symbol",
+        title_field="symbol",
+    ),
+    source_meta(
+        tool="emerald_exchange_get_stock_bars",
+        source_id="alpaca-stock-bars",
+        record_type="StockBar",
+        id_field="bar_id",
+        cursor_field="",
+        preset={"doc_type": "stock_bar", "params_style": "args", "params": {"mode": "delta"},
+                "pagination": "cursor", "cursor_param": "page_token", "cursor_path": "next_page_token",
+                "updated_since_param": "since", "checkpoint_path": "checkpoint"},
+        records_path="bars",
+        server="emerald-exchange-mcp",
+        text_field="symbol",
+        title_field="symbol",
+    ),
+    source_meta(
         tool="emerald_exchange_get_csv_activities",
         source_id="alpaca-csv-activities",
         record_type="Activity",
@@ -72,6 +99,22 @@ SOURCES: tuple[Any, ...] = (
 )
 
 SCHEMA_MAPPINGS: dict[str, Any] = {
+    "StockQuote": {
+        "ontology_class": "Document",
+        "fields": {"symbol": "xsd:string", "timestamp": "xsd:dateTime",
+                   "feed": "xsd:string", "session_scope": "xsd:string", "license_tag": "xsd:string",
+                   "bid": "xsd:double", "ask": "xsd:double", "bid_size": "xsd:integer",
+                   "ask_size": "xsd:integer", "bid_exchange": "xsd:string", "ask_exchange": "xsd:string",
+                   "tape": "xsd:string", "conditions_json": "xsd:string"},
+    },
+    "StockBar": {
+        "ontology_class": "Document",
+        "fields": {"symbol": "xsd:string", "timestamp": "xsd:dateTime",
+                   "timeframe": "xsd:string", "adjustment": "xsd:string", "feed": "xsd:string",
+                   "session_scope": "xsd:string", "license_tag": "xsd:string",
+                   "open": "xsd:double", "high": "xsd:double", "low": "xsd:double",
+                   "close": "xsd:double", "volume": "xsd:double"},
+    },
     "Activity": {
         "ontology_class": "Document",
         "fields": {
