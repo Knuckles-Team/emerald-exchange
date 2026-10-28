@@ -18,6 +18,7 @@ from agent_connector_sdk.transports.mcp import McpTransport
 from epistemic_graph.connector_pack import ConnectorPackClient
 from epistemic_graph.generated.connector_pack import PackProducer
 from packaging.version import Version
+from alpaca.trading.models import Calendar
 
 from emerald_exchange import backends
 from emerald_exchange.backends import AlpacaBackend
@@ -43,6 +44,11 @@ class Pages:
                 "next_page_token": None,
             }
         return {"bars": {"AAPL": [BAR]}, "next_page_token": "next"}
+
+
+class CalendarClient:
+    def get_calendar(self, _request):
+        return [Calendar(date="2026-01-02", open="09:30", close="16:00")]
 
 
 async def _exercise(server):
@@ -103,6 +109,7 @@ async def _exercise(server):
                 "params": {
                     **source.preset["params"],
                     **{k: v for k, v in ARGS.items() if k != "mode"},
+                    "session_scope": "alpaca_calendar",
                 },
             }
             adapter = McpToolSourceAdapter(
@@ -164,6 +171,7 @@ async def _exercise(server):
             b["symbol"] == "AAPL" and b["adjustment"] == "split" and b["feed"] == "iex"
             for b in bars
         )
+        assert all(b["session"] == "regular" for b in bars)
         assert all(
             (b["open"], b["high"], b["low"], b["close"], b["volume"])
             == (100, 103, 99, 102, 25)
@@ -188,6 +196,7 @@ async def _exercise(server):
 def test_served_stock_pages_reimport_into_graph(live_compute, monkeypatch):  # noqa: F811
     backend = AlpacaBackend()
     backend._stock_data_client = Pages()
+    backend._client = CalendarClient()
     backend.connect = lambda: True
     monkeypatch.setattr(backends, "create_backend", lambda *_: backend)
     monkeypatch.setattr(sys, "argv", ["emerald-exchange", "--transport", "stdio"])

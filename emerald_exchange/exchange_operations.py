@@ -112,6 +112,7 @@ class ExchangeReadOperations:
         limit: int = 1000,
         page_token: str | None = None,
         since: dict[str, Any] | None = None,
+        session_scope: Literal["feed_native", "alpaca_calendar"] = "feed_native",
     ) -> dict[str, Any]:
         """Read one Alpaca page with explicit adjustment and feed labels."""
         if self._backend.name != "alpaca":
@@ -128,6 +129,7 @@ class ExchangeReadOperations:
             license_tag=license_tag,
             limit=limit,
             page_token=page_token,
+            session_scope=session_scope,
         )
 
     def get_stock_quote(

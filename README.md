@@ -234,6 +234,13 @@ another thread to shut it down. Updated bars use the same identity and set
 `updated` to true. Feed and licensing labels remain explicit. The live stream
 does not backfill gaps after reconnect; reconcile with stock history as needed.
 
+For historical one-minute IEX or SIP bars, set `session_scope` to
+`alpaca_calendar` to label bars using the Alpaca exchange calendar. Labels
+distinguish pre-market, regular, post-market, and outside-session minutes;
+half-days and holidays follow the returned calendar and Alpaca's schedule.
+Other feeds and wider bars refuse this classification. The default remains
+`feed_native`, which makes no session claim.
+
 ## Docker
 
 ### Container images (`:mcp` vs `:agent`)
