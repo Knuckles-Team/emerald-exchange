@@ -13,6 +13,19 @@ from agent_connector_sdk.ingest.sources import IngestSourceDeclaration, IngestSo
 CONNECTOR: str = "emerald-exchange-mcp"
 
 SOURCES: tuple[Any, ...] = (
+    *(
+        source_meta(
+            tool="emerald_exchange_get_company_records",
+            source_id=f"fmp-company-{dataset}", record_type="CompanyRecord",
+            id_field="record_id", cursor_field="",
+            preset={"doc_type": f"company_{dataset}", "params_style": "args",
+                    "params": {"mode": "delta", "dataset": dataset},
+                    "updated_since_param": "since", "checkpoint_path": "checkpoint"},
+            records_path="records", server="emerald-exchange-mcp",
+            text_field="symbol", title_field="symbol",
+        )
+        for dataset in ("profile", "income", "earnings", "logo")
+    ),
     source_meta(
         tool="emerald_exchange_get_stock_news",
         source_id="alpaca-stock-news",
@@ -141,6 +154,18 @@ SOURCES: tuple[Any, ...] = (
 )
 
 SCHEMA_MAPPINGS: dict[str, Any] = {
+    "CompanyRecord": {
+        "ontology_class": "Document",
+        "fields": {"symbol": "xsd:string", "dataset": "xsd:string", "provider": "xsd:string",
+                   "observed_at": "xsd:dateTime", "license_tag": "xsd:string",
+                   "company_name": "xsd:string", "industry": "xsd:string", "sector": "xsd:string",
+                   "exchange": "xsd:string", "currency": "xsd:string", "period_date": "xsd:date",
+                   "period": "xsd:string", "revenue": "xsd:double", "net_income": "xsd:double",
+                   "filing_date": "xsd:date", "announcement_date": "xsd:date", "updated_date": "xsd:date",
+                   "eps_actual": "xsd:double", "eps_estimated": "xsd:double",
+                   "revenue_actual": "xsd:double", "revenue_estimated": "xsd:double",
+                   "image_base64": "xsd:string", "image_sha256": "xsd:string", "image_media_type": "xsd:string"},
+    },
     "StockNews": {
         "ontology_class": "Document",
         "fields": {

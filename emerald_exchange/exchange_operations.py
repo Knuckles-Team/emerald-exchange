@@ -40,6 +40,7 @@ READ_OPERATIONS = (
     "get_stock_quote",
     "get_stock_news",
     "get_stock_dividends",
+    "get_company_records",
     "get_order_status",
     "exchanges",
 )
@@ -170,6 +171,17 @@ class ExchangeReadOperations:
             license_tag=license_tag,
             limit=limit,
             page_token=page_token,
+        )
+
+    def get_company_records(
+        self, symbol: str, dataset: Literal["profile", "income", "earnings", "logo"],
+        license_tag: str, mode: Literal["delta"], since: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Read a bounded FMP company dataset for an Alpaca symbol."""
+        if self._backend.name != "alpaca" or mode != "delta":
+            raise ValueError("company source requires Alpaca and delta mode")
+        return cast(AlpacaBackend, self._backend).get_company_records(
+            symbol=symbol, dataset=dataset, license_tag=license_tag,
         )
 
     def get_stock_dividends(
