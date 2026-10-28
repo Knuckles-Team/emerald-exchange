@@ -5,7 +5,8 @@
   "delivery_state": "SPECIFIED",
   "requirement_ids": [
     "EMERALD-OPS-R001",
-    "EMERALD-OPS-R002"
+    "EMERALD-OPS-R002",
+    "EMERALD-OPS-R003"
   ],
   "requirements": [
     {
@@ -24,7 +25,18 @@
         "d78c758350ae"
       ],
       "verified_by": [
-        "tests/test_fleet_name.py:35"
+        "tests/test_fleet_name.py:34"
+      ]
+    },
+    {
+      "id": "EMERALD-OPS-R003",
+      "title": "Alpaca account reads retain provider identity and fail closed",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "20b69831813a"
+      ],
+      "verified_by": [
+        "tests/test_alpaca_account_integrity.py:11"
       ]
     }
   ]
