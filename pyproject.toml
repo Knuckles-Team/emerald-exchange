@@ -48,7 +48,7 @@ all = [
 ]
 # Live-engine test run: the suite starts epistemic-graph-server from this extra.
 test = [
-    "epistemic-graph[server]==2.27.3",
+    "epistemic-graph[server]>=2.27.6",
     "pyoxigraph>=0.5.11",
     "pytest>=9.1.1",
     "pytest-asyncio>=1.4.0",
