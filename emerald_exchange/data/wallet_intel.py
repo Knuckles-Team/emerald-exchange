@@ -141,7 +141,7 @@ class PolyWalletApi:
             import polars as pl  # type: ignore
 
             return pl
-        except Exception:
+        except ImportError:
             return None
 
     def load(self, force: bool = False) -> TradeDataset:
@@ -165,7 +165,7 @@ class PolyWalletApi:
 
     def _read_rows(self, path: str) -> Iterable[dict[str, Any]]:
         pl = self._polars()
-        if path.endswith(".parquet") or path.endswith(".pq"):
+        if path.endswith((".parquet", ".pq")):
             if pl is None:
                 raise NoDatasetConfigured(
                     "Parquet datasets require the optional 'polars' dependency: "
@@ -175,8 +175,9 @@ class PolyWalletApi:
         if pl is not None:
             try:
                 return pl.read_csv(path, infer_schema_length=10_000).to_dicts()
-            except Exception:
-                pass
+            except pl.exceptions.PolarsError:
+                with open(path, newline="") as fh:
+                    return list(csv.DictReader(fh))
         with open(path, newline="") as fh:
             return list(csv.DictReader(fh))
 

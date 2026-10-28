@@ -43,8 +43,8 @@ def _parse_wallets(wallets: Any) -> list[str]:
     if s.startswith("["):
         try:
             return [str(w) for w in json.loads(s)]
-        except Exception:
-            pass
+        except (ValueError, TypeError):
+            return [w.strip() for w in s.split(",") if w.strip()]
     return [w.strip() for w in s.split(",") if w.strip()]
 
 

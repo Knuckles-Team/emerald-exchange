@@ -1,10 +1,9 @@
 """Order Management MCP Tools — CONCEPT:EX-AHE.harness.ee-8."""
 
-from typing import Any
-from pydantic import Field
-
 import json
+from typing import Any
 
+from pydantic import Field
 
 from emerald_exchange.backends import ExchangeBackend, OrderSide, OrderType
 from emerald_exchange.risk_guards import RiskGuard

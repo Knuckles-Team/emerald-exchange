@@ -3,6 +3,7 @@
 """Bounded, dependency-free fuzz smoke test for repository config parsers."""
 
 from __future__ import annotations
+import logging
 
 import json
 import sys
@@ -71,7 +72,8 @@ def main() -> int:
                     _exercise(suffix, mutation)
                 except (UnicodeDecodeError, json.JSONDecodeError, tomllib.TOMLDecodeError):
                     pass
-                except Exception:
+                except Exception as caught_error:
+                    logging.getLogger(__name__).exception("Operation failed (type=%s)", type(caught_error).__name__, exc_info=False)
                     crashes += 1
                 cases += 1
                 if cases >= 64:

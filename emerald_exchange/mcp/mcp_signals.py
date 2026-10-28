@@ -1,9 +1,9 @@
 """Signal Generation MCP Tools — CONCEPT:EX-AHE.harness.ee-11."""
 
-from typing import Any
-
 import json
 import logging
+from itertools import pairwise
+from typing import Any
 
 from emerald_exchange.signal_records import microstructure_signal_record
 
@@ -136,7 +136,7 @@ def register_signal_tools(mcp: Any) -> None:
                     return json.dumps({"error": ENGINE_REQUIRED_ERR})
                 returns = [
                     (current / previous) - 1.0
-                    for previous, current in zip(prices[:-1], prices[1:], strict=True)
+                    for previous, current in pairwise(prices)
                     if previous
                 ]
                 fitted = compute.analyse(
