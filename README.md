@@ -259,7 +259,9 @@ with its matching instrument definition for a range of at most one day. Fixed
 futures contracts carry the provider expiry and an explicit no-roll policy.
 ATTOM uses a property ID and reports its valuation date and age against the
 chosen `max_age_days`. Sources are delta observations, not complete histories.
-Provider subscriptions may charge for requests; access and permitted use depend
+Twelve Data provides a separate XAU/USD gold spot source; its timestamp is
+the last one-minute candle timestamp, not an individual trade time. Provider
+subscriptions may charge for requests; access and permitted use depend
 on the operator's agreements. Offline fixtures are not evidence of live rights.
 
 ## Docker
@@ -362,6 +364,7 @@ material, and endpoints come from `AgentConfig` / the configured secret provider
 | `ATTOM_API_KEY` | secret-injected | ATTOM property valuation API key. |
 | `DATABENTO_API_KEY` | secret-injected | Databento historical market data API key. |
 | `FMP_API_KEY` | secret-injected | Financial Modeling Prep FX API key. |
+| `TWELVE_DATA_API_KEY` | secret-injected | Twelve Data gold spot API key. |
 | `BINANCE_API_KEY` | secret-injected | Per-exchange credentials are resolved at runtime from the trading config's *_env keys; only the agent-connector-sdk-inherited Binance pair is read statically. Other exchanges (Alpaca, Coinbase, ...) supply credentials via operator config. |
 | `BINANCE_SECRET_KEY` | secret-injected |  |
 | `CRYPTOTOOL` | `True` | crypto market tools |

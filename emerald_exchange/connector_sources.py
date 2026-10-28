@@ -22,7 +22,7 @@ SOURCES: tuple[Any, ...] = (
                     "updated_since_param": "since", "checkpoint_path": "checkpoint"},
             records_path="records", server="emerald-exchange-mcp",
             text_field="instrument_id", title_field="instrument_id",
-        ) for kind in ("fx", "commodity", "real_estate")
+        ) for kind in ("fx", "commodity", "commodity_spot", "real_estate")
     ),
     source_meta(
         tool="emerald_exchange_get_exchange_history", source_id="ccxt-exchange-history",

@@ -15,3 +15,7 @@ Prices retain source time and instrument identity; a fixed futures contract has
 an explicit no-roll policy and provider expiry. Property valuations retain the
 provider date and report age against a caller-selected freshness threshold.
 Synthetic provider fixtures establish transport behavior, not live entitlements.
+
+Twelve Data's XAU/USD quote provides a documented gold spot observation. Its
+last quote timestamp identifies a minute candle, not a tick. Keep that time
+basis explicit and do not assert live entitlements from offline fixtures.
