@@ -19,3 +19,7 @@ Synthetic provider fixtures establish transport behavior, not live entitlements.
 Twelve Data's XAU/USD quote provides a documented gold spot observation. Its
 last quote timestamp identifies a minute candle, not a tick. Keep that time
 basis explicit and do not assert live entitlements from offline fixtures.
+
+The account source proof also exercises the SDK account-bound validator. It
+replays account, position and CSV records into a real graph. This evidence uses
+synthetic provider responses and does not establish live account access.
