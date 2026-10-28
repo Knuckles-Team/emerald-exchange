@@ -5,6 +5,8 @@ Migrated from the former standalone ``edgar-mcp`` test suite. CONCEPT:EX-AHE.har
 
 import importlib.util
 import json
+import sys
+from types import SimpleNamespace
 
 import pytest
 
@@ -76,6 +78,17 @@ def test_missing_identity_raises_when_edgar_present():
     client = EdgarApi(identity="")
     with pytest.raises(EdgarIdentityMissing):
         client._require_edgar()
+
+
+def test_identity_setup_failure_does_not_initialize_client(monkeypatch):
+    def fail(_identity):
+        raise RuntimeError("identity setup failed")
+
+    monkeypatch.setitem(sys.modules, "edgar", SimpleNamespace(set_identity=fail))
+    client = EdgarApi(identity="Test test@example.com")
+    with pytest.raises(RuntimeError, match="identity setup failed"):
+        client._require_edgar()
+    assert client._edgar is None
 
 
 def test_tool_returns_error_payload_not_crash():

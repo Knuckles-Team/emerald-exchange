@@ -11,3 +11,7 @@ Proof: `tests/test_order_guard.py::test_per_operation_surface_is_read_only`, `::
 ## EMERALD-OPS-R002
 
 `tests/test_fleet_name.py::test_connector_name_is_the_fleet_name` reads every connector name in the package. Each one is `emerald-exchange-mcp`.
+
+## EMERALD-OPS-R003
+
+`tests/test_alpaca_account_integrity.py` exercises the account and position provider calls, malformed account data, provider failure, and an in-process served MCP read. Provider failures must not return fabricated account or position data, and the served tool must not expose the provider exception message.

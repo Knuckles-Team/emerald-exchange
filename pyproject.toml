@@ -2,6 +2,9 @@
 requires = ["setuptools>=84.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[tool.pytest.ini_options]
+markers = ["spec(id): binds a test to its requirement"]
+
 [project]
 name = "emerald-exchange"
 version = "2.3.6"
