@@ -46,7 +46,10 @@ def _instant(value: str) -> tuple[str, int]:
 def _number(value: Any) -> float:
     if isinstance(value, bool) or not isinstance(value, (int, float)):
         raise TypeError("invalid stock bar values")
-    number = float(value)
+    try:
+        number = float(value)
+    except OverflowError:
+        raise ValueError("invalid stock bar values") from None
     if not math.isfinite(number) or number < 0:
         raise ValueError("invalid stock bar values")
     return number

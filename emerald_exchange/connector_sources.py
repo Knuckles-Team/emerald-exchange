@@ -14,6 +14,48 @@ CONNECTOR: str = "emerald-exchange-mcp"
 
 SOURCES: tuple[Any, ...] = (
     source_meta(
+        tool="emerald_exchange_get_stock_news",
+        source_id="alpaca-stock-news",
+        record_type="StockNews",
+        id_field="news_id",
+        cursor_field="",
+        preset={
+            "doc_type": "stock_news",
+            "params_style": "args",
+            "params": {"mode": "delta"},
+            "pagination": "cursor",
+            "cursor_param": "page_token",
+            "cursor_path": "next_page_token",
+            "updated_since_param": "since",
+            "checkpoint_path": "checkpoint",
+        },
+        records_path="news",
+        server="emerald-exchange-mcp",
+        text_field="headline",
+        title_field="headline",
+    ),
+    source_meta(
+        tool="emerald_exchange_get_stock_dividends",
+        source_id="alpaca-stock-dividends",
+        record_type="StockDividend",
+        id_field="dividend_id",
+        cursor_field="",
+        preset={
+            "doc_type": "stock_dividend",
+            "params_style": "args",
+            "params": {"mode": "delta"},
+            "pagination": "cursor",
+            "cursor_param": "page_token",
+            "cursor_path": "next_page_token",
+            "updated_since_param": "since",
+            "checkpoint_path": "checkpoint",
+        },
+        records_path="dividends",
+        server="emerald-exchange-mcp",
+        text_field="symbol",
+        title_field="symbol",
+    ),
+    source_meta(
         tool="emerald_exchange_get_stock_quote",
         source_id="alpaca-stock-quotes",
         record_type="StockQuote",
@@ -99,6 +141,31 @@ SOURCES: tuple[Any, ...] = (
 )
 
 SCHEMA_MAPPINGS: dict[str, Any] = {
+    "StockNews": {
+        "ontology_class": "Document",
+        "fields": {
+            "symbol": "xsd:string",
+            "headline": "xsd:string",
+            "author": "xsd:string",
+            "source": "xsd:string",
+            "created_at": "xsd:dateTime",
+            "updated_at": "xsd:dateTime",
+            "license_tag": "xsd:string",
+        },
+    },
+    "StockDividend": {
+        "ontology_class": "Document",
+        "fields": {
+            "symbol": "xsd:string",
+            "kind": "xsd:string",
+            "rate": "xsd:double",
+            "process_date": "xsd:date",
+            "ex_date": "xsd:date",
+            "record_date": "xsd:date",
+            "payable_date": "xsd:date",
+            "license_tag": "xsd:string",
+        },
+    },
     "StockQuote": {
         "ontology_class": "Document",
         "fields": {"symbol": "xsd:string", "timestamp": "xsd:dateTime",
