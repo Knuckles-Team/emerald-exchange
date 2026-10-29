@@ -10,7 +10,6 @@ name = "emerald-exchange"
 version = "2.3.6"
 description = "Emerald Exchange — Unified Finance MCP Server with fully abstracted exchange backends for equities, crypto, and derivatives trading. CONCEPT:EE-001"
 readme = "README.md"
-authors = [{ name = "Project Maintainers", email = "maintainers@users.noreply.github.com" }]
 license = { text = "MIT" }
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -27,6 +26,10 @@ dependencies = [
     # resolve to the same pandas major across the workspace lock).
     "pandas>=2.2,<3",
 ]
+
+[[project.authors]]
+name = "Repository Maintainers"
+email = "maintainers@knuckles.team"
 
 [project.optional-dependencies]
 mcp = ["scion-sdk[mcp]>=0.5.6,<1.0.0"]
@@ -58,16 +61,10 @@ test = [
 emerald-exchange-mcp = "emerald_exchange.mcp_server:mcp_server"
 emerald-cockpit = "emerald_exchange.cockpit:main"
 
-[project.entry-points."agent_connector_sdk.skill_providers"]
-emerald-exchange = "emerald_exchange.skills"
-
-# CONCEPT:AU-KG.ontology.package-federation-migration — federate this package's OWL/RDF ontology modules into the
-# scion-sdk ontology hub (quant, trading, banking). Resolved via iter_provider_dirs
-# like the skill/prompt providers; the hub globs every *.ttl in the dir.
-[project.entry-points."agent_connector_sdk.ontology_providers"]
-emerald-exchange = "emerald_exchange.ontology"
-
 # The one declared connector identity: the fleet name (SDK-CONNECTOR-CONTROL-R071).
+# Content (skills, ontology, prompts) is found by convention under the package;
+# the removed provider entry-point groups are no longer read by the SDK
+# (SDK-QUALITY-RELEASE-R005.1).
 [project.entry-points."agent_connector_sdk.connector"]
 emerald-exchange-mcp = "emerald_exchange"
 
