@@ -33,7 +33,7 @@ agents; expose verbose per-operation tools only for compatibility or debugging.
   when their dependencies and backends are configured and healthy.
 
 Deployment/README examples use neutral `example.invalid` hostnames and
-RFC 1918 addresses (e.g. `10.0.0.10`) — private-use identifiers that resolve
+RFC 5737 TEST-NET addresses (e.g. `192.0.2.10`) — reserved identifiers that resolve
 nowhere outside the LAN — plus `localhost` for loopback-only development.
 Treat all of these as illustrative, not secrets: never substitute a real
 public hostname, a routable IP, or a credential for them, and keep genuinely
