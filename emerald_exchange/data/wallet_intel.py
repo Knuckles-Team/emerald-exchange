@@ -154,9 +154,7 @@ class PolyWalletApi:
                 "dataset_path) to a poly_data processed-trades CSV/Parquet file."
             )
         if not os.path.exists(self.dataset_path):
-            raise NoDatasetConfigured(
-                "Configured trade dataset was not found."
-            )
+            raise NoDatasetConfigured("Configured trade dataset was not found.")
 
         rows = self._read_rows(self.dataset_path)
         trades = [_coerce(r) for r in rows]

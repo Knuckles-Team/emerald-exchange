@@ -16,13 +16,16 @@ pytestmark = pytest.mark.spec("CONN-EMERALD-EXCHANGE-CONNECTOR-CONTENT-R001")
 
 
 def _server():
-    namespace = {"__name__": PACKAGE + ".mcp_server"}
-    exec(
-        "from agent_connector_sdk.mcp.server import create_mcp_server\n"
-        "result = create_mcp_server('emerald-exchange-mcp', version='0', command_args=[])",
-        namespace,
-    )
-    return namespace["result"][1]
+    from unittest.mock import patch
+
+    from fastmcp import FastMCP
+
+    module = importlib.import_module("emerald_exchange.mcp_server")
+    with patch("sys.argv", ["emerald-exchange", "--transport", "stdio"]):
+        result = module.get_mcp_instance()
+    if isinstance(result, FastMCP):
+        return result
+    return next(value for value in result if isinstance(value, FastMCP))
 
 
 async def _listings():

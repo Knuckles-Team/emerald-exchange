@@ -1,106 +1,26 @@
-# Without this, `pre-commit install` wires ONLY the pre-commit hook, so `git push`
-# runs nothing and every hook staged pre-push is silently dead code.
+# The whole pre-commit configuration of a connector (PIPE-VALIDATION-R001.9). Everything a
+# connector used to copy lives in pipelines at `rev: main`: the sanitizer, the standard-file
+# check, the codespell defaults and the gate set. A change to a shared check reaches every
+# connector with no edit here. Per-repo options go in pyproject.toml tables only.
 default_install_hook_types: [pre-commit, pre-push]
-default_language_version:
-  python: python3
-# Phase 0 dev-velocity contract (arbora-completion-program): a hook with no
-# explicit `stages:` below is commit-only, never both.
 default_stages: [pre-commit]
-exclude: 'dotnet'
-ci:
-  autofix_prs: true
-  autoupdate_commit_msg: '[pre-commit.ci] pre-commit suggestions'
-  autoupdate_schedule: 'monthly'
-
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c # v6.0.0
   hooks:
-  - id: check-added-large-files
-    args: ["--maxkb=2000"]
-  - id: check-ast
+  - id: trailing-whitespace
+  - id: end-of-file-fixer
+  - id: check-merge-conflict
   - id: check-yaml
-    args: ["--unsafe"]
+    args: [--unsafe]
   - id: check-toml
   - id: check-json
-  - id: fix-byte-order-marker
-    exclude: .gitignore
-  - id: check-merge-conflict
   - id: detect-private-key
-  - id: trailing-whitespace
-    exclude: ^(emerald_exchange/connectors/.*\.json|emerald_exchange/ontology/.*)$
-  - id: end-of-file-fixer
-    exclude: ^(emerald_exchange/connectors/.*\.json|emerald_exchange/ontology/.*)$
-  - id: no-commit-to-branch
-
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: 38bfb07c0c64c304f47eb52090f8288150c77730 # v0.17.1
+  rev: cb8c523fd4835aba42af70f4cad5568db4df0b6c # v0.16.0
   hooks:
-  - id: ruff
-    exclude: ^(tests/|test/|scripts/|script/)
-    types_or: [python, pyi, jupyter]
-    args: ["--fix", "--ignore=E402"]
-- repo: https://github.com/codespell-project/codespell
-  rev: 57b21406f092110c18776e39b0bda50d37c945c8 # v2.4.3
-  hooks:
-  - id: codespell
-    args: ["-L", "ans,nam,tread,ot,tyes"]
-    exclude: |
-      (?x)^(
-        test/.*|
-        tests/.*
-      )$
-- repo: local
-  hooks:
-  - id: dependency-readiness
-    name: Dependency readiness — every declared intra-fleet constraint is installable
-    entry: bash -c 'P=""; d="$PWD"; while [ "$d" != "/" ]; do [ -f "$d/agent-packages/agents/repository-manager/repository_manager/dependency_readiness.py" ] && { P="$d/agent-packages/agents/repository-manager"; break; }; d=$(dirname "$d"); done; [ -n "$P" ] || P=repository-manager==3.5.1; uv run --no-project --python 3.12 --prerelease=allow --with "$P" python -m repository_manager.dependency_readiness .'
-    language: system
-    pass_filenames: false
-    always_run: true
-    stages: [manual, pre-push]
-  - id: check-agent-standards
-    name: check agent standards
-    entry: |-
-      bash -c 'for f in $(find . -type f -name "mcp_server.py" -not -path "*/.venv/*" -not -path "*/__pycache__/*"); do grep -q "warnings.filterwarnings\|import warnings" "$f" || { echo "Missing warnings.filterwarnings in $f"; exit 1; }; done'
-    language: system
-    pass_filenames: false
-    always_run: true
-  - id: check-cli-help
-    name: check cli help
-    entry: |-
-      bash -c 'for f in $(find . -type f -name "mcp_server.py" -not -path "*/.venv/*" -not -path "*/__pycache__/*"); do mod=$(echo "$f" | sed -e "s/^\.\///" -e "s/\.py$//" -e "s/\//./g"); uv run python -m "$mod" --help >/dev/null || exit 1; done'
-    language: system
-    pass_filenames: false
-    always_run: true
-  - id: env-var-drift
-    name: check env-var/config drift
-    entry: bash -c 'if [ -f uv.lock ]; then uv run python -m agent_connector_sdk.mcp.env_drift --check; else python -m agent_connector_sdk.mcp.env_drift --check; fi'
-    language: system
-    pass_filenames: false
-    files: ^(README\.md|\.env\.example|mcp_config.*\.json|.*/mcp_config.*\.json|docker/.*compose.*\.ya?ml|.*/auth\.py|.*/mcp_server\.py)$
-- repo: https://github.com/AleksaC/hadolint-py
-  rev: 6e7504451511eaeb62a3e7f14d63b0296cbf86eb # v2.15.1
-  hooks:
-  - id: hadolint
-    args:
-    - --ignore=DL3008
-    - --ignore=DL3015
-    - --ignore=DL3009
-    - --ignore=DL4006
-    - --ignore=SC2102
-- repo: https://github.com/IamTheFij/docker-pre-commit
-  rev: f626253b23de45412865c07fd076ff95d4cd77a7 # v3.0.1
-  hooks:
-  - id: docker-compose-check
-- repo: local
-  hooks:
-  - id: security-sanitizer
-    name: Security and Garbage Sanitizer
-    entry: python scripts/security_sanitizer.py
-    language: python
-    pass_filenames: false
-    always_run: true
+  - id: ruff-check
+  - id: ruff-format
 - repo: https://github.com/Knuckles-Team/pipelines
   rev: main
   hooks:

@@ -17,7 +17,11 @@ from epistemic_graph.client import FinanceClient
 from pyoxigraph import RdfFormat, Store
 
 from emerald_exchange import _engine, analyses
-from emerald_exchange.market_making import BookSnapshot, MarketMakingController, MMConfig
+from emerald_exchange.market_making import (
+    BookSnapshot,
+    MarketMakingController,
+    MMConfig,
+)
 from emerald_exchange.risk_guards import RiskGuard, RiskLimits
 from tests.test_insider_equilibrium_action import _Rdf
 
@@ -40,9 +44,8 @@ def _bindings() -> dict[str, str | None]:
     ttl = files("emerald_exchange.ontology").joinpath("quant.ttl").read_bytes()
     store.load(ttl, format=RdfFormat.TURTLE)
     rows = store.query(
-        "SELECT ?analysis ?method WHERE { ?analysis a <%sFinanceAnalysis> ; "
-        "<%sappliesAlgorithm> ?algorithm . OPTIONAL { ?algorithm <%sservedBy> ?method } }"
-        % (_VOCAB, _VOCAB, _VOCAB)
+        f"SELECT ?analysis ?method WHERE {{ ?analysis a <{_VOCAB}FinanceAnalysis> ; "
+        f"<{_VOCAB}appliesAlgorithm> ?algorithm . OPTIONAL {{ ?algorithm <{_VOCAB}servedBy> ?method }} }}"
     )
     return {
         row["analysis"].value.removeprefix(_VOCAB): (
@@ -71,12 +74,21 @@ class _Finance:
         self.calls: list[str] = []
         self._results = {
             "microprice_series": [0.5],
-            "logit_quotes": {"bid": 0.48, "ask": 0.52, "reservation": 0.5, "half_spread": 0.02},
+            "logit_quotes": {
+                "bid": 0.48,
+                "ask": 0.52,
+                "reservation": 0.5,
+                "half_spread": 0.02,
+            },
             "avellaneda_stoikov": {"bid": 99.0, "ask": 101.0},
             "vpin_pm": 0.0,
             "breakeven_alpha": 1.0,
             "surveillance_risk": {"legal_risk_score": 0.0, "informed_share": 0.0},
-            "queue_imbalance": {"skew": [0.0], "bid_fill_time": [0.0], "ask_fill_time": [0.0]},
+            "queue_imbalance": {
+                "skew": [0.0],
+                "bid_fill_time": [0.0],
+                "ask_fill_time": [0.0],
+            },
             "convergence_gate": {"pass": True},
             "ofi_series": [0.0],
             **overrides,
@@ -124,7 +136,12 @@ def _book(**extra) -> BookSnapshot:
 def test_quotes_come_from_the_engine(monkeypatch):
     finance = _install(monkeypatch)
     d = MarketMakingController(MMConfig(bounded=True, tick=0.01)).decide(_book(), 0.0)
-    assert (d.bid, d.ask, d.reason, d.engine_used) == (0.48, 0.52, "engine_quotes", True)
+    assert (d.bid, d.ask, d.reason, d.engine_used) == (
+        0.48,
+        0.52,
+        "engine_quotes",
+        True,
+    )
     assert {"microprice_series", "logit_quotes", "vpin_pm", "surveillance_risk"} <= set(
         finance.calls
     )
@@ -133,22 +150,26 @@ def test_quotes_come_from_the_engine(monkeypatch):
 def test_unbounded_book_uses_avellaneda_stoikov(monkeypatch):
     finance = _install(monkeypatch, microprice_series=[100.0])
     book = BookSnapshot(bid_px=[99.0], bid_sz=[1.0], ask_px=[101.5], ask_sz=[1.0])
-    d = MarketMakingController(MMConfig(bounded=False, tick=0.5, post_only=False)).decide(
-        book, 0.0
-    )
+    d = MarketMakingController(
+        MMConfig(bounded=False, tick=0.5, post_only=False)
+    ).decide(book, 0.0)
     assert "avellaneda_stoikov" in finance.calls
     assert (d.bid, d.ask) == (99.0, 101.0)
 
 
 def test_conviction_gate_blocks_on_engine_verdict(monkeypatch):
     _install(monkeypatch, convergence_gate={"pass": False, "agree": 1})
-    d = MarketMakingController(MMConfig()).decide(_book(), 0.0, signal_strengths=[0.9, 0.1])
+    d = MarketMakingController(MMConfig()).decide(
+        _book(), 0.0, signal_strengths=[0.9, 0.1]
+    )
     assert d.withdraw and d.reason == "conviction_gate_blocked"
     assert d.bid is None and d.ask is None
 
 
 def test_legal_risk_gate_withdraws(monkeypatch):
-    _install(monkeypatch, surveillance_risk={"legal_risk_score": 0.95, "informed_share": 1.8})
+    _install(
+        monkeypatch, surveillance_risk={"legal_risk_score": 0.95, "informed_share": 1.8}
+    )
     d = MarketMakingController(MMConfig(legal_risk_max=0.85)).decide(_book(), 0.0)
     assert d.withdraw and d.reason == "legal_risk_withdraw"
     assert (d.legal_risk_score, d.informed_share) == (0.95, 1.8)
@@ -193,9 +214,15 @@ def test_kelly_sizing_requires_the_engine(monkeypatch):
 @pytest.mark.parametrize(
     ("call", "analysis"),
     [
-        (lambda: analyses.venue_fee(0.5, 10.0, "finance", is_maker=True), "VenueFeeAnalysis"),
+        (
+            lambda: analyses.venue_fee(0.5, 10.0, "finance", is_maker=True),
+            "VenueFeeAnalysis",
+        ),
         (lambda: analyses.event_backtest([]), "EventBacktestAnalysis"),
-        (lambda: analyses.distribution_shift([0.0], [0.0]), "DistributionShiftAnalysis"),
+        (
+            lambda: analyses.distribution_shift([0.0], [0.0]),
+            "DistributionShiftAnalysis",
+        ),
         (lambda: analyses.hit_rate([0.1, -0.1]), "HitRateAnalysis"),
     ],
 )
@@ -241,8 +268,12 @@ def test_live_validation_kelly_and_brier(live_engine):
     out = analyses.validate_returns(returns, n_trials=3, observed_sharpe=0.5)
     assert isinstance(out["deflated_sharpe"], float)
     assert out["cpcv_splits"] and "max_drawdown" in out["performance"]
-    assert analyses.validate_returns(returns)["deflated_sharpe"]["error"] == "not_served"
-    assert isinstance(analyses.probability_overfit([[0.1, 0.2]], [[0.05, 0.1]])["pbo"], float)
+    assert (
+        analyses.validate_returns(returns)["deflated_sharpe"]["error"] == "not_served"
+    )
+    assert isinstance(
+        analyses.probability_overfit([[0.1, 0.2]], [[0.05, 0.1]])["pbo"], float
+    )
     assert 0.0 <= analyses.brier_score([0.9, 0.2], [1.0, 0.0])["brier_score"] < 0.25
     guard = RiskGuard(RiskLimits(max_position_pct=0.02))
     assert 0.0 <= guard.bayesian_kelly_size(wins=60, losses=40, cost=0.4) <= 0.02
@@ -258,6 +289,8 @@ def test_live_market_making_tool(live_engine):
     register_market_making_tools(mcp)
     fn = mcp.tools["emerald_market_making"]
     year = {key: 100.0 for key in analyses.STANDARD_LINE_ITEMS}
-    forensic = json.loads(fn("forensic", json.dumps({"this_year": year, "prior_year": year})))
+    forensic = json.loads(
+        fn("forensic", json.dumps({"this_year": year, "prior_year": year}))
+    )
     assert "verdict" in forensic
     assert json.loads(fn("fee", "{}"))["error"] == "not_served"

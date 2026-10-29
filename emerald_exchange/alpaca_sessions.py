@@ -29,9 +29,7 @@ def classify_stock_bar_sessions(
         text, ticks = _instant(bar["timestamp"])
         if ticks % 60_000_000_000:
             raise ValueError("stock bar does not start on a minute boundary")
-        local_times.append(
-            datetime.fromisoformat(text).astimezone(_EASTERN)
-        )
+        local_times.append(datetime.fromisoformat(text).astimezone(_EASTERN))
     start, end = min(t.date() for t in local_times), max(t.date() for t in local_times)
     if (end - start).days > 366 or start < date(1970, 1, 1) or end > date(2029, 12, 31):
         raise ValueError("calendar interval is unsupported")

@@ -6,17 +6,25 @@ import json
 import re
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
 SPECS = ROOT / "specs"
 REQUIRED = {"spec.md", "plan.md", "test-spec.md", "tasks.md", "status.json"}
 REGISTER = REQUIRED | {"requirements.md"}
 DELIVERY = {
-    "UNKNOWN", "SPECIFIED", "BUILDING", "BUILT", "LANDED", "VERIFIED", "CLOSED", "DEFERRED", "REJECTED"
+    "UNKNOWN",
+    "SPECIFIED",
+    "BUILDING",
+    "BUILT",
+    "LANDED",
+    "VERIFIED",
+    "CLOSED",
+    "DEFERRED",
+    "REJECTED",
 }
 ACCEPTANCE = {"NOT_AUDITED", "PENDING", "ACCEPTED", "FAILED"}
 PRIVATE_REFERENCE = re.compile(
-    r"plans/|gitlab|homelab|/home/|workspace/|\bEH-\d{1,3}\b|\bRF-\d{3}\b", re.IGNORECASE
+    r"plans/|gitlab|homelab|/home/|workspace/|\bEH-\d{1,3}\b|\bRF-\d{3}\b",
+    re.IGNORECASE,
 )
 
 
@@ -25,7 +33,9 @@ def test_public_spec_scaffold_and_status() -> None:
     assert (ROOT / ".specify/memory/constitution.md").is_file()
     assert REQUIRED <= {path.name for path in (SPECS / "_template").iterdir()}
 
-    features = [path for path in SPECS.iterdir() if path.is_dir() and path.name != "_template"]
+    features = [
+        path for path in SPECS.iterdir() if path.is_dir() and path.name != "_template"
+    ]
     assert features
     owned_ids: set[str] = set()
     for feature in features:

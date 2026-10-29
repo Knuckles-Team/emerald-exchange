@@ -39,7 +39,9 @@ def _required_text(record: dict[str, Any], key: str) -> str:
     if not isinstance(value, str) or not value:
         from agent_connector_sdk.ingest import IngestError
 
-        raise IngestError(f"every entity needs an id and a node_type, got {key}={value!r}")
+        raise IngestError(
+            f"every entity needs an id and a node_type, got {key}={value!r}"
+        )
     return value
 
 

@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from agent_connector_sdk.connector_identity import connector_name
 import ast
 import tomllib
 from pathlib import Path
 
 import pytest
+from agent_connector_sdk.connector_identity import connector_name
 
 ROOT = Path(__file__).resolve().parents[1]
 PACKAGE = ROOT / "emerald_exchange"
@@ -35,7 +35,7 @@ def _call_connectors(path: Path) -> list[str]:
 def test_connector_name_is_the_fleet_name() -> None:
     pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
     assert pyproject["project"]["entry-points"]["agent_connector_sdk.connector"] == {
-        FLEET: "emerald_exchange"
+        FLEET: "emerald_exchange:connector"
     }
     assert connector_name("emerald_exchange") == FLEET
     for module in sorted(PACKAGE.glob("*.py")):

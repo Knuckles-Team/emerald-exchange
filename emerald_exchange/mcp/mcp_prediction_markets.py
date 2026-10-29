@@ -15,7 +15,9 @@ from emerald_exchange.risk_guards import RiskGuard
 logger = logging.getLogger(__name__)
 
 
-def register_prediction_market_tools(mcp: Any, risk_guard: RiskGuard | None = None) -> None:
+def register_prediction_market_tools(
+    mcp: Any, risk_guard: RiskGuard | None = None
+) -> None:
     """Register prediction market tools with the MCP server."""
 
     @mcp.tool()
@@ -53,12 +55,26 @@ def register_prediction_market_tools(mcp: Any, risk_guard: RiskGuard | None = No
                 # Simulated Polymarket endpoint interaction
                 event_id = params.get("event_id")
                 # Real implementation would use py_clob_client or raw requests here
-                return json.dumps({"platform": "polymarket", "event_id": event_id, "yes_price": 0.55, "no_price": 0.45})
+                return json.dumps(
+                    {
+                        "platform": "polymarket",
+                        "event_id": event_id,
+                        "yes_price": 0.55,
+                        "no_price": 0.45,
+                    }
+                )
 
             elif action == "fetch_kalshi_orderbook":
                 # Simulated Kalshi endpoint interaction
                 ticker = params.get("ticker")
-                return json.dumps({"platform": "kalshi", "ticker": ticker, "yes_price": 0.58, "no_price": 0.42})
+                return json.dumps(
+                    {
+                        "platform": "kalshi",
+                        "ticker": ticker,
+                        "yes_price": 0.58,
+                        "no_price": 0.42,
+                    }
+                )
 
             elif action == "evaluate_event_arbitrage":
                 condition_met_count = params.get("condition_met_count", 0)
@@ -70,8 +86,16 @@ def register_prediction_market_tools(mcp: Any, risk_guard: RiskGuard | None = No
                 pm_threshold = 0.08
                 kalshi_threshold = 0.08
                 if risk_guard and risk_guard.limits:
-                    pm_threshold = risk_guard.limits.prediction_market_cost_thresholds.get("polymarket", 0.08)
-                    kalshi_threshold = risk_guard.limits.prediction_market_cost_thresholds.get("kalshi", 0.08)
+                    pm_threshold = (
+                        risk_guard.limits.prediction_market_cost_thresholds.get(
+                            "polymarket", 0.08
+                        )
+                    )
+                    kalshi_threshold = (
+                        risk_guard.limits.prediction_market_cost_thresholds.get(
+                            "kalshi", 0.08
+                        )
+                    )
 
                 from emerald_exchange._engine import (
                     ENGINE_REQUIRED_ERR,
@@ -112,6 +136,8 @@ def register_prediction_market_tools(mcp: Any, risk_guard: RiskGuard | None = No
                 return json.dumps({"error": f"Unknown action: {action}"})
 
         except Exception as e:
-            logging.getLogger(__name__).exception("Operation failed (type=%s)", type(e).__name__, exc_info=False)
+            logging.getLogger(__name__).exception(
+                "Operation failed (type=%s)", type(e).__name__, exc_info=False
+            )
             logger.error("Operation failed: error_type=%s", type(e).__name__)
             return json.dumps({"error": "Operation failed"})

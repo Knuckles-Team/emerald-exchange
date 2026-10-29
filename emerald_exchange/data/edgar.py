@@ -319,13 +319,21 @@ class EdgarApi:
                         str(k): _row_to_dict(v) for k, v in df.to_dict("index").items()
                     }
                 except Exception as caught_error:
-                    logging.getLogger(__name__).exception("Operation failed (type=%s)", type(caught_error).__name__, exc_info=False)
+                    logging.getLogger(__name__).exception(
+                        "Operation failed (type=%s)",
+                        type(caught_error).__name__,
+                        exc_info=False,
+                    )
                     break
         if hasattr(stmt, "to_dict"):
             try:
                 return stmt.to_dict()
             except Exception as caught_error:
-                logging.getLogger(__name__).exception("Operation failed (type=%s)", type(caught_error).__name__, exc_info=False)
+                logging.getLogger(__name__).exception(
+                    "Operation failed (type=%s)",
+                    type(caught_error).__name__,
+                    exc_info=False,
+                )
         return {"repr": str(stmt)}
 
     # ------------------------------------------------------------------ #
@@ -350,12 +358,18 @@ class EdgarApi:
                     try:
                         text = str(obj[item])
                     except Exception as caught_error:
-                        logging.getLogger(__name__).exception("Operation failed (type=%s)", type(caught_error).__name__, exc_info=False)
+                        logging.getLogger(__name__).exception(
+                            "Operation failed (type=%s)",
+                            type(caught_error).__name__,
+                            exc_info=False,
+                        )
                         text = ""
                 if not text and hasattr(obj, item.lower().replace(" ", "_")):
                     text = str(getattr(obj, item.lower().replace(" ", "_")))
             except Exception as exc:
-                logging.getLogger(__name__).exception("Operation failed (type=%s)", type(exc).__name__, exc_info=False)
+                logging.getLogger(__name__).exception(
+                    "Operation failed (type=%s)", type(exc).__name__, exc_info=False
+                )
                 text = f"<extraction failed: {type(exc).__name__}>"
             out["years"].append(
                 {
@@ -475,7 +489,11 @@ class EdgarApi:
                         df = getattr(stmt, attr)()
                         break
                     except Exception as caught_error:
-                        logging.getLogger(__name__).exception("Operation failed (type=%s)", type(caught_error).__name__, exc_info=False)
+                        logging.getLogger(__name__).exception(
+                            "Operation failed (type=%s)",
+                            type(caught_error).__name__,
+                            exc_info=False,
+                        )
                         df = None
             if df is None:
                 continue
@@ -485,7 +503,11 @@ class EdgarApi:
                     values = [row[c] for c in cols]
                     index.setdefault(_norm(str(label)), values)
             except Exception as caught_error:
-                logging.getLogger(__name__).exception("Operation failed (type=%s)", type(caught_error).__name__, exc_info=False)
+                logging.getLogger(__name__).exception(
+                    "Operation failed (type=%s)",
+                    type(caught_error).__name__,
+                    exc_info=False,
+                )
                 continue
         return index
 
@@ -502,7 +524,11 @@ class EdgarApi:
                         df = getattr(stmt, attr)()
                         return [str(c) for c in df.columns]
                     except Exception as caught_error:
-                        logging.getLogger(__name__).exception("Operation failed (type=%s)", type(caught_error).__name__, exc_info=False)
+                        logging.getLogger(__name__).exception(
+                            "Operation failed (type=%s)",
+                            type(caught_error).__name__,
+                            exc_info=False,
+                        )
                         continue
         return []
 
@@ -513,7 +539,11 @@ class EdgarApi:
                 try:
                     return _num(getattr(company, attr))
                 except Exception as caught_error:
-                    logging.getLogger(__name__).exception("Operation failed (type=%s)", type(caught_error).__name__, exc_info=False)
+                    logging.getLogger(__name__).exception(
+                        "Operation failed (type=%s)",
+                        type(caught_error).__name__,
+                        exc_info=False,
+                    )
         return 0.0
 
 

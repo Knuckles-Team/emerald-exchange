@@ -25,10 +25,23 @@ EDGAR_AVAILABLE = importlib.util.find_spec("edgar") is not None
 # The exact 17-key forensic_report (YearData) schema — must stay drop-in for
 # the engine's client.finance.forensic_report.
 EXPECTED_KEYS = {
-    "sales", "cogs", "sga", "net_income", "cfo", "receivables",
-    "current_assets", "current_liabilities", "ppe_net", "depreciation",
-    "total_assets", "total_liabilities", "long_term_debt", "retained_earnings",
-    "ebit", "market_cap", "shares",
+    "sales",
+    "cogs",
+    "sga",
+    "net_income",
+    "cfo",
+    "receivables",
+    "current_assets",
+    "current_liabilities",
+    "ppe_net",
+    "depreciation",
+    "total_assets",
+    "total_liabilities",
+    "long_term_debt",
+    "retained_earnings",
+    "ebit",
+    "market_cap",
+    "shares",
 }
 
 
@@ -102,6 +115,7 @@ def test_tool_returns_error_payload_not_crash():
             def deco(fn):
                 captured["fn"] = fn
                 return fn
+
             return deco
 
     register_fundamentals_tools(_MCP())
@@ -132,6 +146,7 @@ def test_unknown_action_returns_error():
             def deco(fn):
                 captured["fn"] = fn
                 return fn
+
             return deco
 
     register_fundamentals_tools(_MCP())
@@ -161,12 +176,23 @@ def test_forensic_screen_uses_engine_when_reachable(live_engine):
     from emerald_exchange.analyses import forensic_screen
 
     this_year = {
-        "sales": 1000.0, "cogs": 600.0, "sga": 100.0, "net_income": 100.0,
-        "cfo": 120.0, "receivables": 150.0, "current_assets": 800.0,
-        "current_liabilities": 400.0, "ppe_net": 500.0, "depreciation": 50.0,
-        "total_assets": 2000.0, "total_liabilities": 900.0,
-        "long_term_debt": 300.0, "retained_earnings": 400.0, "ebit": 200.0,
-        "market_cap": 5000.0, "shares": 1000.0,
+        "sales": 1000.0,
+        "cogs": 600.0,
+        "sga": 100.0,
+        "net_income": 100.0,
+        "cfo": 120.0,
+        "receivables": 150.0,
+        "current_assets": 800.0,
+        "current_liabilities": 400.0,
+        "ppe_net": 500.0,
+        "depreciation": 50.0,
+        "total_assets": 2000.0,
+        "total_liabilities": 900.0,
+        "long_term_debt": 300.0,
+        "retained_earnings": 400.0,
+        "ebit": 200.0,
+        "market_cap": 5000.0,
+        "shares": 1000.0,
     }
     prior_year = dict(this_year, sales=900.0, net_income=90.0)
     report = forensic_screen(this_year, prior_year)

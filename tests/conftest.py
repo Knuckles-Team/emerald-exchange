@@ -4,43 +4,111 @@ import csv
 
 import pytest
 
-from emerald_exchange.backends import PaperBackend, OrderSide, TradingMode
+from emerald_exchange.backends import PaperBackend
 from emerald_exchange.risk_guards import RiskGuard, RiskLimits
 from tests.live_engine import live_compute, live_engine  # noqa: F401
-
 
 # Synthetic Polymarket trade dataset: two wallets with resolved positions so
 # win_rate / pnl / exit metrics are testable end-to-end with the stdlib CSV
 # reader (no polars required).
 _TRADE_ROWS = [
     # winner: buys YES low, holds to a winning resolution
-    {"wallet": "0xWINNER", "market_id": "m1", "token": "tYES", "side": "BUY",
-     "price": "0.40", "usd_amount": "40", "shares": "100", "timestamp": "100",
-     "resolved": "true", "won": "true", "payout": "100"},
+    {
+        "wallet": "0xWINNER",
+        "market_id": "m1",
+        "token": "tYES",
+        "side": "BUY",
+        "price": "0.40",
+        "usd_amount": "40",
+        "shares": "100",
+        "timestamp": "100",
+        "resolved": "true",
+        "won": "true",
+        "payout": "100",
+    },
     # winner: a second winning market
-    {"wallet": "0xWINNER", "market_id": "m2", "token": "tA", "side": "BUY",
-     "price": "0.50", "usd_amount": "50", "shares": "100", "timestamp": "200",
-     "resolved": "true", "won": "true", "payout": "100"},
+    {
+        "wallet": "0xWINNER",
+        "market_id": "m2",
+        "token": "tA",
+        "side": "BUY",
+        "price": "0.50",
+        "usd_amount": "50",
+        "shares": "100",
+        "timestamp": "200",
+        "resolved": "true",
+        "won": "true",
+        "payout": "100",
+    },
     # winner: a losing market (so win_rate < 1.0)
-    {"wallet": "0xWINNER", "market_id": "m3", "token": "tB", "side": "BUY",
-     "price": "0.60", "usd_amount": "60", "shares": "100", "timestamp": "300",
-     "resolved": "true", "won": "false", "payout": "0"},
+    {
+        "wallet": "0xWINNER",
+        "market_id": "m3",
+        "token": "tB",
+        "side": "BUY",
+        "price": "0.60",
+        "usd_amount": "60",
+        "shares": "100",
+        "timestamp": "300",
+        "resolved": "true",
+        "won": "false",
+        "payout": "0",
+    },
     # loser: buys high, loses
-    {"wallet": "0xLOSER", "market_id": "m1", "token": "tNO", "side": "BUY",
-     "price": "0.60", "usd_amount": "60", "shares": "100", "timestamp": "110",
-     "resolved": "true", "won": "false", "payout": "0"},
+    {
+        "wallet": "0xLOSER",
+        "market_id": "m1",
+        "token": "tNO",
+        "side": "BUY",
+        "price": "0.60",
+        "usd_amount": "60",
+        "shares": "100",
+        "timestamp": "110",
+        "resolved": "true",
+        "won": "false",
+        "payout": "0",
+    },
     # loser: exits early (sells before resolution)
-    {"wallet": "0xLOSER", "market_id": "m4", "token": "tC", "side": "BUY",
-     "price": "0.50", "usd_amount": "50", "shares": "100", "timestamp": "120",
-     "resolved": "false", "won": "", "payout": ""},
-    {"wallet": "0xLOSER", "market_id": "m4", "token": "tC", "side": "SELL",
-     "price": "0.55", "usd_amount": "55", "shares": "100", "timestamp": "130",
-     "resolved": "false", "won": "", "payout": ""},
+    {
+        "wallet": "0xLOSER",
+        "market_id": "m4",
+        "token": "tC",
+        "side": "BUY",
+        "price": "0.50",
+        "usd_amount": "50",
+        "shares": "100",
+        "timestamp": "120",
+        "resolved": "false",
+        "won": "",
+        "payout": "",
+    },
+    {
+        "wallet": "0xLOSER",
+        "market_id": "m4",
+        "token": "tC",
+        "side": "SELL",
+        "price": "0.55",
+        "usd_amount": "55",
+        "shares": "100",
+        "timestamp": "130",
+        "resolved": "false",
+        "won": "",
+        "payout": "",
+    },
 ]
 
 _TRADE_FIELDS = [
-    "wallet", "market_id", "token", "side", "price", "usd_amount",
-    "shares", "timestamp", "resolved", "won", "payout",
+    "wallet",
+    "market_id",
+    "token",
+    "side",
+    "price",
+    "usd_amount",
+    "shares",
+    "timestamp",
+    "resolved",
+    "won",
+    "payout",
 ]
 
 

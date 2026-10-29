@@ -34,8 +34,10 @@ class _FakeTransport:
     def __init__(self) -> None:
         self.requests: list[SourceIngestionRequest] = []
 
-    async def source_status(self, _connector: str, _stream: str) -> Any:
-        return SimpleNamespace(accepted_checkpoint=None)
+    async def source_status(self, connector: str, stream: str) -> Any:
+        return SimpleNamespace(
+            connector=connector, stream=stream, accepted_checkpoint=None
+        )
 
     async def submit(self, request: SourceIngestionRequest) -> Any:
         self.requests.append(request)
@@ -107,7 +109,11 @@ async def test_ingest_entities_writes_nodes_and_edges(ingest):
     service, transport = ingest
     res = await ingest_entities(
         [
-            {"id": "emerald:instrument:AAPL", "node_type": "Instrument", "name": "AAPL"},
+            {
+                "id": "emerald:instrument:AAPL",
+                "node_type": "Instrument",
+                "name": "AAPL",
+            },
             {"id": "emerald:portfolio:paper", "node_type": "Portfolio"},
         ],
         [
@@ -231,7 +237,10 @@ def test_map_quote_and_bars_and_trade():
     trade = next(n for n in te if n["node_type"] == "Trade")
     assert trade["id"] == "emerald:trade:PAPER-000001"
     assert trade["filledQty"] == 5
-    assert {rel["relationship"] for rel in tr} == {"settledInPortfolio", "tradesInstrument"}
+    assert {rel["relationship"] for rel in tr} == {
+        "settledInPortfolio",
+        "tradesInstrument",
+    }
 
 
 def test_map_trade_without_id_is_empty():

@@ -218,15 +218,20 @@ def test_snapshot_source_refuses_incomplete_account_or_position_reads():
 @pytest.mark.spec("EMERALD-OPS-R004")
 def test_sdk_mcp_adapter_extracts_the_declared_account_snapshot():
     from agent_connector_sdk.adapters.mcp_tool import McpToolSourceAdapter
+    from agent_connector_sdk.ingest.live_declaration import (
+        load_declaration as declaration,
+    )
     from agent_connector_sdk.manifest.presets import ToolPreset
     from agent_connector_sdk.mcp.server import create_mcp_server
     from agent_connector_sdk.mcp.tool_surface import register_tool_surface
     from agent_connector_sdk.ports.session import TransportEndpoint
     from agent_connector_sdk.transports.mcp import McpTransport
 
-    from emerald_exchange.connector_sources import declaration
-
-    source = next(s for s in declaration().sources if s.source_id == "alpaca-account")
+    source = next(
+        s
+        for s in declaration("emerald_exchange").sources
+        if s.source_id == "alpaca-account"
+    )
     preset = ToolPreset(
         name=source.source_id,
         server="emerald-exchange-mcp",
@@ -271,7 +276,7 @@ def test_sdk_mcp_adapter_extracts_the_declared_account_snapshot():
 
 
 def test_account_positions_source_binds_stable_account_and_symbol_identity():
-    from emerald_exchange.connector_sources import SOURCES, SCHEMA_MAPPINGS
+    from emerald_exchange.connector_sources import SCHEMA_MAPPINGS, SOURCES
 
     source = next(
         item
@@ -287,15 +292,26 @@ def test_account_positions_source_binds_stable_account_and_symbol_identity():
     assert first[0]["account_id"] == "account-1"
     assert first[0]["symbol"] == "ABC"
     assert first[0]["qty"] == 1
-    assert all(key in SCHEMA_MAPPINGS["Position"]["fields"] for key in (
-        "account_id", "symbol", "qty", "avg_entry_price", "current_price", "unrealized_pnl"
-    ))
+    assert all(
+        key in SCHEMA_MAPPINGS["Position"]["fields"]
+        for key in (
+            "account_id",
+            "symbol",
+            "qty",
+            "avg_entry_price",
+            "current_price",
+            "unrealized_pnl",
+        )
+    )
 
     provider = Provider()
     provider.get_account = lambda: SimpleNamespace(
         id="account-2", currency="USD", equity="10", cash="9", buying_power="8"
     )
-    assert _operations(provider).get_account_positions()[0]["position_id"] != first[0]["position_id"]
+    assert (
+        _operations(provider).get_account_positions()[0]["position_id"]
+        != first[0]["position_id"]
+    )
 
 
 def test_account_positions_source_refuses_incomplete_reads():
@@ -313,7 +329,13 @@ def test_account_positions_source_refuses_incomplete_reads():
 def test_account_positions_refuses_missing_or_duplicate_symbols(symbols):
     provider = Provider()
     provider.get_all_positions = lambda: [
-        SimpleNamespace(symbol=symbol, qty="1", avg_entry_price="2", current_price="3", unrealized_pl="1")
+        SimpleNamespace(
+            symbol=symbol,
+            qty="1",
+            avg_entry_price="2",
+            current_price="3",
+            unrealized_pl="1",
+        )
         for symbol in symbols
     ]
     with pytest.raises(ValueError, match="symbol"):

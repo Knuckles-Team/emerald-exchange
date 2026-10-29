@@ -4,8 +4,8 @@ from datetime import date
 from types import SimpleNamespace
 
 import pytest
-from alpaca.trading.models import Calendar
 from alpaca.trading.client import TradingClient
+from alpaca.trading.models import Calendar
 
 from emerald_exchange.alpaca_sessions import classify_stock_bar_sessions
 from emerald_exchange.backends import AlpacaBackend
