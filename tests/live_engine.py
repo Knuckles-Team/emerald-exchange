@@ -59,6 +59,13 @@ def _wait_for(socket_path: Path, proc: subprocess.Popen[bytes]) -> None:
         time.sleep(0.05)
     raise RuntimeError("epistemic-graph-server did not open its socket")
 
+_OPEN_POLICY = """
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix ex: <urn:emerald-exchange:test-policy#> .
+ex:OpenPolicy a sh:NodeShape ;
+    sh:targetClass ex:NeverInstantiated .
+"""
+
 
 def _bootstrap(socket_path: Path) -> None:
     from epistemic_graph.client import SyncEpistemicGraphClient
@@ -91,6 +98,10 @@ def _bootstrap(socket_path: Path) -> None:
     )
     try:
         ttl = files("emerald_exchange.ontology").joinpath("quant.ttl").read_text()
+        # The engine requires a registered integrity policy before it accepts
+        # any RDF write; a shape targeting a class nothing instantiates registers
+        # one without constraining the ontology load.
+        client.rdf.icv_configure(_OPEN_POLICY)
         client.rdf.add_triples(turtle=ttl)
     finally:
         client.close()

@@ -27,7 +27,7 @@ ENGINE_REQUIRED_ERR = (
 
 #: Namespace of the analysis -> algorithm -> served-method bindings in
 #: ``ontology/quant.ttl``; epistemic-graph selects algorithms from it by SPARQL.
-QUANT_VOCABULARY = "http://knuckles.team/kg#"
+QUANT_VOCABULARY = "http://knuckles.team/kg/emerald-finance#"
 
 # Sentinel so a cached None ("engine not reachable") is distinct from "unprobed".
 _UNPROBED = object()
