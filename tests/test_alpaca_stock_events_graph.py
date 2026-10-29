@@ -10,6 +10,7 @@ from agent_connector_sdk.adapters.mcp_tool import McpToolSourceAdapter
 from agent_connector_sdk.artifacts.pack import build_content_pack
 from agent_connector_sdk.artifacts.resources import ResourceArtifactKind
 from agent_connector_sdk.artifacts.tools import ToolArtifactKind
+from agent_connector_sdk.ingest.live_declaration import load_declaration as declaration
 from agent_connector_sdk.manifest.presets import ToolPreset
 from agent_connector_sdk.ports.session import TransportEndpoint
 from agent_connector_sdk.runner.syncing import SyncTarget, sync_stream
@@ -21,10 +22,8 @@ from packaging.version import Version
 
 from emerald_exchange import backends
 from emerald_exchange.backends import AlpacaBackend
-from emerald_exchange.connector_sources import declaration
-from emerald_exchange.mcp_server import get_mcp_instance
-from tests.live_engine import PRINCIPAL, TENANT, live_compute  # noqa: F401
-from tests.test_alpaca_stock_events import NEWS, DIVIDEND
+from tests.live_engine import PRINCIPAL, TENANT, live_compute, served_mcp  # noqa: F401
+from tests.test_alpaca_stock_events import DIVIDEND, NEWS
 from tests.test_finance_served_graph import (
     CONNECTOR,
     _catalog,
@@ -121,7 +120,9 @@ async def _exercise(server):
                 ),
             ):
                 source = next(
-                    s for s in declaration().sources if s.source_id == source_id
+                    s
+                    for s in declaration("emerald_exchange").sources
+                    if s.source_id == source_id
                 )
                 raw = {
                     **source.preset,
@@ -175,7 +176,7 @@ async def _exercise(server):
 
 
 @pytest.mark.skipif(
-    Version(version("epistemic-graph")) < Version("2.27.6"),
+    Version(version("medulla")) < Version("2.27.6"),
     reason="real connector pack replay requires graph 2.27.6",
 )
 def test_served_stock_events_reimport_into_graph(live_compute, monkeypatch):  # noqa: F811
@@ -185,4 +186,4 @@ def test_served_stock_events_reimport_into_graph(live_compute, monkeypatch):  # 
     backend.connect = lambda: True
     monkeypatch.setattr(backends, "create_backend", lambda *_: backend)
     monkeypatch.setattr(sys, "argv", ["emerald-exchange", "--transport", "stdio"])
-    asyncio.run(_exercise(get_mcp_instance()[0]))
+    asyncio.run(_exercise(served_mcp()))

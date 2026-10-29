@@ -1,6 +1,6 @@
 """A real, ephemeral epistemic-graph server for live-engine tests.
 
-Starts the ``epistemic-graph-server`` binary from ``epistemic-graph[server]``
+Starts the ``epistemic-graph-server`` binary from ``medulla[server]``
 on a private Unix socket with test-only credentials, enrolls the test signer,
 creates one graph, imports emerald's ``ontology/quant.ttl`` into it, and
 installs a connected :class:`~agent_connector_sdk.compute.EngineCompute` as
@@ -15,12 +15,10 @@ import os
 import subprocess  # nosec B404 - fixed server argv, test-only
 import time
 from collections.abc import Iterator
+from importlib.resources import files
 from pathlib import Path
 
 import pytest
-
-from importlib.resources import files
-
 from agent_connector_sdk.compute import EngineCompute, connect_compute
 from agent_connector_sdk.ingest.engine import EngineSettings
 
@@ -62,6 +60,14 @@ def _wait_for(socket_path: Path, proc: subprocess.Popen[bytes]) -> None:
     raise RuntimeError("epistemic-graph-server did not open its socket")
 
 
+_OPEN_POLICY = """
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix ex: <urn:emerald-exchange:test-policy#> .
+ex:OpenPolicy a sh:NodeShape ;
+    sh:targetClass ex:NeverInstantiated .
+"""
+
+
 def _bootstrap(socket_path: Path) -> None:
     from epistemic_graph.client import SyncEpistemicGraphClient
 
@@ -93,6 +99,10 @@ def _bootstrap(socket_path: Path) -> None:
     )
     try:
         ttl = files("emerald_exchange.ontology").joinpath("quant.ttl").read_text()
+        # The engine requires a registered integrity policy before it accepts
+        # any RDF write; a shape targeting a class nothing instantiates registers
+        # one without constraining the ontology load.
+        client.rdf.icv_configure(_OPEN_POLICY)
         client.rdf.add_triples(turtle=ttl)
     finally:
         client.close()
@@ -111,7 +121,7 @@ def live_compute(
     try:
         binary = resolve_server_binary()
     except ServerBinaryNotFoundError:
-        pytest.skip("epistemic-graph[server] is not installed")
+        pytest.skip("medulla[server] is not installed")
     root = Path(tmp_path_factory.mktemp("eg"))
     socket_path = root / "eg.sock"
     _LIVE_SOCKET["path"] = socket_path
@@ -179,3 +189,21 @@ def live_engine(
     """Install the live engine as emerald's compute for one test."""
     monkeypatch.setattr(_engine, "_COMPUTE_CACHE", live_compute)
     return live_compute
+
+
+def served_mcp():
+    """The in-process connector server without its per-caller request throttle.
+
+    The throttle guards a public endpoint; these tests replay the whole pack
+    from one anonymous in-process caller in a burst, so it would only make the
+    result depend on scheduling. Everything else in the middleware stack stays.
+    """
+    from fastmcp.server.middleware.rate_limiting import RateLimitingMiddleware
+
+    from emerald_exchange.mcp_server import get_mcp_instance
+
+    mcp = get_mcp_instance()[0]
+    mcp.middleware[:] = [
+        m for m in mcp.middleware if not isinstance(m, RateLimitingMiddleware)
+    ]
+    return mcp

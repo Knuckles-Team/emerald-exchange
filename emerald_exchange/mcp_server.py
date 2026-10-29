@@ -19,6 +19,7 @@ def get_mcp_instance():
     warnings.filterwarnings("ignore", category=DeprecationWarning)
 
     from agent_connector_sdk.config import load_config, setting
+    from agent_connector_sdk.mcp.content import ConnectorContent
     from agent_connector_sdk.mcp.server import create_mcp_server
     from agent_connector_sdk.mcp.tool_surface import register_tool_surface
 
@@ -30,6 +31,11 @@ def get_mcp_instance():
         name="emerald-exchange",
         version=__version__,
         instructions="Unified Finance MCP — Exchange backends, risk management, and trading tools",
+        content=ConnectorContent.for_package(
+            "emerald_exchange",
+            Path(__file__).resolve().parent,
+            __version__,
+        ),
     )
 
     # Load config

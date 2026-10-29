@@ -200,7 +200,7 @@ and listens on `:9100`:
       - PORT=9100
       - MCP_URL=http://emerald-exchange-mcp:8100/mcp
       - PROVIDER=openai
-      - LLM_BASE_URL=${LLM_BASE_URL:-http://host.docker.internal:1234/v1}
+      - LLM_BASE_URL=${LLM_BASE_URL:-http://llm.example.invalid:1234/v1}
       - LLM_API_KEY=${LLM_API_KEY:-llama}
       - MODEL_ID=${MODEL_ID:-qwen/qwen3.5-9b}
       - ENABLE_WEB_UI=True
@@ -250,7 +250,7 @@ curl -s "https://dns-admin.example.invalid/api/zones/records/add" \
   --data-urlencode "domain=emerald-exchange.example.invalid" \
   --data-urlencode "zone=arpa" \
   --data-urlencode "type=A" \
-  --data-urlencode "ipAddress=10.0.0.10" \
+  --data-urlencode "ipAddress=192.0.2.10" \
   --data-urlencode "ttl=3600"
 ```
 

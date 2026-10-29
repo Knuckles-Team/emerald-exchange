@@ -32,19 +32,50 @@ def test_no_unguarded_order_tool_is_served():
     tools = _served()
     for operation in WRITE_OPERATIONS:
         assert f"emerald_exchange_{operation}" not in tools
-        assert not [name for name in tools if name.endswith(operation) and "orders" not in name]
-    for name in ("emerald_orders_submit", "emerald_orders_cancel", "emerald_orders_halt"):
+        assert not [
+            name for name in tools if name.endswith(operation) and "orders" not in name
+        ]
+    for name in (
+        "emerald_orders_submit",
+        "emerald_orders_cancel",
+        "emerald_orders_halt",
+    ):
         assert name in tools
 
 
 def test_guarded_submit_refuses_while_halted(monkeypatch):
     tools = _served()
-    asyncio.run(tools["emerald_orders_halt"].fn(symbol="", side="buy", qty=0.0, order_type="market", limit_price=0.0, order_id=""))
+    asyncio.run(
+        tools["emerald_orders_halt"].fn(
+            symbol="",
+            side="buy",
+            qty=0.0,
+            order_type="market",
+            limit_price=0.0,
+            order_id="",
+        )
+    )
     result = asyncio.run(
-        tools["emerald_orders_submit"].fn(symbol="AAPL", side="buy", qty=1.0, order_type="market", limit_price=0.0, order_id="")
+        tools["emerald_orders_submit"].fn(
+            symbol="AAPL",
+            side="buy",
+            qty=1.0,
+            order_type="market",
+            limit_price=0.0,
+            order_id="",
+        )
     )
     assert "halt" in str(result).lower()
-    asyncio.run(tools["emerald_orders_resume"].fn(symbol="", side="buy", qty=0.0, order_type="market", limit_price=0.0, order_id=""))
+    asyncio.run(
+        tools["emerald_orders_resume"].fn(
+            symbol="",
+            side="buy",
+            qty=0.0,
+            order_type="market",
+            limit_price=0.0,
+            order_id="",
+        )
+    )
 
 
 def test_exchanges_info_operation_is_served_and_read_only():
@@ -60,4 +91,8 @@ def test_exchanges_reports_backends_active_and_mode():
         mode = "paper"
 
     info = ExchangeReadOperations(Backend()).exchanges()
-    assert info == {"available": list(BACKEND_REGISTRY), "active": "paper", "mode": "paper"}
+    assert info == {
+        "available": list(BACKEND_REGISTRY),
+        "active": "paper",
+        "mode": "paper",
+    }

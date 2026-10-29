@@ -306,9 +306,14 @@ class AlpacaBackend:
                 self._api_key, self._secret_key
             )
             news_client = NewsClient(self._api_key, self._secret_key)
-            corporate_actions_client = CorporateActionsClient(self._api_key, self._secret_key)
+            corporate_actions_client = CorporateActionsClient(
+                self._api_key, self._secret_key
+            )
             self._client, self._stock_data_client = trading_client, stock_data_client
-            self._news_client, self._corporate_actions_client = news_client, corporate_actions_client
+            self._news_client, self._corporate_actions_client = (
+                news_client,
+                corporate_actions_client,
+            )
             logger.info("Alpaca connected (mode=%s)", self._mode)
             return True
         except ImportError:
@@ -369,7 +374,9 @@ class AlpacaBackend:
                 raw={"alpaca_order_id": str(order.id)},
             )
         except Exception as e:
-            logging.getLogger(__name__).exception("Operation failed (type=%s)", type(e).__name__, exc_info=False)
+            logging.getLogger(__name__).exception(
+                "Operation failed (type=%s)", type(e).__name__, exc_info=False
+            )
             logger.error("Alpaca order failed: error_type=%s", type(e).__name__)
             return ExecutionResult(
                 order_id="",
@@ -386,7 +393,11 @@ class AlpacaBackend:
             self._client.cancel_order_by_id(order_id)
             return True
         except Exception as caught_error:
-            logging.getLogger(__name__).exception("Operation failed (type=%s)", type(caught_error).__name__, exc_info=False)
+            logging.getLogger(__name__).exception(
+                "Operation failed (type=%s)",
+                type(caught_error).__name__,
+                exc_info=False,
+            )
             return False
 
     def get_order_status(self, order_id: str) -> ExecutionResult:
@@ -407,7 +418,11 @@ class AlpacaBackend:
                 exchange="alpaca",
             )
         except Exception as caught_error:
-            logging.getLogger(__name__).exception("Operation failed (type=%s)", type(caught_error).__name__, exc_info=False)
+            logging.getLogger(__name__).exception(
+                "Operation failed (type=%s)",
+                type(caught_error).__name__,
+                exc_info=False,
+            )
             return ExecutionResult(
                 order_id=order_id,
                 status=OrderStatus.REJECTED,
@@ -501,12 +516,14 @@ class AlpacaBackend:
             result = read_stock_bars_page(self._stock_data_client, **kwargs)
             if session_scope == "alpaca_calendar":
                 classify_stock_bar_sessions(
-                    self._client, result["bars"], feed=kwargs["feed"], timeframe=kwargs["timeframe"]
+                    self._client,
+                    result["bars"],
+                    feed=kwargs["feed"],
+                    timeframe=kwargs["timeframe"],
                 )
             return result
         except self._read_errors:
             raise RuntimeError("Alpaca stock data read failed") from None
-
 
     def get_stock_news_page(self, **kwargs: Any) -> dict[str, Any]:
         from emerald_exchange.alpaca_stock_events import read_news_page
@@ -536,7 +553,12 @@ class AlpacaBackend:
         from emerald_exchange.alpaca_stock_stream import AlpacaStockStream
 
         return AlpacaStockStream.connect(
-            self._api_key, self._secret_key, bus, symbols, feed=feed, license_tag=license_tag
+            self._api_key,
+            self._secret_key,
+            bus,
+            symbols,
+            feed=feed,
+            license_tag=license_tag,
         )
 
     def get_stock_dividends_page(self, **kwargs: Any) -> dict[str, Any]:
@@ -567,7 +589,14 @@ class CCXTBackend:
         self._secret = secret
         self._mode = mode
         self._exchange: Any = None
-        self._read_errors = (OSError, ValueError, TypeError, LookupError, AttributeError, OverflowError)
+        self._read_errors = (
+            OSError,
+            ValueError,
+            TypeError,
+            LookupError,
+            AttributeError,
+            OverflowError,
+        )
 
     @property
     def name(self) -> str:
@@ -634,7 +663,9 @@ class CCXTBackend:
                 raw=order,
             )
         except Exception as e:
-            logging.getLogger(__name__).exception("Operation failed (type=%s)", type(e).__name__, exc_info=False)
+            logging.getLogger(__name__).exception(
+                "Operation failed (type=%s)", type(e).__name__, exc_info=False
+            )
             logger.error("CCXT order failed: error_type=%s", type(e).__name__)
             return ExecutionResult(
                 order_id="",
@@ -651,7 +682,11 @@ class CCXTBackend:
             self._exchange.cancel_order(order_id)
             return True
         except Exception as caught_error:
-            logging.getLogger(__name__).exception("Operation failed (type=%s)", type(caught_error).__name__, exc_info=False)
+            logging.getLogger(__name__).exception(
+                "Operation failed (type=%s)",
+                type(caught_error).__name__,
+                exc_info=False,
+            )
             return False
 
     def get_order_status(self, order_id: str) -> ExecutionResult:
@@ -671,7 +706,11 @@ class CCXTBackend:
                 exchange=self._exchange_id,
             )
         except Exception as caught_error:
-            logging.getLogger(__name__).exception("Operation failed (type=%s)", type(caught_error).__name__, exc_info=False)
+            logging.getLogger(__name__).exception(
+                "Operation failed (type=%s)",
+                type(caught_error).__name__,
+                exc_info=False,
+            )
             return ExecutionResult(
                 order_id=order_id,
                 status=OrderStatus.REJECTED,
@@ -700,7 +739,11 @@ class CCXTBackend:
                     )
             return positions
         except Exception as caught_error:
-            logging.getLogger(__name__).exception("Operation failed (type=%s)", type(caught_error).__name__, exc_info=False)
+            logging.getLogger(__name__).exception(
+                "Operation failed (type=%s)",
+                type(caught_error).__name__,
+                exc_info=False,
+            )
             return []
 
     def get_account(self) -> AccountInfo:
@@ -716,7 +759,11 @@ class CCXTBackend:
                 currency="USD",
             )
         except Exception as caught_error:
-            logging.getLogger(__name__).exception("Operation failed (type=%s)", type(caught_error).__name__, exc_info=False)
+            logging.getLogger(__name__).exception(
+                "Operation failed (type=%s)",
+                type(caught_error).__name__,
+                exc_info=False,
+            )
             return AccountInfo(
                 equity=0, cash=0, buying_power=0, exchange=self._exchange_id
             )
@@ -732,7 +779,11 @@ class CCXTBackend:
                 volume=float(ticker.get("baseVolume", 0) or 0),
             )
         except Exception as caught_error:
-            logging.getLogger(__name__).exception("Operation failed (type=%s)", type(caught_error).__name__, exc_info=False)
+            logging.getLogger(__name__).exception(
+                "Operation failed (type=%s)",
+                type(caught_error).__name__,
+                exc_info=False,
+            )
             return Quote(symbol=symbol, bid=0, ask=0, last=0, volume=0)
 
     def get_historical(
@@ -740,7 +791,15 @@ class CCXTBackend:
     ) -> list[OHLCV]:
         from datetime import timedelta
 
-        periods = {"1d": 1, "5d": 5, "1mo": 30, "3mo": 90, "6mo": 180, "1y": 365, "2y": 730}
+        periods = {
+            "1d": 1,
+            "5d": 5,
+            "1mo": 30,
+            "3mo": 90,
+            "6mo": 180,
+            "1y": 365,
+            "2y": 730,
+        }
         if period not in periods:
             raise ValueError("unsupported exchange history period")
         end = datetime.now(UTC).replace(microsecond=0)
@@ -748,8 +807,26 @@ class CCXTBackend:
         cursor = None
         candles: list[OHLCV] = []
         for _ in range(20):
-            page = self.get_history_page(symbol=symbol, start=start.isoformat(), end=end.isoformat(), interval=interval, license_tag="legacy", limit=1000, page_token=cursor)
-            candles.extend(OHLCV(timestamp=c["timestamp"], open=c["open"], high=c["high"], low=c["low"], close=c["close"], volume=c["volume"]) for c in page["candles"])
+            page = self.get_history_page(
+                symbol=symbol,
+                start=start.isoformat(),
+                end=end.isoformat(),
+                interval=interval,
+                license_tag="legacy",
+                limit=1000,
+                page_token=cursor,
+            )
+            candles.extend(
+                OHLCV(
+                    timestamp=c["timestamp"],
+                    open=c["open"],
+                    high=c["high"],
+                    low=c["low"],
+                    close=c["close"],
+                    volume=c["volume"],
+                )
+                for c in page["candles"]
+            )
             cursor = page["next_page_token"]
             if cursor is None:
                 return candles
@@ -760,7 +837,9 @@ class CCXTBackend:
         from emerald_exchange.ccxt_history import read_history_page
 
         try:
-            return read_history_page(self._exchange, exchange_id=self._exchange_id, **kwargs)
+            return read_history_page(
+                self._exchange, exchange_id=self._exchange_id, **kwargs
+            )
         except self._read_errors:
             raise RuntimeError("exchange history read failed") from None
 
@@ -914,14 +993,14 @@ class PolymarketBackend:
                 )
             logger.info("Successfully connected to Polymarket CLOB v2 API")
             return True
-        except ImportError:
+        except ImportError as e:
             logger.error(
                 "py_clob_client_v2 not installed. Run 'pip install py_clob_client_v2'"
             )
             if self._mode == TradingMode.LIVE:
                 raise RuntimeError(
                     "py_clob_client_v2 is required for Live Polymarket trading"
-                )
+                ) from e
             return True
         except Exception as e:
             logger.error("Operation failed: error_type=%s", type(e).__name__)
@@ -1006,7 +1085,9 @@ class PolymarketBackend:
                 raw=resp if isinstance(resp, dict) else {"response": str(resp)},
             )
         except Exception as e:
-            logging.getLogger(__name__).exception("Operation failed (type=%s)", type(e).__name__, exc_info=False)
+            logging.getLogger(__name__).exception(
+                "Operation failed (type=%s)", type(e).__name__, exc_info=False
+            )
             logger.error("Polymarket order failed: error_type=%s", type(e).__name__)
             return ExecutionResult(
                 order_id="",
@@ -1025,7 +1106,9 @@ class PolymarketBackend:
             self._client.cancel_order(order_id)
             return True
         except Exception as e:
-            logging.getLogger(__name__).exception("Operation failed (type=%s)", type(e).__name__, exc_info=False)
+            logging.getLogger(__name__).exception(
+                "Operation failed (type=%s)", type(e).__name__, exc_info=False
+            )
             logger.error("Operation failed: error_type=%s", type(e).__name__)
             return False
 
@@ -1059,7 +1142,9 @@ class PolymarketBackend:
                 raw=order,
             )
         except Exception as e:
-            logging.getLogger(__name__).exception("Operation failed (type=%s)", type(e).__name__, exc_info=False)
+            logging.getLogger(__name__).exception(
+                "Operation failed (type=%s)", type(e).__name__, exc_info=False
+            )
             logger.error(
                 "Failed to fetch order status: error_type=%s", type(e).__name__
             )
@@ -1104,7 +1189,9 @@ class PolymarketBackend:
                     )
             return positions
         except Exception as e:
-            logging.getLogger(__name__).exception("Operation failed (type=%s)", type(e).__name__, exc_info=False)
+            logging.getLogger(__name__).exception(
+                "Operation failed (type=%s)", type(e).__name__, exc_info=False
+            )
             logger.error("Operation failed: error_type=%s", type(e).__name__)
             return []
 
@@ -1124,7 +1211,9 @@ class PolymarketBackend:
                 currency="USDC",
             )
         except Exception as e:
-            logging.getLogger(__name__).exception("Operation failed (type=%s)", type(e).__name__, exc_info=False)
+            logging.getLogger(__name__).exception(
+                "Operation failed (type=%s)", type(e).__name__, exc_info=False
+            )
             logger.error("Operation failed: error_type=%s", type(e).__name__)
             return AccountInfo(
                 equity=0.0, cash=0.0, buying_power=0.0, exchange="polymarket"
@@ -1147,7 +1236,9 @@ class PolymarketBackend:
                 volume=0.0,
             )
         except Exception as e:
-            logging.getLogger(__name__).exception("Operation failed (type=%s)", type(e).__name__, exc_info=False)
+            logging.getLogger(__name__).exception(
+                "Operation failed (type=%s)", type(e).__name__, exc_info=False
+            )
             logger.error(
                 "Failed to fetch Polymarket quote: error_type=%s", type(e).__name__
             )
@@ -1168,7 +1259,9 @@ class PolymarketBackend:
             logger.info("Successfully merged YES/NO positions for market %s", market_id)
             return True
         except Exception as e:
-            logging.getLogger(__name__).exception("Operation failed (type=%s)", type(e).__name__, exc_info=False)
+            logging.getLogger(__name__).exception(
+                "Operation failed (type=%s)", type(e).__name__, exc_info=False
+            )
             logger.error("Operation failed: error_type=%s", type(e).__name__)
             return False
 

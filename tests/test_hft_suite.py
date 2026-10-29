@@ -8,7 +8,6 @@ engine (``live_engine``), started from ``epistemic-graph[server]``.
 import json
 
 from emerald_exchange._engine import ENGINE_REQUIRED_ERR
-
 from emerald_exchange.risk_guards import RiskGuard, RiskLimits
 
 

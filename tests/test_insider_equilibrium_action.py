@@ -57,7 +57,9 @@ class _Finance:
             steps = params["request"]["steps"]
             return {
                 "equilibrium": {"intensity": 0.4, "kyle_lambda": 0.15},
-                "schedule": [{"t": i / steps, "intensity": 0.4} for i in range(steps + 1)],
+                "schedule": [
+                    {"t": i / steps, "intensity": 0.4} for i in range(steps + 1)
+                ],
                 "policy": {"verdict": "criminal_is_the_lever"},
             }
         return {"posterior_up": 0.66, "seeded": 0, "sources": [{"name": "rsi"}]}
@@ -123,7 +125,9 @@ def test_regime_runs_the_engine_hmm(client):
 
 
 def test_insider_equilibrium_rejects_bad_json(client):
-    out = json.loads(_signals_fn()(action="insider_equilibrium", signals_json="{not json"))
+    out = json.loads(
+        _signals_fn()(action="insider_equilibrium", signals_json="{not json")
+    )
     assert "error" in out
 
 

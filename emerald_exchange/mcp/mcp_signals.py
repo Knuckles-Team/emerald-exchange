@@ -122,7 +122,9 @@ def register_signal_tools(mcp: Any) -> None:
                     payload = json.loads(signals_json) if signals_json else {}
                     prices = [float(x) for x in payload.get("close_prices", [])]
                 except (ValueError, TypeError, AttributeError) as exc:
-                    return json.dumps({"error": f"invalid signals_json: {type(exc).__name__}"})
+                    return json.dumps(
+                        {"error": f"invalid signals_json: {type(exc).__name__}"}
+                    )
                 if len(prices) < 3:
                     return json.dumps(
                         {
@@ -166,7 +168,9 @@ def register_signal_tools(mcp: Any) -> None:
                         str(k): int(v) for k, v in json.loads(signals_json).items()
                     }
                 except (ValueError, TypeError, AttributeError) as exc:
-                    return json.dumps({"error": f"invalid signals_json: {type(exc).__name__}"})
+                    return json.dumps(
+                        {"error": f"invalid signals_json: {type(exc).__name__}"}
+                    )
 
                 compute = finance_compute()
                 if compute is None:
@@ -198,7 +202,9 @@ def register_signal_tools(mcp: Any) -> None:
                 try:
                     book = json.loads(signals_json)
                 except (ValueError, TypeError) as exc:
-                    return json.dumps({"error": f"invalid signals_json: {type(exc).__name__}"})
+                    return json.dumps(
+                        {"error": f"invalid signals_json: {type(exc).__name__}"}
+                    )
 
                 try:
                     scores = compute.analyse(
@@ -219,7 +225,9 @@ def register_signal_tools(mcp: Any) -> None:
                 # Register the detector as a discoverable MicrostructureSignal so the
                 # fuse path finds it; priors (accuracy/sharpe/pbo) stay at defaults
                 # until an ``emerald_strategy`` backtest writes them (CONCEPT:AU-AHE.assimilation.microstructure-signal-fusion).
-                signal_id = f"kyle_surveillance:{ticker}" if ticker else "kyle_surveillance"
+                signal_id = (
+                    f"kyle_surveillance:{ticker}" if ticker else "kyle_surveillance"
+                )
                 registered = False
                 try:
                     record = microstructure_signal_record(
@@ -248,18 +256,26 @@ def register_signal_tools(mcp: Any) -> None:
                 try:
                     params = json.loads(signals_json) if signals_json else {}
                 except (ValueError, TypeError) as exc:
-                    return json.dumps({"error": f"invalid signals_json: {type(exc).__name__}"})
+                    return json.dumps(
+                        {"error": f"invalid signals_json: {type(exc).__name__}"}
+                    )
 
                 try:
                     steps = int(params.pop("steps", 10))
                     inputs = {**_INSIDER_DEFAULTS}
                     inputs.update(
-                        {k: float(v) for k, v in params.items() if k in _INSIDER_DEFAULTS}
+                        {
+                            k: float(v)
+                            for k, v in params.items()
+                            if k in _INSIDER_DEFAULTS
+                        }
                     )
                     if params.get("gap_var") is not None:
                         inputs["gap_var"] = float(params["gap_var"])
                 except (ValueError, TypeError) as exc:
-                    return json.dumps({"error": f"invalid equilibrium params: {type(exc).__name__}"})
+                    return json.dumps(
+                        {"error": f"invalid equilibrium params: {type(exc).__name__}"}
+                    )
 
                 compute = finance_compute()
                 if compute is None:

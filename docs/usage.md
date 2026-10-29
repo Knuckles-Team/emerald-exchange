@@ -48,9 +48,9 @@ backend = create_backend("paper", mode=TradingMode.PAPER)
 backend.connect()
 
 # Reads
-quote = backend.get_quote("AAPL")            # latest bid/ask/last
-account = backend.get_account()              # cash, equity, buying power
-positions = backend.get_positions()          # open positions
+quote = backend.get_quote("AAPL")  # latest bid/ask/last
+account = backend.get_account()  # cash, equity, buying power
+positions = backend.get_positions()  # open positions
 ```
 
 Validate an order against the risk guard before submission:
@@ -66,7 +66,7 @@ decision = guard.pre_trade_check(
     price=quote.last,
     account=account,
 )
-print(decision)        # approved with limits, or blocked with a reason
+print(decision)  # approved with limits, or blocked with a reason
 ```
 
 Switch to a live venue by selecting its backend and supplying credentials via the
@@ -76,7 +76,7 @@ Switch to a live venue by selecting its backend and supplying credentials via th
 backend = create_backend(
     "alpaca",
     {"api_key": "...", "secret_key": "..."},
-    mode=TradingMode.PAPER,        # Alpaca paper trading is free
+    mode=TradingMode.PAPER,  # Alpaca paper trading is free
 )
 ```
 

@@ -6,8 +6,7 @@ passes cleanly offline (no socket).
 
 import json
 
-import pytest
-
+from emerald_exchange.analyses import calibrate, implied_vol, smile, vol_arb
 from emerald_exchange.backends import (
     OrderSide,
     OrderType,
@@ -15,7 +14,6 @@ from emerald_exchange.backends import (
     TradingMode,
 )
 from emerald_exchange.cockpit import build_snapshot, cockpit, render_snapshot
-from emerald_exchange.analyses import calibrate, implied_vol, smile, vol_arb
 from emerald_exchange.execution_bridge import (
     ExecutionBridge,
     RoutingStatus,

@@ -103,7 +103,9 @@ def register_wallet_intel_tools(mcp: Any) -> None:
         except NoDatasetConfigured:
             return json.dumps({"error": "Operation failed", "ok": False})
         except KeyError as exc:
-            return json.dumps({"error": f"missing required param: {type(exc).__name__}"})
+            return json.dumps(
+                {"error": f"missing required param: {type(exc).__name__}"}
+            )
         except Exception as exc:  # noqa: BLE001
             logger.error("Operation failed: error_type=%s", type(exc).__name__)
             return json.dumps({"error": "Operation failed"})

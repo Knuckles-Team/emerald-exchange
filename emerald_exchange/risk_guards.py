@@ -125,7 +125,9 @@ class RiskGuard:
             unmet = []
             if metrics.get("paper_trades", 0) < req.get("min_paper_trades", 0):
                 unmet.append("min_paper_trades")
-            if metrics.get("deflated_sharpe", 0.0) < req.get("min_deflated_sharpe", 0.0):
+            if metrics.get("deflated_sharpe", 0.0) < req.get(
+                "min_deflated_sharpe", 0.0
+            ):
                 unmet.append("min_deflated_sharpe")
             if metrics.get("pbo", 1.0) > req.get("max_pbo", 1.0):
                 unmet.append("max_pbo")
@@ -136,18 +138,35 @@ class RiskGuard:
             # policy sets a tighter ``max_legal_risk``.
             if metrics.get("legal_risk_score", 0.0) > req.get("max_legal_risk", 1.0):
                 unmet.append("max_legal_risk")
-            return {"stage": stage, "next": "advisory", "eligible": not unmet, "unmet": unmet}
+            return {
+                "stage": stage,
+                "next": "advisory",
+                "eligible": not unmet,
+                "unmet": unmet,
+            }
         if stage == "advisory":
             req = grad.get("advisory_to_bounded", {})
             unmet = []
-            if metrics.get("approved_advisories", 0) < req.get("min_approved_advisories", 0):
+            if metrics.get("approved_advisories", 0) < req.get(
+                "min_approved_advisories", 0
+            ):
                 unmet.append("min_approved_advisories")
             if metrics.get("live_sharpe", 0.0) < req.get("min_live_sharpe", 0.0):
                 unmet.append("min_live_sharpe")
             if metrics.get("max_drawdown_pct", 1.0) > req.get("max_drawdown_pct", 1.0):
                 unmet.append("max_drawdown_pct")
-            return {"stage": stage, "next": "bounded_autonomous", "eligible": not unmet, "unmet": unmet}
-        return {"stage": stage, "next": None, "eligible": False, "unmet": ["already at terminal stage"]}
+            return {
+                "stage": stage,
+                "next": "bounded_autonomous",
+                "eligible": not unmet,
+                "unmet": unmet,
+            }
+        return {
+            "stage": stage,
+            "next": None,
+            "eligible": False,
+            "unmet": ["already at terminal stage"],
+        }
 
     def approve_stage(self, new_stage: str, token: str) -> bool:
         """Promote the execution stage — a HUMAN action gated by a secret token.
