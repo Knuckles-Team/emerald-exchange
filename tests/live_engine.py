@@ -177,3 +177,21 @@ def live_engine(
     """Install the live engine as emerald's compute for one test."""
     monkeypatch.setattr(_engine, "_COMPUTE_CACHE", live_compute)
     return live_compute
+
+
+def served_mcp():
+    """The in-process connector server without its per-caller request throttle.
+
+    The throttle guards a public endpoint; these tests replay the whole pack
+    from one anonymous in-process caller in a burst, so it would only make the
+    result depend on scheduling. Everything else in the middleware stack stays.
+    """
+    from fastmcp.server.middleware.rate_limiting import RateLimitingMiddleware
+
+    from emerald_exchange.mcp_server import get_mcp_instance
+
+    mcp = get_mcp_instance()[0]
+    mcp.middleware[:] = [
+        m for m in mcp.middleware if not isinstance(m, RateLimitingMiddleware)
+    ]
+    return mcp

@@ -252,14 +252,14 @@ def test_real_served_pack_reimports_account_positions_and_csv(
     account_original_engine, monkeypatch
 ):
     from emerald_exchange import backends
-    from emerald_exchange.mcp_server import get_mcp_instance
+    from tests.live_engine import served_mcp
 
     backend = AlpacaBackend()
     backend._client = Provider()
     backend.connect = lambda: True
     monkeypatch.setattr(backends, "create_backend", lambda *args: backend)
     monkeypatch.setattr(sys, "argv", ["emerald-exchange", "--transport", "stdio"])
-    mcp = get_mcp_instance()[0]
+    mcp = served_mcp()
     asyncio.run(exercise(mcp))
 
 
@@ -280,11 +280,11 @@ def account_adapter_engine(tmp_path_factory):
 def test_account_validator_replays_all_sources(account_adapter_engine, monkeypatch):
     pytest.importorskip("agent_connector_sdk.finance.account_source")
     from emerald_exchange import backends
-    from emerald_exchange.mcp_server import get_mcp_instance
+    from tests.live_engine import served_mcp
 
     backend = AlpacaBackend()
     backend._client = Provider()
     backend.connect = lambda: True
     monkeypatch.setattr(backends, "create_backend", lambda *args: backend)
     monkeypatch.setattr(sys, "argv", ["emerald-exchange", "--transport", "stdio"])
-    asyncio.run(exercise(get_mcp_instance()[0], validate=True))
+    asyncio.run(exercise(served_mcp(), validate=True))

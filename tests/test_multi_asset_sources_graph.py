@@ -22,8 +22,7 @@ from packaging.version import Version
 
 from emerald_exchange import backends
 from emerald_exchange.backends import AlpacaBackend
-from emerald_exchange.mcp_server import get_mcp_instance
-from tests.live_engine import PRINCIPAL, TENANT
+from tests.live_engine import PRINCIPAL, TENANT, served_mcp
 from tests.live_engine import live_compute as _live_compute
 from tests.test_finance_served_graph import (
     CONNECTOR,
@@ -187,7 +186,7 @@ def test_served_multi_asset_sources_reimport_into_graph(
     backend.connect = lambda: True
     monkeypatch.setattr(backends, "create_backend", lambda *_: backend)
     monkeypatch.setattr(sys, "argv", ["emerald-exchange", "--transport", "stdio"])
-    asyncio.run(_exercise(get_mcp_instance()[0]))
+    asyncio.run(_exercise(served_mcp()))
 
 
 @pytest.mark.skipif(
@@ -201,4 +200,4 @@ def test_provider_records_through_sdk_and_graph(multi_asset_live_compute, monkey
     backend.connect = lambda: True
     monkeypatch.setattr(backends, "create_backend", lambda *_: backend)
     monkeypatch.setattr(sys, "argv", ["emerald-exchange", "--transport", "stdio"])
-    asyncio.run(_exercise(get_mcp_instance()[0], validate=True))
+    asyncio.run(_exercise(served_mcp(), validate=True))

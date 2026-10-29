@@ -23,8 +23,7 @@ from packaging.version import Version
 
 from emerald_exchange import backends
 from emerald_exchange.backends import AlpacaBackend
-from emerald_exchange.mcp_server import get_mcp_instance
-from tests.live_engine import PRINCIPAL, TENANT, live_compute  # noqa: F401
+from tests.live_engine import PRINCIPAL, TENANT, live_compute, served_mcp  # noqa: F401
 from tests.test_alpaca_stock_bars import ARGS, BAR, QUOTE
 from tests.test_finance_served_graph import (
     CONNECTOR,
@@ -204,4 +203,4 @@ def test_served_stock_pages_reimport_into_graph(live_compute, monkeypatch):  # n
     backend.connect = lambda: True
     monkeypatch.setattr(backends, "create_backend", lambda *_: backend)
     monkeypatch.setattr(sys, "argv", ["emerald-exchange", "--transport", "stdio"])
-    asyncio.run(_exercise(get_mcp_instance()[0]))
+    asyncio.run(_exercise(served_mcp()))
