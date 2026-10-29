@@ -126,7 +126,7 @@ async def _exercise(server):
 
 
 @pytest.mark.skipif(
-    Version(version("epistemic-graph")) < Version("2.27.6"),
+    Version(version("medulla")) < Version("2.27.6"),
     reason="real connector pack replay requires graph 2.27.6",
 )
 def test_served_company_sources_reimport_into_graph(live_compute, monkeypatch):  # noqa: F811

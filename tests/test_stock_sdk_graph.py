@@ -15,7 +15,7 @@ def stock_adapter_engine(tmp_path_factory):
 
 
 @pytest.mark.skipif(
-    Version(version("epistemic-graph")) < Version("2.27.6"),
+    Version(version("medulla")) < Version("2.27.6"),
     reason="real connector pack replay requires graph 2.27.6",
 )
 @pytest.mark.parametrize(

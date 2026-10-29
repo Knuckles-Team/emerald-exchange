@@ -245,7 +245,7 @@ async def exercise(mcp, *, validate=False):
 
 
 @pytest.mark.skipif(
-    Version(version("epistemic-graph")) < Version("2.27.6"),
+    Version(version("medulla")) < Version("2.27.6"),
     reason="real connector pack replay requires graph 2.27.6",
 )
 def test_real_served_pack_reimports_account_positions_and_csv(
@@ -274,7 +274,7 @@ def account_adapter_engine(tmp_path_factory):
 
 
 @pytest.mark.skipif(
-    Version(version("epistemic-graph")) < Version("2.27.6"),
+    Version(version("medulla")) < Version("2.27.6"),
     reason="real connector pack replay requires graph 2.27.6",
 )
 def test_account_validator_replays_all_sources(account_adapter_engine, monkeypatch):

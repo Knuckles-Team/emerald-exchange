@@ -1,6 +1,6 @@
 """A real, ephemeral epistemic-graph server for live-engine tests.
 
-Starts the ``epistemic-graph-server`` binary from ``epistemic-graph[server]``
+Starts the ``epistemic-graph-server`` binary from ``medulla[server]``
 on a private Unix socket with test-only credentials, enrolls the test signer,
 creates one graph, imports emerald's ``ontology/quant.ttl`` into it, and
 installs a connected :class:`~agent_connector_sdk.compute.EngineCompute` as
@@ -109,7 +109,7 @@ def live_compute(
     try:
         binary = resolve_server_binary()
     except ServerBinaryNotFoundError:
-        pytest.skip("epistemic-graph[server] is not installed")
+        pytest.skip("medulla[server] is not installed")
     root = Path(tmp_path_factory.mktemp("eg"))
     socket_path = root / "eg.sock"
     _LIVE_SOCKET["path"] = socket_path

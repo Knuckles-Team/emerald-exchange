@@ -175,7 +175,7 @@ async def _exercise(server, *, validate=False):
 
 
 @pytest.mark.skipif(
-    Version(version("epistemic-graph")) < Version("2.27.6"),
+    Version(version("medulla")) < Version("2.27.6"),
     reason="real connector pack replay requires graph 2.27.6",
 )
 def test_served_multi_asset_sources_reimport_into_graph(
@@ -190,7 +190,7 @@ def test_served_multi_asset_sources_reimport_into_graph(
 
 
 @pytest.mark.skipif(
-    Version(version("epistemic-graph")) < Version("2.27.6"),
+    Version(version("medulla")) < Version("2.27.6"),
     reason="real connector pack replay requires graph 2.27.6",
 )
 def test_provider_records_through_sdk_and_graph(multi_asset_live_compute, monkeypatch):
