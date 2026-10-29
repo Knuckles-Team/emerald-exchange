@@ -59,6 +59,7 @@ def _wait_for(socket_path: Path, proc: subprocess.Popen[bytes]) -> None:
         time.sleep(0.05)
     raise RuntimeError("epistemic-graph-server did not open its socket")
 
+
 _OPEN_POLICY = """
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix ex: <urn:emerald-exchange:test-policy#> .
