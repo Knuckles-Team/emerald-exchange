@@ -52,8 +52,19 @@ def register_risk_tools(
 
         try:
             return _dispatch(
-                action, daily_pnl, win_rate, win_loss_ratio, wins, losses, cost,
-                fraction, p, b, historical_returns_json, n_simulations, seed,
+                action,
+                daily_pnl,
+                win_rate,
+                win_loss_ratio,
+                wins,
+                losses,
+                cost,
+                fraction,
+                p,
+                b,
+                historical_returns_json,
+                n_simulations,
+                seed,
             )
         except (ComputeUnavailableError, MethodNotServedError) as exc:
             return json.dumps(engine_error(exc))
@@ -132,7 +143,9 @@ def register_risk_tools(
             try:
                 historical_returns = json.loads(historical_returns_json or "[]")
             except json.JSONDecodeError as exc:
-                return json.dumps({"error": f"invalid historical_returns_json: {type(exc).__name__}"})
+                return json.dumps(
+                    {"error": f"invalid historical_returns_json: {type(exc).__name__}"}
+                )
             size = risk_guard.empirical_kelly_size(
                 p=p,
                 b=b,

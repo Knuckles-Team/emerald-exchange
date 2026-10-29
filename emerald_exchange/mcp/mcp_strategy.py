@@ -1,4 +1,5 @@
 """Strategy Management MCP Tools — CONCEPT:AU-AHE.assimilation.trading-ecosystem-spec."""
+
 import json
 import logging
 from typing import Any
@@ -34,7 +35,9 @@ def register_strategy_tools(mcp: Any) -> None:
                 try:
                     returns = [float(x) for x in json.loads(returns_json)]
                 except (ValueError, TypeError) as exc:
-                    return json.dumps({"error": f"invalid returns_json: {type(exc).__name__}"})
+                    return json.dumps(
+                        {"error": f"invalid returns_json: {type(exc).__name__}"}
+                    )
                 if len(returns) < 2:
                     return json.dumps({"error": "need >= 2 returns to backtest"})
 
@@ -46,7 +49,9 @@ def register_strategy_tools(mcp: Any) -> None:
                 hit_rate = hit.get("hit_rate", hit)
                 # Split-half PBO as a lightweight overfit guard on a single series.
                 half = len(returns) // 2
-                pbo_out = analyses.probability_overfit([returns[:half]], [returns[half:]])
+                pbo_out = analyses.probability_overfit(
+                    [returns[:half]], [returns[half:]]
+                )
                 pbo = pbo_out.get("pbo", pbo_out)
                 measured = all(isinstance(v, float) for v in (deflated, hit_rate, pbo))
 
@@ -104,5 +109,9 @@ def register_strategy_tools(mcp: Any) -> None:
                 )
             return json.dumps({"error": f"Unknown action: {action}"})
         except Exception as caught_error:
-            logging.getLogger(__name__).exception("Operation failed (type=%s)", type(caught_error).__name__, exc_info=False)
+            logging.getLogger(__name__).exception(
+                "Operation failed (type=%s)",
+                type(caught_error).__name__,
+                exc_info=False,
+            )
             return json.dumps({"error": "Operation failed"})

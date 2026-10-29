@@ -17,7 +17,10 @@ def test_unserved_ensemble_probability_is_refused(monkeypatch):
     (tool,) = [fn for name, fn in mcp.tools.items() if "prediction" in name]
     out = json.loads(
         asyncio.run(
-            tool(action="evaluate_event_arbitrage", params_json='{"condition_met_count": 20}')
+            tool(
+                action="evaluate_event_arbitrage",
+                params_json='{"condition_met_count": 20}',
+            )
         )
     )
     assert out["error"] == "not_served"

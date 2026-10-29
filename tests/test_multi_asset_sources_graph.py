@@ -10,6 +10,7 @@ from agent_connector_sdk.adapters.mcp_tool import McpToolSourceAdapter
 from agent_connector_sdk.artifacts.pack import build_content_pack
 from agent_connector_sdk.artifacts.resources import ResourceArtifactKind
 from agent_connector_sdk.artifacts.tools import ToolArtifactKind
+from agent_connector_sdk.ingest.live_declaration import load_declaration as declaration
 from agent_connector_sdk.manifest.presets import ToolPreset
 from agent_connector_sdk.ports.session import TransportEndpoint
 from agent_connector_sdk.runner.syncing import SyncTarget, sync_stream
@@ -21,7 +22,6 @@ from packaging.version import Version
 
 from emerald_exchange import backends
 from emerald_exchange.backends import AlpacaBackend
-from agent_connector_sdk.ingest.live_declaration import load_declaration as declaration
 from emerald_exchange.mcp_server import get_mcp_instance
 from tests.live_engine import PRINCIPAL, TENANT
 from tests.live_engine import live_compute as _live_compute

@@ -97,7 +97,5 @@ def register_derivatives_tools(mcp: Any) -> None:
                 )
             return json.dumps({"error": f"Unknown action: {action}"})
         except Exception as exc:  # noqa: BLE001
-            logger.error(
-                "Derivatives tool error: error_type=%s", type(exc).__name__
-            )
+            logger.error("Derivatives tool error: error_type=%s", type(exc).__name__)
             return json.dumps({"error": "Operation failed"})

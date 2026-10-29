@@ -100,7 +100,11 @@ def engine_error(exc: BaseException) -> dict[str, Any]:
     from agent_connector_sdk.compute import MethodNotServedError
 
     if isinstance(exc, MethodNotServedError):
-        return {"error": "not_served", "method": exc.method, "handoff": exc.handoff or HANDOFF_OWNER}
+        return {
+            "error": "not_served",
+            "method": exc.method,
+            "handoff": exc.handoff or HANDOFF_OWNER,
+        }
     return {"error": ENGINE_REQUIRED_ERR}
 
 

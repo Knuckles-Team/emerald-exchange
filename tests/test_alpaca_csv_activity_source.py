@@ -3,9 +3,9 @@
 from types import SimpleNamespace
 
 import pytest
+from agent_connector_sdk.ingest.live_declaration import load_declaration as declaration
 
 from emerald_exchange.backends import AlpacaBackend, PaperBackend
-from agent_connector_sdk.ingest.live_declaration import load_declaration as declaration
 from emerald_exchange.exchange_operations import ExchangeReadOperations
 
 CSV = "date,side,qty,price,fee,ccy,settle\n2026-01-02T00:00:00Z,buy,10,100.5,1,USD,2026-01-04T00:00:00Z\n"

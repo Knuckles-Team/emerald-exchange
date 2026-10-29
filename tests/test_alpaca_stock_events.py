@@ -5,7 +5,6 @@ import pytest
 from emerald_exchange.backends import AlpacaBackend
 from emerald_exchange.exchange_operations import ExchangeReadOperations
 
-
 NEWS = {
     "id": 123,
     "headline": "A headline",

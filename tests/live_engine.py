@@ -15,12 +15,10 @@ import os
 import subprocess  # nosec B404 - fixed server argv, test-only
 import time
 from collections.abc import Iterator
+from importlib.resources import files
 from pathlib import Path
 
 import pytest
-
-from importlib.resources import files
-
 from agent_connector_sdk.compute import EngineCompute, connect_compute
 from agent_connector_sdk.ingest.engine import EngineSettings
 

@@ -103,6 +103,7 @@ def _build_tool():
             def deco(fn):
                 captured["fn"] = fn
                 return fn
+
             return deco
 
     register_wallet_intel_tools(_MCP())
@@ -114,9 +115,7 @@ def test_tool_shim_returns_error_payload_not_crash(monkeypatch):
     import asyncio
 
     tool = _build_tool()
-    out = asyncio.run(
-        tool(action="rank_wallets", params_json="{}")
-    )
+    out = asyncio.run(tool(action="rank_wallets", params_json="{}"))
     payload = json.loads(out)
     assert payload.get("ok") is False
     assert "error" in payload
@@ -127,9 +126,7 @@ def test_tool_unknown_action(monkeypatch):
     import asyncio
 
     tool = _build_tool()
-    out = asyncio.run(
-        tool(action="bogus", params_json="{}")
-    )
+    out = asyncio.run(tool(action="bogus", params_json="{}"))
     assert "Unknown action" in json.loads(out)["error"]
 
 

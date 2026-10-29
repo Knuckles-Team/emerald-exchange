@@ -85,7 +85,9 @@ class MMConfig:
     # Queue-position / adverse-selection (CONCEPT:AU-AHE.assimilation.trading-ecosystem-changelog). Both default to 0 ⇒
     # behavior-identical until an operator opts in (mirrors ofi_drift_coef).
     queue_skew_coef: float = 0.0  # >0 nudges reservation toward the thicker queue
-    queue_fill_time_max: float = 0.0  # >0 withdraws when worst-side fill time exceeds this
+    queue_fill_time_max: float = (
+        0.0  # >0 withdraws when worst-side fill time exceeds this
+    )
     vh: float = 1.0  # payoff if "high" resolves (YES → 1.0)
     vl: float = 0.0  # payoff if "low" resolves
     post_only: bool = True  # never cross the resting book
@@ -227,7 +229,9 @@ class MarketMakingController:
         )
         fair_value = float(series[-1]) if series else 0.0
         if fair_value <= 0:
-            return self._withdrawn("no_fair_value", engine_used=True, conviction=conviction)
+            return self._withdrawn(
+                "no_fair_value", engine_used=True, conviction=conviction
+            )
         if cfg.ofi_drift_coef != 0.0 and len(book.ts) >= 2:
             ofi = run_analysis(
                 "OrderFlowImbalanceAnalysis",

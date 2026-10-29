@@ -21,10 +21,8 @@ def test_version_defined():
 def test_backends_importable():
     """Core backends module must be importable."""
     from emerald_exchange.backends import (
-        ExchangeBackend,
-        PaperBackend,
         BACKEND_REGISTRY,
-        create_backend,
+        PaperBackend,
     )
 
     assert PaperBackend is not None

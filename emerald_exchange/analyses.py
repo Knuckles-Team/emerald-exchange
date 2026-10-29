@@ -155,7 +155,14 @@ def implied_vol(
 ) -> dict[str, Any]:
     """SABR implied vol for one strike (ImpliedVolatilityAnalysis)."""
     vol = run_analysis(
-        "ImpliedVolatilityAnalysis", f=f, k=k, t=t, alpha=alpha, beta=beta, rho=rho, nu=nu
+        "ImpliedVolatilityAnalysis",
+        f=f,
+        k=k,
+        t=t,
+        alpha=alpha,
+        beta=beta,
+        rho=rho,
+        nu=nu,
     )
     return {"implied_vol": vol, "f": f, "k": k, "t": t}
 
@@ -186,7 +193,11 @@ def smile(
 
 @_served
 def calibrate(
-    f: float, t: float, strikes: list[float], market_vols: list[float], beta: float = 0.5
+    f: float,
+    t: float,
+    strikes: list[float],
+    market_vols: list[float],
+    beta: float = 0.5,
 ) -> dict[str, Any]:
     """Calibrate SABR to a market smile (VolatilityCalibrationAnalysis)."""
     if len(strikes) != len(market_vols):
@@ -205,7 +216,11 @@ def calibrate(
 
 @_served
 def vol_arb(
-    f: float, t: float, strikes: list[float], market_vols: list[float], beta: float = 0.5
+    f: float,
+    t: float,
+    strikes: list[float],
+    market_vols: list[float],
+    beta: float = 0.5,
 ) -> dict[str, Any]:
     """Rich/cheap strike classification against the SABR-fair smile.
 
@@ -296,9 +311,7 @@ def probability_overfit(
     insample: list[list[float]], oos: list[list[float]]
 ) -> dict[str, Any]:
     """Probability of backtest overfit across strategies (BacktestOverfitAnalysis)."""
-    return {
-        "pbo": run_analysis("BacktestOverfitAnalysis", insample=insample, oos=oos)
-    }
+    return {"pbo": run_analysis("BacktestOverfitAnalysis", insample=insample, oos=oos)}
 
 
 @_served
