@@ -6,4 +6,6 @@ Provides fully abstracted exchange backends for equities, crypto, and
 derivatives trading. All functionality is tool-driven via MCP.
 """
 
-__version__ = "2.3.6"
+from agent_connector_sdk.connector_identity import connector_version
+
+__version__ = connector_version("emerald_exchange")
