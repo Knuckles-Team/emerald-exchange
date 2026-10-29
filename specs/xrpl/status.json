@@ -1,0 +1,114 @@
+{
+  "schema_version": 2,
+  "spec_id": "CONN-EMERALD-EXCHANGE-XRPL",
+  "owner_repo": "emerald-exchange",
+  "delivery_state": "SPECIFIED",
+  "requirement_ids": [
+    "CONN-EMERALD-EXCHANGE-XRPL-R001",
+    "CONN-EMERALD-EXCHANGE-XRPL-R002",
+    "CONN-EMERALD-EXCHANGE-XRPL-R003",
+    "CONN-EMERALD-EXCHANGE-XRPL-R004",
+    "CONN-EMERALD-EXCHANGE-XRPL-R005",
+    "CONN-EMERALD-EXCHANGE-XRPL-R006",
+    "CONN-EMERALD-EXCHANGE-XRPL-R007",
+    "CONN-EMERALD-EXCHANGE-XRPL-R008",
+    "CONN-EMERALD-EXCHANGE-XRPL-R009",
+    "CONN-EMERALD-EXCHANGE-XRPL-R010",
+    "CONN-EMERALD-EXCHANGE-XRPL-R011",
+    "CONN-EMERALD-EXCHANGE-XRPL-R012",
+    "CONN-EMERALD-EXCHANGE-XRPL-R013"
+  ],
+  "requirements": [
+    {
+      "id": "CONN-EMERALD-EXCHANGE-XRPL-R001",
+      "title": "Agent wallet create, load and sign",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "CONN-EMERALD-EXCHANGE-XRPL-R002",
+      "title": "XRP and RLUSD payments",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "CONN-EMERALD-EXCHANGE-XRPL-R003",
+      "title": "Trust lines",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "CONN-EMERALD-EXCHANGE-XRPL-R004",
+      "title": "Escrow-gated work",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "CONN-EMERALD-EXCHANGE-XRPL-R005",
+      "title": "Native DEX and AMM market operations",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "CONN-EMERALD-EXCHANGE-XRPL-R006",
+      "title": "Account and portfolio queries",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "CONN-EMERALD-EXCHANGE-XRPL-R007",
+      "title": "Agent attribution and audit trail",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "CONN-EMERALD-EXCHANGE-XRPL-R008",
+      "title": "Spending-limit checks and kill-switch",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "CONN-EMERALD-EXCHANGE-XRPL-R009",
+      "title": "Safety defaults",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "CONN-EMERALD-EXCHANGE-XRPL-R010",
+      "title": "Resource serving",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "CONN-EMERALD-EXCHANGE-XRPL-R011",
+      "title": "Prompts",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "CONN-EMERALD-EXCHANGE-XRPL-R012",
+      "title": "Skills",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "CONN-EMERALD-EXCHANGE-XRPL-R013",
+      "title": "Ontology content",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    }
+  ]
+}

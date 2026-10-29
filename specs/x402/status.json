@@ -1,0 +1,66 @@
+{
+  "schema_version": 2,
+  "spec_id": "CONN-EMERALD-EXCHANGE-X402",
+  "owner_repo": "emerald-exchange",
+  "delivery_state": "SPECIFIED",
+  "requirement_ids": [
+    "CONN-EMERALD-EXCHANGE-X402-R001",
+    "CONN-EMERALD-EXCHANGE-X402-R002",
+    "CONN-EMERALD-EXCHANGE-X402-R003",
+    "CONN-EMERALD-EXCHANGE-X402-R004",
+    "CONN-EMERALD-EXCHANGE-X402-R005",
+    "CONN-EMERALD-EXCHANGE-X402-R006",
+    "CONN-EMERALD-EXCHANGE-X402-R007"
+  ],
+  "requirements": [
+    {
+      "id": "CONN-EMERALD-EXCHANGE-X402-R001",
+      "title": "x402 intent, resource and pricing model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "CONN-EMERALD-EXCHANGE-X402-R002",
+      "title": "Pay-and-retry loop",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "CONN-EMERALD-EXCHANGE-X402-R003",
+      "title": "Coinbase agentic-wallet skill, referenced",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "CONN-EMERALD-EXCHANGE-X402-R004",
+      "title": "RLUSD settlement",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "CONN-EMERALD-EXCHANGE-X402-R005",
+      "title": "Cross-chain composition with XRPL",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "CONN-EMERALD-EXCHANGE-X402-R006",
+      "title": "Shared attribution and spend caps",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "CONN-EMERALD-EXCHANGE-X402-R007",
+      "title": "Prompts",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    }
+  ]
+}

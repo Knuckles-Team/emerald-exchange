@@ -11,6 +11,9 @@ Start a feature from [`_template/`](_template/) and follow the [repository const
 | [EMERALD-OPS-001](exchange-operations/spec.md) | Read-only exchange operations as per-operation tools | SPECIFIED / NOT_AUDITED |
 | [EMERALD-GUIDE-001](leveraged-trading-guide/spec.md) | Leveraged trading guide, gold example, skill and explainer contract | SPECIFIED / NOT_AUDITED |
 | [EMERALD-MEDIA-001](finance-media-intake/spec.md) | Finance media evidence intake and strategy linkage | SPECIFIED / NOT_AUDITED |
+| [CONN-EMERALD-EXCHANGE-CONNECTOR-CONTENT](connector-content/spec.md) | The connector serves its packaged content | VERIFIED / NOT_AUDITED |
+| [CONN-EMERALD-EXCHANGE-XRPL](xrpl/spec.md) | XRPL agent wallet, payments and trading | SPECIFIED / NOT_AUDITED |
+| [CONN-EMERALD-EXCHANGE-X402](x402/spec.md) | x402 pay-and-retry with Coinbase agent-wallet skill flavor | SPECIFIED / NOT_AUDITED |
 
 `SPECIFIED` means a build contract exists. `BUILDING`, `BUILT`, `LANDED`, `CLOSED`, `DEFERRED`, `REJECTED`, and `UNKNOWN` describe delivery; `NOT_AUDITED`, `PENDING`, `ACCEPTED`, and `FAILED` describe acceptance independently. `LANDED` needs an owner-repository merged commit; `ACCEPTED` also needs the test and consumer receipts. Do not infer implementation from documentation.
 
@@ -19,3 +22,6 @@ Cross-repository owners: [epistemic-graph](https://github.com/Knuckles-Team/epis
 - [`EMERALD-OPS`](exchange-operations/spec.md) — Exchange read operations
 - [`EMERALD-MEDIA`](finance-media-intake/spec.md) — Finance media intake
 - [`EMERALD-GUIDE`](leveraged-trading-guide/spec.md) — Leveraged trading guide
+- [`CONN-EMERALD-EXCHANGE-CONNECTOR-CONTENT`](connector-content/spec.md) — The connector serves its packaged content
+- [`CONN-EMERALD-EXCHANGE-XRPL`](xrpl/spec.md) — XRPL agent wallet, payments and trading
+- [`CONN-EMERALD-EXCHANGE-X402`](x402/spec.md) — x402 pay-and-retry with Coinbase agent-wallet skill flavor
