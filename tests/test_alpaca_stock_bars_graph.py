@@ -22,7 +22,7 @@ from alpaca.trading.models import Calendar
 
 from emerald_exchange import backends
 from emerald_exchange.backends import AlpacaBackend
-from emerald_exchange.connector_sources import declaration
+from agent_connector_sdk.ingest.live_declaration import load_declaration as declaration
 from emerald_exchange.mcp_server import get_mcp_instance
 from tests.live_engine import PRINCIPAL, TENANT, live_compute  # noqa: F401
 from tests.test_alpaca_stock_bars import ARGS, BAR, QUOTE
@@ -96,7 +96,7 @@ async def _exercise(server):
                 return _catalog(), context
 
             source = next(
-                s for s in declaration().sources if s.source_id == "alpaca-stock-bars"
+                s for s in declaration("emerald_exchange").sources if s.source_id == "alpaca-stock-bars"
             )
             raw = {
                 **source.preset,
@@ -129,7 +129,7 @@ async def _exercise(server):
                 2,
             )
             quote_source = next(
-                s for s in declaration().sources if s.source_id == "alpaca-stock-quotes"
+                s for s in declaration("emerald_exchange").sources if s.source_id == "alpaca-stock-quotes"
             )
             quote_raw = {
                 **quote_source.preset,

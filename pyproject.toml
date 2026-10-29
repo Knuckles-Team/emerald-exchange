@@ -66,7 +66,7 @@ emerald-cockpit = "emerald_exchange.cockpit:main"
 # the removed provider entry-point groups are no longer read by the SDK
 # (SDK-QUALITY-RELEASE-R005.1).
 [project.entry-points."agent_connector_sdk.connector"]
-emerald-exchange-mcp = "emerald_exchange"
+emerald-exchange-mcp = "emerald_exchange:connector"
 
 [tool.uv.workspace]
 members = ["."]

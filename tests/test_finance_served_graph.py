@@ -27,7 +27,7 @@ from epistemic_graph.generated.connector_pack import (
 from packaging.version import Version
 
 from emerald_exchange.backends import AlpacaBackend
-from emerald_exchange.connector_sources import declaration
+from agent_connector_sdk.ingest.live_declaration import load_declaration as declaration
 from tests.live_engine import (
     _HMAC_KEY,
     _LIVE_SOCKET,
@@ -170,7 +170,7 @@ async def exercise(mcp, *, validate=False):
                 ("alpaca-csv-activities", "Activity"),
             ]:
                 source = next(
-                    s for s in declaration().sources if s.source_id == source_id
+                    s for s in declaration("emerald_exchange").sources if s.source_id == source_id
                 )
                 raw = dict(source.preset)
                 raw.update(

@@ -5,7 +5,7 @@ from types import SimpleNamespace
 import pytest
 
 from emerald_exchange.backends import AlpacaBackend, PaperBackend
-from emerald_exchange.connector_sources import declaration
+from agent_connector_sdk.ingest.live_declaration import load_declaration as declaration
 from emerald_exchange.exchange_operations import ExchangeReadOperations
 
 CSV = "date,side,qty,price,fee,ccy,settle\n2026-01-02T00:00:00Z,buy,10,100.5,1,USD,2026-01-04T00:00:00Z\n"
@@ -39,7 +39,7 @@ def read(ops, content=CSV):
 def test_declared_source_binds_activity_to_provider_account():
     source = next(
         item
-        for item in declaration().sources
+        for item in declaration("emerald_exchange").sources
         if item.source_id == "alpaca-csv-activities"
     )
     assert source.tools == ("emerald_exchange_get_csv_activities",)

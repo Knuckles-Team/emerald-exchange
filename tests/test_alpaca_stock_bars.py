@@ -3,7 +3,7 @@
 import pytest
 
 from emerald_exchange.backends import AlpacaBackend, PaperBackend
-from emerald_exchange.connector_sources import declaration
+from agent_connector_sdk.ingest.live_declaration import load_declaration as declaration
 from emerald_exchange.exchange_operations import ExchangeReadOperations
 
 BAR = {"t": "2026-01-02T14:30:00Z", "o": 100, "h": 103, "l": 99, "c": 102, "v": 25}
@@ -37,7 +37,7 @@ def operations(response):
 
 def test_declared_stock_page_uses_provider_values_and_explicit_labels():
     source = next(
-        s for s in declaration().sources if s.source_id == "alpaca-stock-bars"
+        s for s in declaration("emerald_exchange").sources if s.source_id == "alpaca-stock-bars"
     )
     assert source.tools == ("emerald_exchange_get_stock_bars",)
     ops, market = operations({"bars": {"AAPL": [BAR]}, "next_page_token": "next"})
@@ -118,7 +118,7 @@ QUOTE = {
 
 def test_quote_source_preserves_provider_quote_and_nanoseconds():
     source = next(
-        s for s in declaration().sources if s.source_id == "alpaca-stock-quotes"
+        s for s in declaration("emerald_exchange").sources if s.source_id == "alpaca-stock-quotes"
     )
     assert source.tools == ("emerald_exchange_get_stock_quote",)
     ops, market = operations({"quotes": {"AAPL": QUOTE}})

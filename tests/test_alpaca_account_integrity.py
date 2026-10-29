@@ -224,9 +224,9 @@ def test_sdk_mcp_adapter_extracts_the_declared_account_snapshot():
     from agent_connector_sdk.ports.session import TransportEndpoint
     from agent_connector_sdk.transports.mcp import McpTransport
 
-    from emerald_exchange.connector_sources import declaration
+    from agent_connector_sdk.ingest.live_declaration import load_declaration as declaration
 
-    source = next(s for s in declaration().sources if s.source_id == "alpaca-account")
+    source = next(s for s in declaration("emerald_exchange").sources if s.source_id == "alpaca-account")
     preset = ToolPreset(
         name=source.source_id,
         server="emerald-exchange-mcp",

@@ -21,7 +21,7 @@ from packaging.version import Version
 
 from emerald_exchange import backends
 from emerald_exchange.backends import CCXTBackend
-from emerald_exchange.connector_sources import declaration
+from agent_connector_sdk.ingest.live_declaration import load_declaration as declaration
 from emerald_exchange.mcp_server import get_mcp_instance
 from tests.live_engine import PRINCIPAL, TENANT, live_compute  # noqa: F401
 from tests.test_ccxt_history_source import START, END, Exchange
@@ -79,7 +79,7 @@ async def _exercise(server):
 
             source = next(
                 s
-                for s in declaration().sources
+                for s in declaration("emerald_exchange").sources
                 if s.source_id == "ccxt-exchange-history"
             )
             raw = {

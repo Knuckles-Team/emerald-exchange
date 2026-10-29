@@ -21,7 +21,7 @@ from packaging.version import Version
 
 from emerald_exchange import backends
 from emerald_exchange.backends import AlpacaBackend
-from emerald_exchange.connector_sources import declaration
+from agent_connector_sdk.ingest.live_declaration import load_declaration as declaration
 from emerald_exchange.mcp_server import get_mcp_instance
 from tests.live_engine import PRINCIPAL, TENANT
 from tests.live_engine import live_compute as _live_compute
@@ -86,7 +86,7 @@ async def _exercise(server, *, validate=False):
             for kind in ("fx", "commodity", "commodity_spot", "real_estate"):
                 source = next(
                     s
-                    for s in declaration().sources
+                    for s in declaration("emerald_exchange").sources
                     if s.source_id == f"multi-asset-{kind}"
                 )
                 raw = {

@@ -21,7 +21,7 @@ from packaging.version import Version
 
 from emerald_exchange import backends
 from emerald_exchange.backends import AlpacaBackend
-from emerald_exchange.connector_sources import declaration
+from agent_connector_sdk.ingest.live_declaration import load_declaration as declaration
 from emerald_exchange.mcp_server import get_mcp_instance
 from tests.live_engine import PRINCIPAL, TENANT, live_compute  # noqa: F401
 from tests.test_alpaca_stock_events import NEWS, DIVIDEND
@@ -121,7 +121,7 @@ async def _exercise(server):
                 ),
             ):
                 source = next(
-                    s for s in declaration().sources if s.source_id == source_id
+                    s for s in declaration("emerald_exchange").sources if s.source_id == source_id
                 )
                 raw = {
                     **source.preset,
