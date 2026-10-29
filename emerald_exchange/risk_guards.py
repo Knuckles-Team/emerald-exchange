@@ -243,8 +243,7 @@ class RiskGuard:
 
     def check_drawdown(self, current_equity: float) -> RiskCheckResult:
         """Check portfolio drawdown against limits."""
-        if current_equity > self._peak_equity:
-            self._peak_equity = current_equity
+        self._peak_equity = max(self._peak_equity, current_equity)
 
         if self._peak_equity <= 0:
             return RiskCheckResult(True, "No peak established yet")

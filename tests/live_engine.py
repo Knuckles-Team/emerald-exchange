@@ -35,6 +35,7 @@ _HMAC_KEY = "emerald-live-engine-" + "test-secret-0123456789abcdef"  # nosec B10
 _SIGNER_KEY = "emerald-live-engine-" + "signer-key-0123456789abcdef"  # nosec B105
 _DATA_KEY = "emerald-live-engine-" + "encryption-key-0123456789abcdef"  # nosec B105
 _HMAC_ENV = "EMERALD_LIVE_ENGINE_SECRET"
+_LIVE_SOCKET: dict[str, Path] = {}
 
 
 def _context(roles: list[str], scopes: list[str]) -> dict[str, object]:
@@ -113,6 +114,7 @@ def live_compute(
         pytest.skip("epistemic-graph[server] is not installed")
     root = Path(tmp_path_factory.mktemp("eg"))
     socket_path = root / "eg.sock"
+    _LIVE_SOCKET["path"] = socket_path
     (root / "security").mkdir()
     env = {
         **os.environ,
@@ -167,6 +169,7 @@ def live_compute(
             compute = None
             proc.terminate()
             proc.wait(timeout=30)
+            _LIVE_SOCKET.clear()
 
 
 @pytest.fixture

@@ -8,8 +8,8 @@ import logging
 from typing import Any
 
 import httpx
-
 from agent_connector_sdk.compute import MethodNotServedError
+
 from emerald_exchange.risk_guards import RiskGuard
 
 logger = logging.getLogger(__name__)
@@ -112,5 +112,6 @@ def register_prediction_market_tools(mcp: Any, risk_guard: RiskGuard | None = No
                 return json.dumps({"error": f"Unknown action: {action}"})
 
         except Exception as e:
+            logging.getLogger(__name__).exception("Operation failed (type=%s)", type(e).__name__, exc_info=False)
             logger.error("Operation failed: error_type=%s", type(e).__name__)
             return json.dumps({"error": "Operation failed"})

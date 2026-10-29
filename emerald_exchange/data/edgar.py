@@ -20,6 +20,7 @@ identity is read from ``EDGAR_IDENTITY`` (or legacy ``EDGAR_USER_AGENT``).
 
 from __future__ import annotations
 
+import logging
 import os
 from typing import Any
 
@@ -195,7 +196,7 @@ class EdgarApi:
             return self._edgar
         try:
             import edgar  # type: ignore
-        except Exception as exc:  # ImportError or transitive failure
+        except ImportError as exc:
             raise EdgarNotInstalled(
                 "edgartools is not installed. Install it with "
                 "`pip install 'emerald-exchange[fundamentals]'` "
@@ -206,11 +207,7 @@ class EdgarApi:
                 "SEC EDGAR requires an identity header. Set the EDGAR_IDENTITY "
                 "environment variable, e.g. EDGAR_IDENTITY='Jane Doe jane@example.com'."
             )
-        try:
-            edgar.set_identity(self.identity)
-        except Exception:
-            # Older/newer edgartools may expose identity differently; best effort.
-            pass
+        edgar.set_identity(self.identity)
         self._edgar = edgar
         return edgar
 
@@ -221,7 +218,7 @@ class EdgarApi:
             import edgar  # noqa: F401  # type: ignore
 
             return True
-        except Exception:
+        except ImportError:
             return False
 
     # ------------------------------------------------------------------ #
@@ -321,13 +318,14 @@ class EdgarApi:
                     return {
                         str(k): _row_to_dict(v) for k, v in df.to_dict("index").items()
                     }
-                except Exception:
+                except Exception as caught_error:
+                    logging.getLogger(__name__).exception("Operation failed (type=%s)", type(caught_error).__name__, exc_info=False)
                     break
         if hasattr(stmt, "to_dict"):
             try:
                 return stmt.to_dict()
-            except Exception:
-                pass
+            except Exception as caught_error:
+                logging.getLogger(__name__).exception("Operation failed (type=%s)", type(caught_error).__name__, exc_info=False)
         return {"repr": str(stmt)}
 
     # ------------------------------------------------------------------ #
@@ -351,11 +349,13 @@ class EdgarApi:
                 if hasattr(obj, "__getitem__"):
                     try:
                         text = str(obj[item])
-                    except Exception:
+                    except Exception as caught_error:
+                        logging.getLogger(__name__).exception("Operation failed (type=%s)", type(caught_error).__name__, exc_info=False)
                         text = ""
                 if not text and hasattr(obj, item.lower().replace(" ", "_")):
                     text = str(getattr(obj, item.lower().replace(" ", "_")))
             except Exception as exc:
+                logging.getLogger(__name__).exception("Operation failed (type=%s)", type(exc).__name__, exc_info=False)
                 text = f"<extraction failed: {type(exc).__name__}>"
             out["years"].append(
                 {
@@ -474,7 +474,8 @@ class EdgarApi:
                     try:
                         df = getattr(stmt, attr)()
                         break
-                    except Exception:
+                    except Exception as caught_error:
+                        logging.getLogger(__name__).exception("Operation failed (type=%s)", type(caught_error).__name__, exc_info=False)
                         df = None
             if df is None:
                 continue
@@ -483,7 +484,8 @@ class EdgarApi:
                 for label, row in df.iterrows():
                     values = [row[c] for c in cols]
                     index.setdefault(_norm(str(label)), values)
-            except Exception:
+            except Exception as caught_error:
+                logging.getLogger(__name__).exception("Operation failed (type=%s)", type(caught_error).__name__, exc_info=False)
                 continue
         return index
 
@@ -499,7 +501,8 @@ class EdgarApi:
                     try:
                         df = getattr(stmt, attr)()
                         return [str(c) for c in df.columns]
-                    except Exception:
+                    except Exception as caught_error:
+                        logging.getLogger(__name__).exception("Operation failed (type=%s)", type(caught_error).__name__, exc_info=False)
                         continue
         return []
 
@@ -509,8 +512,8 @@ class EdgarApi:
             if hasattr(company, attr):
                 try:
                     return _num(getattr(company, attr))
-                except Exception:
-                    pass
+                except Exception as caught_error:
+                    logging.getLogger(__name__).exception("Operation failed (type=%s)", type(caught_error).__name__, exc_info=False)
         return 0.0
 
 

@@ -5,6 +5,7 @@ Backends: Paper (default), Alpaca, Binance, IBKR, Freqtrade, CCXT.
 """
 
 import logging
+import math
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import StrEnum
@@ -74,6 +75,7 @@ class AccountInfo:
     margin_used: float = 0.0
     currency: str = "USD"
     exchange: str = ""
+    account_id: str = ""
 
 
 @dataclass
@@ -241,6 +243,13 @@ class PaperBackend:
         return []
 
 
+def _finite_alpaca_value(value: object) -> float:
+    result = float(str(value))
+    if not math.isfinite(result):
+        raise ValueError("Alpaca account values must be finite")
+    return result
+
+
 class AlpacaBackend:
     """Alpaca Markets backend — FREE paper + live equities. CONCEPT:EX-AHE.harness.ee-3."""
 
@@ -250,12 +259,24 @@ class AlpacaBackend:
         secret_key: str = "",
         base_url: str = "https://paper-api.alpaca.markets",
         mode: TradingMode = TradingMode.PAPER,
+        fmp_api_key: str = "",
     ):
         self._api_key = api_key
         self._secret_key = secret_key
+        self._fmp_api_key = fmp_api_key
         self._base_url = base_url
         self._mode = mode
         self._client: Any = None
+        self._stock_data_client: Any = None
+        self._news_client: Any = None
+        self._corporate_actions_client: Any = None
+        self._read_errors = (
+            OSError,
+            ValueError,
+            TypeError,
+            LookupError,
+            AttributeError,
+        )
 
     @property
     def name(self) -> str:
@@ -271,11 +292,23 @@ class AlpacaBackend:
 
     def connect(self) -> bool:
         try:
+            from alpaca.common.exceptions import APIError
+            from alpaca.data.historical.corporate_actions import CorporateActionsClient
+            from alpaca.data.historical.news import NewsClient
+            from alpaca.data.historical.stock import StockHistoricalDataClient
             from alpaca.trading.client import TradingClient
 
-            self._client = TradingClient(
+            self._read_errors = (*self._read_errors, APIError)
+            trading_client = TradingClient(
                 self._api_key, self._secret_key, paper=(self._mode == TradingMode.PAPER)
             )
+            stock_data_client = StockHistoricalDataClient(
+                self._api_key, self._secret_key
+            )
+            news_client = NewsClient(self._api_key, self._secret_key)
+            corporate_actions_client = CorporateActionsClient(self._api_key, self._secret_key)
+            self._client, self._stock_data_client = trading_client, stock_data_client
+            self._news_client, self._corporate_actions_client = news_client, corporate_actions_client
             logger.info("Alpaca connected (mode=%s)", self._mode)
             return True
         except ImportError:
@@ -286,6 +319,9 @@ class AlpacaBackend:
 
     def disconnect(self) -> None:
         self._client = None
+        self._stock_data_client = None
+        self._news_client = None
+        self._corporate_actions_client = None
 
     def submit_order(
         self,
@@ -305,8 +341,9 @@ class AlpacaBackend:
                 exchange="alpaca",
             )
         try:
-            from alpaca.trading.requests import MarketOrderRequest, LimitOrderRequest
-            from alpaca.trading.enums import OrderSide as AlpSide, TimeInForce
+            from alpaca.trading.enums import OrderSide as AlpSide
+            from alpaca.trading.enums import TimeInForce
+            from alpaca.trading.requests import LimitOrderRequest, MarketOrderRequest
 
             alp_side = AlpSide.BUY if side == OrderSide.BUY else AlpSide.SELL
             if order_type == OrderType.LIMIT and limit_price:
@@ -332,6 +369,7 @@ class AlpacaBackend:
                 raw={"alpaca_order_id": str(order.id)},
             )
         except Exception as e:
+            logging.getLogger(__name__).exception("Operation failed (type=%s)", type(e).__name__, exc_info=False)
             logger.error("Alpaca order failed: error_type=%s", type(e).__name__)
             return ExecutionResult(
                 order_id="",
@@ -347,7 +385,8 @@ class AlpacaBackend:
         try:
             self._client.cancel_order_by_id(order_id)
             return True
-        except Exception:
+        except Exception as caught_error:
+            logging.getLogger(__name__).exception("Operation failed (type=%s)", type(caught_error).__name__, exc_info=False)
             return False
 
     def get_order_status(self, order_id: str) -> ExecutionResult:
@@ -367,7 +406,8 @@ class AlpacaBackend:
                 fees=0.0,
                 exchange="alpaca",
             )
-        except Exception:
+        except Exception as caught_error:
+            logging.getLogger(__name__).exception("Operation failed (type=%s)", type(caught_error).__name__, exc_info=False)
             return ExecutionResult(
                 order_id=order_id,
                 status=OrderStatus.REJECTED,
@@ -383,37 +423,131 @@ class AlpacaBackend:
             return [
                 Position(
                     symbol=p.symbol,
-                    qty=float(p.qty),
-                    avg_entry_price=float(p.avg_entry_price),
-                    current_price=float(p.current_price),
-                    unrealized_pnl=float(p.unrealized_pl),
-                    side="long" if float(p.qty) > 0 else "short",
+                    qty=_finite_alpaca_value(p.qty),
+                    avg_entry_price=_finite_alpaca_value(p.avg_entry_price),
+                    current_price=_finite_alpaca_value(p.current_price),
+                    unrealized_pnl=_finite_alpaca_value(p.unrealized_pl),
+                    side="long" if _finite_alpaca_value(p.qty) > 0 else "short",
                     exchange="alpaca",
                 )
                 for p in positions
             ]
-        except Exception:
-            return []
+        except self._read_errors:
+            raise RuntimeError("Alpaca position read failed") from None
 
     def get_account(self) -> AccountInfo:
         try:
             acct = self._client.get_account()
+            account_id = str(acct.id) if acct.id is not None else ""
+            if not account_id.strip():
+                raise ValueError("Alpaca account identity is required")
+            currency = acct.currency
+            if (
+                not isinstance(currency, str)
+                or len(currency) != 3
+                or not currency.isascii()
+                or not currency.isalpha()
+                or not currency.isupper()
+            ):
+                raise ValueError("Alpaca account currency must be a three-letter code")
             return AccountInfo(
-                equity=float(acct.equity),
-                cash=float(acct.cash),
-                buying_power=float(acct.buying_power),
+                equity=_finite_alpaca_value(acct.equity),
+                cash=_finite_alpaca_value(acct.cash),
+                buying_power=_finite_alpaca_value(acct.buying_power),
+                currency=currency,
                 exchange="alpaca",
+                account_id=account_id,
             )
-        except Exception:
-            return AccountInfo(equity=0, cash=0, buying_power=0, exchange="alpaca")
+        except self._read_errors:
+            raise RuntimeError("Alpaca account read failed") from None
 
     def get_quote(self, symbol: str) -> Quote:
-        return Quote(symbol=symbol, bid=0, ask=0, last=0, volume=0)
+        raise RuntimeError("Alpaca quote reads require the stock-quote API")
+
+    def get_stock_quote(self, **kwargs: Any) -> dict[str, Any]:
+        """Read the latest provider quote without fabricated last or volume."""
+        from emerald_exchange.alpaca_stock_history import read_stock_quote
+
+        if self._stock_data_client is None:
+            raise RuntimeError("Alpaca stock data is not connected")
+        try:
+            return read_stock_quote(self._stock_data_client, **kwargs)
+        except self._read_errors:
+            raise RuntimeError("Alpaca stock data read failed") from None
 
     def get_historical(
         self, symbol: str, period: str = "1y", interval: str = "1d"
     ) -> list[OHLCV]:
-        return []
+        raise RuntimeError("Alpaca historical reads require the stock-bars page API")
+
+    def get_stock_bars_page(self, **kwargs: Any) -> dict[str, Any]:
+        """Read a single explicitly bounded Alpaca stock-data page."""
+        from emerald_exchange.alpaca_stock_history import read_stock_bars_page
+
+        if self._stock_data_client is None:
+            raise RuntimeError("Alpaca stock data is not connected")
+        try:
+            session_scope = kwargs.pop("session_scope", "feed_native")
+            if session_scope not in {"feed_native", "alpaca_calendar"}:
+                raise ValueError("invalid stock session scope")
+            if session_scope == "alpaca_calendar":
+                from emerald_exchange.alpaca_sessions import classify_stock_bar_sessions
+
+                if self._client is None:
+                    raise RuntimeError("Alpaca calendar is not connected")
+                classify_stock_bar_sessions(
+                    self._client, [], feed=kwargs["feed"], timeframe=kwargs["timeframe"]
+                )
+            result = read_stock_bars_page(self._stock_data_client, **kwargs)
+            if session_scope == "alpaca_calendar":
+                classify_stock_bar_sessions(
+                    self._client, result["bars"], feed=kwargs["feed"], timeframe=kwargs["timeframe"]
+                )
+            return result
+        except self._read_errors:
+            raise RuntimeError("Alpaca stock data read failed") from None
+
+
+    def get_stock_news_page(self, **kwargs: Any) -> dict[str, Any]:
+        from emerald_exchange.alpaca_stock_events import read_news_page
+
+        if self._news_client is None:
+            raise RuntimeError("Alpaca news is not connected")
+        try:
+            return read_news_page(self._news_client, **kwargs)
+        except self._read_errors:
+            raise RuntimeError("Alpaca news read failed") from None
+
+    def get_company_records(self, **kwargs: Any) -> dict[str, Any]:
+        """Read configured FMP company metadata without exposing credentials."""
+        from httpx import HTTPError
+
+        from emerald_exchange.fmp_company_sources import read_company_records
+
+        try:
+            return read_company_records(self._fmp_api_key, **kwargs)
+        except (*self._read_errors, HTTPError):
+            raise RuntimeError("company data read failed") from None
+
+    def stock_stream(
+        self, bus: Any, symbols: tuple[str, ...], *, feed: str, license_tag: str
+    ) -> Any:
+        """Create the live quote and bar stream on the caller's SDK bus."""
+        from emerald_exchange.alpaca_stock_stream import AlpacaStockStream
+
+        return AlpacaStockStream.connect(
+            self._api_key, self._secret_key, bus, symbols, feed=feed, license_tag=license_tag
+        )
+
+    def get_stock_dividends_page(self, **kwargs: Any) -> dict[str, Any]:
+        from emerald_exchange.alpaca_stock_events import read_dividends_page
+
+        if self._corporate_actions_client is None:
+            raise RuntimeError("Alpaca corporate actions are not connected")
+        try:
+            return read_dividends_page(self._corporate_actions_client, **kwargs)
+        except self._read_errors:
+            raise RuntimeError("Alpaca corporate actions read failed") from None
 
 
 class CCXTBackend:
@@ -433,6 +567,7 @@ class CCXTBackend:
         self._secret = secret
         self._mode = mode
         self._exchange: Any = None
+        self._read_errors = (OSError, ValueError, TypeError, LookupError, AttributeError, OverflowError)
 
     @property
     def name(self) -> str:
@@ -449,6 +584,8 @@ class CCXTBackend:
     def connect(self) -> bool:
         try:
             import ccxt
+
+            self._read_errors = (*self._read_errors, ccxt.BaseError)
 
             exchange_class = getattr(ccxt, self._exchange_id)
             config: dict[str, Any] = {"apiKey": self._api_key, "secret": self._secret}
@@ -497,6 +634,7 @@ class CCXTBackend:
                 raw=order,
             )
         except Exception as e:
+            logging.getLogger(__name__).exception("Operation failed (type=%s)", type(e).__name__, exc_info=False)
             logger.error("CCXT order failed: error_type=%s", type(e).__name__)
             return ExecutionResult(
                 order_id="",
@@ -512,7 +650,8 @@ class CCXTBackend:
         try:
             self._exchange.cancel_order(order_id)
             return True
-        except Exception:
+        except Exception as caught_error:
+            logging.getLogger(__name__).exception("Operation failed (type=%s)", type(caught_error).__name__, exc_info=False)
             return False
 
     def get_order_status(self, order_id: str) -> ExecutionResult:
@@ -531,7 +670,8 @@ class CCXTBackend:
                 fees=0.0,
                 exchange=self._exchange_id,
             )
-        except Exception:
+        except Exception as caught_error:
+            logging.getLogger(__name__).exception("Operation failed (type=%s)", type(caught_error).__name__, exc_info=False)
             return ExecutionResult(
                 order_id=order_id,
                 status=OrderStatus.REJECTED,
@@ -559,7 +699,8 @@ class CCXTBackend:
                         )
                     )
             return positions
-        except Exception:
+        except Exception as caught_error:
+            logging.getLogger(__name__).exception("Operation failed (type=%s)", type(caught_error).__name__, exc_info=False)
             return []
 
     def get_account(self) -> AccountInfo:
@@ -574,7 +715,8 @@ class CCXTBackend:
                 exchange=self._exchange_id,
                 currency="USD",
             )
-        except Exception:
+        except Exception as caught_error:
+            logging.getLogger(__name__).exception("Operation failed (type=%s)", type(caught_error).__name__, exc_info=False)
             return AccountInfo(
                 equity=0, cash=0, buying_power=0, exchange=self._exchange_id
             )
@@ -589,29 +731,38 @@ class CCXTBackend:
                 last=float(ticker.get("last", 0) or 0),
                 volume=float(ticker.get("baseVolume", 0) or 0),
             )
-        except Exception:
+        except Exception as caught_error:
+            logging.getLogger(__name__).exception("Operation failed (type=%s)", type(caught_error).__name__, exc_info=False)
             return Quote(symbol=symbol, bid=0, ask=0, last=0, volume=0)
 
     def get_historical(
         self, symbol: str, period: str = "1y", interval: str = "1d"
     ) -> list[OHLCV]:
+        from datetime import timedelta
+
+        periods = {"1d": 1, "5d": 5, "1mo": 30, "3mo": 90, "6mo": 180, "1y": 365, "2y": 730}
+        if period not in periods:
+            raise ValueError("unsupported exchange history period")
+        end = datetime.now(UTC).replace(microsecond=0)
+        start = end - timedelta(days=periods[period])
+        cursor = None
+        candles: list[OHLCV] = []
+        for _ in range(20):
+            page = self.get_history_page(symbol=symbol, start=start.isoformat(), end=end.isoformat(), interval=interval, license_tag="legacy", limit=1000, page_token=cursor)
+            candles.extend(OHLCV(timestamp=c["timestamp"], open=c["open"], high=c["high"], low=c["low"], close=c["close"], volume=c["volume"]) for c in page["candles"])
+            cursor = page["next_page_token"]
+            if cursor is None:
+                return candles
+        raise RuntimeError("exchange history exceeds the page limit")
+
+    def get_history_page(self, **kwargs: Any) -> dict[str, Any]:
+        """Read one bounded, explicitly labelled CCXT candle page."""
+        from emerald_exchange.ccxt_history import read_history_page
+
         try:
-            tf_map = {"1m": "1m", "5m": "5m", "1h": "1h", "1d": "1d"}
-            tf = tf_map.get(interval, "1d")
-            candles = self._exchange.fetch_ohlcv(symbol, tf, limit=365)
-            return [
-                OHLCV(
-                    timestamp=datetime.fromtimestamp(c[0] / 1000, tz=UTC).isoformat(),
-                    open=c[1],
-                    high=c[2],
-                    low=c[3],
-                    close=c[4],
-                    volume=c[5],
-                )
-                for c in candles
-            ]
-        except Exception:
-            return []
+            return read_history_page(self._exchange, exchange_id=self._exchange_id, **kwargs)
+        except self._read_errors:
+            raise RuntimeError("exchange history read failed") from None
 
 
 class FreqtradeBackend:
@@ -803,14 +954,16 @@ class PolymarketBackend:
 
         try:
             from py_clob_client_v2 import (
+                MarketOrderArgs,
                 OrderArgs,
                 PartialCreateOrderOptions,
                 Side,
-                OrderType as PMOrderType,
             )
             from py_clob_client_v2 import (
-                MarketOrderArgs,
                 OrderType as PMMarketOrderType,
+            )
+            from py_clob_client_v2 import (
+                OrderType as PMOrderType,
             )
 
             pm_side = Side.BUY if side == OrderSide.BUY else Side.SELL
@@ -853,6 +1006,7 @@ class PolymarketBackend:
                 raw=resp if isinstance(resp, dict) else {"response": str(resp)},
             )
         except Exception as e:
+            logging.getLogger(__name__).exception("Operation failed (type=%s)", type(e).__name__, exc_info=False)
             logger.error("Polymarket order failed: error_type=%s", type(e).__name__)
             return ExecutionResult(
                 order_id="",
@@ -871,6 +1025,7 @@ class PolymarketBackend:
             self._client.cancel_order(order_id)
             return True
         except Exception as e:
+            logging.getLogger(__name__).exception("Operation failed (type=%s)", type(e).__name__, exc_info=False)
             logger.error("Operation failed: error_type=%s", type(e).__name__)
             return False
 
@@ -904,6 +1059,7 @@ class PolymarketBackend:
                 raw=order,
             )
         except Exception as e:
+            logging.getLogger(__name__).exception("Operation failed (type=%s)", type(e).__name__, exc_info=False)
             logger.error(
                 "Failed to fetch order status: error_type=%s", type(e).__name__
             )
@@ -948,6 +1104,7 @@ class PolymarketBackend:
                     )
             return positions
         except Exception as e:
+            logging.getLogger(__name__).exception("Operation failed (type=%s)", type(e).__name__, exc_info=False)
             logger.error("Operation failed: error_type=%s", type(e).__name__)
             return []
 
@@ -967,6 +1124,7 @@ class PolymarketBackend:
                 currency="USDC",
             )
         except Exception as e:
+            logging.getLogger(__name__).exception("Operation failed (type=%s)", type(e).__name__, exc_info=False)
             logger.error("Operation failed: error_type=%s", type(e).__name__)
             return AccountInfo(
                 equity=0.0, cash=0.0, buying_power=0.0, exchange="polymarket"
@@ -989,6 +1147,7 @@ class PolymarketBackend:
                 volume=0.0,
             )
         except Exception as e:
+            logging.getLogger(__name__).exception("Operation failed (type=%s)", type(e).__name__, exc_info=False)
             logger.error(
                 "Failed to fetch Polymarket quote: error_type=%s", type(e).__name__
             )
@@ -1009,6 +1168,7 @@ class PolymarketBackend:
             logger.info("Successfully merged YES/NO positions for market %s", market_id)
             return True
         except Exception as e:
+            logging.getLogger(__name__).exception("Operation failed (type=%s)", type(e).__name__, exc_info=False)
             logger.error("Operation failed: error_type=%s", type(e).__name__)
             return False
 

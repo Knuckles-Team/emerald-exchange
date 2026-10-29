@@ -226,6 +226,44 @@ pip install "emerald-exchange[mcp,prediction_markets]"  # + Kalshi & Polymarket
 pip install "emerald-exchange[all]"                # Everything
 ```
 
+Alpaca operators can stream live quotes and raw minute bars into an SDK
+`StreamBus` with `AlpacaBackend.stock_stream(bus, symbols, feed=..., license_tag=...)`.
+Subscribe to `market.<symbol>.quotes` and `market.<symbol>.bars` before running
+the returned stream's blocking `run()` in a dedicated thread; call `stop()` from
+another thread to shut it down. Updated bars use the same identity and set
+`updated` to true. Feed and licensing labels remain explicit. The live stream
+does not backfill gaps after reconnect; reconcile with stock history as needed.
+
+For historical one-minute IEX or SIP bars, set `session_scope` to
+`alpaca_calendar` to label bars using the Alpaca exchange calendar. Labels
+distinguish pre-market, regular, post-market, and outside-session minutes;
+half-days and holidays follow the returned calendar and Alpaca's schedule.
+Other feeds and wider bars refuse this classification. The default remains
+`feed_native`, which makes no session claim.
+
+To use company profile, income statement, earnings and logo sources alongside
+Alpaca, configure `fmp_api_key_env` in the Alpaca exchange settings to name the
+environment variable containing a Financial Modeling Prep API key. The key is
+sent in a request header, not the URL. Each source requires an operator-provided
+license tag; the operator must ensure their FMP subscription permits the intended
+use. The returned snapshot is bounded and does not claim complete historical
+coverage or real-time availability. Logo data is returned only when FMP names
+the expected symbol image and does not mark it as a default image.
+
+Multi-asset source snapshots use `FMP_API_KEY` for FX, `DATABENTO_API_KEY`
+for commodity spot or a specific outright futures contract, and `ATTOM_API_KEY`
+for property valuations. Set the keys in the server environment. The declared
+sources accept a tenant, source identity and operator-supplied license tag. FX
+preserves base/quote direction; commodity requests return at most one trade
+with its matching instrument definition for a range of at most one day. Fixed
+futures contracts carry the provider expiry and an explicit no-roll policy.
+ATTOM uses a property ID and reports its valuation date and age against the
+chosen `max_age_days`. Sources are delta observations, not complete histories.
+Twelve Data provides a separate XAU/USD gold spot source; its timestamp is
+the last one-minute candle timestamp, not an individual trade time. Provider
+subscriptions may charge for requests; access and permitted use depend
+on the operator's agreements. Offline fixtures are not evidence of live rights.
+
 ## Docker
 
 ### Container images (`:mcp` vs `:agent`)
@@ -323,6 +361,10 @@ material, and endpoints come from `AgentConfig` / the configured secret provider
 
 | Variable | Example | Description |
 |----------|---------|-------------|
+| `ATTOM_API_KEY` | secret-injected | ATTOM property valuation API key. |
+| `DATABENTO_API_KEY` | secret-injected | Databento historical market data API key. |
+| `FMP_API_KEY` | secret-injected | Financial Modeling Prep FX API key. |
+| `TWELVE_DATA_API_KEY` | secret-injected | Twelve Data gold spot API key. |
 | `BINANCE_API_KEY` | secret-injected | Per-exchange credentials are resolved at runtime from the trading config's *_env keys; only the agent-connector-sdk-inherited Binance pair is read statically. Other exchanges (Alpaca, Coinbase, ...) supply credentials via operator config. |
 | `BINANCE_SECRET_KEY` | secret-injected |  |
 | `CRYPTOTOOL` | `True` | crypto market tools |

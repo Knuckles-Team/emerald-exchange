@@ -2,6 +2,9 @@
 requires = ["setuptools>=84.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[tool.pytest.ini_options]
+markers = ["spec(id): binds a test to its requirement"]
+
 [project]
 name = "emerald-exchange"
 version = "2.3.6"
@@ -17,16 +20,16 @@ classifiers = [
     "Programming Language :: Python :: 3"]
 requires-python = ">=3.12,<3.15"
 dependencies = [
-    "agent-connector-sdk[mcp]>=0.4.1,<1.0.0",
+    "scion-sdk[mcp]>=0.5.6,<1.0.0",
     "numpy>=2.5.4",
     # CONCEPT:PHASE2-RECONCILE — relaxed off the pandas 3.x floor to match
-    # agent-connector-sdk's ecosystem-compatible range (the two must
+    # scion-sdk's ecosystem-compatible range (the two must
     # resolve to the same pandas major across the workspace lock).
     "pandas>=2.2,<3",
 ]
 
 [project.optional-dependencies]
-mcp = ["agent-connector-sdk[mcp]>=0.4.1,<1.0.0"]
+mcp = ["scion-sdk[mcp]>=0.5.6,<1.0.0"]
 alpaca = ["alpaca-py>=0.44.0"]
 binance = ["python-binance>=1.0.37"]
 crypto = ["ccxt>=4.5.88"]
@@ -45,7 +48,7 @@ all = [
 ]
 # Live-engine test run: the suite starts epistemic-graph-server from this extra.
 test = [
-    "epistemic-graph[server]==2.27.3",
+    "epistemic-graph[server]>=2.27.6",
     "pyoxigraph>=0.5.11",
     "pytest>=9.1.1",
     "pytest-asyncio>=1.4.0",
@@ -59,7 +62,7 @@ emerald-cockpit = "emerald_exchange.cockpit:main"
 emerald-exchange = "emerald_exchange.skills"
 
 # CONCEPT:AU-KG.ontology.package-federation-migration — federate this package's OWL/RDF ontology modules into the
-# agent-connector-sdk ontology hub (quant, trading, banking). Resolved via iter_provider_dirs
+# scion-sdk ontology hub (quant, trading, banking). Resolved via iter_provider_dirs
 # like the skill/prompt providers; the hub globs every *.ttl in the dir.
 [project.entry-points."agent_connector_sdk.ontology_providers"]
 emerald-exchange = "emerald_exchange.ontology"

@@ -22,8 +22,9 @@ import asyncio
 import json
 import logging
 import time
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
-from typing import Any, Awaitable, Callable
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -218,6 +219,6 @@ class PolymarketMarketStream:
             )
             try:
                 await asyncio.wait_for(self._stop.wait(), timeout=sleep_for)
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 pass
             backoff = min(backoff * 2, self.config.backoff_max)

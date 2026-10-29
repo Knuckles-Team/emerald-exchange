@@ -1,8 +1,7 @@
 """Risk Management MCP Tools — CONCEPT:AU-AHE.assimilation.skill-workflow-ingest / OS-5.1."""
 
-from typing import Any
-
 import json
+from typing import Any
 
 from emerald_exchange.backends import ExchangeBackend
 from emerald_exchange.risk_guards import RiskGuard

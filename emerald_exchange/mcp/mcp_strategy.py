@@ -1,8 +1,7 @@
 """Strategy Management MCP Tools — CONCEPT:AU-AHE.assimilation.trading-ecosystem-spec."""
-
-from typing import Any
-
 import json
+import logging
+from typing import Any
 
 
 def register_strategy_tools(mcp: Any) -> None:
@@ -104,5 +103,6 @@ def register_strategy_tools(mcp: Any) -> None:
                     }
                 )
             return json.dumps({"error": f"Unknown action: {action}"})
-        except Exception:
+        except Exception as caught_error:
+            logging.getLogger(__name__).exception("Operation failed (type=%s)", type(caught_error).__name__, exc_info=False)
             return json.dumps({"error": "Operation failed"})

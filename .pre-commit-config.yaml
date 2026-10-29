@@ -54,7 +54,7 @@ repos:
   hooks:
   - id: dependency-readiness
     name: Dependency readiness — every declared intra-fleet constraint is installable
-    entry: bash -c 'P=""; d="$PWD"; while [ "$d" != "/" ]; do [ -d "$d/agent-packages/agents/repository-manager" ] && { P="$d/agent-packages/agents/repository-manager"; break; }; d=$(dirname "$d"); done; [ -n "$P" ] || P=repository-manager; uv run --no-project --python 3.12 --prerelease=allow --with "$P" python -m repository_manager.dependency_readiness .'
+    entry: bash -c 'P=""; d="$PWD"; while [ "$d" != "/" ]; do [ -f "$d/agent-packages/agents/repository-manager/repository_manager/dependency_readiness.py" ] && { P="$d/agent-packages/agents/repository-manager"; break; }; d=$(dirname "$d"); done; [ -n "$P" ] || P=repository-manager==3.5.1; uv run --no-project --python 3.12 --prerelease=allow --with "$P" python -m repository_manager.dependency_readiness .'
     language: system
     pass_filenames: false
     always_run: true
@@ -101,3 +101,13 @@ repos:
     language: python
     pass_filenames: false
     always_run: true
+- repo: https://github.com/Knuckles-Team/pipelines
+  rev: main
+  hooks:
+  - id: connector-standard
+  - id: secrets
+  - id: spec
+    stages: [pre-push]
+  - id: tests-fast
+    stages: [pre-push]
+  - id: dependency-readiness

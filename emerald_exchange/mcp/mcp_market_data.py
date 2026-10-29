@@ -1,8 +1,7 @@
 """Market Data MCP Tools — CONCEPT:EX-AHE.harness.ee-7."""
 
-from typing import Any
-
 import json
+from typing import Any
 
 from emerald_exchange.backends import ExchangeBackend
 

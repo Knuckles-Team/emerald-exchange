@@ -1,8 +1,7 @@
 """Portfolio MCP Tools — CONCEPT:EX-AHE.harness.ee-9."""
 
-from typing import Any
-
 import json
+from typing import Any
 
 from emerald_exchange.backends import ExchangeBackend
 
@@ -43,6 +42,7 @@ def register_portfolio_tools(mcp: Any, backend: ExchangeBackend) -> None:
                     "margin_used": acct.margin_used,
                     "currency": acct.currency,
                     "exchange": acct.exchange,
+                    "account_id": acct.account_id,
                 }
             )
         return json.dumps({"error": f"Unknown action: {action}"})
