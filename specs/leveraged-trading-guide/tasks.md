@@ -1,7 +1,7 @@
 # EMERALD-GUIDE — Delivery tasks
 
 - [ ] Confirm EMERALD-MEDIA-R001 intake provenance and independently check current official exchange/regulator sources and publication rights.
-- [ ] Agree the fixed illustrative gold fixture and EG-FINANCE-PRIMITIVES-R010 request/response contract with the EG owner.
+- [ ] Agree the fixed illustrative gold fixture and MEDULLA-FINANCE-PRIMITIVES-R010 request/response contract with the EG owner.
 - [ ] Write the canonical guide with formulas, vehicle comparison, assumptions, refusal states and source cards.
 - [ ] Publish a versioned Emerald skill through the existing catalog and expose the same revision to the read-only WebUI explainer.
 - [ ] Run GUIDE-T1–GUIDE-T7, source review, repository gates and CCCC/jscpd/Dupehound/KISS review; capture public receipts.
