@@ -12,7 +12,7 @@ The worked gold example has an **illustrative fixed input fixture**, never a cur
 
 ## Data flow and failure behavior
 
-EMERALD-MEDIA-R001 intake → editor/source verification → canonical guide revision → Emerald skill + public guide → Arbora read-only projection → WebUI explainer. EG-FINANCE-PRIMITIVES-R010 supplies calculations when a simulation is requested; if unavailable, stale, terms missing, unsupported, or jurisdiction ineligible, show explanatory content and a clear simulation-unavailable reason. Do not substitute a guessed price, margin rate or instrument. No edge from the content/projection flow enters `mcp_orders` or `ExecutionBridge.route()`.
+EMERALD-MEDIA-R001 intake → editor/source verification → canonical guide revision → Emerald skill + public guide → Arbora read-only projection → WebUI explainer. MEDULLA-FINANCE-PRIMITIVES-R010 supplies calculations when a simulation is requested; if unavailable, stale, terms missing, unsupported, or jurisdiction ineligible, show explanatory content and a clear simulation-unavailable reason. Do not substitute a guessed price, margin rate or instrument. No edge from the content/projection flow enters `mcp_orders` or `ExecutionBridge.route()`.
 
 ## Quality and compatibility
 
