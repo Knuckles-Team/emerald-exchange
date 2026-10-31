@@ -7,7 +7,17 @@
     "EMERALD-OPS-R001",
     "EMERALD-OPS-R002",
     "EMERALD-OPS-R003",
-    "EMERALD-OPS-R004"
+    "EMERALD-OPS-R004",
+    "EMERALD-OPS-R005",
+    "EMERALD-OPS-R006",
+    "EMERALD-OPS-R007",
+    "EMERALD-OPS-R008",
+    "EMERALD-OPS-R009",
+    "EMERALD-OPS-R010",
+    "EMERALD-OPS-R011",
+    "EMERALD-OPS-R012",
+    "EMERALD-OPS-R013",
+    "EMERALD-OPS-R014"
   ],
   "requirements": [
     {
@@ -54,6 +64,76 @@
         "tests/test_alpaca_account_integrity.py:202",
         "tests/test_alpaca_account_integrity.py:218"
       ]
+    },
+    {
+      "id": "EMERALD-OPS-R005",
+      "title": "Prediction-market and order read tools for arbora",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "EMERALD-OPS-R006",
+      "title": "Order routing requires the arbora confirmation receipt",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "EMERALD-OPS-R007",
+      "title": "Quant analysis bindings use numeric.evaluate",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "EMERALD-OPS-R008",
+      "title": "Order routing requires an admission receipt",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "EMERALD-OPS-R009",
+      "title": "Pattern and attribution actions call the engine",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "EMERALD-OPS-R010",
+      "title": "Research record tools",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "EMERALD-OPS-R011",
+      "title": "Position sizing tool calls the engine",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "EMERALD-OPS-R012",
+      "title": "Distribution-shift analysis calls the engine",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "EMERALD-OPS-R013",
+      "title": "Banking kernels tool calls the engine",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "EMERALD-OPS-R014",
+      "title": "Served wallet operation tool composes the SDK proof gate",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
     }
   ]
 }
