@@ -2,7 +2,7 @@
 
 | Case | Fixture/action | Expected result |
 | --- | --- | --- |
-| GUIDE-T1 | Fixed gold futures and security examples with quantity, multiplier, fees, initial/maintenance terms, adverse and gap moves | Published arithmetic matches independently calculated expected values and EG-FINANCE-PRIMITIVES-R010 response; units/currency explicit |
+| GUIDE-T1 | Fixed gold futures and security examples with quantity, multiplier, fees, initial/maintenance terms, adverse and gap moves | Published arithmetic matches independently calculated expected values and MEDULLA-FINANCE-PRIMITIVES-R010 response; units/currency explicit |
 | GUIDE-T2 | Missing, expired or jurisdiction-ineligible terms; EG unavailable | No numeric liquidation claim or fallback guess; reason and source state visible |
 | GUIDE-T3 | Standard/micro futures, margin security, daily-reset ETF and FX sections | Required distinct mechanics and risk disclosures pass editorial matrix; no category conflation |
 | GUIDE-T4 | Render public guide, skill and WebUI content from same revision | IDs, version, sources and reviewed date match; accessible headings/links work |
