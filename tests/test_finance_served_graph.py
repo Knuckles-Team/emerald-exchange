@@ -155,7 +155,7 @@ async def exercise(mcp, *, validate=False):
                 catalog=_catalog(),
                 context=context,
             )
-            assert imported.result == "imported"
+            assert imported.result == "imported", imported
 
             async def authority(_):
                 return _catalog(), context

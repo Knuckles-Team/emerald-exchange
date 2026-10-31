@@ -88,7 +88,7 @@ async def _exercise(server):
                 catalog=_catalog(),
                 context=context,
             )
-            assert imported.result == "imported"
+            assert imported.result == "imported", imported
 
             async def authority(_):
                 return _catalog(), context
