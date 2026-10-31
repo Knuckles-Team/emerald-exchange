@@ -6,6 +6,10 @@ import sys
 from importlib.metadata import version
 
 import pytest
+from alpaca.trading.models import Calendar
+from epistemic_graph.connector_pack import ConnectorPackClient
+from epistemic_graph.generated.connector_pack import PackProducer
+from packaging.version import Version
 from scion_sdk.adapters.mcp_tool import McpToolSourceAdapter
 from scion_sdk.artifacts.pack import build_content_pack
 from scion_sdk.artifacts.resources import ResourceArtifactKind
@@ -16,10 +20,6 @@ from scion_sdk.ports.session import TransportEndpoint
 from scion_sdk.runner.syncing import SyncTarget, sync_stream
 from scion_sdk.sinks.epistemic_graph import EpistemicGraphSink
 from scion_sdk.transports.mcp import McpTransport
-from alpaca.trading.models import Calendar
-from epistemic_graph.connector_pack import ConnectorPackClient
-from epistemic_graph.generated.connector_pack import PackProducer
-from packaging.version import Version
 
 from emerald_exchange import backends
 from emerald_exchange.backends import AlpacaBackend
