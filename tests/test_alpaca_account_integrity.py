@@ -76,9 +76,9 @@ def test_invalid_account_identity_and_nonfinite_balance_refuse():
 
 
 def test_real_served_account_tool_exposes_provider_identity():
-    from agent_connector_sdk.mcp.server import create_mcp_server
-    from agent_connector_sdk.mcp.tool_surface import register_tool_surface
     from fastmcp import Client
+    from scion_sdk.mcp.server import create_mcp_server
+    from scion_sdk.mcp.tool_surface import register_tool_surface
 
     server = create_mcp_server("synthetic-exchange", version="0", command_args=[])[1]
     operations = _operations(Provider())
@@ -104,9 +104,9 @@ def test_real_served_account_tool_exposes_provider_identity():
 
 
 def test_real_served_provider_failure_does_not_expose_details():
-    from agent_connector_sdk.mcp.server import create_mcp_server
-    from agent_connector_sdk.mcp.tool_surface import register_tool_surface
     from fastmcp import Client
+    from scion_sdk.mcp.server import create_mcp_server
+    from scion_sdk.mcp.tool_surface import register_tool_surface
 
     provider = Provider()
 
@@ -160,9 +160,9 @@ def test_documented_provider_exception_is_redacted():
 
 @pytest.mark.spec("EMERALD-OPS-R004")
 def test_snapshot_source_is_declared_and_served():
-    from agent_connector_sdk.mcp.server import create_mcp_server
-    from agent_connector_sdk.mcp.tool_surface import register_tool_surface
     from fastmcp import Client
+    from scion_sdk.mcp.server import create_mcp_server
+    from scion_sdk.mcp.tool_surface import register_tool_surface
 
     from emerald_exchange.connector_sources import SOURCES
 
@@ -217,15 +217,15 @@ def test_snapshot_source_refuses_incomplete_account_or_position_reads():
 
 @pytest.mark.spec("EMERALD-OPS-R004")
 def test_sdk_mcp_adapter_extracts_the_declared_account_snapshot():
-    from agent_connector_sdk.adapters.mcp_tool import McpToolSourceAdapter
-    from agent_connector_sdk.ingest.live_declaration import (
+    from scion_sdk.adapters.mcp_tool import McpToolSourceAdapter
+    from scion_sdk.ingest.live_declaration import (
         load_declaration as declaration,
     )
-    from agent_connector_sdk.manifest.presets import ToolPreset
-    from agent_connector_sdk.mcp.server import create_mcp_server
-    from agent_connector_sdk.mcp.tool_surface import register_tool_surface
-    from agent_connector_sdk.ports.session import TransportEndpoint
-    from agent_connector_sdk.transports.mcp import McpTransport
+    from scion_sdk.manifest.presets import ToolPreset
+    from scion_sdk.mcp.server import create_mcp_server
+    from scion_sdk.mcp.tool_surface import register_tool_surface
+    from scion_sdk.ports.session import TransportEndpoint
+    from scion_sdk.transports.mcp import McpTransport
 
     source = next(
         s

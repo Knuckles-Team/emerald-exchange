@@ -10,7 +10,7 @@ from datetime import UTC, date, datetime
 from typing import Any
 from uuid import uuid4
 
-from agent_connector_sdk.source_connectors.http_safety import (
+from scion_sdk.source_connectors.http_safety import (
     safe_get_bytes,
     safe_get_json,
 )

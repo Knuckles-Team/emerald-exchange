@@ -10,8 +10,8 @@ import json
 from importlib.resources import files
 
 import pytest
-from agent_connector_sdk.compute import EngineCompute
 from pyoxigraph import RdfFormat, Store
+from scion_sdk.compute import EngineCompute
 
 from emerald_exchange import _engine
 from emerald_exchange.mcp.mcp_signals import register_signal_tools

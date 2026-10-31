@@ -2078,7 +2078,7 @@ and AHE efficacy scoring for evolutionary rule selection.""" ;
 
 # --- Analysis -> algorithm -> served method bindings ---------------------------
 # epistemic-graph selects the algorithm for an analysis by SPARQL over these
-# triples and runs the served method (agent_connector_sdk.compute). The
+# triples and runs the served method (scion_sdk.compute). The
 # connector holds no finance computation. An analysis without a served
 # binding is refused until epistemic-graph serves it.
 

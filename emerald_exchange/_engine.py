@@ -37,14 +37,14 @@ _COMPUTE_CACHE: Any = _UNPROBED
 def finance_compute() -> Any:
     """Return the cached SDK compute adapter, or ``None`` if unreachable.
 
-    Connects through :func:`agent_connector_sdk.compute.connect_compute`
+    Connects through :func:`scion_sdk.compute.connect_compute`
     (``EPISTEMIC_GRAPH_*`` settings, compute scopes only). A failed probe is
     cached so a dead endpoint is never re-probed per call.
     """
     global _COMPUTE_CACHE
     if _COMPUTE_CACHE is not _UNPROBED:
         return _COMPUTE_CACHE
-    from agent_connector_sdk.compute import ComputeUnavailableError, connect_compute
+    from scion_sdk.compute import ComputeUnavailableError, connect_compute
 
     try:
         _COMPUTE_CACHE = connect_compute()
@@ -74,13 +74,13 @@ def run_analysis(name: str, /, **params: Any) -> Any:
     """Run one ``quant.ttl`` analysis in epistemic-graph.
 
     The graph selects the algorithm by SPARQL over the analysis bindings and
-    runs its served method through :mod:`agent_connector_sdk.compute`.
+    runs its served method through :mod:`scion_sdk.compute`.
 
     Raises:
         ComputeUnavailableError: the engine is not configured or unreachable.
         MethodNotServedError: no served algorithm is bound to the analysis.
     """
-    from agent_connector_sdk.compute import ComputeUnavailableError
+    from scion_sdk.compute import ComputeUnavailableError
 
     compute = finance_compute()
     if compute is None:
@@ -90,14 +90,14 @@ def run_analysis(name: str, /, **params: Any) -> Any:
 
 def refuse(name: str) -> NoReturn:
     """Refuse an analysis epistemic-graph does not serve yet."""
-    from agent_connector_sdk.compute import MethodNotServedError
+    from scion_sdk.compute import MethodNotServedError
 
     raise MethodNotServedError(analysis_iri(name), handoff=HANDOFF_OWNER)
 
 
 def engine_error(exc: BaseException) -> dict[str, Any]:
     """The tool payload for an unavailable engine or an unserved analysis."""
-    from agent_connector_sdk.compute import MethodNotServedError
+    from scion_sdk.compute import MethodNotServedError
 
     if isinstance(exc, MethodNotServedError):
         return {

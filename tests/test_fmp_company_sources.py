@@ -111,7 +111,7 @@ def test_http_error_and_untrusted_logo_are_redacted(monkeypatch):
 
 
 def test_actual_guarded_http_transport_sends_key_in_header(monkeypatch):
-    from agent_connector_sdk.source_connectors.http_safety import safe_get_json
+    from scion_sdk.source_connectors.http_safety import safe_get_json
 
     requests = []
 

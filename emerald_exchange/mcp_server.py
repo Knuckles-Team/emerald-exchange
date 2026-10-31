@@ -18,10 +18,10 @@ def get_mcp_instance():
     warnings.filterwarnings("ignore", category=UserWarning, module="urllib3")
     warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-    from agent_connector_sdk.config import load_config, setting
-    from agent_connector_sdk.mcp.content import ConnectorContent
-    from agent_connector_sdk.mcp.server import create_mcp_server
-    from agent_connector_sdk.mcp.tool_surface import register_tool_surface
+    from scion_sdk.config import load_config, setting
+    from scion_sdk.mcp.content import ConnectorContent
+    from scion_sdk.mcp.server import create_mcp_server
+    from scion_sdk.mcp.tool_surface import register_tool_surface
 
     load_config()
 
@@ -39,7 +39,7 @@ def get_mcp_instance():
     )
 
     # Load config
-    from agent_connector_sdk import paths
+    from scion_sdk import paths
 
     from emerald_exchange.mcp.mcp_crypto import register_crypto_tools
     from emerald_exchange.mcp.mcp_debate import register_debate_tools

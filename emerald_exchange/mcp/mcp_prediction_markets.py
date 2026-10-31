@@ -8,7 +8,7 @@ import logging
 from typing import Any
 
 import httpx
-from agent_connector_sdk.compute import MethodNotServedError
+from scion_sdk.compute import MethodNotServedError
 
 from emerald_exchange.risk_guards import RiskGuard
 

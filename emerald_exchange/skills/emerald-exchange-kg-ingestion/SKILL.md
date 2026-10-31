@@ -13,7 +13,7 @@ description: >-
 license: MIT
 tags: [emerald-exchange, knowledge-graph, ingestion, kg, timeseries, mcp]
 metadata:
-  author: Genius
+  author: Knuckles-Team
   version: '0.1.0'
 ---
 # Emerald Exchange — Knowledge-Graph Ingestion

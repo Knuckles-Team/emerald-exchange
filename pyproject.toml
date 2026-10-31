@@ -7,7 +7,7 @@ markers = ["spec(id): binds a test to its requirement"]
 
 [project]
 name = "emerald-exchange"
-version = "2.3.6"
+version = "2.3.7"
 description = "Emerald Exchange — Unified Finance MCP Server with fully abstracted exchange backends for equities, crypto, and derivatives trading. CONCEPT:EE-001"
 readme = "README.md"
 license = { text = "MIT" }
@@ -19,7 +19,7 @@ classifiers = [
     "Programming Language :: Python :: 3"]
 requires-python = ">=3.12,<3.15"
 dependencies = [
-    "scion-sdk[mcp]>=0.5.9,<1.0.0",
+    "scion-sdk[mcp]>=0.6.4,<0.7.0",
     "numpy>=2.5.4",
     # CONCEPT:PHASE2-RECONCILE — relaxed off the pandas 3.x floor to match
     # scion-sdk's ecosystem-compatible range (the two must
@@ -32,7 +32,7 @@ name = "Repository Maintainers"
 email = "maintainers@knuckles.team"
 
 [project.optional-dependencies]
-mcp = ["scion-sdk[mcp]>=0.5.9,<1.0.0"]
+mcp = ["scion-sdk[mcp]>=0.6.4,<0.7.0"]
 alpaca = ["alpaca-py>=0.44.0"]
 binance = ["python-binance>=1.0.37"]
 crypto = ["ccxt>=4.5.88"]
@@ -65,7 +65,7 @@ emerald-cockpit = "emerald_exchange.cockpit:main"
 # Content (skills, ontology, prompts) is found by convention under the package;
 # the removed provider entry-point groups are no longer read by the SDK
 # (SDK-QUALITY-RELEASE-R005.1).
-[project.entry-points."agent_connector_sdk.connector"]
+[project.entry-points."scion_sdk.connector"]
 emerald-exchange-mcp = "emerald_exchange:connector"
 
 [tool.uv.workspace]

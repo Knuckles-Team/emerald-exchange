@@ -12,7 +12,7 @@ description: >-
 license: MIT
 tags: [emerald-exchange, orders, execution, risk, trading, mcp]
 metadata:
-  author: Genius
+  author: Knuckles-Team
   version: '0.1.0'
 ---
 # Emerald Exchange — Order Execution

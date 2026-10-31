@@ -3,7 +3,7 @@
 import asyncio
 import json
 
-from agent_connector_sdk.compute import EngineCompute
+from scion_sdk.compute import EngineCompute
 
 from emerald_exchange import _engine
 from emerald_exchange.mcp.mcp_prediction_markets import register_prediction_market_tools

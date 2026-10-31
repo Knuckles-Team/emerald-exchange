@@ -9,7 +9,7 @@ from datetime import UTC, date, datetime, time
 from typing import Any
 from uuid import uuid4
 
-from agent_connector_sdk.source_connectors.http_safety import safe_get_json
+from scion_sdk.source_connectors.http_safety import safe_get_json
 
 
 def _digest(value: Any) -> str:
@@ -183,7 +183,7 @@ def read_commodity(
     import base64
     import re
 
-    from agent_connector_sdk.source_connectors.http_safety import safe_get_bytes
+    from scion_sdk.source_connectors.http_safety import safe_get_bytes
 
     _identity(tenant_id, source_id, license_tag)
     if (

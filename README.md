@@ -59,7 +59,7 @@ _Auto-generated from the live MCP server — do not edit by hand._
 | `emerald_orders` | `ORDERTOOL` | Order management with pre-trade risk validation. CONCEPT:EX-AHE.harness.ee-8 |
 | `emerald_portfolio` | `PORTFOLIOTOOL` | Portfolio management operations. CONCEPT:EX-AHE.harness.ee-9 |
 | `emerald_risk` | `RISKTOOL` | Risk management and monitoring. CONCEPT:AU-AHE.assimilation.skill-workflow-ingest |
-| `emerald_signals` | `SIGNALTOOL` | Signal generation and fusion. Routes to agent-connector-sdk finance domain. CONCEPT:EX-AHE.harness.ee-11 |
+| `emerald_signals` | `SIGNALTOOL` | Signal generation and fusion. Routes to scion-sdk finance domain. CONCEPT:EX-AHE.harness.ee-11 |
 | `emerald_statarb` | `STATARBTOOL` | OU statistical-arbitrage signal + dynamic-beta hedge. CONCEPT:EX-AHE.harness.ee-29 |
 | `emerald_strategy` | `STRATEGYTOOL` | Strategy lifecycle management. CONCEPT:AU-AHE.assimilation.trading-ecosystem-spec |
 | `emerald_wallet_intel` | `WALLET_INTELTOOL` | Polymarket wallet-intelligence operations. CONCEPT:EX-AHE.harness.ee-27. |
@@ -116,11 +116,11 @@ _15 action-routed tool(s) · 9 verbose 1:1 tool(s). Each is enabled unless its `
 
 > **Install the slim `[mcp]` extra.** The examples below install
 > `emerald-exchange[mcp]` — the MCP-server extra that pulls only the FastMCP /
-> FastAPI tooling (`agent-connector-sdk`). It deliberately **excludes** the heavy
+> FastAPI tooling (`scion-sdk`). It deliberately **excludes** the heavy
 > agent-orchestration runtime (`pydantic-ai`, `dspy`, `llama-index`, `tree-sitter`
 > and the agent frontends), so `uvx`/container installs stay smaller and faster —
 > note the mandatory `epistemic-graph[full]` engine is still present either way,
-> since it is a base dependency of `agent-connector-sdk` itself, not gated behind an
+> since it is a base dependency of `scion-sdk` itself, not gated behind an
 > extra. Use the full `[agent]` extra only when the operator need the integrated Pydantic AI
 > agent (see [Installation](#installation)). Add trading-backend extras
 > (`[alpaca]`, `[crypto]`, `[prediction_markets]`, …) on top as needed.
@@ -213,8 +213,8 @@ Pick the extra that matches what the operator want to run, then layer trading-ba
 
 | Extra | Installs | Use when |
 |-------|----------|----------|
-| `emerald-exchange[mcp]` | Slim MCP server (`agent-connector-sdk` — FastMCP/FastAPI; still carries the mandatory `epistemic-graph[full]` base engine) + paper backend | The operator only run the **MCP server** (smallest install / image) |
-| `emerald-exchange[agent]` | Full agent runtime (`agent-connector-sdk` — Pydantic AI/DSPy orchestration + `epistemic-graph[full]`) | The operator run the **integrated agent** |
+| `emerald-exchange[mcp]` | Slim MCP server (`scion-sdk` — FastMCP/FastAPI; still carries the mandatory `epistemic-graph[full]` base engine) + paper backend | The operator only run the **MCP server** (smallest install / image) |
+| `emerald-exchange[agent]` | Full agent runtime (`scion-sdk` — Pydantic AI/DSPy orchestration + `epistemic-graph[full]`) | The operator run the **integrated agent** |
 | `emerald-exchange[all]` | Everything (`mcp` + `agent` + every trading backend) | Development / full surface |
 
 ```bash
@@ -272,8 +272,8 @@ One multi-stage `docker/Dockerfile` builds two right-sized images, selected by `
 
 | Image tag | Build target | Contents | Entrypoint |
 |-----------|--------------|----------|------------|
-| `knucklessg1/emerald-exchange:mcp` | `--target mcp` | `emerald-exchange[mcp]` — **slim**: no `pydantic-ai`/`dspy`/`llama-index`/`tree-sitter` agent-orchestration stack (the mandatory `epistemic-graph[full]` engine is still present — it's a base dependency of `agent-connector-sdk`) | `emerald-exchange-mcp` |
-| `knucklessg1/emerald-exchange:2.3.6` | `--target agent` (default) | `emerald-exchange[agent]` — **full** agent runtime (`agent-connector-sdk`) + `epistemic-graph[full]` | `emerald-exchange-agent` |
+| `knucklessg1/emerald-exchange:mcp` | `--target mcp` | `emerald-exchange[mcp]` — **slim**: no `pydantic-ai`/`dspy`/`llama-index`/`tree-sitter` agent-orchestration stack (the mandatory `epistemic-graph[full]` engine is still present — it's a base dependency of `scion-sdk`) | `emerald-exchange-mcp` |
+| `knucklessg1/emerald-exchange:2.3.6` | `--target agent` (default) | `emerald-exchange[agent]` — **full** agent runtime (`scion-sdk`) + `epistemic-graph[full]` | `emerald-exchange-agent` |
 
 ```bash
 docker build --target mcp   -t knucklessg1/emerald-exchange:mcp    docker/   # slim MCP server
@@ -285,8 +285,8 @@ docker compose -f docker/compose.yml up -d                                   # f
 ### Knowledge-graph database (`epistemic-graph`)
 
 Both `[mcp]` and `[agent]` carry the **epistemic-graph** engine through the required
-Agent Connector SDK core dependency (`epistemic-graph[full]`) — it is a mandatory base
-dependency of `agent-connector-sdk`, not gated behind an extra. The `[mcp]` extra keeps
+Scion SDK core dependency (`epistemic-graph[full]`) — it is a mandatory base
+dependency of `scion-sdk`, not gated behind an extra. The `[mcp]` extra keeps
 the server slim/connector-focused (no agent-orchestration stack); `[agent]`
 also enables Pydantic AI/DSPy model orchestration. Local deployments can use
 the bundled engine. For production — or to share one knowledge graph across multiple
@@ -365,7 +365,7 @@ material, and endpoints come from `AgentConfig` / the configured secret provider
 | `DATABENTO_API_KEY` | secret-injected | Databento historical market data API key. |
 | `FMP_API_KEY` | secret-injected | Financial Modeling Prep FX API key. |
 | `TWELVE_DATA_API_KEY` | secret-injected | Twelve Data gold spot API key. |
-| `BINANCE_API_KEY` | secret-injected | Per-exchange credentials are resolved at runtime from the trading config's *_env keys; only the agent-connector-sdk-inherited Binance pair is read statically. Other exchanges (Alpaca, Coinbase, ...) supply credentials via operator config. |
+| `BINANCE_API_KEY` | secret-injected | Per-exchange credentials are resolved at runtime from the trading config's *_env keys; only the scion-sdk-inherited Binance pair is read statically. Other exchanges (Alpaca, Coinbase, ...) supply credentials via operator config. |
 | `BINANCE_SECRET_KEY` | secret-injected |  |
 | `CRYPTOTOOL` | `True` | crypto market tools |
 | `DEBATETOOL` | `True` | multi-agent debate tools |
@@ -390,7 +390,7 @@ material, and endpoints come from `AgentConfig` / the configured secret provider
 | `GRAPH_SERVICE_SOCKET` | `/run/epistemic-graph.sock` | alternate UDS path env var |
 | `EPISTEMIC_GRAPH_TCP` | `127.0.0.1:50051` | host:port for a TCP engine endpoint |
 
-#### Inherited agent-connector-sdk variables (apply to every connector)
+#### Inherited scion-sdk variables (apply to every connector)
 
 | Variable | Example | Description |
 |----------|---------|-------------|
@@ -419,7 +419,7 @@ material, and endpoints come from `AgentConfig` / the configured secret provider
 | `MODEL_ID` | — | Operator-configured model id for the agent |
 | `ENABLE_WEB_UI` | `True` | Serve the AG-UI web interface |
 
-_24 package + 24 inherited variable(s). Auto-generated from `.env.example` + the shared agent-connector-sdk set — do not edit._
+_24 package + 24 inherited variable(s). Auto-generated from `.env.example` + the shared scion-sdk set — do not edit._
 <!-- ENV-VARS-TABLE:END -->
 
 <!-- GOVERNED-CAPABILITY:START -->

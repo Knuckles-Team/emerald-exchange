@@ -38,7 +38,7 @@ def stock_adapter_engine(tmp_path_factory):
 def test_stock_adapter_replays_provider_sources(
     stock_adapter_engine, monkeypatch, module_name, test_name
 ):
-    stock = pytest.importorskip("agent_connector_sdk.finance.stock_source")
+    stock = pytest.importorskip("scion_sdk.finance.stock_source")
     module = import_module(module_name)
     source_class = module.McpToolSourceAdapter
     kinds = {

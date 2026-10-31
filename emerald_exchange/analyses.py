@@ -3,7 +3,7 @@
 emerald-exchange holds no finance computation. Each function names one
 analysis declared in ``ontology/quant.ttl``; epistemic-graph selects the
 algorithm bound to it by SPARQL and runs the served method through
-:mod:`agent_connector_sdk.compute` (see :func:`emerald_exchange._engine.run_analysis`).
+:mod:`scion_sdk.compute` (see :func:`emerald_exchange._engine.run_analysis`).
 An analysis without a served algorithm is refused with ``MethodNotServedError``;
 there is no local fallback.
 
@@ -19,7 +19,7 @@ from collections.abc import Callable
 from functools import wraps
 from typing import Any
 
-from agent_connector_sdk.compute import ComputeUnavailableError, MethodNotServedError
+from scion_sdk.compute import ComputeUnavailableError, MethodNotServedError
 
 from emerald_exchange._engine import engine_error, refuse, run_analysis
 

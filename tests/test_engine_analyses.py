@@ -12,9 +12,9 @@ import json
 from importlib.resources import files
 
 import pytest
-from agent_connector_sdk.compute import EngineCompute
 from epistemic_graph.client import FinanceClient
 from pyoxigraph import RdfFormat, Store
+from scion_sdk.compute import EngineCompute
 
 from emerald_exchange import _engine, analyses
 from emerald_exchange.market_making import (
@@ -204,7 +204,7 @@ def test_no_engine_withdraws_without_local_fallback(monkeypatch):
 
 
 def test_kelly_sizing_requires_the_engine(monkeypatch):
-    from agent_connector_sdk.compute import ComputeUnavailableError
+    from scion_sdk.compute import ComputeUnavailableError
 
     monkeypatch.setattr(_engine, "_COMPUTE_CACHE", None)
     with pytest.raises(ComputeUnavailableError):

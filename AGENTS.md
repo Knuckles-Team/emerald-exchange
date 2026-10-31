@@ -27,7 +27,7 @@ be delegated to the Rust **`epistemic-graph`** engine, not re-implemented with
 `numpy`/`scipy`.
 
 - Call it via `epistemic_graph.client` (`.finance` / `.datascience` namespaces),
-  directly or through `agent-connector-sdk/domains/finance/*` (which already routes
+  directly or through `scion-sdk/domains/finance/*` (which already routes
   portfolio optimization to the engine).
 - **When enhancing or adding quant features, extend the engine** and call it from
   here — see `epistemic-graph/docs/RUST_COMPUTE_GUIDE.md` for the capability list
@@ -40,7 +40,7 @@ be delegated to the Rust **`epistemic-graph`** engine, not re-implemented with
 Unified Finance MCP Server with fully abstracted exchange backends.
 
 - **Language**: Python 3.12+
-- **Framework**: FastMCP (via agent-connector-sdk)
+- **Framework**: FastMCP (via scion-sdk)
 - **Package Manager**: uv
 - **Concept Prefix**: `CONCEPT:EE-*`
 
@@ -102,7 +102,7 @@ bump2version patch
 - All orders must pass through `RiskGuard.pre_trade_check()` before submission
 - Default backend is always `PaperBackend` — never default to live
 - Use `create_backend()` factory, never instantiate backends directly in tools
-- Follow `agent-connector-sdk` patterns for `create_mcp_server()` initialization
+- Follow `scion-sdk` patterns for `create_mcp_server()` initialization
 
 ## Fundamentals & Wallet-Intelligence Tool Groups
 
@@ -267,7 +267,7 @@ alone).
 Working in parallel with other sessions/worktrees? **Reserve a concept id before you write its `CONCEPT:` marker** so two sessions never collide:
 
 ```bash
-agent-connector-sdk --json concept reserve --ns EG-KG.compute.backend   # or a package prefix, e.g. KEY
+scion-sdk --json concept reserve --ns EG-KG.compute.backend   # or a package prefix, e.g. KEY
 ```
 
 Full protocol (ledger, merge=union, reconcile, MCP/REST): <https://knuckles-team.github.io/agent-connector-sdk/concept_coordination/>
@@ -298,14 +298,14 @@ is what Dependabot flags. Rules:
 ## Upstream currency edict — target the newest release; a pin is a hypothesis, not a fact (READ BEFORE capping, deferring, or opt-in-gating an upgrade)
 
 This governs how this repository treat **other people's** releases, deprecations, and version caps in
-this repo (fleet-wide edict, propagated from `agent-connector-sdk/AGENTS.md`).
+this repo (fleet-wide edict, propagated from `scion-sdk/AGENTS.md`).
 
 1. **Latest by default.** Target the newest upstream release -- including a pre-release
    where the ecosystem has already moved onto it. Sitting on an old major because the
    upgrade is work is not a reason to defer it.
 2. **A conservative upstream pin is a hypothesis, not a fact -- test it, don't inherit
    it.** Upstream maintainers cap defensively (an unreleased major, an untested surface)
-   as often as they cap for a known break. Worked example (from `agent-connector-sdk`):
+   as often as they cap for a known break. Worked example (from `scion-sdk`):
    `pydantic-ai-slim` 2.18.0 declared `fastmcp-slim[client]>=3.3.0` with no upper bound;
    2.19.0 added `<4` purely as a defensive guard while fastmcp 4 was still pre-release --
    not because of an observed incompatibility. Blocking an upgrade on that kind of cap

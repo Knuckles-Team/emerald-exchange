@@ -43,7 +43,7 @@ def register_risk_tools(
         Kelly sizes are run by epistemic-graph; an unreachable engine or an
         unserved analysis returns its error payload.
         """
-        from agent_connector_sdk.compute import (
+        from scion_sdk.compute import (
             ComputeUnavailableError,
             MethodNotServedError,
         )

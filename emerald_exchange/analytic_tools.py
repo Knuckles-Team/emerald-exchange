@@ -1,6 +1,6 @@
 """Serve the hand-written analytic tools one typed tool per action.
 
-agent-connector-sdk 0.3.0 drops every registrar tool that routes on an
+scion-sdk 0.3.0 drops every registrar tool that routes on an
 ``action`` argument once per-operation client tools are registered, which
 silently removed emerald's computed tools (signals, risk, market making,
 strategy, statarb, derivatives, crypto, debate, fundamentals, wallet intel,
@@ -22,9 +22,9 @@ import typing
 from collections.abc import Callable, Iterable
 from typing import Any
 
-from agent_connector_sdk.config import setting
-from agent_connector_sdk.mcp.tool_surface import registered_tools
 from fastmcp import FastMCP
+from scion_sdk.config import setting
+from scion_sdk.mcp.tool_surface import registered_tools
 
 #: Actions that only read or compute; everything else may change state.
 _READ_ONLY = re.compile(

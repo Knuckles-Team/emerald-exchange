@@ -4,7 +4,7 @@ CONCEPT:AU-KG.ingest.enterprise-source-extractor. The connector pushes its live
 trading data into the ONE epistemic-graph knowledge graph as **typed OWL nodes** —
 :Instrument, :Portfolio, :Position, :Trade, :Quote, :MarketBar (OHLCV timeseries) — plus
 their links (:ofInstrument / :holdsPosition / :tradesInstrument / :settledInPortfolio)
-through ``agent_connector_sdk.ingest`` -- the generated ``SourceIngest`` client, not a
+through ``scion_sdk.ingest`` -- the generated ``SourceIngest`` client, not a
 local ingestion helper. Node ids follow ``emerald:<class>:<externalId>`` and every
 ``node_type`` matches a class federated by ``emerald_exchange.ontology`` (emerald.ttl /
 quant.ttl).
@@ -15,7 +15,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from agent_connector_sdk.ingest import (
+from scion_sdk.ingest import (
     ChangeSet,
     Document,
     Entity,
@@ -37,7 +37,7 @@ _RELATIONSHIP_RESERVED_KEYS = frozenset({"source", "target", "relationship"})
 def _required_text(record: dict[str, Any], key: str) -> str:
     value = record.get(key)
     if not isinstance(value, str) or not value:
-        from agent_connector_sdk.ingest import IngestError
+        from scion_sdk.ingest import IngestError
 
         raise IngestError(
             f"every entity needs an id and a node_type, got {key}={value!r}"
