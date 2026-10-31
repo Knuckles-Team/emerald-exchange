@@ -13,7 +13,7 @@ description: >-
 license: MIT
 tags: [emerald-exchange, market-data, quotes, ohlcv, trading, mcp]
 metadata:
-  author: Genius
+  author: Knuckles-Team
   version: '0.1.0'
 ---
 # Emerald Exchange — Market Data

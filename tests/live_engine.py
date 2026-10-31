@@ -3,7 +3,7 @@
 Starts the ``epistemic-graph-server`` binary from ``medulla[server]``
 on a private Unix socket with test-only credentials, enrolls the test signer,
 creates one graph, imports emerald's ``ontology/quant.ttl`` into it, and
-installs a connected :class:`~agent_connector_sdk.compute.EngineCompute` as
+installs a connected :class:`~scion_sdk.compute.EngineCompute` as
 emerald's engine. Analyses are then selected by SPARQL and run by the real
 engine. Tests skip only when the server package is not installed.
 """
@@ -19,8 +19,8 @@ from importlib.resources import files
 from pathlib import Path
 
 import pytest
-from agent_connector_sdk.compute import EngineCompute, connect_compute
-from agent_connector_sdk.ingest.engine import EngineSettings
+from scion_sdk.compute import EngineCompute, connect_compute
+from scion_sdk.ingest.engine import EngineSettings
 
 from emerald_exchange import _engine
 

@@ -6,8 +6,8 @@ Provides fully abstracted exchange backends for equities, crypto, and
 derivatives trading. All functionality is tool-driven via MCP.
 """
 
-from agent_connector_sdk.connector import Connector
-from agent_connector_sdk.connector_identity import connector_version
+from scion_sdk.connector import Connector
+from scion_sdk.connector_identity import connector_version
 
 from emerald_exchange.exchange_operations import ExchangeReadOperations
 

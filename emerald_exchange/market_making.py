@@ -25,7 +25,7 @@ import logging
 from dataclasses import dataclass, field
 from typing import Any
 
-from agent_connector_sdk.compute import ComputeUnavailableError, MethodNotServedError
+from scion_sdk.compute import ComputeUnavailableError, MethodNotServedError
 
 from emerald_exchange._engine import engine_error, run_analysis
 

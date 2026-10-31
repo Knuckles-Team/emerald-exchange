@@ -66,7 +66,7 @@ def test_fx_and_dated_valuation_provider_reads(monkeypatch):
 
 @pytest.mark.parametrize("kind", ["F", "Y"])
 def test_databento_trade_matches_definition(monkeypatch, kind):
-    from agent_connector_sdk.source_connectors import http_safety
+    from scion_sdk.source_connectors import http_safety
 
     calls = []
 
@@ -109,7 +109,7 @@ def test_databento_trade_matches_definition(monkeypatch, kind):
 
 
 def stub_providers(monkeypatch):
-    from agent_connector_sdk.source_connectors import http_safety
+    from scion_sdk.source_connectors import http_safety
 
     monkeypatch.setenv("FMP_API_KEY", "fmp-test-key")
     monkeypatch.setenv("ATTOM_API_KEY", "attom-test-key")
@@ -178,7 +178,7 @@ def test_invalid_provider_responses_are_redacted(monkeypatch):
 
 
 def test_wrong_contract_or_missing_expiry_is_refused(monkeypatch):
-    from agent_connector_sdk.source_connectors import http_safety
+    from scion_sdk.source_connectors import http_safety
 
     def get(_url, **kwargs):
         header = {

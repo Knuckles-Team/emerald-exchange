@@ -6,19 +6,19 @@ import sys
 from importlib.metadata import version
 
 import pytest
-from agent_connector_sdk.adapters.mcp_tool import McpToolSourceAdapter
-from agent_connector_sdk.artifacts.pack import build_content_pack
-from agent_connector_sdk.artifacts.resources import ResourceArtifactKind
-from agent_connector_sdk.artifacts.tools import ToolArtifactKind
-from agent_connector_sdk.ingest.live_declaration import load_declaration as declaration
-from agent_connector_sdk.manifest.presets import ToolPreset
-from agent_connector_sdk.ports.session import TransportEndpoint
-from agent_connector_sdk.runner.syncing import SyncTarget, sync_stream
-from agent_connector_sdk.sinks.epistemic_graph import EpistemicGraphSink
-from agent_connector_sdk.transports.mcp import McpTransport
 from epistemic_graph.connector_pack import ConnectorPackClient
 from epistemic_graph.generated.connector_pack import PackProducer
 from packaging.version import Version
+from scion_sdk.adapters.mcp_tool import McpToolSourceAdapter
+from scion_sdk.artifacts.pack import build_content_pack
+from scion_sdk.artifacts.resources import ResourceArtifactKind
+from scion_sdk.artifacts.tools import ToolArtifactKind
+from scion_sdk.ingest.live_declaration import load_declaration as declaration
+from scion_sdk.manifest.presets import ToolPreset
+from scion_sdk.ports.session import TransportEndpoint
+from scion_sdk.runner.syncing import SyncTarget, sync_stream
+from scion_sdk.sinks.epistemic_graph import EpistemicGraphSink
+from scion_sdk.transports.mcp import McpTransport
 
 from emerald_exchange import backends
 from emerald_exchange.backends import AlpacaBackend
@@ -123,7 +123,7 @@ async def _exercise(server, *, validate=False):
                     mapping_reference=f"connector:{CONNECTOR}#mappings/MultiAssetRecord",
                 )
                 if validate:
-                    from agent_connector_sdk.finance.multi_asset_source import (
+                    from scion_sdk.finance.multi_asset_source import (
                         MultiAssetKind,
                         MultiAssetSourceAdapter,
                     )
@@ -194,7 +194,7 @@ def test_served_multi_asset_sources_reimport_into_graph(
     reason="real connector pack replay requires graph 2.27.6",
 )
 def test_provider_records_through_sdk_and_graph(multi_asset_live_compute, monkeypatch):
-    pytest.importorskip("agent_connector_sdk.finance.multi_asset_source")
+    pytest.importorskip("scion_sdk.finance.multi_asset_source")
     stub_providers(monkeypatch)
     backend = AlpacaBackend(fmp_api_key="test-key")
     backend.connect = lambda: True

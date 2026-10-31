@@ -10,8 +10,8 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import Any
 
-from agent_connector_sdk.streaming import StreamBus, StreamMessage
 from msgpack import Timestamp
+from scion_sdk.streaming import StreamBus, StreamMessage
 
 from emerald_exchange.alpaca_stock_history import (
     _SYMBOL,

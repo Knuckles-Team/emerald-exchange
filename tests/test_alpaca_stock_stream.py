@@ -3,8 +3,8 @@
 import asyncio
 
 import pytest
-from agent_connector_sdk.streaming import CallbackSubscriber, StreamBus
 from msgpack import Timestamp
+from scion_sdk.streaming import CallbackSubscriber, StreamBus
 
 from emerald_exchange.alpaca_stock_stream import AlpacaStockStream
 from tests.test_alpaca_stock_bars import BAR, QUOTE

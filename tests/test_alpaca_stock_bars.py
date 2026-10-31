@@ -1,7 +1,7 @@
 """Alpaca stock pages preserve their actual provider data and labels."""
 
 import pytest
-from agent_connector_sdk.ingest.live_declaration import load_declaration as declaration
+from scion_sdk.ingest.live_declaration import load_declaration as declaration
 
 from emerald_exchange.backends import AlpacaBackend, PaperBackend
 from emerald_exchange.exchange_operations import ExchangeReadOperations

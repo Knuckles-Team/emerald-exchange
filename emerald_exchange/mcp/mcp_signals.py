@@ -111,7 +111,7 @@ def register_signal_tools(mcp: Any) -> None:
           tool, not a trade-concealment aid — it quantifies which enforcement
           levers constrain an insider.
         """
-        from agent_connector_sdk.compute import MethodNotServedError
+        from scion_sdk.compute import MethodNotServedError
 
         from .._engine import ENGINE_REQUIRED_ERR, analysis_iri, finance_compute
         from .._engine import QUANT_VOCABULARY as VOCAB

@@ -1,6 +1,6 @@
 # emerald-exchange
 
-Unified Finance **MCP Server + A2A Agent** for the agent-connector-sdk ecosystem —
+Unified Finance **MCP Server + A2A Agent** for the scion-sdk ecosystem —
 fully abstracted exchange backends for equities, crypto, derivatives, and
 prediction markets, with pre-trade financial hardening.
 

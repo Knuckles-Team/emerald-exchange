@@ -319,7 +319,7 @@ class ExchangeReadOperations:
         since: dict[str, str] | None = None,
     ) -> dict[str, Any]:
         """Read validated statement rows for the active Alpaca account."""
-        from agent_connector_sdk.finance.csv_import import (
+        from scion_sdk.finance.csv_import import (
             AccountContext,
             ColumnMapping,
             import_activities,

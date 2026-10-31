@@ -1,7 +1,7 @@
 """Epistemic-graph typed-node ingestion — Wire-First coverage.
 
 Exercises the real ``ingest_entities`` + record mappers + ``ingest_backend_snapshot``
-seam against a fake ``agent_connector_sdk.ingest`` transport and a fake exchange
+seam against a fake ``scion_sdk.ingest`` transport and a fake exchange
 backend (no engine, no exchange required), asserting the committed records/
 relationships and the trading-record → typed-node mapping.
 CONCEPT:AU-KG.ingest.enterprise-source-extractor.
@@ -13,8 +13,8 @@ from types import SimpleNamespace
 from typing import Any
 
 import pytest
-from agent_connector_sdk.ingest import IngestError, KnowledgeIngest
 from epistemic_graph.generated.source_ingestion import SourceIngestionRequest
+from scion_sdk.ingest import IngestError, KnowledgeIngest
 
 from emerald_exchange.backends import OHLCV, AccountInfo, Position, Quote
 from emerald_exchange.kg_ingest import (
