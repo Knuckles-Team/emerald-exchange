@@ -7,7 +7,7 @@ markers = ["spec(id): binds a test to its requirement"]
 
 [project]
 name = "emerald-exchange"
-version = "2.3.7"
+version = "2.3.8"
 description = "Emerald Exchange — Unified Finance MCP Server with fully abstracted exchange backends for equities, crypto, and derivatives trading. CONCEPT:EE-001"
 readme = "README.md"
 license = { text = "MIT" }
