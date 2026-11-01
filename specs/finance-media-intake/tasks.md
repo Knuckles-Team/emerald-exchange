@@ -1,9 +1,7 @@
-# EMERALD-MEDIA — Delivery tasks
+# EMERALD-MEDIA — Implementation tasks
 
-- [ ] Capture the three DCA videos and gold/leverage video with `media-watch` using `en` only; read the DCA article directly. Record each success or unavailable receipt.
-- [ ] Review manifest, full transcript, timestamped frames and article; extract steps, observations, warnings and claims with provenance.
-- [ ] Check the existing media and Emerald skill catalogs; build/revise DCA and leverage skills using the existing builder and record what evidence could change each claim.
-- [ ] Map every mechanical rule to a real EG `StrategySpec` version or `UNMAPPED`; request missing strategy contracts rather than inventing IDs.
-- [ ] Obtain MEDULLA-FINANCE-PRIMITIVES-R008 version-matched backtest and recommendation/abstention receipts before any claim influences advice.
-- [ ] Run MEDIA-T1–MEDIA-T8, catalog checks and applicable CCCC/jscpd/Dupehound/KISS gates; publish sanitized evidence.
-- [ ] Record `LANDED` only after the Emerald commit is merged and `ACCEPTED` only after owner and consumer evidence is complete.
+Governing spec: [spec.md](spec.md). Design: [plan.md](plan.md). Rows: [requirements.md](requirements.md).
+
+Each task line reads `- [ ] T001 [P] [US1] <ID>-R012.4 description`. Order is producer first.
+
+- [ ] T001 [US1] EMERALD-MEDIA-R001 Finance media intake into reviewable Emerald skills.

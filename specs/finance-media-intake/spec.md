@@ -37,3 +37,44 @@ An external contributor can capture designated DCA and gold/leverage material, s
 ## Boundaries and completion
 
 [media-downloader](https://github.com/Knuckles-Team/media-downloader/tree/main/media_downloader/skills/media-watch) owns `watch_media`, frame extraction, caption capture, manifests and `build_watch_skill`. [medulla](https://github.com/Knuckles-Team/medulla/tree/main/specs) owns `StrategySpec`, deterministic evaluation and `BacktestRun` (MEDULLA-FINANCE-PRIMITIVES-R007/703). Emerald owns curated DCA and leverage skills and their links; [agent-webui Finance](https://github.com/Knuckles-Team/agent-webui/tree/main/specs/finance-asset-manager) consumes only reviewed informational content. EMERALD-GUIDE-R001 consumes the leverage intake. No media-derived content invokes `mcp_orders` or authorizes a live trade. Completion requires all five source receipts or explicit unavailable results, reviewed skills, rule mappings, negative gating tests and a merged Emerald revision; acceptance requires exact consumer evidence.
+
+## Why a new spec
+
+The specs of this repository were read; none owns this capability. This spec states it for this connector only.
+
+## Scope and interfaces
+
+In scope: the rows of [requirements.md](requirements.md). Out of scope: the SDK modules and the engine, which own the shared capabilities.
+
+## User Scenarios & Testing
+
+### User Story 1 - Finance media intake (Priority: P1)
+
+The connector delivers finance media intake.
+
+**Acceptance Scenarios**:
+
+1. **Given** the connector is configured, **When** the behaviour of row `EMERALD-MEDIA-R001` (finance media intake into reviewable emerald skills) is exercised, **Then** finance media intake into reviewable Emerald skills.
+
+### Edge Cases
+
+- If `EMERALD-MEDIA-R001` is not met, its proving test fails: finance media intake into reviewable emerald skills.
+
+## Requirements
+
+- **FR-001**: Finance media intake into reviewable Emerald skills. Rows: `EMERALD-MEDIA-R001`.
+
+## Success Criteria
+
+- **SC-001**: Finance media intake into reviewable Emerald skills. Rows: `EMERALD-MEDIA-R001`.
+
+## Assumptions
+
+- The external system is reachable with operator-supplied credentials.
+- The SDK and engine contracts the rows cite are at the floors declared in `pyproject.toml`.
+
+## Traceability
+
+| Label | Rows | Design section | Test ID | Evidence |
+|---|---|---|---|---|
+| FR-001 | `EMERALD-MEDIA-R001` | [plan.md](plan.md) | T-001 | [test-spec.md](test-spec.md) |

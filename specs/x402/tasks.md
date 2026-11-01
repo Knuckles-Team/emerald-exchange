@@ -2,10 +2,12 @@
 
 Governing spec: [spec.md](spec.md). Design: [plan.md](plan.md). Rows: [requirements.md](requirements.md).
 
-- [ ] **CONN-EMERALD-EXCHANGE-X402-R001:** Wire the x402 intent, payment requirement and payment proof models with validation.
-- [ ] **CONN-EMERALD-EXCHANGE-X402-R002:** Wire the pay-and-retry loop with one proof-bearing retry and refusal surfacing.
-- [ ] **CONN-EMERALD-EXCHANGE-X402-R003:** Expose the Coinbase agentic-wallet skill as a referenced connector skill with a drift check.
-- [ ] **CONN-EMERALD-EXCHANGE-X402-R004:** Settle x402 payments in RLUSD through the XRPL payment path.
-- [ ] **CONN-EMERALD-EXCHANGE-X402-R005:** Reuse the XRPL wallet and signing rows for all x402 payment calls.
-- [ ] **CONN-EMERALD-EXCHANGE-X402-R006:** Route x402 payments through the XRPL attribution, spending-limit check and kill-switch.
-- [ ] **CONN-EMERALD-EXCHANGE-X402-R007:** Package the x402 purchase and spending-limit-check prompts.
+Each task line reads `- [ ] T001 [P] [US1] <ID>-R012.4 description`. Order is producer first.
+
+- [ ] T001 [US1] CONN-EMERALD-EXCHANGE-X402-R001 x402 intent, resource and pricing model.
+- [ ] T002 [US1] CONN-EMERALD-EXCHANGE-X402-R002 Pay-and-retry loop.
+- [ ] T003 [US1] CONN-EMERALD-EXCHANGE-X402-R003 Agentic-wallet skill, referenced.
+- [ ] T004 [US1] CONN-EMERALD-EXCHANGE-X402-R004 RLUSD settlement.
+- [ ] T005 [US1] CONN-EMERALD-EXCHANGE-X402-R005 Cross-chain composition with XRPL.
+- [ ] T006 [US1] CONN-EMERALD-EXCHANGE-X402-R006 Shared attribution and spend caps.
+- [ ] T007 [US1] CONN-EMERALD-EXCHANGE-X402-R007 Prompts.
