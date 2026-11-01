@@ -34,3 +34,44 @@ EMERALD-MEDIA-R001 supplies media evidence, but the guide also uses current prim
 ## Exclusions and completion
 
 This spec does not implement derivatives pricing, legal eligibility decisions, a live trading strategy, or automated leverage. Completion requires published parity across guide/skill/explainer, verified current primary-source citations, MEDULLA-FINANCE-PRIMITIVES-R010 consumer contract tests, the negative order test, and a merged owner revision recorded in `status.json` before `LANDED`; acceptance needs independent evidence. Investment and regulatory facts are reviewed against current official sources at implementation, not frozen from a video.
+
+## Why a new spec
+
+The specs of this repository were read; none owns this capability. This spec states it for this connector only.
+
+## Scope and interfaces
+
+In scope: the rows of [requirements.md](requirements.md). Out of scope: the SDK modules and the engine, which own the shared capabilities.
+
+## User Scenarios & Testing
+
+### User Story 1 - Leveraged trading guide (Priority: P1)
+
+The connector delivers leveraged trading guide.
+
+**Acceptance Scenarios**:
+
+1. **Given** the connector is configured, **When** the behaviour of row `EMERALD-GUIDE-R001` (leveraged trading guide across docs, skill, and explainer) is exercised, **Then** leveraged trading guide across docs, skill, and explainer.
+
+### Edge Cases
+
+- If `EMERALD-GUIDE-R001` is not met, its proving test fails: leveraged trading guide across docs, skill, and explainer.
+
+## Requirements
+
+- **FR-001**: Leveraged trading guide across docs, skill, and explainer. Rows: `EMERALD-GUIDE-R001`.
+
+## Success Criteria
+
+- **SC-001**: Leveraged trading guide across docs, skill, and explainer. Rows: `EMERALD-GUIDE-R001`.
+
+## Assumptions
+
+- The external system is reachable with operator-supplied credentials.
+- The SDK and engine contracts the rows cite are at the floors declared in `pyproject.toml`.
+
+## Traceability
+
+| Label | Rows | Design section | Test ID | Evidence |
+|---|---|---|---|---|
+| FR-001 | `EMERALD-GUIDE-R001` | [plan.md](plan.md) | T-001 | [test-spec.md](test-spec.md) |
