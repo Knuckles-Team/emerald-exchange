@@ -17,8 +17,8 @@ from scion_sdk.runner.syncing import SyncTarget, sync_stream
 from scion_sdk.sinks.epistemic_graph import EpistemicGraphSink
 from scion_sdk.transports.mcp import McpTransport
 from alpaca.trading.models import Calendar
-from epistemic_graph.connector_pack import ConnectorPackClient
-from epistemic_graph.generated.connector_pack import PackProducer
+from medulla.connector_pack import ConnectorPackClient
+from medulla.generated.connector_pack import PackProducer
 from packaging.version import Version
 
 from emerald_exchange import backends

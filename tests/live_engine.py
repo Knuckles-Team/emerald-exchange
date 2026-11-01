@@ -69,9 +69,9 @@ ex:OpenPolicy a sh:NodeShape ;
 
 
 def _bootstrap(socket_path: Path) -> None:
-    from epistemic_graph.client import SyncEpistemicGraphClient
+    from medulla.client import SyncMedullaClient
 
-    client = SyncEpistemicGraphClient.connect(
+    client = SyncMedullaClient.connect(
         socket_path=str(socket_path),
         auth_secret=_HMAC_KEY,
         verified_context=_context([], ["security:bootstrap"]),
@@ -82,7 +82,7 @@ def _bootstrap(socket_path: Path) -> None:
         )
     finally:
         client.close()
-    client = SyncEpistemicGraphClient.connect(
+    client = SyncMedullaClient.connect(
         socket_path=str(socket_path),
         auth_secret=_HMAC_KEY,
         verified_context=_context(["test"], ["*"]),
@@ -91,7 +91,7 @@ def _bootstrap(socket_path: Path) -> None:
         client.tenants.create(GRAPH)
     finally:
         client.close()
-    client = SyncEpistemicGraphClient.connect(
+    client = SyncMedullaClient.connect(
         socket_path=str(socket_path),
         auth_secret=_HMAC_KEY,
         graph_name=GRAPH,
@@ -113,7 +113,7 @@ def live_compute(
     tmp_path_factory: pytest.TempPathFactory,
 ) -> Iterator[EngineCompute]:
     """emerald's engine, connected to a fresh real epistemic-graph server."""
-    from epistemic_graph.server_binary import (
+    from medulla.server_binary import (
         ServerBinaryNotFoundError,
         resolve_server_binary,
     )

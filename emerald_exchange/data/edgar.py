@@ -426,7 +426,7 @@ class EdgarApi:
 
         Returns ``{"ticker", "periods", "this_year": {...17 keys...},
         "prior_year": {...17 keys...}}`` ready to hand to
-        ``epistemic_graph.finance.forensic_report``.
+        ``medulla.finance.forensic_report``.
         """
         company = self._company(ticker_or_cik)
         fin = (

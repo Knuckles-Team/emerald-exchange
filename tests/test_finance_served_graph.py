@@ -8,9 +8,9 @@ from importlib.metadata import version
 from types import SimpleNamespace
 
 import pytest
-from epistemic_graph import EpistemicGraphClient
-from epistemic_graph.connector_pack import ConnectorPackClient
-from epistemic_graph.generated.connector_pack import (
+from medulla import MedullaClient
+from medulla.connector_pack import ConnectorPackClient
+from medulla.generated.connector_pack import (
     AgentLibraryMutationContext,
     McpCatalogSnapshotBinding,
     PackProducer,
@@ -68,7 +68,7 @@ def _mutation_context():
 
 
 async def scoped_client(scopes):
-    return await EpistemicGraphClient.connect(
+    return await MedullaClient.connect(
         socket_path=str(_LIVE_SOCKET["path"]),
         auth_secret=_HMAC_KEY,
         graph_name="emerald-live",

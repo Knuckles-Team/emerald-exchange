@@ -2,7 +2,7 @@
 
 Every analysis in ``ontology/quant.ttl`` either binds a method epistemic-graph
 serves or is refused. The bound methods and their parameters are checked
-against the installed ``epistemic_graph`` client, the quoting policy is
+against the installed ``medulla`` client, the quoting policy is
 checked against a recording engine, and the served analyses run on a real
 engine started from ``epistemic-graph[server]``.
 """
@@ -12,7 +12,7 @@ import json
 from importlib.resources import files
 
 import pytest
-from epistemic_graph.client import FinanceClient
+from medulla.client import FinanceClient
 from pyoxigraph import RdfFormat, Store
 from scion_sdk.compute import EngineCompute
 

@@ -2,7 +2,7 @@
 
 The heavy quant math (market-making quotes, VPIN, Bayesian Kelly, backtest
 validation, forensic accounting) lives in the Rust ``epistemic-graph`` engine and
-is reached over its MessagePack/UDS client (``epistemic_graph.client``,
+is reached over its MessagePack/UDS client (``medulla.client``,
 ``client.finance.*``). This module is the single, lazy integration point for
 emerald-exchange so that *importing* any controller/utility never requires a
 running engine.
