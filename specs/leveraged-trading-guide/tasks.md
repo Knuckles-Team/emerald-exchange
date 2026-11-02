@@ -1,8 +1,7 @@
-# EMERALD-GUIDE — Delivery tasks
+# EMERALD-GUIDE — Implementation tasks
 
-- [ ] Confirm EMERALD-MEDIA-R001 intake provenance and independently check current official exchange/regulator sources and publication rights.
-- [ ] Agree the fixed illustrative gold fixture and MEDULLA-FINANCE-PRIMITIVES-R010 request/response contract with the EG owner.
-- [ ] Write the canonical guide with formulas, vehicle comparison, assumptions, refusal states and source cards.
-- [ ] Publish a versioned Emerald skill through the existing catalog and expose the same revision to the read-only WebUI explainer.
-- [ ] Run GUIDE-T1–GUIDE-T7, source review, repository gates and CCCC/jscpd/Dupehound/KISS review; capture public receipts.
-- [ ] Record merged owner commit as `LANDED` only after merge; mark `ACCEPTED` only after the required test and consumer receipts.
+Governing spec: [spec.md](spec.md). Design: [plan.md](plan.md). Rows: [requirements.md](requirements.md).
+
+Each task line reads `- [ ] T001 [P] [US1] <ID>-R012.4 description`. Order is producer first.
+
+- [ ] T001 [US1] EMERALD-GUIDE-R001 Leveraged trading guide across docs, skill, and explainer.

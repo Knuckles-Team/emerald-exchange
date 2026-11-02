@@ -12,3 +12,6 @@
 | MEDIA-T8 | Attempt to drive `mcp_orders` from a new skill | Refused; existing RiskGuard and approval boundary remain authoritative |
 
 Acceptance needs actual capture receipts, reviewer signoff, skill/catalog validation, EG/AU consumer checks and an exact merged revision. Run configured repo lint/types/tests; for executable changes, include CCCC, jscpd, Dupehound and KISS results. Record unavailable tools as unresolved. Do not claim the videos were watched or the skills were built from this spec alone.
+
+## Rows awaiting bound tests
+- `EMERALD-MEDIA-R001`: planned proof `tests/test_media_intake_contract.py::test_unmapped_rule_cannot_drive_recommendation`. Expected: A rule mapped to a strategy link produces the recommendation and the capture log separates source from claim.. Refusal: An unmapped rule is refused and no recommendation is produced..
