@@ -4,7 +4,7 @@ These specs follow the ecosystem [spec standard](https://github.com/Knuckles-Tea
 
 This tracked directory is the build contract for Emerald Exchange work. Each feature has `spec.md` (outcome and requirements), `plan.md` (architecture, interfaces and reuse), `test-spec.md` (acceptance and quality proof), `tasks.md` (implementation order), `requirements.md` (the definition of every requirement ID the feature owns), and `status.json` (delivery and acceptance state, with one entry per requirement ID in its `requirements` array, each carrying its own `delivery_state` and evidence). The files stand alone for public contributors; draft notes and private infrastructure are not prerequisites. A requirement counts as delivered only once its evidence includes a merged-head commit on the default branch.
 
-Start a feature from [`_template/`](_template/) and follow the [repository constitution](../.specify/memory/constitution.md). `specs/` is the canonical feature tree; historical records under `.specify/specs/` remain legacy drafts until distilled. Run `python -m pytest tests/test_public_specs.py` to check the file and status contract.
+Start a feature from the pipelines-vended templates in [`.specify/templates/`](../.specify/templates/) and follow the [repository constitution](../.specify/memory/constitution.md). `specs/` is the canonical feature tree; historical records under `.specify/specs/` remain legacy drafts until distilled. Run `python -m pytest tests/test_public_specs.py` to check the file and status contract.
 
 | ID | Feature | State |
 | --- | --- | --- |
