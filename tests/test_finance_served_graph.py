@@ -8,9 +8,9 @@ from importlib.metadata import version
 from types import SimpleNamespace
 
 import pytest
-from epistemic_graph import EpistemicGraphClient
-from epistemic_graph.connector_pack import ConnectorPackClient
-from epistemic_graph.generated.connector_pack import (
+from medulla import MedullaClient
+from medulla.connector_pack import ConnectorPackClient
+from medulla.generated.connector_pack import (
     AgentLibraryMutationContext,
     McpCatalogSnapshotBinding,
     PackProducer,
@@ -24,7 +24,7 @@ from scion_sdk.ingest.live_declaration import load_declaration as declaration
 from scion_sdk.manifest.presets import ToolPreset
 from scion_sdk.ports.session import TransportEndpoint
 from scion_sdk.runner.syncing import SyncTarget, sync_stream
-from scion_sdk.sinks.epistemic_graph import EpistemicGraphSink
+from scion_sdk.sinks.medulla import MedullaSink
 from scion_sdk.transports.mcp import McpTransport
 
 from emerald_exchange.backends import AlpacaBackend
@@ -68,7 +68,7 @@ def _mutation_context():
 
 
 async def scoped_client(scopes):
-    return await EpistemicGraphClient.connect(
+    return await MedullaClient.connect(
         socket_path=str(_LIVE_SOCKET["path"]),
         auth_secret=_HMAC_KEY,
         graph_name="emerald-live",
@@ -160,9 +160,7 @@ async def exercise(mcp, *, validate=False):
             async def authority(_):
                 return _catalog(), context
 
-            target = SyncTarget(
-                CONNECTOR, EpistemicGraphSink(client, authority), max_pages=1
-            )
+            target = SyncTarget(CONNECTOR, MedullaSink(client, authority), max_pages=1)
             adapters = []
             for source_id, kind in [
                 ("alpaca-account", "Account"),

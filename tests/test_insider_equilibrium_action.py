@@ -1,4 +1,4 @@
-"""emerald_signals runs its analyses in epistemic-graph — CONCEPT:EX-AHE.harness.ee-32.
+"""emerald_signals runs its analyses in medulla — CONCEPT:EX-AHE.harness.ee-32.
 
 The algorithm for each analysis is selected by SPARQL over the connector's own
 ``ontology/quant.ttl`` (loaded into an in-process RDF store standing in for the

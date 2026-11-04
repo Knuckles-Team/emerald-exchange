@@ -1,8 +1,8 @@
 """Market-Making / Backtest-Validation / Forensic MCP Tools — CONCEPT:EX-AHE.harness.ee-22.
 
-Action-routed tool over epistemic-graph analyses (``ontology/quant.ttl``):
+Action-routed tool over medulla analyses (``ontology/quant.ttl``):
   - quote: intended market-making quotes (decision only, no live order).
-  - fee / backtest: refused (not_served) until epistemic-graph serves them.
+  - fee / backtest: refused (not_served) until medulla serves them.
   - forensic, brier, validate, pbo: served analyses.
 
 CRITICAL SAFETY: the ``quote`` action returns a *decision* (intended bid/ask +

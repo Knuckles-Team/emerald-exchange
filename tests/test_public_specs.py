@@ -31,11 +31,10 @@ PRIVATE_REFERENCE = re.compile(
 def test_public_spec_scaffold_and_status() -> None:
     assert (SPECS / "README.md").is_file()
     assert (ROOT / ".specify/memory/constitution.md").is_file()
-    assert REQUIRED <= {path.name for path in (SPECS / "_template").iterdir()}
+    # Spec templates are vended by pipelines into .specify/templates/.
+    assert any((ROOT / ".specify/templates").glob("*-template.md"))
 
-    features = [
-        path for path in SPECS.iterdir() if path.is_dir() and path.name != "_template"
-    ]
+    features = [path for path in SPECS.iterdir() if path.is_dir()]
     assert features
     owned_ids: set[str] = set()
     for feature in features:

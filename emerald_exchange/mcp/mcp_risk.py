@@ -40,7 +40,7 @@ def register_risk_tools(
           (JSON list), fraction, n_simulations, seed. Capped at max_position_pct.
         - 'limits': Show current risk limits configuration
 
-        Kelly sizes are run by epistemic-graph; an unreachable engine or an
+        Kelly sizes are run by medulla; an unreachable engine or an
         unserved analysis returns its error payload.
         """
         from scion_sdk.compute import (

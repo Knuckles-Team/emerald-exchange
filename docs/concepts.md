@@ -30,7 +30,7 @@
 | `CONCEPT:EX-AHE.harness.ee-17` | Crypto-Native Analytics | `crypto` MCP domain: funding rates, whale alerts, arb scan via CCXT |
 | `CONCEPT:EX-AHE.harness.ee-18` | Trading Debate Engine | `debate` MCP domain: multi-agent bull/bear debate with risk veto |
 | `CONCEPT:EX-AHE.harness.ee-19` | A2A Server Integration | Native agent-to-agent interface via `agent_server.py` |
-| `CONCEPT:EX-AHE.harness.ee-20` | Engine Client (lazy) | Lazy/cached `SyncEpistemicGraphClient` accessor; import never requires a running engine |
+| `CONCEPT:EX-AHE.harness.ee-20` | Engine Client (lazy) | Lazy/cached `SyncMedullaClient` accessor; import never requires a running engine |
 | `CONCEPT:EX-AHE.harness.ee-21` | Polymarket V2 Fee Model | Category-aware taker fee / maker rebate schedule (`fees.py`) |
 | `CONCEPT:EX-AHE.harness.ee-22` | Market-Making Controller | Per-book-update quoting policy (microprice/OFI/AS/logit/VPIN gate); decision-only, never places orders (`market_making.py`) |
 | `CONCEPT:EX-AHE.harness.ee-23` | Event-Driven Backtester | Heap event-loop with latency injection, L2 queue, fee accounting + deflated-Sharpe/CPCV/PBO validation hooks (`backtester.py`) |

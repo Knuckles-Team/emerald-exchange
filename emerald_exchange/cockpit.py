@@ -4,7 +4,7 @@ A real, GUI-free cockpit that renders live trading state as a structured
 snapshot plus a plain-text (or ``rich``, when installed) table render. This is
 the functional core of a FinceptTerminal-style cockpit, text-mode:
 
-  * engine status (epistemic-graph reachable? — via the lazy ``_engine``),
+  * engine status (medulla reachable? — via the lazy ``_engine``),
   * account / positions (via any bound ``ExchangeBackend``),
   * risk status (halt / kill-switch, drawdown, daily-loss) from ``RiskGuard``,
   * recent quotes for a watchlist,
@@ -50,7 +50,7 @@ class CockpitSnapshot:
 
 
 def _engine_status() -> dict[str, Any]:
-    """Probe the epistemic-graph engine without ever raising.
+    """Probe the medulla engine without ever raising.
 
     Returns ``{"status": "online"|"offline", ...}``. A reachable client also
     reports a lightweight health ping when the client exposes one.

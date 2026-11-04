@@ -312,7 +312,7 @@ class RiskGuard:
         half_kelly: bool = True,
         max_risk: float = 0.02,
     ) -> float:
-        """Point Kelly size, run by epistemic-graph (PointKellyAnalysis).
+        """Point Kelly size, run by medulla (PointKellyAnalysis).
 
         A bet paying ``win_loss_ratio`` per unit risked is a binary contract
         priced at ``c = 1 / (1 + win_loss_ratio)``. The result is clamped to
@@ -342,7 +342,7 @@ class RiskGuard:
         prior_beta: float = 1.0,
         fraction: float = 0.25,
     ) -> float:
-        """Kelly under a Beta posterior, run by epistemic-graph (BayesianKellyAnalysis).
+        """Kelly under a Beta posterior, run by medulla (BayesianKellyAnalysis).
 
         The posterior is ``Beta(prior_alpha + wins, prior_beta + losses)``; the
         result is fractional-scaled and clamped to ``[0, max_position_pct]``.
@@ -368,7 +368,7 @@ class RiskGuard:
         n_simulations: int = 10000,
         seed: int = 42,
     ) -> float:
-        """Resampled Kelly, run by epistemic-graph (EmpiricalKellyAnalysis).
+        """Resampled Kelly, run by medulla (EmpiricalKellyAnalysis).
 
         Fractional-scaled and clamped to ``[0, max_position_pct]``.
 

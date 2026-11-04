@@ -43,7 +43,7 @@ def _load_microstructure_priors() -> list[dict]:
     return priors
 
 
-#: Insider-equilibrium inputs and their defaults (epistemic-graph ``InsiderInputs``).
+#: Insider-equilibrium inputs and their defaults (medulla ``InsiderInputs``).
 _INSIDER_DEFAULTS: dict[str, float] = {
     "sigma_v": 0.30,
     "sigma_u": 1.00,
@@ -64,7 +64,7 @@ def _number(record: dict, key: str, default: float) -> float:
 
 
 def _fusion_priors(records: list[dict]) -> list[dict]:
-    """Stored MicrostructureSignal records as epistemic-graph ``FusionPrior`` rows."""
+    """Stored MicrostructureSignal records as medulla ``FusionPrior`` rows."""
     return [
         {
             "name": str(record.get("name") or record.get("id")),

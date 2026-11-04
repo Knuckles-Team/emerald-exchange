@@ -2,7 +2,7 @@
 
 CONCEPT:EX-AHE.harness.ee-28 (dynamic-beta hedge) / EE-030 (OU stat-arb).
 
-Action-routed tool over epistemic-graph analyses (``ontology/quant.ttl``):
+Action-routed tool over medulla analyses (``ontology/quant.ttl``):
   - 'ou_signal': spread → ADF stationarity, OU calibration and optimal
     entry/exit bands (SpreadStationarityAnalysis,
     MeanReversionCalibrationAnalysis, MeanReversionThresholdAnalysis).
@@ -32,7 +32,7 @@ def register_statarb_tools(mcp: Any) -> None:
 
         Actions:
           - 'ou_signal': params: spread (list), dt (float), adf_max_lag (int),
-            cost (float). Returns {adf, ou, thresholds} from epistemic-graph.
+            cost (float). Returns {adf, ou, thresholds} from medulla.
           - 'dynamic_beta': params: asset_returns (list), market_returns (list),
             q, r, beta0, p0. Returns the current Kalman beta and its variance.
 

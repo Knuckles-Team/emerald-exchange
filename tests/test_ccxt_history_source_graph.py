@@ -6,8 +6,8 @@ import sys
 from importlib.metadata import version
 
 import pytest
-from epistemic_graph.connector_pack import ConnectorPackClient
-from epistemic_graph.generated.connector_pack import PackProducer
+from medulla.connector_pack import ConnectorPackClient
+from medulla.generated.connector_pack import PackProducer
 from packaging.version import Version
 from scion_sdk.adapters.mcp_tool import McpToolSourceAdapter
 from scion_sdk.artifacts.pack import build_content_pack
@@ -17,7 +17,7 @@ from scion_sdk.ingest.live_declaration import load_declaration as declaration
 from scion_sdk.manifest.presets import ToolPreset
 from scion_sdk.ports.session import TransportEndpoint
 from scion_sdk.runner.syncing import SyncTarget, sync_stream
-from scion_sdk.sinks.epistemic_graph import EpistemicGraphSink
+from scion_sdk.sinks.medulla import MedullaSink
 from scion_sdk.transports.mcp import McpTransport
 
 from emerald_exchange import backends
@@ -103,9 +103,7 @@ async def _exercise(server):
                 connector=CONNECTOR,
                 mapping_reference=f"connector:{CONNECTOR}#mappings/ExchangeCandle",
             )
-            target = SyncTarget(
-                CONNECTOR, EpistemicGraphSink(client, authority), max_pages=3
-            )
+            target = SyncTarget(CONNECTOR, MedullaSink(client, authority), max_pages=3)
             first = await sync_stream(session, adapter, target)
             repeated = await sync_stream(session, adapter, target)
             assert (first.pages, first.records, repeated.pages, repeated.records) == (

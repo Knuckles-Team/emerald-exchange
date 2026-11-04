@@ -1,7 +1,7 @@
 """Epistemic-graph ingestion for Emerald Exchange records (typed graph nodes).
 
 CONCEPT:AU-KG.ingest.enterprise-source-extractor. The connector pushes its live
-trading data into the ONE epistemic-graph knowledge graph as **typed OWL nodes** —
+trading data into the ONE medulla knowledge graph as **typed OWL nodes** —
 :Instrument, :Portfolio, :Position, :Trade, :Quote, :MarketBar (OHLCV timeseries) — plus
 their links (:ofInstrument / :holdsPosition / :tradesInstrument / :settledInPortfolio)
 through ``scion_sdk.ingest`` -- the generated ``SourceIngest`` client, not a

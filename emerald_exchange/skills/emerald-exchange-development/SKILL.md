@@ -24,7 +24,7 @@ credentials and endpoints out of source, logs, and skill content.
 Hard rules from `AGENTS.md`: orders always pass `RiskGuard.pre_trade_check()`,
 the default backend is `PaperBackend` (never default to live), backends come
 from the `create_backend()` factory, and numeric/quant compute is delegated to
-the `epistemic-graph` engine rather than re-implemented with numpy/scipy.
+the `medulla` engine rather than re-implemented with numpy/scipy.
 
 ## Rapid delivery: the 5-minute contract
 
@@ -72,7 +72,7 @@ with local copies or bypass a failing check.
 - Heavy providers (`edgartools`, `polars`, `py-clob-client`) stay optional and
   lazily imported; the package must import without them.
 - Every MCP tool docstring names its `CONCEPT:EE-*` id.
-- The `test` extra pins `epistemic-graph[server]`; keep that bound compatible
+- The `test` extra pins `medulla[server]`; keep that bound compatible
   with the engine floor required by `scion-sdk`, then refresh `uv.lock`.
 - Keep the MCP surface aligned with `scion-sdk`; read the version from package
   metadata rather than spelling it in a module.

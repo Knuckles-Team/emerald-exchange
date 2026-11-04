@@ -30,7 +30,7 @@ action-routed MCP tools. Every order is validated by a pre-trade risk guard
   sizing, circuit breakers, regime-shift detection, and an instant kill switch.
 
 Two operating invariants: trading **defaults to paper and never to live**, and
-all **quant compute is delegated to the Rust epistemic-graph engine** rather than
+all **quant compute is delegated to the Rust medulla engine** rather than
 re-implemented in Python.
 
 ## Explore the documentation

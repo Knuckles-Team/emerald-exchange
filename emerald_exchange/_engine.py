@@ -1,8 +1,8 @@
-"""Lazy epistemic-graph engine client — CONCEPT:EX-AHE.harness.ee-20.
+"""Lazy medulla engine client — CONCEPT:EX-AHE.harness.ee-20.
 
 The heavy quant math (market-making quotes, VPIN, Bayesian Kelly, backtest
-validation, forensic accounting) lives in the Rust ``epistemic-graph`` engine and
-is reached over its MessagePack/UDS client (``epistemic_graph.client``,
+validation, forensic accounting) lives in the Rust ``medulla`` engine and
+is reached over its MessagePack/UDS client (``medulla.client``,
 ``client.finance.*``). This module is the single, lazy integration point for
 emerald-exchange so that *importing* any controller/utility never requires a
 running engine.
@@ -20,13 +20,13 @@ from typing import Any, NoReturn
 logger = logging.getLogger(__name__)
 
 ENGINE_REQUIRED_ERR = (
-    "epistemic-graph engine unavailable. Set EPISTEMIC_GRAPH_ENDPOINT, "
-    "EPISTEMIC_GRAPH_AUTH_SECRET_REF, EPISTEMIC_GRAPH_TENANT and "
-    "EPISTEMIC_GRAPH_GRAPH and ensure the engine is running."
+    "medulla engine unavailable. Set MEDULLA_ENDPOINT, "
+    "MEDULLA_AUTH_SECRET_REF, MEDULLA_TENANT and "
+    "MEDULLA_GRAPH and ensure the engine is running."
 )
 
 #: Namespace of the analysis -> algorithm -> served-method bindings in
-#: ``ontology/quant.ttl``; epistemic-graph selects algorithms from it by SPARQL.
+#: ``ontology/quant.ttl``; medulla selects algorithms from it by SPARQL.
 QUANT_VOCABULARY = "http://knuckles.team/kg/emerald-finance#"
 
 # Sentinel so a cached None ("engine not reachable") is distinct from "unprobed".
@@ -38,7 +38,7 @@ def finance_compute() -> Any:
     """Return the cached SDK compute adapter, or ``None`` if unreachable.
 
     Connects through :func:`scion_sdk.compute.connect_compute`
-    (``EPISTEMIC_GRAPH_*`` settings, compute scopes only). A failed probe is
+    (``MEDULLA_*`` settings, compute scopes only). A failed probe is
     cached so a dead endpoint is never re-probed per call.
     """
     global _COMPUTE_CACHE
@@ -48,7 +48,7 @@ def finance_compute() -> Any:
 
     try:
         _COMPUTE_CACHE = connect_compute()
-        logger.info("epistemic-graph engine connected; Rust quant compute enabled")
+        logger.info("medulla engine connected; Rust quant compute enabled")
     except ComputeUnavailableError as exc:
         logger.warning("Operation failed: error_type=%s", type(exc).__name__)
         _COMPUTE_CACHE = None
@@ -56,7 +56,7 @@ def finance_compute() -> Any:
 
 
 def finance_engine() -> Any:
-    """Return the connected epistemic-graph client, or ``None`` if unreachable."""
+    """Return the connected medulla client, or ``None`` if unreachable."""
     compute = finance_compute()
     return None if compute is None else compute.client
 
@@ -67,11 +67,11 @@ def analysis_iri(name: str) -> str:
 
 
 #: Owner the missing served methods are handed off to.
-HANDOFF_OWNER = "epistemic-graph EG-FINANCE"
+HANDOFF_OWNER = "medulla EG-FINANCE"
 
 
 def run_analysis(name: str, /, **params: Any) -> Any:
-    """Run one ``quant.ttl`` analysis in epistemic-graph.
+    """Run one ``quant.ttl`` analysis in medulla.
 
     The graph selects the algorithm by SPARQL over the analysis bindings and
     runs its served method through :mod:`scion_sdk.compute`.
@@ -89,7 +89,7 @@ def run_analysis(name: str, /, **params: Any) -> Any:
 
 
 def refuse(name: str) -> NoReturn:
-    """Refuse an analysis epistemic-graph does not serve yet."""
+    """Refuse an analysis medulla does not serve yet."""
     from scion_sdk.compute import MethodNotServedError
 
     raise MethodNotServedError(analysis_iri(name), handoff=HANDOFF_OWNER)

@@ -1,8 +1,8 @@
 """Tests for the HFT suite — execution policy, ws client, signal and strategy
 tools. CONCEPT:EX-AHE.harness.ee-21..026
 
-Finance analyses run in epistemic-graph; the engine-backed checks use the live
-engine (``live_engine``), started from ``epistemic-graph[server]``.
+Finance analyses run in medulla; the engine-backed checks use the live
+engine (``live_engine``), started from ``medulla[server]``.
 """
 
 import json
@@ -12,7 +12,7 @@ from emerald_exchange.risk_guards import RiskGuard, RiskLimits
 
 
 def test_emerald_signals_fuse_requires_engine(monkeypatch):
-    """Fusion runs in epistemic-graph; without an engine the tool says so and
+    """Fusion runs in medulla; without an engine the tool says so and
     computes nothing locally."""
     import emerald_exchange._engine as eng
     import emerald_exchange.mcp.mcp_signals as ms

@@ -1,8 +1,8 @@
-"""MicrostructureSignal records written to epistemic-graph.
+"""MicrostructureSignal records written to medulla.
 
 The record vocabulary (``directionalAccuracy``, ``standaloneSharpe``,
 ``probabilityBacktestOverfit``, ``predictionHorizon``, ``halfLifeDays``) is
-declared in ``ontology/trading.ttl`` and stored by epistemic-graph; this module
+declared in ``ontology/trading.ttl`` and stored by medulla; this module
 only shapes the property map a tool writes.
 """
 
@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from typing import Any
 
-#: Node type epistemic-graph stores microstructure signals under.
+#: Node type medulla stores microstructure signals under.
 MICROSTRUCTURE_SIGNAL = "microstructure_signal"
 
 
