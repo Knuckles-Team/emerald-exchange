@@ -10,7 +10,7 @@ hallucinated numbers:
   year, for diffing.
 * **Full-text search** — the EDGAR phrase search (e.g. "material weakness").
 * **standardize_financials** — maps a company's two latest fiscal years into the
-  exact 17-key dict schema consumed by epistemic-graph ``forensic_report``.
+  exact 17-key dict schema consumed by medulla ``forensic_report``.
 
 ``edgartools`` is an *optional* dependency. Importing this module must never
 hard-fail when it is absent, so the actual import is deferred to
@@ -24,7 +24,7 @@ import logging
 import os
 from typing import Any
 
-# The exact 17-key schema consumed by epistemic-graph forensic_report (YearData).
+# The exact 17-key schema consumed by medulla forensic_report (YearData).
 FORENSIC_YEAR_KEYS: tuple[str, ...] = (
     "sales",
     "cogs",

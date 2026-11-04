@@ -17,7 +17,7 @@ from scion_sdk.ingest.live_declaration import load_declaration as declaration
 from scion_sdk.manifest.presets import ToolPreset
 from scion_sdk.ports.session import TransportEndpoint
 from scion_sdk.runner.syncing import SyncTarget, sync_stream
-from scion_sdk.sinks.epistemic_graph import EpistemicGraphSink
+from scion_sdk.sinks.medulla import MedullaSink
 from scion_sdk.transports.mcp import McpTransport
 
 from emerald_exchange import backends
@@ -141,7 +141,7 @@ async def _exercise(server):
                 )
                 target = SyncTarget(
                     CONNECTOR,
-                    EpistemicGraphSink(client, authority),
+                    MedullaSink(client, authority),
                     max_pages=expected_pages,
                 )
                 first = await sync_stream(session, adapter, target)

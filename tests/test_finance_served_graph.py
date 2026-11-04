@@ -24,7 +24,7 @@ from scion_sdk.ingest.live_declaration import load_declaration as declaration
 from scion_sdk.manifest.presets import ToolPreset
 from scion_sdk.ports.session import TransportEndpoint
 from scion_sdk.runner.syncing import SyncTarget, sync_stream
-from scion_sdk.sinks.epistemic_graph import EpistemicGraphSink
+from scion_sdk.sinks.medulla import MedullaSink
 from scion_sdk.transports.mcp import McpTransport
 
 from emerald_exchange.backends import AlpacaBackend
@@ -160,9 +160,7 @@ async def exercise(mcp, *, validate=False):
             async def authority(_):
                 return _catalog(), context
 
-            target = SyncTarget(
-                CONNECTOR, EpistemicGraphSink(client, authority), max_pages=1
-            )
+            target = SyncTarget(CONNECTOR, MedullaSink(client, authority), max_pages=1)
             adapters = []
             for source_id, kind in [
                 ("alpaca-account", "Account"),

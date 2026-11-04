@@ -4,7 +4,7 @@ Action-routed tool exposing the engine's SABR volatility-surface kernels
 (``client.finance.sabr_*``, KG-2.20j / DSCI-007) plus a vol-arb helper that
 diffs a market smile against the SABR-fair smile.
 
-All compute runs in the Rust ``epistemic-graph`` engine; this stays thin and
+All compute runs in the Rust ``medulla`` engine; this stays thin and
 degrades gracefully (``{"error": ...}``) when the engine socket is unreachable.
 The vol-arb action is decision-only — it surfaces rich/cheap strikes, never an
 order.
@@ -36,7 +36,7 @@ def register_derivatives_tools(mcp: Any) -> None:
             fixed. params: f, t, strikes (list), market_vols (list), beta.
             Returns {alpha, beta, rho, nu, rmse, converged}.
           - 'vol_arb': rich/cheap strike classification against the
-            SABR-fair smile. Refused (not_served) until epistemic-graph
+            SABR-fair smile. Refused (not_served) until medulla
             serves it.
 
         Args:

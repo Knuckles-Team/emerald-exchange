@@ -1,7 +1,7 @@
-"""Finance analyses run by epistemic-graph — CONCEPT:EX-AHE.harness.ee-20.
+"""Finance analyses run by medulla — CONCEPT:EX-AHE.harness.ee-20.
 
 emerald-exchange holds no finance computation. Each function names one
-analysis declared in ``ontology/quant.ttl``; epistemic-graph selects the
+analysis declared in ``ontology/quant.ttl``; medulla selects the
 algorithm bound to it by SPARQL and runs the served method through
 :mod:`scion_sdk.compute` (see :func:`emerald_exchange._engine.run_analysis`).
 An analysis without a served algorithm is refused with ``MethodNotServedError``;
@@ -224,7 +224,7 @@ def vol_arb(
 ) -> dict[str, Any]:
     """Rich/cheap strike classification against the SABR-fair smile.
 
-    Refused: epistemic-graph serves calibration and the smile but not the
+    Refused: medulla serves calibration and the smile but not the
     residual classification (VolatilityArbitrageAnalysis).
     """
     refuse("VolatilityArbitrageAnalysis")
@@ -265,7 +265,7 @@ def validate_returns(
 ) -> dict[str, Any]:
     """Performance, deflated Sharpe and purged CPCV splits of backtest returns.
 
-    epistemic-graph does not serve an observed Sharpe ratio yet
+    medulla does not serve an observed Sharpe ratio yet
     (SharpeRatioAnalysis, refused): pass ``observed_sharpe`` to get the
     deflated Sharpe, otherwise that entry carries the refusal.
     """
@@ -318,7 +318,7 @@ def probability_overfit(
 def event_backtest(events: list[dict[str, Any]], **_: Any) -> dict[str, Any]:
     """Event-driven L2-queue backtest with maker/taker fees.
 
-    Refused until epistemic-graph serves EventBacktestAnalysis.
+    Refused until medulla serves EventBacktestAnalysis.
     """
     refuse("EventBacktestAnalysis")
 

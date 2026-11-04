@@ -1,11 +1,11 @@
 # Emerald Exchange Kg Ingestion
 
-Natively ingest live Emerald Exchange trading state into the epistemic-graph knowledge graph as typed OWL nodes — :Portfolio, :Position, :Instrument, :Quote, and :MarketBar (OHLCV timeseries) — via the emerald_ingest_snapshot MCP tool. Use when the agent must snapshot the current account, open positions, and optionally quotes/history for given symbols into the KG so they become queryable/linked knowledge. Do NOT use for one-off reads that shouldn't be persisted (use emerald-exchange-market-data) or to place orders (use emerald-exchange-order-execution).
+Natively ingest live Emerald Exchange trading state into the medulla knowledge graph as typed OWL nodes — :Portfolio, :Position, :Instrument, :Quote, and :MarketBar (OHLCV timeseries) — via the emerald_ingest_snapshot MCP tool. Use when the agent must snapshot the current account, open positions, and optionally quotes/history for given symbols into the KG so they become queryable/linked knowledge. Do NOT use for one-off reads that shouldn't be persisted (use emerald-exchange-market-data) or to place orders (use emerald-exchange-order-execution).
 
 # Emerald Exchange — Knowledge-Graph Ingestion
 
 Wire-First native ingestion: pull a live snapshot off the active exchange backend and
-push it into the ONE epistemic-graph as typed nodes + links, so trading state becomes
+push it into the ONE medulla as typed nodes + links, so trading state becomes
 queryable knowledge (which instruments a portfolio holds, price history per instrument,
 etc.). Best-effort — no-ops cleanly when no KG engine is reachable.
 
@@ -23,13 +23,13 @@ etc.). Best-effort — no-ops cleanly when no KG engine is reachable.
 
 ## Prerequisites & environment
 Connect via the `mcp-client` skill against the **`emerald-exchange`** MCP server. Ingestion
-targets a running arbora / epistemic-graph engine. Engine, validation, and transaction
+targets a running arbora / medulla engine. Engine, validation, and transaction
 failures propagate instead of acknowledging an unwritten result. The active backend/mode is the one
 configured under `config.json` → `trading` (default `paper`).
 
 | Variable | Required | Notes |
 |----------|----------|-------|
-| a reachable epistemic-graph engine | yes | Required for authoritative ingestion |
+| a reachable medulla engine | yes | Required for authoritative ingestion |
 | exchange creds | for `live` snapshots | Paper mode needs none |
 
 ## Tools & actions

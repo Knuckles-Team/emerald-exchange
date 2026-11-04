@@ -2,7 +2,7 @@
 name: emerald-exchange-kg-ingestion
 skill_type: skill
 description: >-
-  Natively ingest live Emerald Exchange trading state into the epistemic-graph
+  Natively ingest live Emerald Exchange trading state into the medulla
   knowledge graph as typed OWL nodes — :Portfolio, :Position, :Instrument, :Quote,
   and :MarketBar (OHLCV timeseries) — via the emerald_ingest_snapshot MCP tool.
   Use when the agent must snapshot the current account, open positions, and
@@ -19,7 +19,7 @@ metadata:
 # Emerald Exchange — Knowledge-Graph Ingestion
 
 Wire-First native ingestion: pull a live snapshot off the active exchange backend and
-push it into the ONE epistemic-graph as typed nodes + links, so trading state becomes
+push it into the ONE medulla as typed nodes + links, so trading state becomes
 queryable knowledge (which instruments a portfolio holds, price history per instrument,
 etc.). Best-effort — no-ops cleanly when no KG engine is reachable.
 
@@ -37,13 +37,13 @@ etc.). Best-effort — no-ops cleanly when no KG engine is reachable.
 
 ## Prerequisites & environment
 Connect via the `mcp-client` skill against the **`emerald-exchange`** MCP server. Ingestion
-targets a running arbora / epistemic-graph engine; with none reachable the tool returns
+targets a running arbora / medulla engine; with none reachable the tool returns
 `{"ingested": null}` and the connector keeps working. The active backend/mode is the one
 configured under `config.json` → `trading` (default `paper`).
 
 | Variable | Required | Notes |
 |----------|----------|-------|
-| a reachable epistemic-graph engine | for a non-null result | Else clean no-op |
+| a reachable medulla engine | for a non-null result | Else clean no-op |
 | exchange creds | for `live` snapshots | Paper mode needs none |
 
 ## Tools & actions

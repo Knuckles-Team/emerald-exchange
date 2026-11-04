@@ -1,4 +1,4 @@
-"""evaluate_event_arbitrage is refused until epistemic-graph serves it."""
+"""evaluate_event_arbitrage is refused until medulla serves it."""
 
 import asyncio
 import json

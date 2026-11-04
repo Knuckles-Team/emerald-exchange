@@ -53,7 +53,7 @@ _Auto-generated from the live MCP server — do not edit by hand._
 | `emerald_debate` | `DEBATETOOL` | Multi-agent trading debate engine. CONCEPT:EX-AHE.harness.ee-13 |
 | `emerald_derivatives` | `DERIVATIVESTOOL` | SABR volatility surface + vol-arb. CONCEPT:AU-AHE.assimilation.decision-distillation |
 | `emerald_fundamentals` | `FUNDAMENTALSTOOL` | SEC EDGAR fundamentals operations. CONCEPT:EX-AHE.harness.ee-26. |
-| `emerald_ingest_snapshot` | `KG_INGESTTOOL` | Ingest a live trading snapshot into epistemic-graph as typed nodes. |
+| `emerald_ingest_snapshot` | `KG_INGESTTOOL` | Ingest a live trading snapshot into medulla as typed nodes. |
 | `emerald_market_data` | `MARKET_DATATOOL` | Market data operations. CONCEPT:EX-AHE.harness.ee-7 |
 | `emerald_market_making` | `MARKET_MAKINGTOOL` | Market-making controller, fee model, and forensic screener. CONCEPT:EX-AHE.harness.ee-22 |
 | `emerald_orders` | `ORDERTOOL` | Order management with pre-trade risk validation. CONCEPT:EX-AHE.harness.ee-8 |
@@ -119,7 +119,7 @@ _15 action-routed tool(s) · 9 verbose 1:1 tool(s). Each is enabled unless its `
 > FastAPI tooling (`scion-sdk`). It deliberately **excludes** the heavy
 > agent-orchestration runtime (`pydantic-ai`, `dspy`, `llama-index`, `tree-sitter`
 > and the agent frontends), so `uvx`/container installs stay smaller and faster —
-> note the mandatory `epistemic-graph[full]` engine is still present either way,
+> note the mandatory `medulla[full]` engine is still present either way,
 > since it is a base dependency of `scion-sdk` itself, not gated behind an
 > extra. Use the full `[agent]` extra only when the operator need the integrated Pydantic AI
 > agent (see [Installation](#installation)). Add trading-backend extras
@@ -213,8 +213,8 @@ Pick the extra that matches what the operator want to run, then layer trading-ba
 
 | Extra | Installs | Use when |
 |-------|----------|----------|
-| `emerald-exchange[mcp]` | Slim MCP server (`scion-sdk` — FastMCP/FastAPI; still carries the mandatory `epistemic-graph[full]` base engine) + paper backend | The operator only run the **MCP server** (smallest install / image) |
-| `emerald-exchange[agent]` | Full agent runtime (`scion-sdk` — Pydantic AI/DSPy orchestration + `epistemic-graph[full]`) | The operator run the **integrated agent** |
+| `emerald-exchange[mcp]` | Slim MCP server (`scion-sdk` — FastMCP/FastAPI; still carries the mandatory `medulla[full]` base engine) + paper backend | The operator only run the **MCP server** (smallest install / image) |
+| `emerald-exchange[agent]` | Full agent runtime (`scion-sdk` — Pydantic AI/DSPy orchestration + `medulla[full]`) | The operator run the **integrated agent** |
 | `emerald-exchange[all]` | Everything (`mcp` + `agent` + every trading backend) | Development / full surface |
 
 ```bash
@@ -272,8 +272,8 @@ One multi-stage `docker/Dockerfile` builds two right-sized images, selected by `
 
 | Image tag | Build target | Contents | Entrypoint |
 |-----------|--------------|----------|------------|
-| `knucklessg1/emerald-exchange:mcp` | `--target mcp` | `emerald-exchange[mcp]` — **slim**: no `pydantic-ai`/`dspy`/`llama-index`/`tree-sitter` agent-orchestration stack (the mandatory `epistemic-graph[full]` engine is still present — it's a base dependency of `scion-sdk`) | `emerald-exchange-mcp` |
-| `knucklessg1/emerald-exchange:2.3.6` | `--target agent` (default) | `emerald-exchange[agent]` — **full** agent runtime (`scion-sdk`) + `epistemic-graph[full]` | `emerald-exchange-agent` |
+| `knucklessg1/emerald-exchange:mcp` | `--target mcp` | `emerald-exchange[mcp]` — **slim**: no `pydantic-ai`/`dspy`/`llama-index`/`tree-sitter` agent-orchestration stack (the mandatory `medulla[full]` engine is still present — it's a base dependency of `scion-sdk`) | `emerald-exchange-mcp` |
+| `knucklessg1/emerald-exchange:2.3.6` | `--target agent` (default) | `emerald-exchange[agent]` — **full** agent runtime (`scion-sdk`) + `medulla[full]` | `emerald-exchange-agent` |
 
 ```bash
 docker build --target mcp   -t knucklessg1/emerald-exchange:mcp    docker/   # slim MCP server
@@ -282,19 +282,19 @@ docker compose -f docker/mcp.compose.yml up -d                               # r
 docker compose -f docker/compose.yml up -d                                   # full stack
 ```
 
-### Knowledge-graph database (`epistemic-graph`)
+### Knowledge-graph database (`medulla`)
 
-Both `[mcp]` and `[agent]` carry the **epistemic-graph** engine through the required
-Scion SDK core dependency (`epistemic-graph[full]`) — it is a mandatory base
+Both `[mcp]` and `[agent]` carry the **medulla** engine through the required
+Scion SDK core dependency (`medulla[full]`) — it is a mandatory base
 dependency of `scion-sdk`, not gated behind an extra. The `[mcp]` extra keeps
 the server slim/connector-focused (no agent-orchestration stack); `[agent]`
 also enables Pydantic AI/DSPy model orchestration. Local deployments can use
 the bundled engine. For production — or to share one knowledge graph across multiple
-agents — run **epistemic-graph as its own dedicated database service** and point the
+agents — run **medulla as its own dedicated database service** and point the
 runtime at it instead of embedding it. Deployment recipes (single-node + Raft HA),
 connection configuration, and the full database architecture (with diagrams) are
 documented in the
-[epistemic-graph deployment guide](https://knuckles-team.github.io/epistemic-graph/deployment/).
+[medulla deployment guide](https://knuckles-team.github.io/medulla/deployment/).
 
 ## Documentation
 
@@ -386,9 +386,9 @@ material, and endpoints come from `AgentConfig` / the configured secret provider
 | `EDGAR_USER_AGENT` | `Your Name your.email@example.com` | legacy fallback for EDGAR_IDENTITY |
 | `POLY_TRADES_PATH` | `/path/to/poly_trades.parquet` | Polymarket trade dataset for wallet-intel |
 | `EMERALD_STAGE_APPROVAL_TOKEN` | secret-injected | human approval token to promote execution stage |
-| `EPISTEMIC_GRAPH_SOCKET` | `/run/epistemic-graph.sock` | UDS path to the epistemic-graph engine |
-| `GRAPH_SERVICE_SOCKET` | `/run/epistemic-graph.sock` | alternate UDS path env var |
-| `EPISTEMIC_GRAPH_TCP` | `127.0.0.1:50051` | host:port for a TCP engine endpoint |
+| `MEDULLA_SOCKET` | `/run/medulla.sock` | UDS path to the medulla engine |
+| `GRAPH_SERVICE_SOCKET` | `/run/medulla.sock` | alternate UDS path env var |
+| `MEDULLA_TCP` | `127.0.0.1:50051` | host:port for a TCP engine endpoint |
 
 #### Inherited scion-sdk variables (apply to every connector)
 

@@ -1,10 +1,10 @@
-"""emerald's engine runs in epistemic-graph — CONCEPT:EX-AHE.harness.ee-20.
+"""emerald's engine runs in medulla — CONCEPT:EX-AHE.harness.ee-20.
 
-Every analysis in ``ontology/quant.ttl`` either binds a method epistemic-graph
+Every analysis in ``ontology/quant.ttl`` either binds a method medulla
 serves or is refused. The bound methods and their parameters are checked
 against the installed ``medulla`` client, the quoting policy is
 checked against a recording engine, and the served analyses run on a real
-engine started from ``epistemic-graph[server]``.
+engine started from ``medulla[server]``.
 """
 
 import inspect
@@ -27,7 +27,7 @@ from tests.test_insider_equilibrium_action import _Rdf
 
 _VOCAB = _engine.QUANT_VOCABULARY
 
-#: Analyses epistemic-graph does not serve yet; each has a handoff line.
+#: Analyses medulla does not serve yet; each has a handoff line.
 REFUSED = {
     "EnsembleProbabilityAnalysis",
     "VolatilityArbitrageAnalysis",

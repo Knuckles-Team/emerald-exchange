@@ -1,7 +1,7 @@
 """Market-Making Controller — CONCEPT:EX-AHE.harness.ee-22.
 
 A per-book-update quoting *policy* (the §9 HFT skeleton). Every quantity is an
-analysis epistemic-graph runs (``ontology/quant.ttl`` bindings, selected by
+analysis medulla runs (``ontology/quant.ttl`` bindings, selected by
 SPARQL through :func:`emerald_exchange._engine.run_analysis`):
 
 * ConvictionAnalysis — convergence gate over signal strengths.
@@ -154,7 +154,7 @@ class QuoteDecision:
 
 
 class MarketMakingController:
-    """Quoting policy over epistemic-graph analyses — never places orders.
+    """Quoting policy over medulla analyses — never places orders.
 
     CONCEPT:EX-AHE.harness.ee-22.
     """

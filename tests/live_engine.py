@@ -1,6 +1,6 @@
-"""A real, ephemeral epistemic-graph server for live-engine tests.
+"""A real, ephemeral medulla server for live-engine tests.
 
-Starts the ``epistemic-graph-server`` binary from ``medulla[server]``
+Starts the ``medulla-server`` binary from ``medulla[server]``
 on a private Unix socket with test-only credentials, enrolls the test signer,
 creates one graph, imports emerald's ``ontology/quant.ttl`` into it, and
 installs a connected :class:`~scion_sdk.compute.EngineCompute` as
@@ -24,7 +24,7 @@ from scion_sdk.ingest.engine import EngineSettings
 
 from emerald_exchange import _engine
 
-AUDIENCE = "epistemic-graph"
+AUDIENCE = "medulla"
 TENANT = "tenant:emerald-test"
 POLICY = "policy:current"
 PRINCIPAL = "service:connector"
@@ -53,11 +53,11 @@ def _wait_for(socket_path: Path, proc: subprocess.Popen[bytes]) -> None:
     deadline = time.monotonic() + 30
     while time.monotonic() < deadline:
         if proc.poll() is not None:
-            raise RuntimeError("epistemic-graph-server exited during startup")
+            raise RuntimeError("medulla-server exited during startup")
         if socket_path.exists():
             return
         time.sleep(0.05)
-    raise RuntimeError("epistemic-graph-server did not open its socket")
+    raise RuntimeError("medulla-server did not open its socket")
 
 
 _OPEN_POLICY = """
@@ -112,7 +112,7 @@ def _bootstrap(socket_path: Path) -> None:
 def live_compute(
     tmp_path_factory: pytest.TempPathFactory,
 ) -> Iterator[EngineCompute]:
-    """emerald's engine, connected to a fresh real epistemic-graph server."""
+    """emerald's engine, connected to a fresh real medulla server."""
     from medulla.server_binary import (
         ServerBinaryNotFoundError,
         resolve_server_binary,
@@ -129,12 +129,12 @@ def live_compute(
     env = {
         **os.environ,
         "GRAPH_SERVICE_AUTH_SECRET": _HMAC_KEY,
-        "EPISTEMIC_GRAPH_AUDIENCE": AUDIENCE,
-        "EPISTEMIC_GRAPH_TENANT": TENANT,
-        "EPISTEMIC_GRAPH_POLICY_VERSION": POLICY,
-        "EPISTEMIC_GRAPH_REQUIRE_OIDC": "false",
-        "EPISTEMIC_GRAPH_SECURITY_STATE_DIR": str(root / "security"),
-        "EPISTEMIC_GRAPH_SIGNER_KEYS_JSON": json.dumps(
+        "MEDULLA_AUDIENCE": AUDIENCE,
+        "MEDULLA_TENANT": TENANT,
+        "MEDULLA_POLICY_VERSION": POLICY,
+        "MEDULLA_REQUIRE_OIDC": "false",
+        "MEDULLA_SECURITY_STATE_DIR": str(root / "security"),
+        "MEDULLA_SIGNER_KEYS_JSON": json.dumps(
             {
                 PRINCIPAL: {
                     "key": _SIGNER_KEY,
@@ -143,7 +143,7 @@ def live_compute(
                 }
             }
         ),
-        "EPISTEMIC_GRAPH_ENCRYPTION_KEY": _DATA_KEY,
+        "MEDULLA_ENCRYPTION_KEY": _DATA_KEY,
     }
     with (root / "engine.log").open("wb") as log:
         proc = subprocess.Popen(  # nosec B603 - fixed argv

@@ -2,7 +2,7 @@
 
 Wire-First native ingestion: lists a live snapshot off the active exchange backend
 (account, positions, and optionally quotes / OHLCV history for given symbols) and pushes
-it into the ONE epistemic-graph knowledge graph as typed :Portfolio / :Position /
+it into the ONE medulla knowledge graph as typed :Portfolio / :Position /
 :Instrument / :Quote / :MarketBar / :Trade nodes. Best-effort: returns ``{"ingested": null}``
 when no engine is reachable.
 """
@@ -23,7 +23,7 @@ def register_kg_ingest_tools(mcp: Any, backend: ExchangeBackend) -> None:
         period: str = "1mo",
         interval: str = "1d",
     ) -> str:
-        """Ingest a live trading snapshot into epistemic-graph as typed nodes.
+        """Ingest a live trading snapshot into medulla as typed nodes.
 
         CONCEPT:AU-KG.ingest.enterprise-source-extractor
 

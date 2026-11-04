@@ -196,7 +196,7 @@ Tracks task_id, pass/fail, root_cause, and component attribution.""" ;
 
 :ForensicScreener a owl:Class ;
     rdfs:label "Forensic Screener" ;
-    rdfs:comment "An engine-grounded forensic-accounting screening agent: runs the epistemic-graph forensic_report (Beneish M / Altman Z / Piotroski F / Sloan accruals) over two fiscal years and emits an INVESTIGATE/CLEAN verdict the bear/forensic personas cite. CONCEPT:KG-2.6" ;
+    rdfs:comment "An engine-grounded forensic-accounting screening agent: runs the medulla forensic_report (Beneish M / Altman Z / Piotroski F / Sloan accruals) over two fiscal years and emits an INVESTIGATE/CLEAN verdict the bear/forensic personas cite. CONCEPT:KG-2.6" ;
     rdfs:subClassOf :Agent .
 
 :FractionalKelly a owl:Class ;
@@ -315,7 +315,7 @@ Tracks task_id, pass/fail, root_cause, and component attribution.""" ;
 
 :PatternAnalyst a owl:Class ;
     rdfs:label "Pattern Analyst" ;
-    rdfs:comment "A price-action pattern-classifier agent: maps the four price-action patterns (large bodies, wicks-into-levels, consecutive candles, choppy) to a momentum-vs-mean-reversion edge, with numerics grounded in the epistemic-graph signal kernels (momentum/mean_reversion/rolling_zscore/detect_regimes). Maps to the PATTERN_ANALYST swarm role. CONCEPT:KG-2.6" ;
+    rdfs:comment "A price-action pattern-classifier agent: maps the four price-action patterns (large bodies, wicks-into-levels, consecutive candles, choppy) to a momentum-vs-mean-reversion edge, with numerics grounded in the medulla signal kernels (momentum/mean_reversion/rolling_zscore/detect_regimes). Maps to the PATTERN_ANALYST swarm role. CONCEPT:KG-2.6" ;
     rdfs:subClassOf :Agent .
 
 :PatternTemplate a owl:Class ;
@@ -2077,10 +2077,10 @@ and AHE efficacy scoring for evolutionary rule selection.""" ;
 
 
 # --- Analysis -> algorithm -> served method bindings ---------------------------
-# epistemic-graph selects the algorithm for an analysis by SPARQL over these
+# medulla selects the algorithm for an analysis by SPARQL over these
 # triples and runs the served method (scion_sdk.compute). The
 # connector holds no finance computation. An analysis without a served
-# binding is refused until epistemic-graph serves it.
+# binding is refused until medulla serves it.
 
 fin:FinanceAnalysis a owl:Class ;
     rdfs:label "Finance Analysis" ;
@@ -2099,7 +2099,7 @@ fin:appliesAlgorithm a owl:ObjectProperty ;
 
 fin:servedBy a owl:DatatypeProperty ;
     rdfs:label "served by" ;
-    rdfs:comment "Client path (namespace.method) of the epistemic-graph method that runs the algorithm." ;
+    rdfs:comment "Client path (namespace.method) of the medulla method that runs the algorithm." ;
     rdfs:domain fin:FinanceAlgorithm ;
     rdfs:range xsd:string .
 
