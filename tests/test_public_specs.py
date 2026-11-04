@@ -34,9 +34,7 @@ def test_public_spec_scaffold_and_status() -> None:
     # Spec templates are vended by pipelines into .specify/templates/.
     assert any((ROOT / ".specify/templates").glob("*-template.md"))
 
-    features = [
-        path for path in SPECS.iterdir() if path.is_dir()
-    ]
+    features = [path for path in SPECS.iterdir() if path.is_dir()]
     assert features
     owned_ids: set[str] = set()
     for feature in features:
