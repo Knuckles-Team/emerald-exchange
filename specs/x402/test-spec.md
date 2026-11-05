@@ -4,13 +4,13 @@ Governing spec: [spec.md](spec.md).
 
 | Test ID | Requirement | Proving test | Expected observation |
 |---|---|---|---|
-| T-001 | `CONN-EMERALD-EXCHANGE-X402-R001` | `tests/test_x402_model.py::test_intent_resource_pricing_models` | The request, 402 payment requirement and payment proof validate as stable models. |
-| T-002 | `CONN-EMERALD-EXCHANGE-X402-R002` | `tests/test_x402_pay_retry.py::test_pay_and_retry_loop` | The loop pays on the 402 requirement, retries once with the proof, and surfaces the resource or the refusal. |
-| T-003 | `CONN-EMERALD-EXCHANGE-X402-R003` | `tests/test_x402_skill.py::test_coinbase_skill_reference_not_vendored` | The Coinbase agentic-wallet skill resolves as a reference; no upstream content ships in the package. |
-| T-004 | `CONN-EMERALD-EXCHANGE-X402-R004` | `tests/test_x402_rusd.py::test_rusd_settlement` | The x402 payment settles in RLUSD through the XRPL path and reports the ledger result. |
-| T-005 | `CONN-EMERALD-EXCHANGE-X402-R005` | `tests/test_x402_composition.py::test_wallet_signing_reuses_xrpl` | The x402 payment call enters the XRPL wallet and signing path; no second wallet exists. |
-| T-006 | `CONN-EMERALD-EXCHANGE-X402-R006` | `tests/test_x402_risk.py::test_shared_attribution_and_spend_caps` | The x402 payment carries the XRPL attribution and refuses over the XRPL spending limit or kill-switch. |
-| T-007 | `CONN-EMERALD-EXCHANGE-X402-R007` | `tests/test_x402_prompts.py::test_x402_prompts_list` | The x402 purchase and spending-limit-check prompts appear in the prompt listing. |
+| T-001 | `CONN-EMERALD-EXCHANGE-X402-R001` | `tests/test_x402_model.py::test_intent_resource_pricing_models` (planned) | The request, 402 payment requirement and payment proof validate as stable models. |
+| T-002 | `CONN-EMERALD-EXCHANGE-X402-R002` | `tests/test_x402_pay_retry.py::test_pay_and_retry_loop` (planned) | The loop pays on the 402 requirement, retries once with the proof, and surfaces the resource or the refusal. |
+| T-003 | `CONN-EMERALD-EXCHANGE-X402-R003` | `tests/test_x402_skill.py::test_coinbase_skill_reference_not_vendored` (planned) | The Coinbase agentic-wallet skill resolves as a reference; no upstream content ships in the package. |
+| T-004 | `CONN-EMERALD-EXCHANGE-X402-R004` | `tests/test_x402_rusd.py::test_rusd_settlement` (planned) | The x402 payment settles in RLUSD through the XRPL path and reports the ledger result. |
+| T-005 | `CONN-EMERALD-EXCHANGE-X402-R005` | `tests/test_x402_composition.py::test_wallet_signing_reuses_xrpl` (planned) | The x402 payment call enters the XRPL wallet and signing path; no second wallet exists. |
+| T-006 | `CONN-EMERALD-EXCHANGE-X402-R006` | `tests/test_x402_risk.py::test_shared_attribution_and_spend_caps` (planned) | The x402 payment carries the XRPL attribution and refuses over the XRPL spending limit or kill-switch. |
+| T-007 | `CONN-EMERALD-EXCHANGE-X402-R007` | `tests/test_x402_prompts.py::test_x402_prompts_list` (planned) | The x402 purchase and spending-limit-check prompts appear in the prompt listing. |
 
 ## Negative and boundary cases
 
