@@ -54,8 +54,8 @@ The repository pre-commit hooks apply: `ruff-format`, `connector-standard`, `sec
 
 ## Production caller chain
 
-1. `CONN-EMERALD-EXCHANGE-CONNECTOR-CONTENT-R001`: console script emerald-exchange-mcp (pyproject.toml project.scripts) -> emerald_exchange/mcp_server.py::mcp_server -> get_mcp_instance -> scion_sdk.mcp.server.create_mcp_server(content=ConnectorContent.for_package) at mcp_server.py:14 -> packaged skills and ontology under emerald_exchange/ served as skill:// and ontology:// resources.
-2. `CONN-EMERALD-EXCHANGE-CONNECTOR-CONTENT-R002`: (planned) console script emerald-exchange-mcp (pyproject.toml project.scripts) -> emerald_exchange/mcp_server.py::mcp_server -> get_mcp_instance -> a new registrar for the chain trade tool in the registrars list (mcp_server.py:102) -> new tool chain_trades -> scion_sdk.adapters.evm_chain.EvmTrade (exists) and decode_trade_log (planned, SCION-SOURCE-INGEST-R005.14); skipped when EMERALD_CHAIN_RPC_URL is unset.
+1. `CONN-EMERALD-EXCHANGE-CONNECTOR-CONTENT-R001`: console script emerald-exchange-mcp (pyproject.toml:61) -> emerald_exchange/mcp_server.py::mcp_server (mcp_server.py:160) -> get_mcp_instance (mcp_server.py:14) -> scion_sdk.mcp.server.create_mcp_server(content=ConnectorContent.for_package) at mcp_server.py:34 -> packaged skills and ontology under emerald_exchange/ served as skill:// and ontology:// resources.
+2. `CONN-EMERALD-EXCHANGE-CONNECTOR-CONTENT-R002`: (planned) console script emerald-exchange-mcp (pyproject.toml:61) -> emerald_exchange/mcp_server.py::mcp_server (mcp_server.py:160) -> get_mcp_instance (mcp_server.py:14) -> a new registrar for the chain trade tool in the registrars list (mcp_server.py:102, the list built at mcp_server.py:102-124 and served by analytic_tools.py::serve_analytic_actions at mcp_server.py:150) -> new tool chain_trades -> scion_sdk.adapters.evm_chain.EvmTrade (exists) and decode_trade_log (planned, SCION-SOURCE-INGEST-R005.14); skipped when EMERALD_CHAIN_RPC_URL is unset.
 
 ## Cross-repo seams
 
