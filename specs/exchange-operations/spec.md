@@ -70,8 +70,8 @@ The exchange backend's read-only operations are served as one typed MCP tool eac
 - **SC-004**: `tests/test_alpaca_account_integrity.py::test_snapshot_source_is_declared_and_served` and `test_snapshot_source_refuses_incomplete_account_or_position_reads`. Rows: `EMERALD-OPS-R004`.
 - **SC-005**: Prediction-market and order read tools for arbora. Rows: `EMERALD-OPS-R005`.
 - **SC-006**: Order routing requires the arbora confirmation receipt. Rows: `EMERALD-OPS-R006`.
-- **SC-007**: `tests/test_quant_bindings.py::test_every_kernel_binding_uses_numeric_evaluate` (L3) reads `quant.ttl` and calls `emerald_statarb` against a recorded engine response. Rows: `EMERALD-OPS-R007`.
-- **SC-008**: `tests/test_order_admission.py::test_order_refused_without_receipt` (L3) against a recorded venue response. Rows: `EMERALD-OPS-R008`.
+- **SC-007**: `tests/test_quant_bindings.py::test_every_kernel_binding_uses_numeric_evaluate` (planned) (L3) reads `quant.ttl` and calls `emerald_statarb` against a recorded engine response. Rows: `EMERALD-OPS-R007`.
+- **SC-008**: `tests/test_order_admission.py::test_order_refused_without_receipt` (planned) (L3) against a recorded venue response. Rows: `EMERALD-OPS-R008`.
 - **SC-009**: Pattern and attribution actions call the engine. Rows: `EMERALD-OPS-R009`.
 - **SC-010**: Research record tools. Rows: `EMERALD-OPS-R010`.
 - **SC-011**: Position sizing tool calls the engine. Rows: `EMERALD-OPS-R011`.
