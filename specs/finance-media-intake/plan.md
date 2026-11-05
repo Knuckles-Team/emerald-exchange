@@ -69,7 +69,7 @@ The repository pre-commit hooks apply: `ruff-format`, `connector-standard`, `sec
 
 ## Production caller chain
 
-1. `EMERALD-MEDIA-R001`: (planned intake) media-watch agent run -> emerald_exchange/skills/<skill>/capture_log.json served as skill:// by ConnectorContent.for_package (mcp_server.py:14); guard: console script emerald-exchange-mcp (pyproject.toml project.scripts) -> emerald_exchange/mcp_server.py::mcp_server -> get_mcp_instance -> tool emerald_strategy (emerald_exchange/mcp/mcp_strategy.py:11) -> new emerald_exchange/strategy_links.py::require_mapped_strategy.
+1. `EMERALD-MEDIA-R001`: (planned intake) media-watch agent run -> emerald_exchange/skills/<skill>/capture_log.json served as skill:// by ConnectorContent.for_package (mcp_server.py:34); guard: console script emerald-exchange-mcp (pyproject.toml:61) -> emerald_exchange/mcp_server.py::mcp_server (mcp_server.py:160) -> get_mcp_instance (mcp_server.py:14) -> tool emerald_strategy (emerald_exchange/mcp/mcp_strategy.py:11, def emerald_strategy) -> new emerald_exchange/strategy_links.py::require_mapped_strategy.
 
 ## Cross-repo seams
 
