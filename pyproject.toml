@@ -95,3 +95,30 @@ override-dependencies = [
 
 [tool.pipelines_hooks.ste]
 exempt = ["specs/*", "specs/**/*"]
+
+# CONN-EMERALD-EXCHANGE-X402-R012.1: the image bundles the wallet runtime at one
+# pinned upstream release (MIT, linux-x64 runtime archive), verified by sha256 at
+# build time. The archive carries no key or wallet; key material resolves at run
+# time from secret references only (R011.1). Bump = new tag + new checksum.
+[tool.pipelines.container]
+entrypoints = { mcp = "emerald-exchange-mcp" }
+runtime_apt = ["nodejs", "ca-certificates"]
+extra_stages = [
+    '''
+FROM builder-base AS wallet-runtime
+ADD --checksum=sha256:ceced13afd6e89fa5198b6a11293a7ea3191ec8facd9156f27a77909b3258e3c \
+    https://github.com/worldliberty/agentpay-sdk/releases/download/v0.5.0/agentpay-sdk-linux-x64.tar.gz \
+    /tmp/wallet-runtime.tar.gz
+RUN mkdir -p /opt/wallet-runtime/bin \
+    && tar -xzf /tmp/wallet-runtime.tar.gz -C /opt/wallet-runtime \
+    && rm /tmp/wallet-runtime.tar.gz \
+    && printf '#!/bin/sh\nexec node /opt/wallet-runtime/app/dist/cli.cjs "$@"\n' \
+        > /opt/wallet-runtime/bin/wallet-runtime \
+    && chmod 0755 /opt/wallet-runtime/bin/wallet-runtime \
+    && test -x /opt/wallet-runtime/runtime/bin/agentpay-daemon
+''',
+]
+stage_copies = [
+    "COPY --from=wallet-runtime /opt/wallet-runtime /opt/wallet-runtime",
+    "RUN ln -s /opt/wallet-runtime/bin/wallet-runtime /usr/local/bin/wallet-runtime",
+]
