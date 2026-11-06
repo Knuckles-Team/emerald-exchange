@@ -12,11 +12,12 @@ Search of `specs/`: no spec owns the x402 pay-and-retry loop or the agent-wallet
 
 ## Scope and interfaces
 
-Owned: the x402 intent, resource and pricing model; the pay-and-retry loop; RLUSD settlement; the referenced Coinbase agentic-wallet skill; attribution and spend caps shared with the XRPL risk constraints; and the x402 prompts. Non-goals: hosting x402 endpoints, a second wallet stack, and any payment path that bypasses the XRPL signing and risk controls.
+Owned: the x402 intent, resource and pricing model; the pay-and-retry loop; RLUSD settlement; the referenced Coinbase agentic-wallet skill; attribution and spend caps shared with the XRPL risk constraints; and the x402 prompts. Rows R008 to R014 extend the spec to the whole agent payment domain: the `payments` tool domain, rail and wallet-provider seams, shared governance, the optional extra, the paper-first rail and the payments skill. The routing and the wallet decision are in [research.md](research.md). Non-goals: hosting x402 endpoints, a second wallet stack, and any payment path that bypasses the XRPL signing and risk controls.
 
 ## Open questions
 
-- None. The skill stays referenced, never vendored; upstream drift reports instead of forking.
+- Which Linux-capable wallet provider ships first (R011). Open owner decision; options and recommendation in [research.md](research.md).
+- The skill stays referenced, never vendored; upstream drift reports instead of forking.
 
 ## User Scenarios & Testing
 
@@ -45,6 +46,13 @@ An agent buys from an x402-enabled endpoint. It reads the payment requirement th
 - **FR-005**: Cross-chain composition with XRPL. Rows: `CONN-EMERALD-EXCHANGE-X402-R005`.
 - **FR-006**: Shared attribution and spend caps. Rows: `CONN-EMERALD-EXCHANGE-X402-R006`.
 - **FR-007**: Prompts. Rows: `CONN-EMERALD-EXCHANGE-X402-R007`.
+- **FR-008**: Payments tool domain. Rows: `CONN-EMERALD-EXCHANGE-X402-R008`.
+- **FR-009**: Payment rail seam. Rows: `CONN-EMERALD-EXCHANGE-X402-R009`.
+- **FR-010**: Payment governance reuses the existing hardening. Rows: `CONN-EMERALD-EXCHANGE-X402-R010`.
+- **FR-011**: Wallet provider seam, Linux-capable. Rows: `CONN-EMERALD-EXCHANGE-X402-R011`.
+- **FR-012**: Optional payments extra. Rows: `CONN-EMERALD-EXCHANGE-X402-R012`.
+- **FR-013**: Paper-first payment rail. Rows: `CONN-EMERALD-EXCHANGE-X402-R013`.
+- **FR-014**: Payments skill content. Rows: `CONN-EMERALD-EXCHANGE-X402-R014`.
 
 ## Success Criteria
 
@@ -55,6 +63,13 @@ An agent buys from an x402-enabled endpoint. It reads the payment requirement th
 - **SC-005**: Cross-chain composition with XRPL. Rows: `CONN-EMERALD-EXCHANGE-X402-R005`.
 - **SC-006**: Shared attribution and spend caps. Rows: `CONN-EMERALD-EXCHANGE-X402-R006`.
 - **SC-007**: Prompts. Rows: `CONN-EMERALD-EXCHANGE-X402-R007`.
+- **SC-008**: Payments tool domain. Rows: `CONN-EMERALD-EXCHANGE-X402-R008`.
+- **SC-009**: Payment rail seam. Rows: `CONN-EMERALD-EXCHANGE-X402-R009`.
+- **SC-010**: Payment governance reuses the existing hardening. Rows: `CONN-EMERALD-EXCHANGE-X402-R010`.
+- **SC-011**: Wallet provider seam, Linux-capable. Rows: `CONN-EMERALD-EXCHANGE-X402-R011`.
+- **SC-012**: Optional payments extra. Rows: `CONN-EMERALD-EXCHANGE-X402-R012`.
+- **SC-013**: Paper-first payment rail. Rows: `CONN-EMERALD-EXCHANGE-X402-R013`.
+- **SC-014**: Payments skill content. Rows: `CONN-EMERALD-EXCHANGE-X402-R014`.
 
 ## Assumptions
 
@@ -72,3 +87,10 @@ An agent buys from an x402-enabled endpoint. It reads the payment requirement th
 | FR-005 | `CONN-EMERALD-EXCHANGE-X402-R005` | [plan.md](plan.md) | T-005 | [test-spec.md](test-spec.md) |
 | FR-006 | `CONN-EMERALD-EXCHANGE-X402-R006` | [plan.md](plan.md) | T-006 | [test-spec.md](test-spec.md) |
 | FR-007 | `CONN-EMERALD-EXCHANGE-X402-R007` | [plan.md](plan.md) | T-007 | [test-spec.md](test-spec.md) |
+| FR-008 | `CONN-EMERALD-EXCHANGE-X402-R008` | [plan.md](plan.md) | T-008 | [test-spec.md](test-spec.md) |
+| FR-009 | `CONN-EMERALD-EXCHANGE-X402-R009` | [plan.md](plan.md) | T-009 | [test-spec.md](test-spec.md) |
+| FR-010 | `CONN-EMERALD-EXCHANGE-X402-R010` | [plan.md](plan.md) | T-010 | [test-spec.md](test-spec.md) |
+| FR-011 | `CONN-EMERALD-EXCHANGE-X402-R011` | [plan.md](plan.md) | T-011 | [test-spec.md](test-spec.md) |
+| FR-012 | `CONN-EMERALD-EXCHANGE-X402-R012` | [plan.md](plan.md) | T-012 | [test-spec.md](test-spec.md) |
+| FR-013 | `CONN-EMERALD-EXCHANGE-X402-R013` | [plan.md](plan.md) | T-013 | [test-spec.md](test-spec.md) |
+| FR-014 | `CONN-EMERALD-EXCHANGE-X402-R014` | [plan.md](plan.md) | T-014 | [test-spec.md](test-spec.md) |

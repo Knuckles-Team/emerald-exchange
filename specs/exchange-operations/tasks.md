@@ -18,3 +18,4 @@ Each task line reads `- [ ] T001 [P] [US1] <ID>-R012.4 description`. Order is pr
 - [ ] T012 [US1] EMERALD-OPS-R012 Distribution-shift analysis calls the engine.
 - [ ] T013 [US1] EMERALD-OPS-R013 Banking kernels tool calls the engine.
 - [ ] T014 [US1] EMERALD-OPS-R014 Served wallet operation tool composes the SDK proof gate.
+- [ ] T015 [US1] EMERALD-OPS-R015 Major-exchange crypto backend beside CCXT.

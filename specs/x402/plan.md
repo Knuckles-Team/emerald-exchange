@@ -16,7 +16,7 @@ Wallet, signing, attribution, RLUSD payment, spending limits and the kill-switch
 - **Project Type**: connector (MCP server)
 - **Performance Goals**: N/A
 - **Constraints**: one tool per API operation; shared capabilities come from the SDK
-- **Scale/Scope**: 7 rows
+- **Scale/Scope**: 14 rows
 
 ## Constitution Check
 

@@ -11,6 +11,13 @@ Governing spec: [spec.md](spec.md).
 | T-005 | `CONN-EMERALD-EXCHANGE-X402-R005` | `tests/test_x402_composition.py::test_wallet_signing_reuses_xrpl` (planned) | The x402 payment call enters the XRPL wallet and signing path; no second wallet exists. |
 | T-006 | `CONN-EMERALD-EXCHANGE-X402-R006` | `tests/test_x402_risk.py::test_shared_attribution_and_spend_caps` (planned) | The x402 payment carries the XRPL attribution and refuses over the XRPL spending limit or kill-switch. |
 | T-007 | `CONN-EMERALD-EXCHANGE-X402-R007` | `tests/test_x402_prompts.py::test_x402_prompts_list` (planned) | The x402 purchase and spending-limit-check prompts appear in the prompt listing. |
+| T-008 | `CONN-EMERALD-EXCHANGE-X402-R008` | `tests/test_payments_tools.py::test_one_typed_tool_per_operation` (planned) | Every payments tool is listed once, reads are read-only, and a send reaches the active rail only through the governor. |
+| T-009 | `CONN-EMERALD-EXCHANGE-X402-R009` | `tests/test_payment_rails.py::test_rails_register_and_send_names_rail` (planned) | Two registered rails (ledger and stablecoin) are listed, and a send names its rail explicitly. |
+| T-010 | `CONN-EMERALD-EXCHANGE-X402-R010` | `tests/test_payment_governor.py::test_limits_halt_breaker_and_approval` (planned) | The governor refuses at the limit, on halt, on a tripped breaker and above the approval threshold, and the XRPL path now gives the same refusals through the same governor. |
+| T-011 | `CONN-EMERALD-EXCHANGE-X402-R011` | `tests/test_payment_wallet_provider.py::test_unset_refuses_and_no_key_material_leaks` (planned) | With no provider set a send refuses; with a stub provider the address resolves and no key material appears in any result or log. |
+| T-012 | `CONN-EMERALD-EXCHANGE-X402-R012` | `tests/test_payments_extra_optional.py::test_base_install_imports_without_payment_libraries` (planned) | A base install imports cleanly without the payment libraries and the payments tools refuse with the extra-missing code. |
+| T-013 | `CONN-EMERALD-EXCHANGE-X402-R013` | `tests/test_paper_payment_rail.py::test_default_send_is_simulated` (planned) | The default send returns a simulated receipt with no signing and no network call, and live mode needs the stage and opt-in. |
+| T-014 | `CONN-EMERALD-EXCHANGE-X402-R014` | `tests/test_payments_skill.py::test_payments_skill_lists_and_names_real_tools` (planned) | The skill resolves from the connector, names only registered tools, and the package holds no upstream skill text. |
 
 ## Negative and boundary cases
 

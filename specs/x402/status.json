@@ -10,7 +10,14 @@
     "CONN-EMERALD-EXCHANGE-X402-R004",
     "CONN-EMERALD-EXCHANGE-X402-R005",
     "CONN-EMERALD-EXCHANGE-X402-R006",
-    "CONN-EMERALD-EXCHANGE-X402-R007"
+    "CONN-EMERALD-EXCHANGE-X402-R007",
+    "CONN-EMERALD-EXCHANGE-X402-R008",
+    "CONN-EMERALD-EXCHANGE-X402-R009",
+    "CONN-EMERALD-EXCHANGE-X402-R010",
+    "CONN-EMERALD-EXCHANGE-X402-R011",
+    "CONN-EMERALD-EXCHANGE-X402-R012",
+    "CONN-EMERALD-EXCHANGE-X402-R013",
+    "CONN-EMERALD-EXCHANGE-X402-R014"
   ],
   "requirements": [
     {
@@ -58,6 +65,55 @@
     {
       "id": "CONN-EMERALD-EXCHANGE-X402-R007",
       "title": "Prompts",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "CONN-EMERALD-EXCHANGE-X402-R008",
+      "title": "Payments tool domain",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "CONN-EMERALD-EXCHANGE-X402-R009",
+      "title": "Payment rail seam",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "CONN-EMERALD-EXCHANGE-X402-R010",
+      "title": "Payment governance reuses the existing hardening",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "CONN-EMERALD-EXCHANGE-X402-R011",
+      "title": "Wallet provider seam, Linux-capable",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "CONN-EMERALD-EXCHANGE-X402-R012",
+      "title": "Optional payments extra",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "CONN-EMERALD-EXCHANGE-X402-R013",
+      "title": "Paper-first payment rail",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "CONN-EMERALD-EXCHANGE-X402-R014",
+      "title": "Payments skill content",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
