@@ -96,9 +96,10 @@ def get_mcp_instance():
         f"🟢 Emerald Exchange MCP: {default_exchange} ({default_mode})", file=sys.stderr
     )
 
-    # Server-side wallet rail (CONN-EMERALD-EXCHANGE-X402-R008.1, R010.1): one
-    # governor and one ledger; the kill switch is the same RiskGuard as the
-    # exchange orders.
+    # Server-side wallet rail (CONN-EMERALD-EXCHANGE-X402-R008.1, R010.1, R015):
+    # one governor and one ledger shared with the unified order surface; the
+    # kill switch is the same RiskGuard as the exchange orders.
+    from emerald_exchange.mcp.mcp_orders import register_unified_order_tools
     from emerald_exchange.mcp.mcp_payments import register_payments_tools
     from emerald_exchange.payments.service import build_wallet_service
 
@@ -115,6 +116,13 @@ def get_mcp_instance():
         ("derivatives", "DERIVATIVESTOOL", register_derivatives_tools),
         ("market_making", "MARKET_MAKINGTOOL", register_market_making_tools),
         ("order", "ORDERTOOL", lambda m: register_order_tools(m, backend, risk_guard)),
+        (
+            "order_surface",
+            "ORDERTOOL",
+            lambda m: register_unified_order_tools(
+                m, backend, risk_guard, wallet_service
+            ),
+        ),
         (
             "payments",
             "PAYMENTSTOOL",
