@@ -18,3 +18,8 @@ Each task line reads `- [ ] T001 [P] [US1] <ID>-R012.4 description`. Order is pr
 - [ ] T012 [US1] CONN-EMERALD-EXCHANGE-X402-R012 Optional payments extra.
 - [ ] T013 [US1] CONN-EMERALD-EXCHANGE-X402-R013 Paper-first payment rail.
 - [ ] T014 [US1] CONN-EMERALD-EXCHANGE-X402-R014 Payments skill content.
+- [x] T015 [US2] CONN-EMERALD-EXCHANGE-X402-R008.1 One typed tool per wallet-runtime operation.
+- [x] T016 [US2] CONN-EMERALD-EXCHANGE-X402-R010.1 Server-side spend limits for the wallet rail.
+- [x] T017 [US2] CONN-EMERALD-EXCHANGE-X402-R011.1 Server-side self-custodial wallet in the connector image.
+- [x] T018 [US2] CONN-EMERALD-EXCHANGE-X402-R012.1 Wallet runtime bundled in the image.
+- [x] T019 [US2] CONN-EMERALD-EXCHANGE-X402-R015 Unified order surface across the exchange venue and the wallet rail.

@@ -12,11 +12,11 @@ Search of `specs/`: no spec owns the x402 pay-and-retry loop or the agent-wallet
 
 ## Scope and interfaces
 
-Owned: the x402 intent, resource and pricing model; the pay-and-retry loop; RLUSD settlement; the referenced Coinbase agentic-wallet skill; attribution and spend caps shared with the XRPL risk constraints; and the x402 prompts. Rows R008 to R014 extend the spec to the whole agent payment domain: the `payments` tool domain, rail and wallet-provider seams, shared governance, the optional extra, the paper-first rail and the payments skill. The routing and the wallet decision are in [research.md](research.md). Non-goals: hosting x402 endpoints, a second wallet stack, and any payment path that bypasses the XRPL signing and risk controls.
+Owned: the x402 intent, resource and pricing model; the pay-and-retry loop; RLUSD settlement; the referenced Coinbase agentic-wallet skill; attribution and spend caps shared with the XRPL risk constraints; and the x402 prompts. Rows R008 to R014 extend the spec to the whole agent payment domain: the `payments` tool domain, rail and wallet-provider seams, shared governance, the optional extra, the paper-first rail and the payments skill. Child rows R008.1, R010.1, R011.1 and R012.1 deliver the server-side bundled wallet: its typed tools, server-side limits, custody from secret references only, and the image bundle. R015 adds one order surface across the exchange venue and the wallet rail. The routing and the wallet decision are in [research.md](research.md). Non-goals: hosting x402 endpoints, a second wallet stack, and any payment path that bypasses the XRPL signing and risk controls.
 
 ## Open questions
 
-- Which Linux-capable wallet provider ships first (R011). Open owner decision; options and recommendation in [research.md](research.md).
+- The first wallet provider is decided: the server-side wallet runtime bundled in the image (R011.1); see [research.md](research.md).
 - The skill stays referenced, never vendored; upstream drift reports instead of forking.
 
 ## User Scenarios & Testing
@@ -31,11 +31,27 @@ An agent buys from an x402-enabled endpoint. It reads the payment requirement th
 2. **Given** the connector is configured, **When** the behaviour of row `CONN-EMERALD-EXCHANGE-X402-R002` (pay-and-retry loop) is exercised, **Then** pay-and-retry loop.
 3. **Given** the connector is configured, **When** the behaviour of row `CONN-EMERALD-EXCHANGE-X402-R003` (agentic-wallet skill, referenced) is exercised, **Then** agentic-wallet skill, referenced.
 
+### User Story 2 - Server-side wallet payments and one order surface (Priority: P1)
+
+An operator runs the connector with a self-custodial wallet inside its own image, so an agent can move value and trade crypto from one place. The agent reads the wallet and balances, sends or approves tokens, pays a machine-payment endpoint, and places buy and sell orders on the exchange venue, all bounded by server-side limits, with keys that never leave the wallet daemon.
+
+**Acceptance Scenarios**:
+
+1. **Given** a configured wallet in paper mode, **When** the agent calls a wallet write tool, **Then** the governor admits it, a simulated receipt is recorded and no runtime call is made (`CONN-EMERALD-EXCHANGE-X402-R008.1`, `CONN-EMERALD-EXCHANGE-X402-R010.1`).
+2. **Given** a send above the per-transaction limit, **When** the agent calls the transfer tool, **Then** it refuses `SPEND_LIMIT_EXCEEDED` and nothing is signed (`CONN-EMERALD-EXCHANGE-X402-R010.1`).
+3. **Given** wallet config holding a literal value instead of a reference, **When** the server or daemon starts, **Then** it refuses `WALLET_SECRET_REF_INVALID` (`CONN-EMERALD-EXCHANGE-X402-R011.1`).
+4. **Given** an image built from the container table, **When** the runtime binary is absent, **Then** the payments tools refuse `PAYMENTS_RUNTIME_MISSING` (`CONN-EMERALD-EXCHANGE-X402-R012.1`).
+5. **Given** both venues, **When** the agent places an exchange buy and a wallet send, **Then** both appear in one order listing with one record shape (`CONN-EMERALD-EXCHANGE-X402-R015`).
+
 ### Edge Cases
 
 - If `CONN-EMERALD-EXCHANGE-X402-R001` is not met, its proving test fails: x402 intent, resource and pricing model.
 - If `CONN-EMERALD-EXCHANGE-X402-R002` is not met, its proving test fails: pay-and-retry loop.
 - If `CONN-EMERALD-EXCHANGE-X402-R003` is not met, its proving test fails: agentic-wallet skill, referenced.
+- A runtime that queues a manual approval returns `PENDING_APPROVAL` with the approval request id; it is not a failure and is not retried.
+- A reused `request_id` returns the recorded entry and sends nothing.
+- Wallet `buy` or `sell` refuses `ORDER_SIDE_UNSUPPORTED`; the wallet rail does not trade.
+- Consecutive runtime failures trip the breaker and halt trading and payments together.
 
 ## Requirements
 
@@ -53,6 +69,11 @@ An agent buys from an x402-enabled endpoint. It reads the payment requirement th
 - **FR-012**: Optional payments extra. Rows: `CONN-EMERALD-EXCHANGE-X402-R012`.
 - **FR-013**: Paper-first payment rail. Rows: `CONN-EMERALD-EXCHANGE-X402-R013`.
 - **FR-014**: Payments skill content. Rows: `CONN-EMERALD-EXCHANGE-X402-R014`.
+- **FR-015**: One typed tool per wallet-runtime operation. Rows: `CONN-EMERALD-EXCHANGE-X402-R008.1`.
+- **FR-016**: Server-side spend limits for the wallet rail. Rows: `CONN-EMERALD-EXCHANGE-X402-R010.1`.
+- **FR-017**: Server-side self-custodial wallet in the connector image. Rows: `CONN-EMERALD-EXCHANGE-X402-R011.1`.
+- **FR-018**: Wallet runtime bundled in the image. Rows: `CONN-EMERALD-EXCHANGE-X402-R012.1`.
+- **FR-019**: Unified order surface across the exchange venue and the wallet rail. Rows: `CONN-EMERALD-EXCHANGE-X402-R015`.
 
 ## Success Criteria
 
@@ -70,11 +91,17 @@ An agent buys from an x402-enabled endpoint. It reads the payment requirement th
 - **SC-012**: Optional payments extra. Rows: `CONN-EMERALD-EXCHANGE-X402-R012`.
 - **SC-013**: Paper-first payment rail. Rows: `CONN-EMERALD-EXCHANGE-X402-R013`.
 - **SC-014**: Payments skill content. Rows: `CONN-EMERALD-EXCHANGE-X402-R014`.
+- **SC-015**: One typed tool per wallet-runtime operation. Rows: `CONN-EMERALD-EXCHANGE-X402-R008.1`.
+- **SC-016**: Server-side spend limits for the wallet rail. Rows: `CONN-EMERALD-EXCHANGE-X402-R010.1`.
+- **SC-017**: Server-side self-custodial wallet in the connector image. Rows: `CONN-EMERALD-EXCHANGE-X402-R011.1`.
+- **SC-018**: Wallet runtime bundled in the image. Rows: `CONN-EMERALD-EXCHANGE-X402-R012.1`.
+- **SC-019**: Unified order surface across the exchange venue and the wallet rail. Rows: `CONN-EMERALD-EXCHANGE-X402-R015`.
 
 ## Assumptions
 
 - The external system is reachable with operator-supplied credentials.
 - The SDK and engine contracts the rows cite are at the floors declared in `pyproject.toml`.
+- The operator creates and funds the wallet, stores its secrets under references and sets the runtime daemon policy; the connector never creates keys.
 
 ## Traceability
 
@@ -94,3 +121,8 @@ An agent buys from an x402-enabled endpoint. It reads the payment requirement th
 | FR-012 | `CONN-EMERALD-EXCHANGE-X402-R012` | [plan.md](plan.md) | T-012 | [test-spec.md](test-spec.md) |
 | FR-013 | `CONN-EMERALD-EXCHANGE-X402-R013` | [plan.md](plan.md) | T-013 | [test-spec.md](test-spec.md) |
 | FR-014 | `CONN-EMERALD-EXCHANGE-X402-R014` | [plan.md](plan.md) | T-014 | [test-spec.md](test-spec.md) |
+| FR-015 | `CONN-EMERALD-EXCHANGE-X402-R008.1` | [plan.md](plan.md) | T-015 | [test-spec.md](test-spec.md) |
+| FR-016 | `CONN-EMERALD-EXCHANGE-X402-R010.1` | [plan.md](plan.md) | T-016 | [test-spec.md](test-spec.md) |
+| FR-017 | `CONN-EMERALD-EXCHANGE-X402-R011.1` | [plan.md](plan.md) | T-017 | [test-spec.md](test-spec.md) |
+| FR-018 | `CONN-EMERALD-EXCHANGE-X402-R012.1` | [plan.md](plan.md) | T-018 | [test-spec.md](test-spec.md) |
+| FR-019 | `CONN-EMERALD-EXCHANGE-X402-R015` | [plan.md](plan.md) | T-019 | [test-spec.md](test-spec.md) |

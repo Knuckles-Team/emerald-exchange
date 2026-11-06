@@ -18,6 +18,11 @@ Governing spec: [spec.md](spec.md).
 | T-012 | `CONN-EMERALD-EXCHANGE-X402-R012` | `tests/test_payments_extra_optional.py::test_base_install_imports_without_payment_libraries` (planned) | A base install imports cleanly without the payment libraries and the payments tools refuse with the extra-missing code. |
 | T-013 | `CONN-EMERALD-EXCHANGE-X402-R013` | `tests/test_paper_payment_rail.py::test_default_send_is_simulated` (planned) | The default send returns a simulated receipt with no signing and no network call, and live mode needs the stage and opt-in. |
 | T-014 | `CONN-EMERALD-EXCHANGE-X402-R014` | `tests/test_payments_skill.py::test_payments_skill_lists_and_names_real_tools` (planned) | The skill resolves from the connector, names only registered tools, and the package holds no upstream skill text. |
+| T-015 | `CONN-EMERALD-EXCHANGE-X402-R008.1` | `tests/test_payments_wallet_tools.py::test_one_typed_tool_per_wallet_operation` | Each wallet-runtime operation is one typed tool; every write reaches the runtime only through the governor, with the agent token on stdin and never in a result. |
+| T-016 | `CONN-EMERALD-EXCHANGE-X402-R010.1` | `tests/test_payments_wallet_governor.py::test_wallet_limits_halt_breaker_and_approval` | The governor refuses on halt, unset or exceeded limits and above the approval threshold, replays a reused request id, trips the breaker, and paper mode calls no runtime. |
+| T-017 | `CONN-EMERALD-EXCHANGE-X402-R011.1` | `tests/test_payments_wallet_custody.py::test_wallet_secrets_resolve_only_from_references` | Wallet secrets resolve only from references; the daemon gets its password on stdin with a reduced environment; no secret appears in any repr, argument list or result. |
+| T-018 | `CONN-EMERALD-EXCHANGE-X402-R012.1` | `tests/test_payments_wallet_image.py::test_runtime_bundle_is_pinned_and_absent_runtime_refuses` | The image table pins the runtime release and checksum and copies it into the runtime stage; without the binary the tools refuse PAYMENTS_RUNTIME_MISSING. |
+| T-019 | `CONN-EMERALD-EXCHANGE-X402-R015` | `tests/test_unified_order_surface.py::test_place_routes_by_venue_and_lists_one_ledger` | One place tool routes buy and sell to the exchange backend and send to the wallet rail, and one list tool reads both from one ledger. |
 
 ## Negative and boundary cases
 
@@ -25,6 +30,10 @@ Governing spec: [spec.md](spec.md).
 - Payment requirement names a non-RLUSD currency: the loop refuses.
 - Upstream skill reference moves: the freshness check reports drift instead of serving stale content.
 - Kill-switch active: the x402 purchase refuses before it pays.
+- Wallet write with a literal secret in config: refuses `WALLET_SECRET_REF_INVALID`.
+- Runtime binary absent: wallet tools refuse `PAYMENTS_RUNTIME_MISSING`.
+- Runtime queues a manual approval: the result is `PENDING_APPROVAL`, not a failure.
+- All wallet write tests use a fake runtime transport; no funds move.
 
 ## Quality and release proof
 
