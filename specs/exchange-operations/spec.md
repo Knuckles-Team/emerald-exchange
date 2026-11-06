@@ -61,6 +61,7 @@ The exchange backend's read-only operations are served as one typed MCP tool eac
 - **FR-012**: Distribution-shift analysis calls the engine. Rows: `EMERALD-OPS-R012`.
 - **FR-013**: Banking kernels tool calls the engine. Rows: `EMERALD-OPS-R013`.
 - **FR-014**: Served wallet operation tool composes the SDK proof gate. Rows: `EMERALD-OPS-R014`.
+- **FR-015**: Major-exchange crypto backend beside CCXT. Rows: `EMERALD-OPS-R015`.
 
 ## Success Criteria
 
@@ -78,6 +79,7 @@ The exchange backend's read-only operations are served as one typed MCP tool eac
 - **SC-012**: Distribution-shift analysis calls the engine. Rows: `EMERALD-OPS-R012`.
 - **SC-013**: Banking kernels tool calls the engine. Rows: `EMERALD-OPS-R013`.
 - **SC-014**: Served wallet operation tool composes the SDK proof gate. Rows: `EMERALD-OPS-R014`.
+- **SC-015**: Major-exchange crypto backend beside CCXT. Rows: `EMERALD-OPS-R015`.
 
 ## Assumptions
 
@@ -102,3 +104,4 @@ The exchange backend's read-only operations are served as one typed MCP tool eac
 | FR-012 | `EMERALD-OPS-R012` | [plan.md](plan.md) | T-012 | [test-spec.md](test-spec.md) |
 | FR-013 | `EMERALD-OPS-R013` | [plan.md](plan.md) | T-013 | [test-spec.md](test-spec.md) |
 | FR-014 | `EMERALD-OPS-R014` | [plan.md](plan.md) | T-014 | [test-spec.md](test-spec.md) |
+| FR-015 | `EMERALD-OPS-R015` | [plan.md](plan.md) | T-015 | [test-spec.md](test-spec.md) |

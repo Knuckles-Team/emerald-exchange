@@ -16,7 +16,7 @@ This plan delivers exchange read operations for the connector, reusing the SDK f
 - **Project Type**: connector (MCP server)
 - **Performance Goals**: N/A
 - **Constraints**: one tool per API operation; shared capabilities come from the SDK
-- **Scale/Scope**: 14 rows
+- **Scale/Scope**: 15 rows
 
 ## Constitution Check
 
