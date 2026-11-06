@@ -59,11 +59,13 @@ def get_mcp_instance():
 
     config_path = paths.config_dir() / "config.json"
     trading_config: dict = {}
+    payments_config: dict = {}
     if config_path.exists():
         try:
             with open(config_path) as f:
                 full_config = json.load(f)
             trading_config = full_config.get("trading", {})
+            payments_config = full_config.get("payments", {})
         except (OSError, json.JSONDecodeError) as e:
             logger.warning("Operation failed: error_type=%s", type(e).__name__)
 
@@ -94,6 +96,14 @@ def get_mcp_instance():
         f"🟢 Emerald Exchange MCP: {default_exchange} ({default_mode})", file=sys.stderr
     )
 
+    # Server-side wallet rail (CONN-EMERALD-EXCHANGE-X402-R008.1, R010.1): one
+    # governor and one ledger; the kill switch is the same RiskGuard as the
+    # exchange orders.
+    from emerald_exchange.mcp.mcp_payments import register_payments_tools
+    from emerald_exchange.payments.service import build_wallet_service
+
+    wallet_service = build_wallet_service(payments_config, risk_guard)
+
     # Register every trading domain through the one central tool surface
     # (CONCEPT:AU-ECO.mcp.tool-mode-standardization). Each `<TAG>TOOL` env var defaults True, so the default
     # condensed mode registers all 14 domains exactly as the prior unconditional
@@ -105,6 +115,11 @@ def get_mcp_instance():
         ("derivatives", "DERIVATIVESTOOL", register_derivatives_tools),
         ("market_making", "MARKET_MAKINGTOOL", register_market_making_tools),
         ("order", "ORDERTOOL", lambda m: register_order_tools(m, backend, risk_guard)),
+        (
+            "payments",
+            "PAYMENTSTOOL",
+            lambda m: register_payments_tools(m, wallet_service),
+        ),
         ("risk", "RISKTOOL", lambda m: register_risk_tools(m, backend, risk_guard)),
         ("signal", "SIGNALTOOL", register_signal_tools),
         ("statarb", "STATARBTOOL", register_statarb_tools),

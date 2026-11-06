@@ -60,6 +60,9 @@ test = [
 [project.scripts]
 emerald-exchange-mcp = "emerald_exchange.mcp_server:mcp_server"
 emerald-cockpit = "emerald_exchange.cockpit:main"
+# Launches the bundled wallet runtime daemon from the same image
+# (CONN-EMERALD-EXCHANGE-X402-R011.1); never started by the MCP server.
+emerald-wallet-daemon = "emerald_exchange.payments.daemon:main"
 
 # The one declared connector identity: the fleet name (SDK-CONNECTOR-CONTROL-R071).
 # Content (skills, ontology, prompts) is found by convention under the package;
