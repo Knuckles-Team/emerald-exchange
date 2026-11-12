@@ -1867,7 +1867,6 @@ Subclass of CreativeWork for Dublin Core / BIBO alignment.""" ;
     rdfs:domain :Agent ;
     rdfs:range :Tool .
 
-core:Belief owl:disjointWith core:Fact .
 
 :BusinessLayer a owl:Class ;
     rdfs:subClassOf core:BusinessLayer .
