@@ -1,8 +1,9 @@
 @prefix fibo-fi: <https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstruments/FinancialInstruments/> .
+@prefix core: <https://knuckles-team.github.io/ontology/core#> .
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 @prefix dc: <http://purl.org/dc/terms/> .
 @prefix time: <http://www.w3.org/2006/time#> .
-@prefix : <http://knuckles.team/kg#> .
+@prefix : <https://knuckles-team.github.io/ontology/connector/emerald-finance#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
@@ -18,12 +19,14 @@
 # --- classes ---
 
 :Instrument a owl:Class ;
+    rdfs:subClassOf core:FinancialInstrument ;
     rdfs:label "Tradable Instrument" ;
     rdfs:comment "A concrete tradable symbol on an exchange backend (equity, crypto, forex, derivative), as surfaced by emerald_market_data. Runtime twin of the analytical :FinancialInstrument." ;
     rdfs:seeAlso fibo-fi:FinancialInstrument ;
     rdfs:subClassOf :FinancialInstrument .
 
 :Trade a owl:Class ;
+    rdfs:subClassOf core:Order ;
     rdfs:label "Trade" ;
     rdfs:comment "A recorded order execution / fill returned by emerald_orders (order_id, filled qty, average price, fees) against an exchange backend." .
 
@@ -32,6 +35,7 @@
     rdfs:comment "A point-in-time top-of-book quote (bid/ask/last/volume) for an :Instrument, from emerald_market_data action=quote." .
 
 :MarketBar a owl:Class ;
+    rdfs:subClassOf core:Observation ;
     rdfs:label "Market Bar (OHLCV)" ;
     rdfs:comment "A single OHLCV timeseries bar (open/high/low/close/volume at a timestamp) for an :Instrument, from emerald_market_data action=historical." .
 
@@ -186,7 +190,7 @@
     rdfs:label "currency" ;
     rdfs:range xsd:string .
 
-<http://knuckles.team/kg/emerald> a owl:Ontology ;
+<https://knuckles-team.github.io/ontology/connector/emerald> a owl:Ontology ;
     rdfs:label "Emerald Exchange Execution Runtime Ontology" ;
     rdfs:comment """Live trading-execution surface of the emerald-exchange MCP server —
     tradable instruments, executed trades/fills, top-of-book quotes, and OHLCV market-bar
@@ -194,4 +198,4 @@
     defined in quant.ttl — federated into the medulla ontology hub.""" .
 
 # ontology-codemod R4
-<http://knuckles.team/kg#Quote> rdfs:subClassOf <http://knuckles.team/kg#Observation> .
+<https://knuckles-team.github.io/ontology/connector/emerald-finance#Quote> rdfs:subClassOf <https://knuckles-team.github.io/ontology/core#Observation> .
