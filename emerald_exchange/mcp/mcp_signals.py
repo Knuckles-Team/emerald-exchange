@@ -86,7 +86,7 @@ def register_signal_tools(mcp: Any) -> None:
         asset_class: str = "equity",
         signals_json: str = "{}",
     ) -> str:
-        """Signal generation and fusion. Epistemic-graph selects and runs each algorithm. CONCEPT:EX-AHE.harness.ee-11
+        """Signal generation and fusion. Medulla selects and runs each algorithm. CONCEPT:EX-AHE.harness.ee-11
 
         Actions:
         - 'regime': Detect current market regime

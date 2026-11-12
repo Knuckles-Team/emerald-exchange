@@ -107,7 +107,7 @@ def register_prediction_market_tools(
                 compute = finance_compute()
                 if compute is None:
                     return json.dumps({"error": ENGINE_REQUIRED_ERR})
-                # Epistemic-graph selects and runs the ensemble-probability and
+                # Medulla selects and runs the ensemble-probability and
                 # edge-threshold algorithm; it is refused until EG serves it.
                 try:
                     return json.dumps(

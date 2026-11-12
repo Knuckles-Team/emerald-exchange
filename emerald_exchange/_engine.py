@@ -27,7 +27,7 @@ ENGINE_REQUIRED_ERR = (
 
 #: Namespace of the analysis -> algorithm -> served-method bindings in
 #: ``ontology/quant.ttl``; medulla selects algorithms from it by SPARQL.
-QUANT_VOCABULARY = "http://knuckles.team/kg/emerald-finance#"
+QUANT_VOCABULARY = "https://knuckles-team.github.io/ontology/connector/emerald-finance#"
 
 # Sentinel so a cached None ("engine not reachable") is distinct from "unprobed".
 _UNPROBED = object()

@@ -1,23 +1,26 @@
 @prefix fibo-fi: <https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstruments/FinancialInstruments/> .
+@prefix core: <https://knuckles-team.github.io/ontology/core#> .
 @prefix fibo-org: <https://spec.edmcouncil.org/fibo/ontology/FND/Organizations/Organizations/> .
 @prefix bibo: <http://purl.org/ontology/bibo/> .
 @prefix time: <http://www.w3.org/2006/time#> .
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
 @prefix dc: <http://purl.org/dc/terms/> .
-@prefix : <http://knuckles.team/kg#> .
+@prefix : <https://knuckles-team.github.io/ontology/connector/emerald-finance#> .
 @prefix bfo: <http://purl.obolibrary.org/obo/BFO_> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 :Budget a owl:Class ;
+    rdfs:subClassOf core:Artifact ;
     rdfs:label "Budget" ;
     rdfs:comment """A Firefly III budget (a planned spending envelope a :Transaction is
 member_of). BFO:GenericallyDependentContinuant (CONCEPT:KG-2.164).""" ;
     rdfs:subClassOf bfo:0000031 .
 
 :Transaction a owl:Class ;
+    rdfs:subClassOf core:Activity ;
     rdfs:label "Transaction" ;
     rdfs:comment """A Firefly III financial transaction (a money movement between accounts).
 BFO:Process. Aligned to fibo-fbc transaction semantics (CONCEPT:KG-2.164).""" ;
@@ -53,7 +56,7 @@ BFO:Process. Aligned to fibo-fbc transaction semantics (CONCEPT:KG-2.164).""" ;
     rdfs:label "kyc for" ;
     rdfs:comment "Links a KYC record to the customer it verifies." ;
     rdfs:domain :KYCRecord ;
-    rdfs:range :Person .
+    rdfs:range core:Person .
 
 :lossGivenDefault a owl:DatatypeProperty ;
     rdfs:label "loss given default" ;
@@ -121,7 +124,7 @@ BFO:Process. Aligned to fibo-fbc transaction semantics (CONCEPT:KG-2.164).""" ;
     rdfs:comment "Their account held at our bank. Inverse of nostroOf." ;
     owl:inverseOf :nostroOf .
 
-<http://knuckles.team/kg/banking> a owl:Ontology ;
+<https://knuckles-team.github.io/ontology/connector/banking> a owl:Ontology ;
     rdfs:label "Enterprise Banking Ontology" ;
     rdfs:comment """Banking-specific extensions for enterprise financial services.
 Covers ISO 20022 messaging, KYC/AML, correspondent banking,
@@ -132,7 +135,7 @@ regulatory capital (Basel III), and credit risk modeling.""" .
     rdfs:label "AML Alert" ;
     rdfs:comment """Anti-Money Laundering alert from transaction monitoring.
 Subclass of Incident for escalation workflows.""" ;
-    rdfs:subClassOf :Incident .
+    rdfs:subClassOf core:Incident .
 
 :NostroVostroAccount a owl:Class ;
     rdfs:label "Nostro/Vostro Account" ;
@@ -140,6 +143,7 @@ Subclass of Incident for escalation workflows.""" ;
     rdfs:subClassOf :BankAccount .
 
 :PaymentMessage a owl:Class ;
+    rdfs:subClassOf core:Artifact ;
     rdfs:label "Payment Message" ;
     rdfs:comment """An ISO 20022 payment message (pacs.008 credit transfer,
 pain.001 payment initiation, camt.053 bank statement).
@@ -147,6 +151,7 @@ BFO:GenericallyDependentContinuant.""" ;
     rdfs:subClassOf bfo:0000031 .
 
 :SanctionsScreening a owl:Class ;
+    rdfs:subClassOf core:Activity ;
     rdfs:label "Sanctions Screening" ;
     rdfs:comment "Real-time entity resolution against OFAC/EU/UN sanctions lists. BFO:Process." ;
     rdfs:subClassOf bfo:0000015 .
@@ -160,30 +165,35 @@ BFO:GenericallyDependentContinuant.""" ;
 :CorrespondentBank a owl:Class ;
     rdfs:label "Correspondent Bank" ;
     rdfs:comment "A financial institution in a correspondent banking chain." ;
-    rdfs:subClassOf :Organization .
+    rdfs:subClassOf core:Organization .
 
 :RegulatoryCapital a owl:Class ;
+    rdfs:subClassOf core:Artifact ;
     rdfs:label "Regulatory Capital" ;
     rdfs:comment "Basel III/IV capital adequacy (CET1, AT1, Tier 2). BFO:GenericallyDependentContinuant." ;
     rdfs:subClassOf bfo:0000031 .
 
 :SettlementLeg a owl:Class ;
+    rdfs:subClassOf core:Activity ;
     rdfs:label "Settlement Leg" ;
     rdfs:comment "A single leg in a multi-leg settlement process (T+1/T+2). BFO:Process." ;
     rdfs:subClassOf bfo:0000015 .
 
 :CreditRiskAssessment a owl:Class ;
+    rdfs:subClassOf core:Resource ;
     rdfs:label "Credit Risk Assessment" ;
     rdfs:comment "PD/LGD/EAD credit risk model output. Extends RiskAssessment. IFRS 9/CECL aligned." ;
     rdfs:subClassOf :RiskAssessment .
 
 :KYCRecord a owl:Class ;
+    rdfs:subClassOf core:Artifact ;
     rdfs:label "KYC Record" ;
     rdfs:comment """Know Your Customer due diligence record with PEP screening,
 identity verification, and risk classification. FATF/FinCEN aligned.""" ;
     rdfs:subClassOf bfo:0000031 .
 
 :BankAccount a owl:Class ;
+    rdfs:subClassOf core:Account ;
     rdfs:label "Bank Account" ;
     rdfs:comment "A bank account with IBAN/SWIFT identifiers. Extends Account." ;
     rdfs:subClassOf :Account .
