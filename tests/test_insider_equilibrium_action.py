@@ -88,18 +88,17 @@ def client(monkeypatch):
     return fake
 
 
-def _signals_fn():
+def _signals_fn(operation: str):
     mcp = _CaptureMCP()
     register_signal_tools(mcp)
-    return mcp.tools["emerald_signals"]
+    assert "emerald_signals" not in mcp.tools
+    return mcp.tools[f"emerald_signals_{operation}"]
 
 
 def test_insider_equilibrium_is_selected_and_run_by_the_engine(client):
     params = {"sigma_v": 0.3, "enforcement": 0.7, "criminal_penalty": 0.05, "steps": 6}
-    out = json.loads(
-        _signals_fn()(action="insider_equilibrium", signals_json=json.dumps(params))
-    )
-    assert out["action"] == "insider_equilibrium"
+    out = json.loads(_signals_fn("insider_equilibrium")(**params))
+    assert out["operation"] == "insider_equilibrium"
     assert len(out["schedule"]) == 7
     name, call = client.finance.calls[0]
     assert (name, call["op"]) == ("signal_models", "insider_equilibrium")
@@ -109,7 +108,7 @@ def test_insider_equilibrium_is_selected_and_run_by_the_engine(client):
 
 
 def test_fuse_runs_bayes_fusion_in_the_engine(client):
-    out = json.loads(_signals_fn()(action="fuse", signals_json='{"rsi": 1}'))
+    out = json.loads(_signals_fn("fuse")(directions={"rsi": 1}))
     assert out["posterior_up"] == 0.66
     name, call = client.finance.calls[0]
     assert call["op"] == "bayes_fuse"
@@ -117,21 +116,35 @@ def test_fuse_runs_bayes_fusion_in_the_engine(client):
 
 
 def test_regime_runs_the_engine_hmm(client):
-    prices = {"close_prices": [100, 101, 99, 102, 103]}
-    out = json.loads(_signals_fn()(action="regime", signals_json=json.dumps(prices)))
+    prices = [100, 101, 99, 102, 103]
+    out = json.loads(_signals_fn("regime")(close_prices=prices))
     assert out["regimes"]["states"] == [0, 1]
     name, call = client.finance.calls[0]
     assert name == "detect_regimes" and len(call["observations"]) == 4
 
 
-def test_insider_equilibrium_rejects_bad_json(client):
-    out = json.loads(
-        _signals_fn()(action="insider_equilibrium", signals_json="{not json")
-    )
-    assert "error" in out
+def test_insider_equilibrium_rejects_bad_input(client):
+    """Typed parameters: the served tool refuses a non-numeric primitive."""
+    import asyncio
+
+    from fastmcp import Client, FastMCP
+    from fastmcp.exceptions import ToolError
+
+    server = FastMCP("signals")
+    register_signal_tools(server)
+
+    async def call():
+        async with Client(server) as session:
+            await session.call_tool(
+                "emerald_signals_insider_equilibrium", {"sigma_v": "not a number"}
+            )
+
+    with pytest.raises(ToolError):
+        asyncio.run(call())
+    assert client.finance.calls == []
 
 
 def test_unreachable_engine_reports_requirement(monkeypatch):
     monkeypatch.setattr(_engine, "_COMPUTE_CACHE", None)
-    out = json.loads(_signals_fn()(action="fuse", signals_json='{"rsi": 1}'))
+    out = json.loads(_signals_fn("fuse")(directions={"rsi": 1}))
     assert out["error"] == _engine.ENGINE_REQUIRED_ERR

@@ -11,12 +11,13 @@ import json
 from typing import Any
 
 from emerald_exchange.backends import ExchangeBackend
+from emerald_exchange.mcp._hints import WRITE
 
 
 def register_kg_ingest_tools(mcp: Any, backend: ExchangeBackend) -> None:
     """Register the native KG-ingestion tool on the MCP server."""
 
-    @mcp.tool(tags=["kg-ingest"])
+    @mcp.tool(tags={"kg-ingest"}, annotations=WRITE)
     async def emerald_ingest_snapshot(
         symbols: str = "",
         include_history: bool = False,

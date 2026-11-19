@@ -287,10 +287,9 @@ def test_live_market_making_tool(live_engine):
 
     mcp = _CaptureMCP()
     register_market_making_tools(mcp)
-    fn = mcp.tools["emerald_market_making"]
     year = {key: 100.0 for key in analyses.STANDARD_LINE_ITEMS}
     forensic = json.loads(
-        fn("forensic", json.dumps({"this_year": year, "prior_year": year}))
+        mcp.tools["emerald_market_making_forensic"](this_year=year, prior_year=year)
     )
     assert "verdict" in forensic
-    assert json.loads(fn("fee", "{}"))["error"] == "not_served"
+    assert json.loads(mcp.tools["emerald_market_making_fee"]())["error"] == "not_served"

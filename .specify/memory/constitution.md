@@ -4,7 +4,7 @@ Status: PROPOSED. Drafted: 2026-09-28. Version: 0.1.0. Specification index: [spe
 
 ## I. One owner and existing wiring
 
-Emerald owns provider transport, finance skills and governed trading effects. A change must trace its live entrypoint through the existing backend factory, MCP tool, execution bridge and risk guard where applicable. Reuse the legal owner and delete superseded paths. Epistemic Graph owns numeric finance and strategy evaluation; media-downloader owns capture; WebUI owns browser presentation. Do not create another authority for the same data, calculation or order policy.
+Emerald owns provider transport, finance skills and governed trading effects. A change must trace its live entrypoint through the existing backend factory, MCP tool, execution bridge and risk guard where applicable. Reuse the legal owner and delete superseded paths. Medulla owns numeric finance and strategy evaluation; media-downloader owns capture; WebUI owns browser presentation. Do not create another authority for the same data, calculation or order policy.
 
 ## II. Complete public specs
 
@@ -12,7 +12,7 @@ Build contracts live in `specs/<feature>/`: `spec.md` states observable behavior
 
 ## III. Finance safety and evidence
 
-Paper is the default. A signal, media claim, guide or explainer never authorizes an order. Every order uses the existing governed path and `RiskGuard.pre_trade_check()`; live leveraged execution also requires explicit per-instrument policy and approved lease. Claim-derived recommendations require versioned strategy and backtest evidence and must abstain when evidence is insufficient. Numeric finance work belongs in Epistemic Graph.
+Paper is the default. A signal, media claim, guide or explainer never authorizes an order. Every order uses the existing governed path and `RiskGuard.pre_trade_check()`; live leveraged execution also requires explicit per-instrument policy and approved lease. Claim-derived recommendations require versioned strategy and backtest evidence and must abstain when evidence is insufficient. Numeric finance work belongs in Medulla.
 
 ## IV. Quality and acceptance
 

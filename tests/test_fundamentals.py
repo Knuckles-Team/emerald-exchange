@@ -111,22 +111,20 @@ def test_tool_returns_error_payload_not_crash():
     captured = {}
 
     class _MCP:
-        def tool(self):
+        def tool(self, **_kwargs):
             def deco(fn):
-                captured["fn"] = fn
+                captured[fn.__name__] = fn
                 return fn
 
             return deco
 
     register_fundamentals_tools(_MCP())
-    tool = captured["fn"]
+    tool = captured["emerald_fundamentals_standardize"]
 
     import asyncio
 
     # No identity / no edgartools → standardize action returns {"error", ok:false}
-    out = asyncio.run(
-        tool(action="standardize", params_json=json.dumps({"ticker": "AAPL"}))
-    )
+    out = asyncio.run(tool(ticker="AAPL"))
     payload = json.loads(out)
     if EDGAR_AVAILABLE:
         # identity missing path
@@ -136,24 +134,34 @@ def test_tool_returns_error_payload_not_crash():
         assert "error" in payload
 
 
-def test_unknown_action_returns_error():
+def test_one_typed_tool_per_operation():
+    import inspect
+
     from emerald_exchange.mcp.mcp_fundamentals import register_fundamentals_tools
 
     captured = {}
 
     class _MCP:
-        def tool(self):
+        def tool(self, **_kwargs):
             def deco(fn):
-                captured["fn"] = fn
+                captured[fn.__name__] = fn
                 return fn
 
             return deco
 
     register_fundamentals_tools(_MCP())
-    import asyncio
-
-    out = asyncio.run(captured["fn"](action="bogus", params_json="{}"))
-    assert "Unknown action" in json.loads(out)["error"]
+    assert sorted(captured) == [
+        "emerald_fundamentals_filings",
+        "emerald_fundamentals_financials",
+        "emerald_fundamentals_forensic_screen",
+        "emerald_fundamentals_full_text_search",
+        "emerald_fundamentals_mdna",
+        "emerald_fundamentals_risk_factors",
+        "emerald_fundamentals_standardize",
+    ]
+    for fn in captured.values():
+        params = inspect.signature(fn).parameters
+        assert "action" not in params and "params_json" not in params
 
 
 # --------------------------------------------------------------------------- #

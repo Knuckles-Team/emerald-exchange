@@ -58,14 +58,12 @@ emerald-exchange/
 │   │   ├── edgar.py         # SEC EDGAR (edgartools) — CONCEPT:EX-AHE.harness.ee-26
 │   │   └── wallet_intel.py  # Polymarket wallet analytics — CONCEPT:EX-AHE.harness.ee-27
 │   └── mcp/                 # Tool domains
-│       ├── mcp_market_data.py
 │       ├── mcp_orders.py
-│       ├── mcp_portfolio.py
 │       ├── mcp_risk.py
 │       ├── mcp_signals.py
 │       ├── mcp_strategy.py
-│       ├── mcp_fundamentals.py    # emerald_fundamentals — CONCEPT:EX-AHE.harness.ee-26
-│       └── mcp_wallet_intel.py    # emerald_wallet_intel — CONCEPT:EX-AHE.harness.ee-27
+│       ├── mcp_fundamentals.py    # emerald_fundamentals_* — CONCEPT:EX-AHE.harness.ee-26
+│       └── mcp_wallet_intel.py    # emerald_wallet_intel_* — CONCEPT:EX-AHE.harness.ee-27
 ├── tests/
 │   ├── conftest.py
 │   ├── test_concept_parity.py
@@ -114,9 +112,9 @@ wallet-intel). Both keep their heavy third-party deps (`edgartools` / `polars` /
 without them, surfacing a clear `{"error": ...}` payload when a call needs an
 absent dependency, identity, dataset, or engine.
 
-### `emerald_fundamentals` — SEC EDGAR (CONCEPT:EX-AHE.harness.ee-26)
+### `emerald_fundamentals_*` — SEC EDGAR (CONCEPT:EX-AHE.harness.ee-26)
 
-Action-routed (`action`, `params_json`). Env gate `FUNDAMENTALSTOOL` (set falsey
+One typed tool per operation (`emerald_fundamentals_<operation>`). Env gate `FUNDAMENTALSTOOL` (set falsey
 to disable); SEC identity from `EDGAR_IDENTITY` (`"Name email@example.com"`).
 Optional dep: `edgartools` (`pip install 'emerald-exchange[fundamentals]'`).
 
@@ -132,9 +130,9 @@ Optional dep: `edgartools` (`pip install 'emerald-exchange[fundamentals]'`).
   `forensic.py` / `_engine.py`; degrades gracefully when the engine socket is
   absent.
 
-### `emerald_wallet_intel` — Polymarket wallet analytics (CONCEPT:EX-AHE.harness.ee-27)
+### `emerald_wallet_intel_*` — Polymarket wallet analytics (CONCEPT:EX-AHE.harness.ee-27)
 
-Action-routed (`action`, `params_json`). Env gate `WALLETINTELTOOL` (set falsey
+One typed tool per operation (`emerald_wallet_intel_<operation>`). Env gate `WALLET_INTELTOOL` (set falsey
 to disable); dataset path from `POLY_TRADES_PATH` (a `poly_data` processed-trades
 CSV/Parquet). Optional dep: `polars` (Parquet / fast loader —
 `pip install 'emerald-exchange[wallet_intel]'`); pure-Python over a stdlib-CSV

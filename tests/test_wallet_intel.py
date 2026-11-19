@@ -3,6 +3,7 @@
 Migrated from the former standalone ``poly-wallet-mcp`` test suite. CONCEPT:EX-AHE.harness.ee-27.
 """
 
+import inspect
 import json
 
 import pytest
@@ -99,35 +100,39 @@ def _build_tool():
     captured = {}
 
     class _MCP:
-        def tool(self):
+        def tool(self, **_kwargs):
             def deco(fn):
-                captured["fn"] = fn
+                captured[fn.__name__] = fn
                 return fn
 
             return deco
 
     register_wallet_intel_tools(_MCP())
-    return captured["fn"]
+    return captured
 
 
 def test_tool_shim_returns_error_payload_not_crash(monkeypatch):
     monkeypatch.delenv("POLY_TRADES_PATH", raising=False)
     import asyncio
 
-    tool = _build_tool()
-    out = asyncio.run(tool(action="rank_wallets", params_json="{}"))
+    tool = _build_tool()["emerald_wallet_intel_rank_wallets"]
+    out = asyncio.run(tool())
     payload = json.loads(out)
     assert payload.get("ok") is False
     assert "error" in payload
 
 
-def test_tool_unknown_action(monkeypatch):
-    monkeypatch.setenv("POLY_TRADES_PATH", "")
-    import asyncio
-
-    tool = _build_tool()
-    out = asyncio.run(tool(action="bogus", params_json="{}"))
-    assert "Unknown action" in json.loads(out)["error"]
+def test_tool_one_typed_tool_per_operation():
+    tools = _build_tool()
+    assert sorted(tools) == [
+        "emerald_wallet_intel_exit_behavior",
+        "emerald_wallet_intel_rank_wallets",
+        "emerald_wallet_intel_smart_money_convergence",
+        "emerald_wallet_intel_wallet_profile",
+    ]
+    for fn in tools.values():
+        params = inspect.signature(fn).parameters
+        assert "action" not in params and "params_json" not in params
 
 
 def test_tool_end_to_end_over_csv(trades_csv, monkeypatch):
@@ -135,10 +140,8 @@ def test_tool_end_to_end_over_csv(trades_csv, monkeypatch):
     monkeypatch.setenv("POLY_TRADES_PATH", trades_csv)
     import asyncio
 
-    tool = _build_tool()
-    out = asyncio.run(
-        tool(action="wallet_profile", params_json=json.dumps({"wallet": "0xWINNER"}))
-    )
+    tool = _build_tool()["emerald_wallet_intel_wallet_profile"]
+    out = asyncio.run(tool(wallet="0xWINNER"))
     payload = json.loads(out)
     assert payload["found"] is True
     assert payload["total_pnl"] == 50.0

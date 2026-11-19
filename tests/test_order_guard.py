@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import sys
 
 from emerald_exchange.exchange_operations import READ_OPERATIONS, ExchangeReadOperations
@@ -45,16 +46,8 @@ def test_no_unguarded_order_tool_is_served():
 
 def test_guarded_submit_refuses_while_halted(monkeypatch):
     tools = _served()
-    asyncio.run(
-        tools["emerald_orders_halt"].fn(
-            symbol="",
-            side="buy",
-            qty=0.0,
-            order_type="market",
-            limit_price=0.0,
-            order_id="",
-        )
-    )
+    monkeypatch.delenv("SCION_ALLOW_DESTRUCTIVE", raising=False)
+    asyncio.run(tools["emerald_orders_halt"].fn(confirm=True))
     result = asyncio.run(
         tools["emerald_orders_submit"].fn(
             symbol="AAPL",
@@ -62,20 +55,33 @@ def test_guarded_submit_refuses_while_halted(monkeypatch):
             qty=1.0,
             order_type="market",
             limit_price=0.0,
-            order_id="",
+            confirm=True,
         )
     )
     assert "halt" in str(result).lower()
-    asyncio.run(
-        tools["emerald_orders_resume"].fn(
-            symbol="",
-            side="buy",
-            qty=0.0,
-            order_type="market",
-            limit_price=0.0,
-            order_id="",
-        )
+    tools["emerald_orders_resume"].fn()
+
+
+def test_destructive_order_tools_refuse_without_confirmation(monkeypatch):
+    """Submit, cancel and halt are declared destructive and ask first."""
+    monkeypatch.delenv("SCION_ALLOW_DESTRUCTIVE", raising=False)
+    tools = _served()
+    for name in (
+        "emerald_orders_submit",
+        "emerald_orders_cancel",
+        "emerald_orders_halt",
+    ):
+        assert tools[name].annotations.destructive_hint is True
+        assert "confirm" in tools[name].parameters["properties"]
+    halted = json.loads(asyncio.run(tools["emerald_orders_halt"].fn()))
+    assert halted["cancelled"] is True
+    cancelled = json.loads(
+        asyncio.run(tools["emerald_orders_cancel"].fn(order_id="order-1"))
     )
+    assert cancelled["cancelled"] is True
+    assert cancelled["operation"] == "emerald_orders_cancel"
+    status = json.loads(tools["emerald_risk_status"].fn())
+    assert status["halted"] is False
 
 
 def test_exchanges_info_operation_is_served_and_read_only():

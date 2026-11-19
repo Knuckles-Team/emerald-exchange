@@ -1,4 +1,4 @@
-"""Epistemic-graph ingestion for Emerald Exchange records (typed graph nodes).
+"""Medulla ingestion for Emerald Exchange records (typed graph nodes).
 
 CONCEPT:AU-KG.ingest.enterprise-source-extractor. The connector pushes its live
 trading data into the ONE medulla knowledge graph as **typed OWL nodes** —

@@ -16,7 +16,7 @@ Governing spec: [spec.md](spec.md).
 | T-010 | `CONN-EMERALD-EXCHANGE-XRPL-R010` | `tests/test_xrpl_resources.py::test_docs_endpoints_fees_status_resources` (planned) | Docs, endpoints, fee schedules and live status serve as resources; live entries refresh. |
 | T-011 | `CONN-EMERALD-EXCHANGE-XRPL-R011` | `tests/test_xrpl_prompts.py::test_packaged_prompts_list` (planned) | The payment, escrow-gated work and spending-limit prompts appear in the prompt listing. |
 | T-012 | `CONN-EMERALD-EXCHANGE-XRPL-R012` | `tests/test_xrpl_skills.py::test_xrpl_skill_packages` (planned) | The XRPL Agent Wallet, Payments and Trading skills resolve through the skill provider. |
-| T-013 | `CONN-EMERALD-EXCHANGE-XRPL-R013` | `tests/test_xrpl_ontology.py::test_xrpl_ontology_pack` (planned) | The XRPL ontology pack certifies and publishes for Epistemic Graph ingest. |
+| T-013 | `CONN-EMERALD-EXCHANGE-XRPL-R013` | `tests/test_xrpl_ontology.py::test_xrpl_ontology_pack` (planned) | The XRPL ontology pack certifies and publishes for Medulla ingest. |
 
 ## Negative and boundary cases
 
