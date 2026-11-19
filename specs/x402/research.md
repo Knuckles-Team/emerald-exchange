@@ -1,6 +1,6 @@
 # CONN-EMERALD-EXCHANGE-X402 — Research: where agent payments belong, and the wallet decision
 
-Status: routing decided by this note, wallet provider is an open owner decision. Rows it supports: `CONN-EMERALD-EXCHANGE-X402-R008` to `R014` and `EMERALD-OPS-R015`.
+Status: routing and wallet provider decided. Rows it supports: `CONN-EMERALD-EXCHANGE-X402-R008` to `R015` with their child rows, and `EMERALD-OPS-R015`.
 
 ## Question
 
@@ -29,7 +29,7 @@ Cross-repo handoffs, each filed in the owner's own `specs/`: universal-skills (p
 
 The CCXT backend already trades the major exchange through a generic adapter. A native backend earns its place only on a measured difference: a native sandbox, per-portfolio account scoping, the exchange's own order types and fee tiers, and one credential shared with the wallet provider. The row carries a value gate: if the parity matrix shows nothing CCXT cannot do, the row closes REJECTED and CCXT remains the only crypto path.
 
-## Wallet decision (open owner decision)
+## Wallet decision
 
 Context: the third-party payment SDK's managed wallet bootstrap depends on a macOS launch daemon and the desktop keychain. The packaged runtime installs on Linux, but wallet setup is unimplemented there. The service host is Linux, so the payment lane is blocked until a wallet path is chosen.
 
@@ -40,9 +40,11 @@ Context: the third-party payment SDK's managed wallet bootstrap depends on a mac
 | C. Server-side wallet from the exchange developer platform | A provider-managed agent wallet reached by API key, signing inside the provider; spend caps and allowlists enforced provider-side as well | Runs on Linux today; no key in the connector; the same credential family as the R015 backend; provider-side limits add a second line behind the governor; supports the x402 exact scheme | Custodial: the provider holds the keys and can freeze; vendor dependency; funds sit with a third party |
 | D. Remote signer | A signing service the owner runs (threshold or HSM-backed) that the connector calls to sign an already-governed payload | Self-custodial and Linux-native; one signer shared across rails; clean fit for the provider seam of R011 | Most to build and operate; the owner owns signer uptime and key ceremony |
 
-Recommendation: C first, behind the R011 seam, with D as the self-custody follow-up. C is the only option that works on Linux today without owning key custody, and the governor of R010 still bounds every send before it reaches the provider, so custody risk is capped by `payments.limits` and by keeping a small float. Fund it with small balances, paper mode by default, and move to D if the owner wants self-custody at larger balances. Do not ship A as a connector path: it ties a core lane to a macOS host. B is rejected unless the owner accepts upgrade and custody ownership.
+Decision (owner, 2026-11-06): a server-side, self-custodial wallet bundled in the connector image. This is option B built from the upstream packaged Linux runtime instead of a source build: the runtime release is pinned with a checksum in the image (R012.1), and its daemon runs headless on Linux from the same image as a separate process. The macOS keychain and launch-daemon bootstrap are not used. Key custody: the encrypted daemon state and its unlock password resolve only from the secret store through references, are handed to the daemon process alone (password on stdin), and never reach the image, the config file, the MCP process or a tool result (R011.1). Limits apply twice on the server: the connector governor first (R010.1), then the runtime daemon's own per-token, window and manual-approval policy, which the operator sets with the runtime admin tool. The connector exposes one typed tool per bounded runtime operation (R008.1) and one order surface across the exchange venue and the wallet rail (R015).
 
-Owner decision needed: confirm C (and its custodial trade-off), pick D instead, or defer agent-to-agent payments while customer payments proceed. R011 stays specified and unbuilt until this is answered; R008 to R010, R012 and R013 do not depend on it and can be built against the paper rail.
+Consequences: upgrades of the runtime are a checksum bump owned here; wallet creation, key generation, funding, the daemon policy and the encrypted backup stay operator steps. Option C (provider-custodied wallet) and D (remote signer) remain possible later providers behind the R011 seam.
+
+Rejected alternatives: A, because it ties a core lane to a desktop host; a source build of B, because the packaged runtime already ships the Linux daemon and a source build adds a toolchain to the image; C as the first provider, because the owner chose self-custody.
 
 ## Governance applied to payments
 
