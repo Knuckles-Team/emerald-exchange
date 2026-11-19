@@ -96,10 +96,34 @@ class WalletService:
         request_id: str,
         call: Callable[[WalletRuntime, str], dict[str, Any]],
     ) -> dict[str, Any]:
-        """Admit, run (live) or simulate (paper), and record one wallet send."""
+        """Admit, run (live) or simulate (paper), and record one wallet send.
+
+        The whole step holds the ledger's operation lock, so a reused
+        ``request_id`` replays instead of sending twice and concurrent sends
+        are admitted against each other's recorded amounts.
+        """
         if not request_id or not request_id.strip():
             raise PaymentRefused("PAYMENTS_REQUEST_ID_REQUIRED")
-        request_id = request_id.strip()
+        with self.ledger.exclusive():
+            return self._send_locked(
+                kind=kind,
+                network=network,
+                token=token,
+                amount=amount,
+                request_id=request_id.strip(),
+                call=call,
+            )
+
+    def _send_locked(
+        self,
+        *,
+        kind: str,
+        network: str,
+        token: str,
+        amount: str,
+        request_id: str,
+        call: Callable[[WalletRuntime, str], dict[str, Any]],
+    ) -> dict[str, Any]:
         existing = self.ledger.find(request_id)
         if existing is not None:
             return {**existing, "replayed": True}
@@ -198,25 +222,6 @@ class WalletService:
             amount=amount,
             request_id=request_id,
             call=lambda rt, a: rt.approve(network, token, spender, a),
-        )
-
-    def pay_machine_payment(
-        self,
-        url: str,
-        network: str,
-        token: str,
-        amount: str,
-        method: str,
-        json_body: str,
-        request_id: str,
-    ) -> dict[str, Any]:
-        return self.send(
-            kind="machine_payment",
-            network=network,
-            token=token,
-            amount=amount,
-            request_id=request_id,
-            call=lambda rt, a: rt.machine_payment(url, a, method, json_body),
         )
 
 

@@ -2,7 +2,10 @@
 
 JSON lines under an exclusive file lock. Exchange orders and wallet sends
 share one record shape, so one listing covers both venues and the trailing
-spend totals survive a restart.
+spend totals survive a restart. ``exclusive()`` serializes one whole
+read-admit-send-record step across threads and processes, so a reused
+``request_id`` never sends twice and two concurrent sends cannot both pass
+the trailing daily limit.
 """
 
 from __future__ import annotations
@@ -10,6 +13,7 @@ from __future__ import annotations
 import json
 import os
 from collections.abc import Iterator
+from contextlib import contextmanager
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal, InvalidOperation
@@ -47,6 +51,21 @@ class PaymentLedger:
 
     def __init__(self, path: str | os.PathLike[str]) -> None:
         self.path = Path(path)
+
+    @contextmanager
+    def exclusive(self) -> Iterator[None]:
+        """Hold the ledger's operation lock (a sidecar ``.lock`` file) for one step."""
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        lock_path = self.path.with_name(self.path.name + ".lock")
+        fd = os.open(lock_path, os.O_RDWR | os.O_CREAT, 0o600)
+        try:
+            lock_exclusive(fd)
+            try:
+                yield
+            finally:
+                unlock(fd)
+        finally:
+            os.close(fd)
 
     def append(self, record: OrderRecord) -> OrderRecord:
         self.path.parent.mkdir(parents=True, exist_ok=True)

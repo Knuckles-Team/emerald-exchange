@@ -312,18 +312,3 @@ class WalletRuntime:
                 "--broadcast",
             ]
         )
-
-    def machine_payment(
-        self, url: str, amount: str, method: str = "GET", json_body: str = ""
-    ) -> dict[str, Any]:
-        method = method.upper()
-        if method not in {"GET", "POST"}:
-            raise PaymentRefused("PAYMENTS_METHOD_INVALID")
-        args = ["mpp", require_https(url), "--amount", amount, "--method", method]
-        if json_body:
-            try:
-                json.loads(json_body)
-            except json.JSONDecodeError:
-                raise PaymentRefused("PAYMENTS_BODY_INVALID") from None
-            args += ["--json-body", json_body]
-        return self.run(args)

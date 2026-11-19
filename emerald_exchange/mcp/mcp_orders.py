@@ -185,29 +185,37 @@ def register_unified_order_tools(
                 raise PaymentRefused("ORDER_SIDE_UNSUPPORTED", venue=venue, side=side)
             if not request_id or not request_id.strip():
                 raise PaymentRefused("PAYMENTS_REQUEST_ID_REQUIRED")
-            existing = ledger.find(request_id.strip())
-            if existing is not None:
-                return {**existing, "replayed": True}
             qty = parse_amount(amount)
-            result = submit_exchange_order(
-                backend, risk_guard, asset, side, float(qty), order_type, limit_price
-            )
-            if "error" in result:
-                return result
-            record = ledger.append(
-                OrderRecord(
-                    venue="exchange",
-                    order_id=str(result["order_id"]),
-                    side=side,
-                    asset=asset,
-                    amount=format(qty, "f"),
-                    status=str(result["status"]).lower(),
-                    mode=str(backend.mode),
-                    request_id=request_id.strip(),
-                    reference=str(result.get("exchange") or ""),
-                    kind="order",
+            # One locked step, so a reused request_id never submits twice.
+            with ledger.exclusive():
+                existing = ledger.find(request_id.strip())
+                if existing is not None:
+                    return {**existing, "replayed": True}
+                result = submit_exchange_order(
+                    backend,
+                    risk_guard,
+                    asset,
+                    side,
+                    float(qty),
+                    order_type,
+                    limit_price,
                 )
-            )
+                if "error" in result:
+                    return result
+                record = ledger.append(
+                    OrderRecord(
+                        venue="exchange",
+                        order_id=str(result["order_id"]),
+                        side=side,
+                        asset=asset,
+                        amount=format(qty, "f"),
+                        status=str(result["status"]).lower(),
+                        mode=str(backend.mode),
+                        request_id=request_id.strip(),
+                        reference=str(result.get("exchange") or ""),
+                        kind="order",
+                    )
+                )
             return {**record.as_dict(), "replayed": False, "exchange_result": result}
         except PaymentRefused as refusal:
             return refusal.as_result()

@@ -31,8 +31,9 @@ WRITES = {
     "emerald_payments_transfer_native",
     "emerald_payments_transfer_token",
     "emerald_payments_approve_allowance",
-    "emerald_payments_pay_machine_payment",
 }
+#: Value the governor cannot bound before signing; never served.
+NOT_SERVED = {"emerald_payments_pay_machine_payment"}
 
 
 def _tools(service):
@@ -48,6 +49,7 @@ def test_one_typed_tool_per_wallet_operation(tmp_path, monkeypatch):
     tools = _tools(service)
 
     assert set(tools) == READS | WRITES
+    assert not NOT_SERVED & set(tools)
     for name, tool in tools.items():
         props = (tool.parameters or {}).get("properties", {})
         assert "action" not in props and "params_json" not in props, name
@@ -72,34 +74,18 @@ def test_one_typed_tool_per_wallet_operation(tmp_path, monkeypatch):
         amount="1",
         request_id="r-approve",
     )
-    machine = tools["emerald_payments_pay_machine_payment"].fn(
-        url="https://pay.example/api",
-        network="bsc",
-        token=TOKEN_CONTRACT,
-        amount="0.25",
-        request_id="r-mpp",
-        method="POST",
-        json_body='{"q": 1}',
-    )
 
     argvs = [c["argv"][1:] for c in fake.calls]
     assert argvs[0][:5] == ["transfer-native", "--network", "bsc", "--to", RECIPIENT]
     assert argvs[1][:3] == ["transfer", "--network", "bsc"]
     assert argvs[2][0] == "approve" and "--spender" in argvs[2]
-    assert argvs[3][:5] == [
-        "mpp",
-        "https://pay.example/api",
-        "--amount",
-        "0.25",
-        "--method",
-    ]
     for call in fake.calls:
         assert call["argv"][-2:] == ["--json", "--agent-auth-token-stdin"]
         assert call["stdin"] == TOKEN + "\n"
         assert TOKEN not in " ".join(call["argv"])
         assert TOKEN not in json.dumps(call["env"])
-        assert "--broadcast" in call["argv"] or call["argv"][1] == "mpp"
-    for result in (native, token, allowance, machine):
+        assert "--broadcast" in call["argv"]
+    for result in (native, token, allowance):
         assert result["status"] == "broadcast" and result["mode"] == "live"
         assert TOKEN not in json.dumps(result)
 
@@ -107,7 +93,7 @@ def test_one_typed_tool_per_wallet_operation(tmp_path, monkeypatch):
     again = tools["emerald_payments_transfer_native"].fn(
         network="bsc", to=RECIPIENT, amount="0.5", request_id="r-native"
     )
-    assert again["replayed"] is True and len(fake.calls) == 4
+    assert again["replayed"] is True and len(fake.calls) == 3
 
     # Reads go to the runtime without the agent token.
     tools["emerald_payments_get_wallet"].fn()

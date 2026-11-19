@@ -33,7 +33,7 @@ An agent buys from an x402-enabled endpoint. It reads the payment requirement th
 
 ### User Story 2 - Server-side wallet payments and one order surface (Priority: P1)
 
-An operator runs the connector with a self-custodial wallet inside its own image, so an agent can move value and trade crypto from one place. The agent reads the wallet and balances, sends or approves tokens, pays a machine-payment endpoint, and places buy and sell orders on the exchange venue, all bounded by server-side limits, with keys that never leave the wallet daemon.
+An operator runs the connector with a self-custodial wallet inside its own image, so an agent can move value and trade crypto from one place. The agent reads the wallet and balances, sends or approves tokens, and places buy and sell orders on the exchange venue, all bounded by server-side limits, with keys that never leave the wallet daemon.
 
 **Acceptance Scenarios**:
 

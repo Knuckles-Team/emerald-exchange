@@ -3,13 +3,15 @@
 CONN-EMERALD-EXCHANGE-X402-R008.1. No tool takes ``action`` or untyped
 params. Every write passes the governor of R010.1 before the runtime and is
 idempotent on ``request_id``. Raw broadcast, the unbounded x402 runtime
-call, admin, policy, backup and approval-decision commands are not served.
+call, machine-payment charges and sessions (the endpoint's challenge, not the
+caller, picks the token, chain and decimals), admin, policy, backup and
+approval-decision commands are not served.
 """
 
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import Annotated, Any, Literal
+from typing import Annotated, Any
 
 from pydantic import Field
 
@@ -119,26 +121,5 @@ def register_payments_tools(mcp: Any, service: WalletService) -> None:
         return _guarded(
             lambda: service.approve_allowance(
                 network, token, spender, amount, request_id
-            )
-        )
-
-    @mcp.tool(
-        name="emerald_payments_pay_machine_payment",
-        tags={"payments"},
-        annotations=WRITE,
-    )
-    def emerald_payments_pay_machine_payment(
-        url: Annotated[str, Field(description="https machine-payment endpoint")],
-        network: Network,
-        token: Address,
-        amount: Amount,
-        request_id: RequestId,
-        method: Literal["GET", "POST"] = "GET",
-        json_body: Annotated[str, Field(description="JSON request body for POST")] = "",
-    ) -> dict[str, Any]:
-        """Pay a machine-payment endpoint a fixed charge; the runtime verifies it equals amount."""
-        return _guarded(
-            lambda: service.pay_machine_payment(
-                url, network, token, amount, method, json_body, request_id
             )
         )

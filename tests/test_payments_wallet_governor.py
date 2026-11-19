@@ -96,3 +96,49 @@ def test_breaker_trips_shared_halt_and_paper_calls_no_runtime(tmp_path, monkeypa
     assert _code(lambda: paper.transfer_native("bsc", RECIPIENT, "0.5", "")) == (
         "PAYMENTS_REQUEST_ID_REQUIRED"
     )
+
+
+def test_concurrent_sends_replay_once_and_respect_daily_limit(tmp_path, monkeypatch):
+    """A reused request id sends once and concurrent sends share one daily total."""
+    import threading
+    import time
+
+    calls: list[list[str]] = []
+
+    class SlowRuntime(FakeRuntime):
+        def __call__(self, argv, *, stdin, env, timeout):
+            calls.append(list(argv))
+            time.sleep(0.05)  # widen the read-admit-send-record window
+            return super().__call__(argv, stdin=stdin, env=env, timeout=timeout)
+
+    service = build_wallet_service(
+        payments_config(tmp_path, live=True, wallet=wallet_env(monkeypatch)),
+        RiskGuard(),
+        transport=SlowRuntime(),
+    )
+
+    def run(request_id: str, sink: list) -> None:
+        try:
+            sink.append(service.transfer_native("bsc", RECIPIENT, "0.9", request_id))
+        except PaymentRefused as refusal:
+            sink.append(refusal.code)
+
+    # Same request id from eight callers at once: one runtime call.
+    same: list = []
+    threads = [threading.Thread(target=run, args=("dup", same)) for _ in range(8)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+    assert len(calls) == 1
+    assert sum(1 for r in same if isinstance(r, dict) and not r["replayed"]) == 1
+
+    # Distinct ids at once: daily limit 2 with 0.9 already spent admits one more.
+    distinct: list = []
+    threads = [threading.Thread(target=run, args=(f"d{i}", distinct)) for i in range(6)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+    assert len(calls) == 2
+    assert distinct.count("SPEND_LIMIT_EXCEEDED") == 5
