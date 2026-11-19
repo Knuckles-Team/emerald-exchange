@@ -1630,8 +1630,6 @@ with A. Conflict resolution uses deterministic conflict_weight comparison.""" ;
     rdfs:comment "Domain extension for quant trading, crypto, and finance." .
 
 
-bfo:0000002 owl:disjointWith bfo:0000003 .
-
 :AgentCalibration a owl:Class ;
     rdfs:label "Agent Calibration" ;
     rdfs:comment "A Brier-based reputation/calibration record CALIBRATION_OF an Agent persona, used to compute calibration-weighted SwarmConsensus role weights. CONCEPT:KG-2.27" ;
