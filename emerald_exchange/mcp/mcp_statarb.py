@@ -2,73 +2,74 @@
 
 CONCEPT:EX-AHE.harness.ee-28 (dynamic-beta hedge) / EE-030 (OU stat-arb).
 
-Action-routed tool over medulla analyses (``ontology/quant.ttl``):
-  - 'ou_signal': spread → ADF stationarity, OU calibration and optimal
-    entry/exit bands (SpreadStationarityAnalysis,
+One typed tool per medulla analysis (``ontology/quant.ttl``):
+  - ``emerald_statarb_ou_signal``: spread → ADF stationarity, OU calibration
+    and optimal entry/exit bands (SpreadStationarityAnalysis,
     MeanReversionCalibrationAnalysis, MeanReversionThresholdAnalysis).
-  - 'dynamic_beta': asset + market returns → Kalman hedge beta
-    (HedgeBetaAnalysis).
+  - ``emerald_statarb_dynamic_beta``: asset + market returns → Kalman hedge
+    beta (HedgeBetaAnalysis).
 
-CRITICAL SAFETY: both actions return measurements only; they never place
+CRITICAL SAFETY: both tools return measurements only; they never place
 orders. Live execution stays gated behind ``RiskGuard.require_human_approval_live``.
 """
 
 import json
 import logging
-from typing import Any
+from collections.abc import Callable
+from typing import Annotated, Any
+
+from pydantic import Field
+
+from emerald_exchange.mcp._hints import READ
 
 logger = logging.getLogger(__name__)
 
+Returns = Annotated[list[float], Field(description="Return series")]
+
+
+def _run(compute: Callable[[], Any]) -> str:
+    try:
+        return json.dumps(compute())
+    except Exception as exc:  # noqa: BLE001
+        logger.error("Statarb tool error: error_type=%s", type(exc).__name__)
+        return json.dumps({"error": "Operation failed"})
+
 
 def register_statarb_tools(mcp: Any) -> None:
-    """Register the stat-arb / dynamic-beta hedging tool."""
+    """Register the stat-arb / dynamic-beta hedging tools."""
+    from emerald_exchange import analyses
 
-    @mcp.tool(tags=["statarb"])
-    def emerald_statarb(
-        action: str,
-        params_json: str = "{}",
+    @mcp.tool(tags={"statarb"}, annotations=READ)
+    def emerald_statarb_ou_signal(
+        spread: Annotated[list[float], Field(description="Spread series")],
+        dt: Annotated[float, Field(description="Sampling interval")] = 1.0,
+        adf_max_lag: Annotated[int, Field(description="ADF maximum lag")] = 1,
+        cost: Annotated[float, Field(description="Round-trip trading cost")] = 0.0,
     ) -> str:
-        """OU statistical-arbitrage bands + dynamic-beta hedge. CONCEPT:EX-AHE.harness.ee-29
+        """OU stat-arb bands: {adf, ou, thresholds} from medulla. CONCEPT:EX-AHE.harness.ee-29"""
+        return _run(
+            lambda: analyses.ou_stat_arb_signal(
+                spread=spread, dt=dt, adf_max_lag=adf_max_lag, cost=cost
+            )
+        )
 
-        Actions:
-          - 'ou_signal': params: spread (list), dt (float), adf_max_lag (int),
-            cost (float). Returns {adf, ou, thresholds} from medulla.
-          - 'dynamic_beta': params: asset_returns (list), market_returns (list),
-            q, r, beta0, p0. Returns the current Kalman beta and its variance.
-
-        Args:
-            action: operation to perform.
-            params_json: JSON string of parameters.
-        """
-        try:
-            params = json.loads(params_json or "{}")
-        except json.JSONDecodeError as exc:
-            return json.dumps({"error": f"invalid params_json: {type(exc).__name__}"})
-
-        from emerald_exchange import analyses
-
-        try:
-            if action == "ou_signal":
-                return json.dumps(
-                    analyses.ou_stat_arb_signal(
-                        spread=[float(x) for x in params.get("spread", [])],
-                        dt=float(params.get("dt", 1.0)),
-                        adf_max_lag=int(params.get("adf_max_lag", 1)),
-                        cost=float(params.get("cost", 0.0)),
-                    )
-                )
-            if action == "dynamic_beta":
-                return json.dumps(
-                    analyses.dynamic_beta_hedge(
-                        asset_returns=params.get("asset_returns", []),
-                        market_returns=params.get("market_returns", []),
-                        q=float(params.get("q", 1e-5)),
-                        r=float(params.get("r", 1e-3)),
-                        beta0=float(params.get("beta0", 1.0)),
-                        p0=float(params.get("p0", 1.0)),
-                    )
-                )
-            return json.dumps({"error": f"Unknown action: {action}"})
-        except Exception as exc:  # noqa: BLE001
-            logger.error("Statarb tool error: error_type=%s", type(exc).__name__)
-            return json.dumps({"error": "Operation failed"})
+    @mcp.tool(tags={"statarb"}, annotations=READ)
+    def emerald_statarb_dynamic_beta(
+        asset_returns: Returns,
+        market_returns: Returns,
+        q: Annotated[float, Field(description="Process noise")] = 1e-5,
+        r: Annotated[float, Field(description="Observation noise")] = 1e-3,
+        beta0: Annotated[float, Field(description="Initial beta")] = 1.0,
+        p0: Annotated[float, Field(description="Initial beta variance")] = 1.0,
+    ) -> str:
+        """Current Kalman hedge beta and its variance. CONCEPT:EX-AHE.harness.ee-28"""
+        return _run(
+            lambda: analyses.dynamic_beta_hedge(
+                asset_returns=asset_returns,
+                market_returns=market_returns,
+                q=q,
+                r=r,
+                beta0=beta0,
+                p0=p0,
+            )
+        )

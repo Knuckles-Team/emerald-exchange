@@ -1,9 +1,8 @@
 """Emerald Exchange MCP Server
 
-Unified Finance MCP exposing all trading tools via action-routed domains.
+Unified Finance MCP: one typed tool per trading, analysis and exchange operation.
 """
 
-import json
 import logging
 import sys
 from pathlib import Path
@@ -18,7 +17,7 @@ def get_mcp_instance():
     warnings.filterwarnings("ignore", category=UserWarning, module="urllib3")
     warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-    from scion_sdk.config import load_config, setting
+    from scion_sdk.config import load_config
     from scion_sdk.mcp.content import ConnectorContent
     from scion_sdk.mcp.server import create_mcp_server
     from scion_sdk.mcp.tool_surface import register_tool_surface
@@ -38,93 +37,17 @@ def get_mcp_instance():
         ),
     )
 
-    # Load config
-    from scion_sdk import paths
-
-    from emerald_exchange.mcp.mcp_crypto import register_crypto_tools
-    from emerald_exchange.mcp.mcp_debate import register_debate_tools
-    from emerald_exchange.mcp.mcp_derivatives import register_derivatives_tools
-    from emerald_exchange.mcp.mcp_fundamentals import register_fundamentals_tools
-    from emerald_exchange.mcp.mcp_kg_ingest import register_kg_ingest_tools
-    from emerald_exchange.mcp.mcp_market_making import register_market_making_tools
-    from emerald_exchange.mcp.mcp_orders import register_order_tools
-    from emerald_exchange.mcp.mcp_prediction_markets import (
-        register_prediction_market_tools,
-    )
-    from emerald_exchange.mcp.mcp_risk import register_risk_tools
-    from emerald_exchange.mcp.mcp_signals import register_signal_tools
-    from emerald_exchange.mcp.mcp_statarb import register_statarb_tools
-    from emerald_exchange.mcp.mcp_strategy import register_strategy_tools
-    from emerald_exchange.mcp.mcp_wallet_intel import register_wallet_intel_tools
-
-    config_path = paths.config_dir() / "config.json"
-    trading_config: dict = {}
-    if config_path.exists():
-        try:
-            with open(config_path) as f:
-                full_config = json.load(f)
-            trading_config = full_config.get("trading", {})
-        except (OSError, json.JSONDecodeError) as e:
-            logger.warning("Operation failed: error_type=%s", type(e).__name__)
-
-    # Initialize exchange backend
-    from emerald_exchange.backends import TradingMode, create_backend
-    from emerald_exchange.risk_guards import RiskGuard, RiskLimits
-
-    default_exchange = trading_config.get("default_exchange", "paper")
-    default_mode = TradingMode(trading_config.get("default_mode", "paper"))
-    exchange_config = trading_config.get("exchanges", {}).get(default_exchange, {})
-
-    # Resolve env vars for API keys
-    resolved_config: dict = {}
-    for key, val in exchange_config.items():
-        if isinstance(val, str) and key.endswith("_env"):
-            resolved_config[key.replace("_env", "")] = setting(val, "")
-        elif key not in ("enabled",):
-            resolved_config[key] = val
-
-    backend = create_backend(default_exchange, resolved_config, default_mode)
-    backend.connect()
-
-    # Initialize risk guard
-    risk_config = trading_config.get("risk_limits", {})
-    risk_guard = RiskGuard(RiskLimits(**risk_config) if risk_config else None)
-
-    print(
-        f"🟢 Emerald Exchange MCP: {default_exchange} ({default_mode})", file=sys.stderr
+    from emerald_exchange.trading_surface import (
+        build_trading_state,
+        register_trading_tools,
     )
 
-    # Register every trading domain through the one central tool surface
-    # (CONCEPT:AU-ECO.mcp.tool-mode-standardization). Each `<TAG>TOOL` env var defaults True, so the default
-    # condensed mode registers all 14 domains exactly as the prior unconditional
-    # calls did; operators can disable a domain, and verbose/both mode adds the
-    # 1:1 surface over the backend's methods.
-    registrars = [
-        ("crypto", "CRYPTOTOOL", lambda m: register_crypto_tools(m, backend)),
-        ("debate", "DEBATETOOL", register_debate_tools),
-        ("derivatives", "DERIVATIVESTOOL", register_derivatives_tools),
-        ("market_making", "MARKET_MAKINGTOOL", register_market_making_tools),
-        ("order", "ORDERTOOL", lambda m: register_order_tools(m, backend, risk_guard)),
-        ("risk", "RISKTOOL", lambda m: register_risk_tools(m, backend, risk_guard)),
-        ("signal", "SIGNALTOOL", register_signal_tools),
-        ("statarb", "STATARBTOOL", register_statarb_tools),
-        ("strategy", "STRATEGYTOOL", register_strategy_tools),
-        (
-            "prediction_market",
-            "PREDICTION_MARKETTOOL",
-            lambda m: register_prediction_market_tools(m, risk_guard),
-        ),
-        ("fundamentals", "FUNDAMENTALSTOOL", register_fundamentals_tools),
-        ("wallet_intel", "WALLET_INTELTOOL", register_wallet_intel_tools),
-        (
-            "kg_ingest",
-            "KG_INGESTTOOL",
-            lambda m: register_kg_ingest_tools(m, backend),
-        ),
-    ]
+    state = build_trading_state()
+    backend = state.backend
+    print(f"🟢 Emerald Exchange MCP: {backend.name} ({backend.mode})", file=sys.stderr)
+
     # Exchange API operations: one typed tool per backend method. Quotes,
-    # history, positions and account reads are these operation tools, so the
-    # old market_data/portfolio action tools are not served again.
+    # history, positions and account reads are these operation tools.
     from emerald_exchange.exchange_operations import ExchangeReadOperations
 
     read_operations = ExchangeReadOperations(backend)
@@ -144,12 +67,8 @@ def get_mcp_instance():
     )
     logger.debug("Registered tool domains: %s", registered_tags)
 
-    # Computed/analytic tools (not exchange operations): one typed tool per action.
-    from emerald_exchange.analytic_tools import serve_analytic_actions
-
-    serve_analytic_actions(
-        mcp, registrars, rename={"ee_prediction_markets": "emerald_prediction_markets"}
-    )
+    # Orders, risk, signals, strategy and analyses: one typed tool each.
+    register_trading_tools(mcp, state)
 
     for mw in middlewares:
         mcp.add_middleware(mw)

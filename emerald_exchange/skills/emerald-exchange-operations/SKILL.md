@@ -2,7 +2,7 @@
 name: emerald-exchange-operations
 skill_type: skill
 description: >-
-  Operate emerald-exchange through its governed MCP and Arbora capabilities, including emerald exchange kg ingestion, emerald exchange market data, emerald exchange order execution. Use when a request requires this provider's read, change, automation, ingestion, troubleshooting, or evidence workflows.
+  Operate emerald-exchange through its governed MCP and Arbora capabilities, including emerald exchange kg ingestion, emerald exchange market data, emerald exchange market research, emerald exchange order execution, emerald exchange quant analysis. Use when a request requires this provider's read, change, automation, ingestion, troubleshooting, or evidence workflows.
 ---
 
 # Emerald Exchange Operations
@@ -12,7 +12,7 @@ Use the provider's governed MCP tools through Arbora delegation.
 ## Workflow
 
 1. Establish the verified GraphSession and tenant before discovery or retrieval.
-2. Discover the current condensed tool surface; never assume a stale tool name or schema.
+2. Discover the current typed tool surface (one tool per operation); never assume a stale tool name or schema.
 3. Prefer read-only inspection first. For changes, present impact and use the provider's
    dry-run or preview mode when available.
 4. Execute mutations as fenced WorkItems so retries remain idempotent and auditable.
@@ -24,7 +24,8 @@ Use the provider's governed MCP tools through Arbora delegation.
 - Never persist credentials, endpoints, raw personal identifiers, hostnames, or local paths.
 - Resolve TLS trust and verification from environment/configuration; never hardcode bypasses.
 - Treat unknown ACL, tenant, schema, or tool-contract state as a hard failure.
-- Require explicit approval for destructive, externally visible, or irreversible actions.
+- Require explicit approval for destructive, externally visible, or irreversible actions;
+  `emerald_orders_submit`, `emerald_orders_cancel` and `emerald_orders_halt` ask the caller to confirm.
 - Keep runtime traces policy-scoped and privacy-sanitized.
 
 ## Specialized workflows

@@ -44,46 +44,93 @@ _Auto-generated from the live MCP server — do not edit by hand._
 
 <!-- MCP-TOOLS-TABLE:START -->
 
-#### Condensed action-routed tools (`MCP_TOOL_MODE=condensed`)
+#### Trading, risk and analysis tools (one typed tool per operation)
 
 | MCP Tool | Toggle Env Var | Description |
 |----------|----------------|-------------|
-| `ee_prediction_markets` | `PREDICTION_MARKETTOOL` | Prediction Markets operations. |
-| `emerald_crypto` | `CRYPTOTOOL` | Crypto-native analytics and arbitrage. CONCEPT:EX-AHE.harness.ee-14 |
-| `emerald_debate` | `DEBATETOOL` | Multi-agent trading debate engine. CONCEPT:EX-AHE.harness.ee-13 |
-| `emerald_derivatives` | `DERIVATIVESTOOL` | SABR volatility surface + vol-arb. CONCEPT:AU-AHE.assimilation.decision-distillation |
-| `emerald_fundamentals` | `FUNDAMENTALSTOOL` | SEC EDGAR fundamentals operations. CONCEPT:EX-AHE.harness.ee-26. |
+| `emerald_crypto_arb_scan` | `CRYPTOTOOL` | Cross-exchange arbitrage scan between two venues. |
+| `emerald_crypto_cointegration` | `CRYPTOTOOL` | Cointegration test between two crypto assets. |
+| `emerald_crypto_funding_rates` | `CRYPTOTOOL` | Perpetual futures funding rate for a pair. |
+| `emerald_crypto_on_chain` | `CRYPTOTOOL` | On-chain analytics (volume, active addresses) for an asset. |
+| `emerald_crypto_whale_alerts` | `CRYPTOTOOL` | Large on-chain transfers above the alert threshold. |
+| `emerald_debate_consensus` | `DEBATETOOL` | Debate consensus and outcome so far. |
+| `emerald_debate_history` | `DEBATETOOL` | Past debates from the knowledge graph. |
+| `emerald_debate_risk_veto` | `DEBATETOOL` | Risk officer veto: reject the hypothesis at once. |
+| `emerald_debate_start` | `DEBATETOOL` | Start a new debate on a trading hypothesis. |
+| `emerald_debate_submit_argument` | `DEBATETOOL` | Submit a bull or bear argument to an active debate. |
+| `emerald_derivatives_calibrate` | `DERIVATIVESTOOL` | Calibrate SABR (alpha, rho, nu) to a market smile with beta fixed. |
+| `emerald_derivatives_implied_vol` | `DERIVATIVESTOOL` | One-strike SABR implied vol. |
+| `emerald_derivatives_smile` | `DERIVATIVESTOOL` | SABR implied-vol smile across strikes. |
+| `emerald_derivatives_vol_arb` | `DERIVATIVESTOOL` | Rich/cheap strikes against the SABR-fair smile (decision only). |
+| `emerald_fundamentals_filings` | `FUNDAMENTALSTOOL` | Latest N filings of a form. |
+| `emerald_fundamentals_financials` | `FUNDAMENTALSTOOL` | Standardized financial statement. |
+| `emerald_fundamentals_forensic_screen` | `FUNDAMENTALSTOOL` | Standardize then engine forensic_report: Beneish/Altman/Piotroski/Sloan verdict. |
+| `emerald_fundamentals_full_text_search` | `FUNDAMENTALSTOOL` | EDGAR full-text phrase search. |
+| `emerald_fundamentals_mdna` | `FUNDAMENTALSTOOL` | Item 7 MD&A, this year and prior year. |
+| `emerald_fundamentals_risk_factors` | `FUNDAMENTALSTOOL` | Item 1A risk factors, this year and prior year. |
+| `emerald_fundamentals_standardize` | `FUNDAMENTALSTOOL` | Two latest fiscal years in the 17-key forensic schema. |
 | `emerald_ingest_snapshot` | `KG_INGESTTOOL` | Ingest a live trading snapshot into medulla as typed nodes. |
-| `emerald_market_data` | `MARKET_DATATOOL` | Market data operations. CONCEPT:EX-AHE.harness.ee-7 |
-| `emerald_market_making` | `MARKET_MAKINGTOOL` | Market-making controller, fee model, and forensic screener. CONCEPT:EX-AHE.harness.ee-22 |
-| `emerald_orders` | `ORDERTOOL` | Order management with pre-trade risk validation. CONCEPT:EX-AHE.harness.ee-8 |
-| `emerald_portfolio` | `PORTFOLIOTOOL` | Portfolio management operations. CONCEPT:EX-AHE.harness.ee-9 |
-| `emerald_risk` | `RISKTOOL` | Risk management and monitoring. CONCEPT:AU-AHE.assimilation.skill-workflow-ingest |
-| `emerald_signals` | `SIGNALTOOL` | Signal generation and fusion. Routes to scion-sdk finance domain. CONCEPT:EX-AHE.harness.ee-11 |
-| `emerald_statarb` | `STATARBTOOL` | OU statistical-arbitrage signal + dynamic-beta hedge. CONCEPT:EX-AHE.harness.ee-29 |
-| `emerald_strategy` | `STRATEGYTOOL` | Strategy lifecycle management. CONCEPT:AU-AHE.assimilation.trading-ecosystem-spec |
-| `emerald_wallet_intel` | `WALLET_INTELTOOL` | Polymarket wallet-intelligence operations. CONCEPT:EX-AHE.harness.ee-27. |
+| `emerald_market_making_backtest` | `MARKET_MAKINGTOOL` | Event-driven L2-queue backtest — refused (not_served). |
+| `emerald_market_making_brier` | `MARKET_MAKINGTOOL` | Brier calibration score of forecasts vs outcomes. |
+| `emerald_market_making_fee` | `MARKET_MAKINGTOOL` | Venue fee for a fill — refused (not_served). |
+| `emerald_market_making_forensic` | `MARKET_MAKINGTOOL` | Two-year forensic accounting screen. |
+| `emerald_market_making_pbo` | `MARKET_MAKINGTOOL` | Probability of backtest overfit. |
+| `emerald_market_making_quote` | `MARKET_MAKINGTOOL` | Intended market-making quotes for one book update (decision only). |
+| `emerald_market_making_validate` | `MARKET_MAKINGTOOL` | Performance, deflated Sharpe and purged CPCV of backtest returns. |
+| `emerald_orders_cancel` | `ORDERTOOL` | Cancel an open order. |
+| `emerald_orders_halt` | `ORDERTOOL` | Emergency kill switch: halt ALL trading. |
+| `emerald_orders_resume` | `ORDERTOOL` | Resume trading after a halt. |
+| `emerald_orders_status` | `ORDERTOOL` | Status, filled quantity and average price of one order. |
+| `emerald_orders_submit` | `ORDERTOOL` | Submit an order after the pre-trade risk check. |
+| `emerald_prediction_markets_evaluate_event_arbitrage` | `PREDICTION_MARKETTOOL` | Dual-platform arbitrage evaluation using a Laplace-smoothed forecast. |
+| `emerald_prediction_markets_fetch_kalshi_orderbook` | `PREDICTION_MARKETTOOL` | Fetch the Kalshi orderbook for an event (simulated via API). |
+| `emerald_prediction_markets_fetch_open_meteo_ensemble` | `PREDICTION_MARKETTOOL` | Fetch the 31-member ensemble weather forecast for a location. |
+| `emerald_prediction_markets_fetch_polymarket_orderbook` | `PREDICTION_MARKETTOOL` | Fetch the Polymarket orderbook for an event (simulated via API). |
+| `emerald_risk_bayesian_kelly` | `RISKTOOL` | Beta-posterior Kelly sizing (engine-backed, uncertainty-aware). |
+| `emerald_risk_daily_loss_check` | `RISKTOOL` | Check the daily loss against the configured limit. |
+| `emerald_risk_drawdown_check` | `RISKTOOL` | Check portfolio drawdown against the configured limit. |
+| `emerald_risk_empirical_kelly` | `RISKTOOL` | Monte-Carlo Kelly sizing over a realized return distribution. |
+| `emerald_risk_kelly` | `RISKTOOL` | Point Kelly criterion position size. |
+| `emerald_risk_limits` | `RISKTOOL` | The configured risk limits. |
+| `emerald_risk_status` | `RISKTOOL` | Current risk status: halted, equity and peak equity. |
+| `emerald_signals_alpha` | `SIGNALTOOL` | Alpha factors for a ticker. |
+| `emerald_signals_fuse` | `SIGNALTOOL` | Bayesian signal fusion seeded from KG-stored signal priors. |
+| `emerald_signals_insider_equilibrium` | `SIGNALTOOL` | Strategic insider equilibrium under DYNAMIC legal risk ( |
+| `emerald_signals_regime` | `SIGNALTOOL` | Detect the current market regime (engine HMM over returns). |
+| `emerald_signals_surveillance` | `SIGNALTOOL` | Kyle insider/stealth-trading surveillance scores ( |
+| `emerald_statarb_dynamic_beta` | `STATARBTOOL` | Current Kalman hedge beta and its variance. |
+| `emerald_statarb_ou_signal` | `STATARBTOOL` | OU stat-arb bands: {adf, ou, thresholds} from medulla. |
+| `emerald_strategy_backtest` | `STRATEGYTOOL` | Validate a returns series (deflated Sharpe + PBO) and write the priors. |
+| `emerald_strategy_export` | `STRATEGYTOOL` | Export a strategy to PineScript, MQL5 or TDX. |
+| `emerald_strategy_list` | `STRATEGYTOOL` | Strategies from the knowledge graph. |
+| `emerald_strategy_promote` | `STRATEGYTOOL` | Promote a strategy stage (draft -> backtest -> paper -> live). |
+| `emerald_wallet_intel_exit_behavior` | `WALLET_INTELTOOL` | Share exited before resolution and average share of max profit captured. |
+| `emerald_wallet_intel_rank_wallets` | `WALLET_INTELTOOL` | Smart-money copy-trade targets. |
+| `emerald_wallet_intel_smart_money_convergence` | `WALLET_INTELTOOL` | How many target wallets hold the same side of a token. |
+| `emerald_wallet_intel_wallet_profile` | `WALLET_INTELTOOL` | Per-wallet stats and open positions. |
 
-#### Verbose 1:1 API-mapped tools (`MCP_TOOL_MODE=verbose` or `both`)
+#### Exchange read operations (one typed tool per API method)
 
-<details>
-<summary>9 per-operation tools — one per public API method (click to expand)</summary>
+| MCP Tool | Description |
+|----------|-------------|
+| `emerald_exchange_exchanges` | Available exchange backends, the active backend and its mode. |
+| `emerald_exchange_get_account` | Account balances and buying power. |
+| `emerald_exchange_get_account_positions` | Read positions with stable identities scoped to their Alpaca account. |
+| `emerald_exchange_get_account_snapshot` | Read one Alpaca account and its positions as an ingestible record. |
+| `emerald_exchange_get_company_records` | Read a bounded FMP company dataset for an Alpaca symbol. |
+| `emerald_exchange_get_csv_activities` | Read validated statement rows for the active Alpaca account. |
+| `emerald_exchange_get_exchange_history` | Read one bounded CCXT candle page with stable exchange identity. |
+| `emerald_exchange_get_historical` | Historical OHLCV bars for one symbol. |
+| `emerald_exchange_get_multi_asset_records` | Read bounded multi-asset provider observations. |
+| `emerald_exchange_get_order_status` | Status of one submitted order. |
+| `emerald_exchange_get_positions` | Open positions. |
+| `emerald_exchange_get_quote` | Latest quote for one symbol. |
+| `emerald_exchange_get_stock_bars` | Read one Alpaca page with explicit adjustment and feed labels. |
+| `emerald_exchange_get_stock_dividends` | Read one bounded page of Alpaca corporate-action dividends. |
+| `emerald_exchange_get_stock_news` | Read one bounded page of Alpaca news headlines. |
+| `emerald_exchange_get_stock_quote` | Read an Alpaca quote with explicit feed and source time. |
 
-| MCP Tool | Toggle Env Var | Description |
-|----------|----------------|-------------|
-| `emerald_cancel_order` | `PAPER_BACKENDTOOL` | Invoke the cancel_order operation. |
-| `emerald_connect` | `PAPER_BACKENDTOOL` | Invoke the connect operation. |
-| `emerald_disconnect` | `PAPER_BACKENDTOOL` | Invoke the disconnect operation. |
-| `emerald_get_account` | `PAPER_BACKENDTOOL` | Invoke the get_account operation. |
-| `emerald_get_historical` | `PAPER_BACKENDTOOL` | Invoke the get_historical operation. |
-| `emerald_get_order_status` | `PAPER_BACKENDTOOL` | Invoke the get_order_status operation. |
-| `emerald_get_positions` | `PAPER_BACKENDTOOL` | Invoke the get_positions operation. |
-| `emerald_get_quote` | `PAPER_BACKENDTOOL` | Invoke the get_quote operation. |
-| `emerald_submit_order` | `PAPER_BACKENDTOOL` | Invoke the submit_order operation. |
-
-</details>
-
-_15 action-routed tool(s) · 9 verbose 1:1 tool(s). Each is enabled unless its `<DOMAIN>TOOL` toggle is set false; `MCP_TOOL_MODE` selects the surface (**`intent` default** — the six verb-tools, granular set loaded on demand · `condensed` action-routed · `verbose` 1:1 · `both`). Auto-generated — do not edit._
+_60 trading tool(s) · 16 exchange read tool(s). Each trading domain is enabled unless its `<DOMAIN>TOOL` toggle is set false. Submit, cancel and halt are destructive and ask for confirmation. Auto-generated — do not edit._
 <!-- MCP-TOOLS-TABLE:END -->
 
 ## Exchange Backends
@@ -108,7 +155,7 @@ _15 action-routed tool(s) · 9 verbose 1:1 tool(s). Each is enabled unless its `
 | Max Daily Loss | 3% auto-halt |
 | Regime Shift Detection | KS-test auto-halt |
 | Human Approval for Live | Required |
-| Kill Switch | `emerald_orders(action="halt")` |
+| Kill Switch | `emerald_orders_halt` (destructive; asks for confirmation) |
 
 ## Usage
 

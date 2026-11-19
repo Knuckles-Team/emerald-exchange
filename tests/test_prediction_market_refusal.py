@@ -14,14 +14,7 @@ def test_unserved_ensemble_probability_is_refused(monkeypatch):
     monkeypatch.setattr(_engine, "_COMPUTE_CACHE", EngineCompute(_Client()))
     mcp = _CaptureMCP()
     register_prediction_market_tools(mcp)
-    (tool,) = [fn for name, fn in mcp.tools.items() if "prediction" in name]
-    out = json.loads(
-        asyncio.run(
-            tool(
-                action="evaluate_event_arbitrage",
-                params_json='{"condition_met_count": 20}',
-            )
-        )
-    )
+    tool = mcp.tools["emerald_prediction_markets_evaluate_event_arbitrage"]
+    out = json.loads(asyncio.run(tool(condition_met_count=20)))
     assert out["error"] == "not_served"
     assert out["method"].endswith("#EnsembleProbabilityAnalysis")

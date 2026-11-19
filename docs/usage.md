@@ -11,28 +11,33 @@ Reads work against the in-process Paper backend with no configuration; live
 execution requires explicit live-mode opt-in and per-venue credentials, and every
 order clears the pre-trade risk guard first.
 
-| Domain | Tool | Actions |
-|---|---|---|
-| Market data | `emerald_market_data` | quote, historical, exchanges |
-| Orders | `emerald_orders` | submit, cancel, status, halt, resume |
-| Portfolio | `emerald_portfolio` | positions, account |
-| Risk | `emerald_risk` | status, drawdown_check, daily_loss_check, kelly, empirical_kelly, limits |
-| Signals | `emerald_signals` | regime, alpha, fuse |
-| Strategy | `emerald_strategy` | list, promote, export |
-| Crypto | `emerald_crypto` | funding rates, whale alerts, arbitrage scan |
-| Derivatives | `emerald_derivatives` | implied_vol, smile, calibrate, vol_arb (SABR) |
-| Market making | `emerald_market_making` | quoting policy, brier |
-| Statistical arbitrage | `emerald_statarb` | ou_signal, dynamic_beta |
-| Prediction markets | `emerald_prediction_markets` | kalshi_events, polymarket_events, open_meteo_ensemble |
-| Fundamentals | `emerald_fundamentals` | filings, financials, risk_factors, mdna, full_text_search, standardize, forensic_screen |
-| Wallet intelligence | `emerald_wallet_intel` | rank_wallets, wallet_profile, smart_money_convergence, exit_behavior |
+Every operation is its own typed tool; no tool takes an `action` argument.
+
+| Domain | Tools |
+|---|---|
+| Market data and account | `emerald_exchange_get_quote`, `emerald_exchange_get_historical`, `emerald_exchange_exchanges`, `emerald_exchange_get_account`, `emerald_exchange_get_positions`, and the other `emerald_exchange_*` reads |
+| Orders | `emerald_orders_submit`, `emerald_orders_cancel`, `emerald_orders_status`, `emerald_orders_halt`, `emerald_orders_resume` |
+| Risk | `emerald_risk_status`, `emerald_risk_drawdown_check`, `emerald_risk_daily_loss_check`, `emerald_risk_kelly`, `emerald_risk_bayesian_kelly`, `emerald_risk_empirical_kelly`, `emerald_risk_limits` |
+| Signals | `emerald_signals_regime`, `emerald_signals_alpha`, `emerald_signals_fuse`, `emerald_signals_surveillance`, `emerald_signals_insider_equilibrium` |
+| Strategy | `emerald_strategy_backtest`, `emerald_strategy_list`, `emerald_strategy_promote`, `emerald_strategy_export` |
+| Crypto | `emerald_crypto_funding_rates`, `emerald_crypto_whale_alerts`, `emerald_crypto_on_chain`, `emerald_crypto_arb_scan`, `emerald_crypto_cointegration` |
+| Derivatives | `emerald_derivatives_implied_vol`, `emerald_derivatives_smile`, `emerald_derivatives_calibrate`, `emerald_derivatives_vol_arb` (SABR) |
+| Market making | `emerald_market_making_quote`, `emerald_market_making_fee`, `emerald_market_making_backtest`, `emerald_market_making_validate`, `emerald_market_making_pbo`, `emerald_market_making_forensic`, `emerald_market_making_brier` |
+| Statistical arbitrage | `emerald_statarb_ou_signal`, `emerald_statarb_dynamic_beta` |
+| Debate | `emerald_debate_start`, `emerald_debate_submit_argument`, `emerald_debate_risk_veto`, `emerald_debate_consensus`, `emerald_debate_history` |
+| Prediction markets | `emerald_prediction_markets_fetch_open_meteo_ensemble`, `emerald_prediction_markets_fetch_polymarket_orderbook`, `emerald_prediction_markets_fetch_kalshi_orderbook`, `emerald_prediction_markets_evaluate_event_arbitrage` |
+| Fundamentals | `emerald_fundamentals_filings`, `emerald_fundamentals_financials`, `emerald_fundamentals_risk_factors`, `emerald_fundamentals_mdna`, `emerald_fundamentals_full_text_search`, `emerald_fundamentals_standardize`, `emerald_fundamentals_forensic_screen` |
+| Wallet intelligence | `emerald_wallet_intel_rank_wallets`, `emerald_wallet_intel_wallet_profile`, `emerald_wallet_intel_smart_money_convergence`, `emerald_wallet_intel_exit_behavior` |
+
+Submit, cancel and halt are destructive: the server asks the caller to confirm, or
+the caller passes `confirm: true` when its client cannot be asked.
 
 Example agent prompts that map onto these tools:
 
-- *"Get the latest quote for AAPL"* → `emerald_market_data`
-- *"What position size does Kelly suggest for this trade?"* → `emerald_risk`
-- *"Halt all trading now"* → `emerald_orders(action="halt")` (the kill switch)
-- *"Run a forensic screen on ticker XYZ"* → `emerald_fundamentals`
+- *"Get the latest quote for AAPL"* → `emerald_exchange_get_quote`
+- *"What position size does Kelly suggest for this trade?"* → `emerald_risk_kelly`
+- *"Halt all trading now"* → `emerald_orders_halt` (the kill switch)
+- *"Run a forensic screen on ticker XYZ"* → `emerald_fundamentals_forensic_screen`
 
 ## As a Python API
 

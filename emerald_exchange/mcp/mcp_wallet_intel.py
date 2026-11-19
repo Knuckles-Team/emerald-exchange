@@ -1,6 +1,6 @@
 """Wallet Intelligence MCP Domain — CONCEPT:EX-AHE.harness.ee-27.
 
-Action-routed Polymarket wallet-analytics tool, folded in from the former
+Polymarket wallet analytics, one typed tool per operation, folded in from the former
 standalone ``poly-wallet-mcp`` package. Over a ``poly_data`` trade dataset it
 finds smart-money wallets, profiles them, measures convergence on a token, and
 studies exit behavior.
@@ -16,9 +16,13 @@ from __future__ import annotations
 import json
 import logging
 import os
-from typing import Any
+from collections.abc import Callable
+from typing import Annotated, Any
+
+from pydantic import Field
 
 from emerald_exchange.data.wallet_intel import NoDatasetConfigured, PolyWalletApi
+from emerald_exchange.mcp._hints import READ
 
 logger = logging.getLogger(__name__)
 
@@ -48,66 +52,65 @@ def _parse_wallets(wallets: Any) -> list[str]:
     return [w.strip() for w in s.split(",") if w.strip()]
 
 
+def _run(operation: Callable[[PolyWalletApi], Any]) -> str:
+    """Run one wallet analysis; a missing dataset becomes an error payload."""
+    try:
+        result = operation(PolyWalletApi())
+    except NoDatasetConfigured:
+        return json.dumps({"error": "Operation failed", "ok": False})
+    except Exception as exc:  # noqa: BLE001
+        logger.error("Operation failed: error_type=%s", type(exc).__name__)
+        return json.dumps({"error": "Operation failed"})
+    return json.dumps(result, default=str)
+
+
+Wallet = Annotated[str, Field(description="Wallet address")]
+
+
 def register_wallet_intel_tools(mcp: Any) -> None:
     """Register the Polymarket wallet-intelligence tool group. CONCEPT:EX-AHE.harness.ee-27."""
     if not _enabled():
         logger.info("WALLET_INTELTOOL disabled; skipping wallet-intel tool group")
         return
 
-    @mcp.tool()
-    async def emerald_wallet_intel(
-        action: str,
-        params_json: str = "{}",
+    @mcp.tool(tags={"wallet_intel"}, annotations=READ)
+    async def emerald_wallet_intel_rank_wallets(
+        min_trades: Annotated[int, Field(description="Minimum trades")] = 20,
+        min_win_rate: Annotated[float, Field(description="Minimum win rate")] = 0.55,
+        top_k: Annotated[int, Field(description="How many wallets")] = 25,
     ) -> str:
-        """Polymarket wallet-intelligence operations. CONCEPT:EX-AHE.harness.ee-27.
-
-        Actions:
-          - rank_wallets: Smart-money copy-trade targets. params: min_trades,
-            min_win_rate, top_k.
-          - wallet_profile: Per-wallet stats + open positions. params: wallet.
-          - smart_money_convergence: How many target wallets hold the same side.
-            params: token, wallets (JSON array or comma-separated), market_id.
-          - exit_behavior: % exit before resolution + avg % max profit captured.
-            params: wallet.
-
-        Args:
-            action: The operation to perform.
-            params_json: JSON string containing parameters.
-        """
-        try:
-            params = json.loads(params_json) if params_json else {}
-        except json.JSONDecodeError as exc:
-            return json.dumps({"error": f"invalid params_json: {type(exc).__name__}"})
-
-        client = PolyWalletApi()
-
-        try:
-            if action == "rank_wallets":
-                result = client.rank_wallets(
-                    min_trades=int(params.get("min_trades", 20)),
-                    min_win_rate=float(params.get("min_win_rate", 0.55)),
-                    top_k=int(params.get("top_k", 25)),
-                )
-            elif action == "wallet_profile":
-                result = client.wallet_profile(params["wallet"])
-            elif action == "smart_money_convergence":
-                result = client.smart_money_convergence(
-                    params["token"],
-                    _parse_wallets(params.get("wallets", [])),
-                    market_id=params.get("market_id") or None,
-                )
-            elif action == "exit_behavior":
-                result = client.exit_behavior(params["wallet"])
-            else:
-                return json.dumps({"error": f"Unknown action: {action}"})
-        except NoDatasetConfigured:
-            return json.dumps({"error": "Operation failed", "ok": False})
-        except KeyError as exc:
-            return json.dumps(
-                {"error": f"missing required param: {type(exc).__name__}"}
+        """Smart-money copy-trade targets. CONCEPT:EX-AHE.harness.ee-27"""
+        return _run(
+            lambda c: c.rank_wallets(
+                min_trades=min_trades, min_win_rate=min_win_rate, top_k=top_k
             )
-        except Exception as exc:  # noqa: BLE001
-            logger.error("Operation failed: error_type=%s", type(exc).__name__)
-            return json.dumps({"error": "Operation failed"})
+        )
 
-        return json.dumps(result, default=str)
+    @mcp.tool(tags={"wallet_intel"}, annotations=READ)
+    async def emerald_wallet_intel_wallet_profile(wallet: Wallet) -> str:
+        """Per-wallet stats and open positions. CONCEPT:EX-AHE.harness.ee-27"""
+        return _run(lambda c: c.wallet_profile(wallet))
+
+    @mcp.tool(tags={"wallet_intel"}, annotations=READ)
+    async def emerald_wallet_intel_smart_money_convergence(
+        token: Annotated[str, Field(description="Outcome token id")],
+        wallets: Annotated[
+            list[str] | str,
+            Field(description="Target wallets: a list, JSON array or comma-separated"),
+        ],
+        market_id: Annotated[str, Field(description="Optional market id")] = "",
+    ) -> str:
+        """How many target wallets hold the same side of a token. CONCEPT:EX-AHE.harness.ee-27"""
+        return _run(
+            lambda c: c.smart_money_convergence(
+                token, _parse_wallets(wallets), market_id=market_id or None
+            )
+        )
+
+    @mcp.tool(tags={"wallet_intel"}, annotations=READ)
+    async def emerald_wallet_intel_exit_behavior(wallet: Wallet) -> str:
+        """Share exited before resolution and average share of max profit captured.
+
+        CONCEPT:EX-AHE.harness.ee-27
+        """
+        return _run(lambda c: c.exit_behavior(wallet))

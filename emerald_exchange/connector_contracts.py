@@ -408,12 +408,1401 @@ CONTRACTS = (
             ),
         ),
     ),
+    ToolUseContract(
+        task="emerald-crypto-arb-scan",
+        steps=(
+            ToolStep(
+                tool="emerald_crypto_arb_scan",
+                params=(
+                    "exchange_a",
+                    "exchange_b",
+                    "threshold",
+                ),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-crypto-cointegration",
+        steps=(
+            ToolStep(
+                tool="emerald_crypto_cointegration",
+                params=("symbol",),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-crypto-funding-rates",
+        steps=(
+            ToolStep(
+                tool="emerald_crypto_funding_rates",
+                params=("symbol",),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-crypto-on-chain",
+        steps=(
+            ToolStep(
+                tool="emerald_crypto_on_chain",
+                params=("symbol",),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-crypto-whale-alerts",
+        steps=(
+            ToolStep(
+                tool="emerald_crypto_whale_alerts",
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-debate-consensus",
+        steps=(
+            ToolStep(
+                tool="emerald_debate_consensus",
+                params=("debate_id",),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-debate-history",
+        steps=(
+            ToolStep(
+                tool="emerald_debate_history",
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-debate-risk-veto",
+        steps=(
+            ToolStep(
+                tool="emerald_debate_risk_veto",
+                params=(
+                    "debate_id",
+                    "veto_reason",
+                ),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="INVALID_ARGUMENT",
+                        when="the upstream system rejects the input",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-debate-start",
+        steps=(
+            ToolStep(
+                tool="emerald_debate_start",
+                params=(
+                    "hypothesis",
+                    "rounds",
+                ),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="INVALID_ARGUMENT",
+                        when="the upstream system rejects the input",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-debate-submit-argument",
+        steps=(
+            ToolStep(
+                tool="emerald_debate_submit_argument",
+                params=(
+                    "argument",
+                    "debate_id",
+                    "side",
+                ),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="INVALID_ARGUMENT",
+                        when="the upstream system rejects the input",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-derivatives-calibrate",
+        steps=(
+            ToolStep(
+                tool="emerald_derivatives_calibrate",
+                params=(
+                    "beta",
+                    "f",
+                    "market_vols",
+                    "strikes",
+                    "t",
+                ),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-derivatives-implied-vol",
+        steps=(
+            ToolStep(
+                tool="emerald_derivatives_implied_vol",
+                params=(
+                    "alpha",
+                    "beta",
+                    "f",
+                    "k",
+                    "nu",
+                    "rho",
+                    "t",
+                ),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-derivatives-smile",
+        steps=(
+            ToolStep(
+                tool="emerald_derivatives_smile",
+                params=(
+                    "alpha",
+                    "beta",
+                    "f",
+                    "nu",
+                    "rho",
+                    "strikes",
+                    "t",
+                ),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-derivatives-vol-arb",
+        steps=(
+            ToolStep(
+                tool="emerald_derivatives_vol_arb",
+                params=(
+                    "beta",
+                    "f",
+                    "market_vols",
+                    "strikes",
+                    "t",
+                ),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-fundamentals-filings",
+        steps=(
+            ToolStep(
+                tool="emerald_fundamentals_filings",
+                params=(
+                    "form",
+                    "latest",
+                    "ticker",
+                ),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-fundamentals-financials",
+        steps=(
+            ToolStep(
+                tool="emerald_fundamentals_financials",
+                params=(
+                    "statement",
+                    "ticker",
+                ),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-fundamentals-forensic-screen",
+        steps=(
+            ToolStep(
+                tool="emerald_fundamentals_forensic_screen",
+                params=("ticker",),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-fundamentals-full-text-search",
+        steps=(
+            ToolStep(
+                tool="emerald_fundamentals_full_text_search",
+                params=(
+                    "forms",
+                    "limit",
+                    "query",
+                ),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-fundamentals-mdna",
+        steps=(
+            ToolStep(
+                tool="emerald_fundamentals_mdna",
+                params=("ticker",),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-fundamentals-risk-factors",
+        steps=(
+            ToolStep(
+                tool="emerald_fundamentals_risk_factors",
+                params=("ticker",),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-fundamentals-standardize",
+        steps=(
+            ToolStep(
+                tool="emerald_fundamentals_standardize",
+                params=("ticker",),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-ingest-snapshot",
+        steps=(
+            ToolStep(
+                tool="emerald_ingest_snapshot",
+                params=(
+                    "include_history",
+                    "interval",
+                    "period",
+                    "symbols",
+                ),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="INVALID_ARGUMENT",
+                        when="the upstream system rejects the input",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-market-making-backtest",
+        steps=(
+            ToolStep(
+                tool="emerald_market_making_backtest",
+                params=("events",),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-market-making-brier",
+        steps=(
+            ToolStep(
+                tool="emerald_market_making_brier",
+                params=(
+                    "forecasts",
+                    "outcomes",
+                ),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-market-making-fee",
+        steps=(
+            ToolStep(
+                tool="emerald_market_making_fee",
+                params=(
+                    "category",
+                    "is_maker",
+                    "price",
+                    "size",
+                ),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-market-making-forensic",
+        steps=(
+            ToolStep(
+                tool="emerald_market_making_forensic",
+                params=(
+                    "prior_year",
+                    "this_year",
+                ),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-market-making-pbo",
+        steps=(
+            ToolStep(
+                tool="emerald_market_making_pbo",
+                params=(
+                    "insample",
+                    "oos",
+                ),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-market-making-quote",
+        steps=(
+            ToolStep(
+                tool="emerald_market_making_quote",
+                params=(
+                    "book",
+                    "config",
+                    "inventory",
+                    "signal_strengths",
+                ),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-market-making-validate",
+        steps=(
+            ToolStep(
+                tool="emerald_market_making_validate",
+                params=(
+                    "cpcv_groups",
+                    "cpcv_test_groups",
+                    "n_trials",
+                    "returns",
+                ),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-orders-cancel",
+        steps=(
+            ToolStep(
+                tool="emerald_orders_cancel",
+                params=(
+                    "confirm",
+                    "order_id",
+                ),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="INVALID_ARGUMENT",
+                        when="the upstream system rejects the input",
+                    ),
+                    Refusal(
+                        code="CONFIRMATION_REQUIRED",
+                        when="the caller has not confirmed the destructive call",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-orders-halt",
+        steps=(
+            ToolStep(
+                tool="emerald_orders_halt",
+                params=("confirm",),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="INVALID_ARGUMENT",
+                        when="the upstream system rejects the input",
+                    ),
+                    Refusal(
+                        code="CONFIRMATION_REQUIRED",
+                        when="the caller has not confirmed the destructive call",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-orders-resume",
+        steps=(
+            ToolStep(
+                tool="emerald_orders_resume",
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="INVALID_ARGUMENT",
+                        when="the upstream system rejects the input",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-orders-status",
+        steps=(
+            ToolStep(
+                tool="emerald_orders_status",
+                params=("order_id",),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-orders-submit",
+        steps=(
+            ToolStep(
+                tool="emerald_orders_submit",
+                params=(
+                    "confirm",
+                    "limit_price",
+                    "order_type",
+                    "qty",
+                    "side",
+                    "symbol",
+                ),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="INVALID_ARGUMENT",
+                        when="the upstream system rejects the input",
+                    ),
+                    Refusal(
+                        code="CONFIRMATION_REQUIRED",
+                        when="the caller has not confirmed the destructive call",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-prediction-markets-evaluate-event-arbitrage",
+        steps=(
+            ToolStep(
+                tool="emerald_prediction_markets_evaluate_event_arbitrage",
+                params=(
+                    "condition_met_count",
+                    "kalshi_price",
+                    "polymarket_price",
+                    "total_members",
+                ),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-prediction-markets-fetch-kalshi-orderbook",
+        steps=(
+            ToolStep(
+                tool="emerald_prediction_markets_fetch_kalshi_orderbook",
+                params=("ticker",),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-prediction-markets-fetch-open-meteo-ensemble",
+        steps=(
+            ToolStep(
+                tool="emerald_prediction_markets_fetch_open_meteo_ensemble",
+                params=(
+                    "latitude",
+                    "longitude",
+                ),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-prediction-markets-fetch-polymarket-orderbook",
+        steps=(
+            ToolStep(
+                tool="emerald_prediction_markets_fetch_polymarket_orderbook",
+                params=("event_id",),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-risk-bayesian-kelly",
+        steps=(
+            ToolStep(
+                tool="emerald_risk_bayesian_kelly",
+                params=(
+                    "cost",
+                    "fraction",
+                    "losses",
+                    "wins",
+                ),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-risk-daily-loss-check",
+        steps=(
+            ToolStep(
+                tool="emerald_risk_daily_loss_check",
+                params=("daily_pnl",),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-risk-drawdown-check",
+        steps=(
+            ToolStep(
+                tool="emerald_risk_drawdown_check",
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-risk-empirical-kelly",
+        steps=(
+            ToolStep(
+                tool="emerald_risk_empirical_kelly",
+                params=(
+                    "b",
+                    "fraction",
+                    "historical_returns",
+                    "n_simulations",
+                    "p",
+                    "seed",
+                ),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-risk-kelly",
+        steps=(
+            ToolStep(
+                tool="emerald_risk_kelly",
+                params=(
+                    "win_loss_ratio",
+                    "win_rate",
+                ),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-risk-limits",
+        steps=(
+            ToolStep(
+                tool="emerald_risk_limits",
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-risk-status",
+        steps=(
+            ToolStep(
+                tool="emerald_risk_status",
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-signals-alpha",
+        steps=(
+            ToolStep(
+                tool="emerald_signals_alpha",
+                params=("ticker",),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-signals-fuse",
+        steps=(
+            ToolStep(
+                tool="emerald_signals_fuse",
+                params=(
+                    "directions",
+                    "ticker",
+                ),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-signals-insider-equilibrium",
+        steps=(
+            ToolStep(
+                tool="emerald_signals_insider_equilibrium",
+                params=(
+                    "civil_penalty_rate",
+                    "criminal_penalty",
+                    "enforcement",
+                    "gap_var",
+                    "horizon",
+                    "sigma_u",
+                    "sigma_v",
+                    "steps",
+                    "surveillance_kappa",
+                    "ticker",
+                ),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-signals-regime",
+        steps=(
+            ToolStep(
+                tool="emerald_signals_regime",
+                params=(
+                    "close_prices",
+                    "ticker",
+                ),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-signals-surveillance",
+        steps=(
+            ToolStep(
+                tool="emerald_signals_surveillance",
+                params=(
+                    "asset_class",
+                    "baseline_sigma",
+                    "buy_vol",
+                    "p_mean",
+                    "price_changes",
+                    "sell_vol",
+                    "signed_flow",
+                    "ticker",
+                ),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-statarb-dynamic-beta",
+        steps=(
+            ToolStep(
+                tool="emerald_statarb_dynamic_beta",
+                params=(
+                    "asset_returns",
+                    "beta0",
+                    "market_returns",
+                    "p0",
+                    "q",
+                    "r",
+                ),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-statarb-ou-signal",
+        steps=(
+            ToolStep(
+                tool="emerald_statarb_ou_signal",
+                params=(
+                    "adf_max_lag",
+                    "cost",
+                    "dt",
+                    "spread",
+                ),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-strategy-backtest",
+        steps=(
+            ToolStep(
+                tool="emerald_strategy_backtest",
+                params=(
+                    "n_trials",
+                    "name",
+                    "prediction_horizon",
+                    "returns",
+                    "strategy_id",
+                ),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="INVALID_ARGUMENT",
+                        when="the upstream system rejects the input",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-strategy-export",
+        steps=(
+            ToolStep(
+                tool="emerald_strategy_export",
+                params=(
+                    "format",
+                    "strategy_id",
+                ),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-strategy-list",
+        steps=(
+            ToolStep(
+                tool="emerald_strategy_list",
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-strategy-promote",
+        steps=(
+            ToolStep(
+                tool="emerald_strategy_promote",
+                params=("strategy_id",),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="INVALID_ARGUMENT",
+                        when="the upstream system rejects the input",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-wallet-intel-exit-behavior",
+        steps=(
+            ToolStep(
+                tool="emerald_wallet_intel_exit_behavior",
+                params=("wallet",),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-wallet-intel-rank-wallets",
+        steps=(
+            ToolStep(
+                tool="emerald_wallet_intel_rank_wallets",
+                params=(
+                    "min_trades",
+                    "min_win_rate",
+                    "top_k",
+                ),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-wallet-intel-smart-money-convergence",
+        steps=(
+            ToolStep(
+                tool="emerald_wallet_intel_smart_money_convergence",
+                params=(
+                    "market_id",
+                    "token",
+                    "wallets",
+                ),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="emerald-wallet-intel-wallet-profile",
+        steps=(
+            ToolStep(
+                tool="emerald_wallet_intel_wallet_profile",
+                params=("wallet",),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
 )
 
 LINKS = (
     SurfaceLink(
         task="emerald-exchange-mcp-emerald-exchange-administrator",
         tools=(
+            "emerald_crypto_arb_scan",
+            "emerald_crypto_cointegration",
+            "emerald_crypto_funding_rates",
+            "emerald_crypto_on_chain",
+            "emerald_crypto_whale_alerts",
+            "emerald_debate_consensus",
+            "emerald_debate_history",
+            "emerald_debate_risk_veto",
+            "emerald_debate_start",
+            "emerald_debate_submit_argument",
+            "emerald_derivatives_calibrate",
+            "emerald_derivatives_implied_vol",
+            "emerald_derivatives_smile",
+            "emerald_derivatives_vol_arb",
             "emerald_exchange_exchanges",
             "emerald_exchange_get_account",
             "emerald_exchange_get_account_positions",
@@ -430,12 +1819,72 @@ LINKS = (
             "emerald_exchange_get_stock_dividends",
             "emerald_exchange_get_stock_news",
             "emerald_exchange_get_stock_quote",
+            "emerald_fundamentals_filings",
+            "emerald_fundamentals_financials",
+            "emerald_fundamentals_forensic_screen",
+            "emerald_fundamentals_full_text_search",
+            "emerald_fundamentals_mdna",
+            "emerald_fundamentals_risk_factors",
+            "emerald_fundamentals_standardize",
+            "emerald_ingest_snapshot",
+            "emerald_market_making_backtest",
+            "emerald_market_making_brier",
+            "emerald_market_making_fee",
+            "emerald_market_making_forensic",
+            "emerald_market_making_pbo",
+            "emerald_market_making_quote",
+            "emerald_market_making_validate",
+            "emerald_orders_cancel",
+            "emerald_orders_halt",
+            "emerald_orders_resume",
+            "emerald_orders_status",
+            "emerald_orders_submit",
+            "emerald_prediction_markets_evaluate_event_arbitrage",
+            "emerald_prediction_markets_fetch_kalshi_orderbook",
+            "emerald_prediction_markets_fetch_open_meteo_ensemble",
+            "emerald_prediction_markets_fetch_polymarket_orderbook",
+            "emerald_risk_bayesian_kelly",
+            "emerald_risk_daily_loss_check",
+            "emerald_risk_drawdown_check",
+            "emerald_risk_empirical_kelly",
+            "emerald_risk_kelly",
+            "emerald_risk_limits",
+            "emerald_risk_status",
+            "emerald_signals_alpha",
+            "emerald_signals_fuse",
+            "emerald_signals_insider_equilibrium",
+            "emerald_signals_regime",
+            "emerald_signals_surveillance",
+            "emerald_statarb_dynamic_beta",
+            "emerald_statarb_ou_signal",
+            "emerald_strategy_backtest",
+            "emerald_strategy_export",
+            "emerald_strategy_list",
+            "emerald_strategy_promote",
+            "emerald_wallet_intel_exit_behavior",
+            "emerald_wallet_intel_rank_wallets",
+            "emerald_wallet_intel_smart_money_convergence",
+            "emerald_wallet_intel_wallet_profile",
         ),
         prompts=("emerald-exchange-mcp-emerald-exchange-administrator",),
     ),
     SurfaceLink(
         task="emerald-exchange-mcp-operator",
         tools=(
+            "emerald_crypto_arb_scan",
+            "emerald_crypto_cointegration",
+            "emerald_crypto_funding_rates",
+            "emerald_crypto_on_chain",
+            "emerald_crypto_whale_alerts",
+            "emerald_debate_consensus",
+            "emerald_debate_history",
+            "emerald_debate_risk_veto",
+            "emerald_debate_start",
+            "emerald_debate_submit_argument",
+            "emerald_derivatives_calibrate",
+            "emerald_derivatives_implied_vol",
+            "emerald_derivatives_smile",
+            "emerald_derivatives_vol_arb",
             "emerald_exchange_exchanges",
             "emerald_exchange_get_account",
             "emerald_exchange_get_account_positions",
@@ -452,12 +1901,72 @@ LINKS = (
             "emerald_exchange_get_stock_dividends",
             "emerald_exchange_get_stock_news",
             "emerald_exchange_get_stock_quote",
+            "emerald_fundamentals_filings",
+            "emerald_fundamentals_financials",
+            "emerald_fundamentals_forensic_screen",
+            "emerald_fundamentals_full_text_search",
+            "emerald_fundamentals_mdna",
+            "emerald_fundamentals_risk_factors",
+            "emerald_fundamentals_standardize",
+            "emerald_ingest_snapshot",
+            "emerald_market_making_backtest",
+            "emerald_market_making_brier",
+            "emerald_market_making_fee",
+            "emerald_market_making_forensic",
+            "emerald_market_making_pbo",
+            "emerald_market_making_quote",
+            "emerald_market_making_validate",
+            "emerald_orders_cancel",
+            "emerald_orders_halt",
+            "emerald_orders_resume",
+            "emerald_orders_status",
+            "emerald_orders_submit",
+            "emerald_prediction_markets_evaluate_event_arbitrage",
+            "emerald_prediction_markets_fetch_kalshi_orderbook",
+            "emerald_prediction_markets_fetch_open_meteo_ensemble",
+            "emerald_prediction_markets_fetch_polymarket_orderbook",
+            "emerald_risk_bayesian_kelly",
+            "emerald_risk_daily_loss_check",
+            "emerald_risk_drawdown_check",
+            "emerald_risk_empirical_kelly",
+            "emerald_risk_kelly",
+            "emerald_risk_limits",
+            "emerald_risk_status",
+            "emerald_signals_alpha",
+            "emerald_signals_fuse",
+            "emerald_signals_insider_equilibrium",
+            "emerald_signals_regime",
+            "emerald_signals_surveillance",
+            "emerald_statarb_dynamic_beta",
+            "emerald_statarb_ou_signal",
+            "emerald_strategy_backtest",
+            "emerald_strategy_export",
+            "emerald_strategy_list",
+            "emerald_strategy_promote",
+            "emerald_wallet_intel_exit_behavior",
+            "emerald_wallet_intel_rank_wallets",
+            "emerald_wallet_intel_smart_money_convergence",
+            "emerald_wallet_intel_wallet_profile",
         ),
         prompts=("emerald-exchange-mcp-operator",),
     ),
     SurfaceLink(
         task="emerald-exchange-development",
         tools=(
+            "emerald_crypto_arb_scan",
+            "emerald_crypto_cointegration",
+            "emerald_crypto_funding_rates",
+            "emerald_crypto_on_chain",
+            "emerald_crypto_whale_alerts",
+            "emerald_debate_consensus",
+            "emerald_debate_history",
+            "emerald_debate_risk_veto",
+            "emerald_debate_start",
+            "emerald_debate_submit_argument",
+            "emerald_derivatives_calibrate",
+            "emerald_derivatives_implied_vol",
+            "emerald_derivatives_smile",
+            "emerald_derivatives_vol_arb",
             "emerald_exchange_exchanges",
             "emerald_exchange_get_account",
             "emerald_exchange_get_account_positions",
@@ -474,28 +1983,63 @@ LINKS = (
             "emerald_exchange_get_stock_dividends",
             "emerald_exchange_get_stock_news",
             "emerald_exchange_get_stock_quote",
+            "emerald_fundamentals_filings",
+            "emerald_fundamentals_financials",
+            "emerald_fundamentals_forensic_screen",
+            "emerald_fundamentals_full_text_search",
+            "emerald_fundamentals_mdna",
+            "emerald_fundamentals_risk_factors",
+            "emerald_fundamentals_standardize",
+            "emerald_ingest_snapshot",
+            "emerald_market_making_backtest",
+            "emerald_market_making_brier",
+            "emerald_market_making_fee",
+            "emerald_market_making_forensic",
+            "emerald_market_making_pbo",
+            "emerald_market_making_quote",
+            "emerald_market_making_validate",
+            "emerald_orders_cancel",
+            "emerald_orders_halt",
+            "emerald_orders_resume",
+            "emerald_orders_status",
+            "emerald_orders_submit",
+            "emerald_prediction_markets_evaluate_event_arbitrage",
+            "emerald_prediction_markets_fetch_kalshi_orderbook",
+            "emerald_prediction_markets_fetch_open_meteo_ensemble",
+            "emerald_prediction_markets_fetch_polymarket_orderbook",
+            "emerald_risk_bayesian_kelly",
+            "emerald_risk_daily_loss_check",
+            "emerald_risk_drawdown_check",
+            "emerald_risk_empirical_kelly",
+            "emerald_risk_kelly",
+            "emerald_risk_limits",
+            "emerald_risk_status",
+            "emerald_signals_alpha",
+            "emerald_signals_fuse",
+            "emerald_signals_insider_equilibrium",
+            "emerald_signals_regime",
+            "emerald_signals_surveillance",
+            "emerald_statarb_dynamic_beta",
+            "emerald_statarb_ou_signal",
+            "emerald_strategy_backtest",
+            "emerald_strategy_export",
+            "emerald_strategy_list",
+            "emerald_strategy_promote",
+            "emerald_wallet_intel_exit_behavior",
+            "emerald_wallet_intel_rank_wallets",
+            "emerald_wallet_intel_smart_money_convergence",
+            "emerald_wallet_intel_wallet_profile",
         ),
         skills=("emerald-exchange-development",),
     ),
     SurfaceLink(
         task="emerald-exchange-kg-ingestion",
         tools=(
-            "emerald_exchange_exchanges",
             "emerald_exchange_get_account",
-            "emerald_exchange_get_account_positions",
-            "emerald_exchange_get_account_snapshot",
-            "emerald_exchange_get_company_records",
-            "emerald_exchange_get_csv_activities",
-            "emerald_exchange_get_exchange_history",
             "emerald_exchange_get_historical",
-            "emerald_exchange_get_multi_asset_records",
-            "emerald_exchange_get_order_status",
             "emerald_exchange_get_positions",
             "emerald_exchange_get_quote",
-            "emerald_exchange_get_stock_bars",
-            "emerald_exchange_get_stock_dividends",
-            "emerald_exchange_get_stock_news",
-            "emerald_exchange_get_stock_quote",
+            "emerald_ingest_snapshot",
         ),
         skills=("emerald-exchange-kg-ingestion",),
     ),
@@ -522,8 +2066,48 @@ LINKS = (
         skills=("emerald-exchange-market-data",),
     ),
     SurfaceLink(
+        task="emerald-exchange-market-research",
+        tools=(
+            "emerald_crypto_arb_scan",
+            "emerald_crypto_cointegration",
+            "emerald_crypto_funding_rates",
+            "emerald_crypto_on_chain",
+            "emerald_crypto_whale_alerts",
+            "emerald_fundamentals_filings",
+            "emerald_fundamentals_financials",
+            "emerald_fundamentals_forensic_screen",
+            "emerald_fundamentals_full_text_search",
+            "emerald_fundamentals_mdna",
+            "emerald_fundamentals_risk_factors",
+            "emerald_fundamentals_standardize",
+            "emerald_prediction_markets_evaluate_event_arbitrage",
+            "emerald_prediction_markets_fetch_kalshi_orderbook",
+            "emerald_prediction_markets_fetch_open_meteo_ensemble",
+            "emerald_prediction_markets_fetch_polymarket_orderbook",
+            "emerald_wallet_intel_exit_behavior",
+            "emerald_wallet_intel_rank_wallets",
+            "emerald_wallet_intel_smart_money_convergence",
+            "emerald_wallet_intel_wallet_profile",
+        ),
+        skills=("emerald-exchange-market-research",),
+    ),
+    SurfaceLink(
         task="emerald-exchange-operations",
         tools=(
+            "emerald_crypto_arb_scan",
+            "emerald_crypto_cointegration",
+            "emerald_crypto_funding_rates",
+            "emerald_crypto_on_chain",
+            "emerald_crypto_whale_alerts",
+            "emerald_debate_consensus",
+            "emerald_debate_history",
+            "emerald_debate_risk_veto",
+            "emerald_debate_start",
+            "emerald_debate_submit_argument",
+            "emerald_derivatives_calibrate",
+            "emerald_derivatives_implied_vol",
+            "emerald_derivatives_smile",
+            "emerald_derivatives_vol_arb",
             "emerald_exchange_exchanges",
             "emerald_exchange_get_account",
             "emerald_exchange_get_account_positions",
@@ -540,6 +2124,52 @@ LINKS = (
             "emerald_exchange_get_stock_dividends",
             "emerald_exchange_get_stock_news",
             "emerald_exchange_get_stock_quote",
+            "emerald_fundamentals_filings",
+            "emerald_fundamentals_financials",
+            "emerald_fundamentals_forensic_screen",
+            "emerald_fundamentals_full_text_search",
+            "emerald_fundamentals_mdna",
+            "emerald_fundamentals_risk_factors",
+            "emerald_fundamentals_standardize",
+            "emerald_ingest_snapshot",
+            "emerald_market_making_backtest",
+            "emerald_market_making_brier",
+            "emerald_market_making_fee",
+            "emerald_market_making_forensic",
+            "emerald_market_making_pbo",
+            "emerald_market_making_quote",
+            "emerald_market_making_validate",
+            "emerald_orders_cancel",
+            "emerald_orders_halt",
+            "emerald_orders_resume",
+            "emerald_orders_status",
+            "emerald_orders_submit",
+            "emerald_prediction_markets_evaluate_event_arbitrage",
+            "emerald_prediction_markets_fetch_kalshi_orderbook",
+            "emerald_prediction_markets_fetch_open_meteo_ensemble",
+            "emerald_prediction_markets_fetch_polymarket_orderbook",
+            "emerald_risk_bayesian_kelly",
+            "emerald_risk_daily_loss_check",
+            "emerald_risk_drawdown_check",
+            "emerald_risk_empirical_kelly",
+            "emerald_risk_kelly",
+            "emerald_risk_limits",
+            "emerald_risk_status",
+            "emerald_signals_alpha",
+            "emerald_signals_fuse",
+            "emerald_signals_insider_equilibrium",
+            "emerald_signals_regime",
+            "emerald_signals_surveillance",
+            "emerald_statarb_dynamic_beta",
+            "emerald_statarb_ou_signal",
+            "emerald_strategy_backtest",
+            "emerald_strategy_export",
+            "emerald_strategy_list",
+            "emerald_strategy_promote",
+            "emerald_wallet_intel_exit_behavior",
+            "emerald_wallet_intel_rank_wallets",
+            "emerald_wallet_intel_smart_money_convergence",
+            "emerald_wallet_intel_wallet_profile",
         ),
         skills=("emerald-exchange-operations",),
     ),
@@ -548,22 +2178,55 @@ LINKS = (
         tools=(
             "emerald_exchange_exchanges",
             "emerald_exchange_get_account",
-            "emerald_exchange_get_account_positions",
-            "emerald_exchange_get_account_snapshot",
-            "emerald_exchange_get_company_records",
-            "emerald_exchange_get_csv_activities",
-            "emerald_exchange_get_exchange_history",
-            "emerald_exchange_get_historical",
-            "emerald_exchange_get_multi_asset_records",
             "emerald_exchange_get_order_status",
-            "emerald_exchange_get_positions",
             "emerald_exchange_get_quote",
-            "emerald_exchange_get_stock_bars",
-            "emerald_exchange_get_stock_dividends",
-            "emerald_exchange_get_stock_news",
-            "emerald_exchange_get_stock_quote",
+            "emerald_orders_cancel",
+            "emerald_orders_halt",
+            "emerald_orders_resume",
+            "emerald_orders_status",
+            "emerald_orders_submit",
+            "emerald_risk_bayesian_kelly",
+            "emerald_risk_daily_loss_check",
+            "emerald_risk_drawdown_check",
+            "emerald_risk_empirical_kelly",
+            "emerald_risk_kelly",
+            "emerald_risk_limits",
+            "emerald_risk_status",
         ),
         skills=("emerald-exchange-order-execution",),
+    ),
+    SurfaceLink(
+        task="emerald-exchange-quant-analysis",
+        tools=(
+            "emerald_debate_consensus",
+            "emerald_debate_history",
+            "emerald_debate_risk_veto",
+            "emerald_debate_start",
+            "emerald_debate_submit_argument",
+            "emerald_derivatives_calibrate",
+            "emerald_derivatives_implied_vol",
+            "emerald_derivatives_smile",
+            "emerald_derivatives_vol_arb",
+            "emerald_market_making_backtest",
+            "emerald_market_making_brier",
+            "emerald_market_making_fee",
+            "emerald_market_making_forensic",
+            "emerald_market_making_pbo",
+            "emerald_market_making_quote",
+            "emerald_market_making_validate",
+            "emerald_signals_alpha",
+            "emerald_signals_fuse",
+            "emerald_signals_insider_equilibrium",
+            "emerald_signals_regime",
+            "emerald_signals_surveillance",
+            "emerald_statarb_dynamic_beta",
+            "emerald_statarb_ou_signal",
+            "emerald_strategy_backtest",
+            "emerald_strategy_export",
+            "emerald_strategy_list",
+            "emerald_strategy_promote",
+        ),
+        skills=("emerald-exchange-quant-analysis",),
     ),
 )
 

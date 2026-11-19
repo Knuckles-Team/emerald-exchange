@@ -28,7 +28,7 @@
 :Trade a owl:Class ;
     rdfs:subClassOf core:Order ;
     rdfs:label "Trade" ;
-    rdfs:comment "A recorded order execution / fill returned by emerald_orders (order_id, filled qty, average price, fees) against an exchange backend." .
+    rdfs:comment "A recorded order execution / fill returned by emerald_orders_submit (order_id, filled qty, average price, fees) against an exchange backend." .
 
 :Quote a owl:Class ;
     rdfs:label "Market Quote" ;

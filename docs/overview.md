@@ -31,7 +31,7 @@ All agents in the ecosystem inherit enterprise-grade infrastructure from `scion-
 | Feature | Status | Source |
 |:--------|:-------|:-------|
 | **Pre-Trade Risk Validation** | ✅ Native | `risk_guards.py` — Kelly criterion, circuit breakers |
-| **Kill Switch** | ✅ Native | `emerald_orders(action="halt")` — instant halt |
+| **Kill Switch** | ✅ Native | `emerald_orders_halt` — instant halt |
 | **Multi-Exchange Backends** | ✅ Native | Paper, Alpaca, CCXT (Binance/Coinbase/Kraken), Freqtrade |
 | **Regime Shift Detection** | ✅ Native | KS-test on prediction distributions |
 | **Human Approval Gate** | ✅ Native | Required for live trading activation |
@@ -118,14 +118,14 @@ sequenceDiagram
 
     User->>CTO: Trading hypothesis
     CTO->>Quant: Generate alpha factors
-    Quant->>MCP: emerald_signals(action="alpha")
+    Quant->>MCP: emerald_signals_alpha
     MCP-->>Quant: Alpha factors + IC/IR scores
     Quant-->>CTO: Hypothesis with evidence
     CTO->>Risk: Pre-trade risk check
-    Risk->>MCP: emerald_risk(action="kelly")
+    Risk->>MCP: emerald_risk_kelly
     MCP-->>Risk: Position size recommendation
     Risk-->>CTO: Approved with limits
-    CTO->>MCP: emerald_orders(action="submit")
+    CTO->>MCP: emerald_orders_submit
     MCP->>Backend: Execute via exchange backend
     Backend-->>MCP: Execution result
     MCP-->>CTO: Order confirmation + audit trail

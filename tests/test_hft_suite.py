@@ -31,9 +31,7 @@ def test_emerald_signals_fuse_requires_engine(monkeypatch):
 
     ms.register_signal_tools(_MCP())
     out = json.loads(
-        captured["emerald_signals"](
-            action="fuse", signals_json='{"ofi": 1, "queue": 1}'
-        )
+        captured["emerald_signals_fuse"](directions={"ofi": 1, "queue": 1})
     )
     assert out == {"error": eng.ENGINE_REQUIRED_ERR}
 
@@ -55,10 +53,9 @@ def test_emerald_strategy_backtest_reports_refusals(live_engine):
 
     mst.register_strategy_tools(_MCP())
     out = json.loads(
-        captured["emerald_strategy"](
-            action="backtest",
+        captured["emerald_strategy_backtest"](
             strategy_id="sig:test_ofi",
-            returns_json=json.dumps([0.01, -0.004, 0.02, 0.015, -0.002, 0.011]),
+            returns=[0.01, -0.004, 0.02, 0.015, -0.002, 0.011],
             name="ofi",
         )
     )
@@ -192,15 +189,8 @@ def test_market_making_tool_registers_and_runs():
             return deco
 
     register_market_making_tools(FakeMCP())
-    assert "emerald_market_making" in captured
-    fn = captured["emerald_market_making"]
+    assert "emerald_market_making" not in captured
+    fn = captured["emerald_market_making_fee"]
 
-    out = json.loads(
-        fn(
-            "fee",
-            json.dumps(
-                {"price": 0.5, "size": 100, "category": "finance", "is_maker": True}
-            ),
-        )
-    )
+    out = json.loads(fn(price=0.5, size=100, category="finance", is_maker=True))
     assert out["error"] in ("not_served", ENGINE_REQUIRED_ERR)
