@@ -18,9 +18,7 @@ CONTRACTS = (
         steps=(
             ToolStep(
                 tool="emerald_exchange_exchanges",
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
                     Refusal(
                         code="ACCESS_DENIED",
@@ -39,9 +37,7 @@ CONTRACTS = (
         steps=(
             ToolStep(
                 tool="emerald_exchange_get_account",
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
                     Refusal(
                         code="ACCESS_DENIED",
@@ -60,9 +56,7 @@ CONTRACTS = (
         steps=(
             ToolStep(
                 tool="emerald_exchange_get_account_positions",
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
                     Refusal(
                         code="ACCESS_DENIED",
@@ -81,9 +75,7 @@ CONTRACTS = (
         steps=(
             ToolStep(
                 tool="emerald_exchange_get_account_snapshot",
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
                     Refusal(
                         code="ACCESS_DENIED",
@@ -109,9 +101,7 @@ CONTRACTS = (
                     "since",
                     "symbol",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
                     Refusal(
                         code="ACCESS_DENIED",
@@ -139,9 +129,7 @@ CONTRACTS = (
                     "since",
                     "tenant_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
                     Refusal(
                         code="ACCESS_DENIED",
@@ -171,9 +159,7 @@ CONTRACTS = (
                     "start",
                     "symbol",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
                     Refusal(
                         code="ACCESS_DENIED",
@@ -197,9 +183,7 @@ CONTRACTS = (
                     "period",
                     "symbol",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
                     Refusal(
                         code="ACCESS_DENIED",
@@ -234,9 +218,7 @@ CONTRACTS = (
                     "symbol",
                     "tenant_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
                     Refusal(
                         code="ACCESS_DENIED",
@@ -255,12 +237,8 @@ CONTRACTS = (
         steps=(
             ToolStep(
                 tool="emerald_exchange_get_order_status",
-                params=(
-                    "order_id",
-                ),
-                result=(
-                    "result",
-                ),
+                params=("order_id",),
+                result=("result",),
                 refusals=(
                     Refusal(
                         code="ACCESS_DENIED",
@@ -279,9 +257,7 @@ CONTRACTS = (
         steps=(
             ToolStep(
                 tool="emerald_exchange_get_positions",
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
                     Refusal(
                         code="ACCESS_DENIED",
@@ -300,12 +276,8 @@ CONTRACTS = (
         steps=(
             ToolStep(
                 tool="emerald_exchange_get_quote",
-                params=(
-                    "symbol",
-                ),
-                result=(
-                    "result",
-                ),
+                params=("symbol",),
+                result=("result",),
                 refusals=(
                     Refusal(
                         code="ACCESS_DENIED",
@@ -338,9 +310,7 @@ CONTRACTS = (
                     "symbol",
                     "timeframe",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
                     Refusal(
                         code="ACCESS_DENIED",
@@ -369,9 +339,7 @@ CONTRACTS = (
                     "start",
                     "symbol",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
                     Refusal(
                         code="ACCESS_DENIED",
@@ -400,9 +368,7 @@ CONTRACTS = (
                     "start",
                     "symbol",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
                     Refusal(
                         code="ACCESS_DENIED",
@@ -428,9 +394,7 @@ CONTRACTS = (
                     "since",
                     "symbol",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
                     Refusal(
                         code="ACCESS_DENIED",
@@ -467,9 +431,7 @@ LINKS = (
             "emerald_exchange_get_stock_news",
             "emerald_exchange_get_stock_quote",
         ),
-        prompts=(
-            "emerald-exchange-mcp-emerald-exchange-administrator",
-        ),
+        prompts=("emerald-exchange-mcp-emerald-exchange-administrator",),
     ),
     SurfaceLink(
         task="emerald-exchange-mcp-operator",
@@ -491,9 +453,7 @@ LINKS = (
             "emerald_exchange_get_stock_news",
             "emerald_exchange_get_stock_quote",
         ),
-        prompts=(
-            "emerald-exchange-mcp-operator",
-        ),
+        prompts=("emerald-exchange-mcp-operator",),
     ),
     SurfaceLink(
         task="emerald-exchange-development",
@@ -515,9 +475,7 @@ LINKS = (
             "emerald_exchange_get_stock_news",
             "emerald_exchange_get_stock_quote",
         ),
-        skills=(
-            "emerald-exchange-development",
-        ),
+        skills=("emerald-exchange-development",),
     ),
     SurfaceLink(
         task="emerald-exchange-kg-ingestion",
@@ -539,9 +497,7 @@ LINKS = (
             "emerald_exchange_get_stock_news",
             "emerald_exchange_get_stock_quote",
         ),
-        skills=(
-            "emerald-exchange-kg-ingestion",
-        ),
+        skills=("emerald-exchange-kg-ingestion",),
     ),
     SurfaceLink(
         task="emerald-exchange-market-data",
@@ -563,9 +519,7 @@ LINKS = (
             "emerald_exchange_get_stock_news",
             "emerald_exchange_get_stock_quote",
         ),
-        skills=(
-            "emerald-exchange-market-data",
-        ),
+        skills=("emerald-exchange-market-data",),
     ),
     SurfaceLink(
         task="emerald-exchange-operations",
@@ -587,9 +541,7 @@ LINKS = (
             "emerald_exchange_get_stock_news",
             "emerald_exchange_get_stock_quote",
         ),
-        skills=(
-            "emerald-exchange-operations",
-        ),
+        skills=("emerald-exchange-operations",),
     ),
     SurfaceLink(
         task="emerald-exchange-order-execution",
@@ -611,146 +563,110 @@ LINKS = (
             "emerald_exchange_get_stock_news",
             "emerald_exchange_get_stock_quote",
         ),
-        skills=(
-            "emerald-exchange-order-execution",
-        ),
+        skills=("emerald-exchange-order-execution",),
     ),
 )
 
 LOCATIONS = (
     DataLocation(
         name="alpaca-account",
-        holds=(
-            "BFO_0000031",
-        ),
+        holds=("BFO_0000031",),
         instance="emerald-exchange-mcp-default",
         read_tool="emerald_exchange_get_account_snapshot",
     ),
     DataLocation(
         name="alpaca-account-positions",
-        holds=(
-            "RegistryNode",
-        ),
+        holds=("RegistryNode",),
         instance="emerald-exchange-mcp-default",
         read_tool="emerald_exchange_get_account_positions",
     ),
     DataLocation(
         name="alpaca-csv-activities",
-        holds=(
-            "Document",
-        ),
+        holds=("Document",),
         instance="emerald-exchange-mcp-default",
         read_tool="emerald_exchange_get_csv_activities",
     ),
     DataLocation(
         name="alpaca-stock-bars",
-        holds=(
-            "Document",
-        ),
+        holds=("Document",),
         instance="emerald-exchange-mcp-default",
         read_tool="emerald_exchange_get_stock_bars",
     ),
     DataLocation(
         name="alpaca-stock-dividends",
-        holds=(
-            "Document",
-        ),
+        holds=("Document",),
         instance="emerald-exchange-mcp-default",
         read_tool="emerald_exchange_get_stock_dividends",
     ),
     DataLocation(
         name="alpaca-stock-news",
-        holds=(
-            "Document",
-        ),
+        holds=("Document",),
         instance="emerald-exchange-mcp-default",
         read_tool="emerald_exchange_get_stock_news",
     ),
     DataLocation(
         name="alpaca-stock-quotes",
-        holds=(
-            "Document",
-        ),
+        holds=("Document",),
         instance="emerald-exchange-mcp-default",
         read_tool="emerald_exchange_get_stock_quote",
     ),
     DataLocation(
         name="ccxt-exchange-history",
-        holds=(
-            "Document",
-        ),
+        holds=("Document",),
         instance="emerald-exchange-mcp-default",
         read_tool="emerald_exchange_get_exchange_history",
     ),
     DataLocation(
         name="emerald-positions",
-        holds=(
-            "RegistryNode",
-        ),
+        holds=("RegistryNode",),
         instance="emerald-exchange-mcp-default",
         read_tool="emerald_exchange_get_positions",
     ),
     DataLocation(
         name="fmp-company-earnings",
-        holds=(
-            "Document",
-        ),
+        holds=("Document",),
         instance="emerald-exchange-mcp-default",
         read_tool="emerald_exchange_get_company_records",
     ),
     DataLocation(
         name="fmp-company-income",
-        holds=(
-            "Document",
-        ),
+        holds=("Document",),
         instance="emerald-exchange-mcp-default",
         read_tool="emerald_exchange_get_company_records",
     ),
     DataLocation(
         name="fmp-company-logo",
-        holds=(
-            "Document",
-        ),
+        holds=("Document",),
         instance="emerald-exchange-mcp-default",
         read_tool="emerald_exchange_get_company_records",
     ),
     DataLocation(
         name="fmp-company-profile",
-        holds=(
-            "Document",
-        ),
+        holds=("Document",),
         instance="emerald-exchange-mcp-default",
         read_tool="emerald_exchange_get_company_records",
     ),
     DataLocation(
         name="multi-asset-commodity",
-        holds=(
-            "Document",
-        ),
+        holds=("Document",),
         instance="emerald-exchange-mcp-default",
         read_tool="emerald_exchange_get_multi_asset_records",
     ),
     DataLocation(
         name="multi-asset-commodity_spot",
-        holds=(
-            "Document",
-        ),
+        holds=("Document",),
         instance="emerald-exchange-mcp-default",
         read_tool="emerald_exchange_get_multi_asset_records",
     ),
     DataLocation(
         name="multi-asset-fx",
-        holds=(
-            "Document",
-        ),
+        holds=("Document",),
         instance="emerald-exchange-mcp-default",
         read_tool="emerald_exchange_get_multi_asset_records",
     ),
     DataLocation(
         name="multi-asset-real_estate",
-        holds=(
-            "Document",
-        ),
+        holds=("Document",),
         instance="emerald-exchange-mcp-default",
         read_tool="emerald_exchange_get_multi_asset_records",
     ),

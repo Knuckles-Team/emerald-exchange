@@ -106,4 +106,3 @@
     rdfs:label "Trading Knowledge" ;
     rdfs:comment "Curated, classified knowledge distilled from books, papers, PDFs, or notes — organised into typed concepts with citations and confidence rather than stored as a verbatim document." ;
     rdfs:subClassOf :Concept .
-
