@@ -1,3 +1,4 @@
+@prefix core: <https://knuckles-team.github.io/ontology/core#> .
 @prefix fibo-fi: <https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstruments/FinancialInstruments/> .
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 @prefix dc: <http://purl.org/dc/terms/> .
@@ -195,3 +196,9 @@
 
 # ontology-codemod R4
 <http://knuckles.team/kg#Quote> rdfs:subClassOf <http://knuckles.team/kg#Observation> .
+
+# --- roll-up to the core ontology ---
+:Instrument rdfs:subClassOf core:FinancialInstrument .
+:MarketBar rdfs:subClassOf core:Observation .
+:Quote rdfs:subClassOf core:Observation .
+:Trade rdfs:subClassOf core:LedgerTransaction .
