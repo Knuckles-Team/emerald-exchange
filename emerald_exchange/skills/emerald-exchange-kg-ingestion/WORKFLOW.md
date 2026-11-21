@@ -1,74 +1,44 @@
-# Emerald Exchange Kg Ingestion
+# Emerald Exchange to Knowledge Graph
 
-Natively ingest live Emerald Exchange trading state into the medulla knowledge graph as typed OWL nodes — :Portfolio, :Position, :Instrument, :Quote, and :MarketBar (OHLCV timeseries) — via the emerald_ingest_snapshot MCP tool. Use when the agent must snapshot the current account, open positions, and optionally quotes/history for given symbols into the KG so they become queryable/linked knowledge. Do NOT use for one-off reads that shouldn't be persisted (use emerald-exchange-market-data) or to place orders (use emerald-exchange-order-execution).
+Make Emerald Exchange records available to the knowledge graph through the connector's declared data sources: account and position snapshots (`emerald_exchange_get_account_snapshot`, `emerald_exchange_get_account_positions`), open positions (`emerald_exchange_get_positions`), and the bounded provider pages that carry a checkpoint. Use when the agent must plan or verify what the graph receives from this connector: which tool feeds which record type, and how the checkpoint advances. Do NOT use for one-off reads that are not persisted (use emerald-exchange-market-data) or to place orders (use emerald-exchange-order-execution).
 
-# Emerald Exchange — Knowledge-Graph Ingestion
+# Emerald Exchange to Knowledge Graph
 
-Wire-First native ingestion: pull a live snapshot off the active exchange backend and
-push it into the ONE medulla as typed nodes + links, so trading state becomes
-queryable knowledge (which instruments a portfolio holds, price history per instrument,
-etc.). Best-effort — no-ops cleanly when no KG engine is reachable.
+The connector declares its data sources by tool name (`connector://resources`). The platform's source sync
+calls each source tool with `mode: delta`, stores the `checkpoint` it returns, and writes typed records.
 
 ## When to use
-- Snapshot the current account (:Portfolio) and open positions (:Position + :Instrument)
-  into the KG.
-- Also capture live quotes (:Quote) and OHLCV history (:MarketBar timeseries) for a set
-  of symbols in the same push.
-- Build up a queryable graph of holdings ↔ instruments ↔ price bars for later analysis.
+- Plan which sources feed which record types.
+- Check that a source returned a checkpoint and a stable record identity.
+- Re-run a source from its last checkpoint after a failure.
 
 ## When NOT to use
-- Transient reads you don't want persisted → `emerald-exchange-market-data`.
-- Submitting/cancelling orders → `emerald-exchange-order-execution`.
-- Ingesting from a different source/venue not fronted by this MCP server.
+- Reading a price or balance for an answer: `emerald-exchange-market-data`.
+- Order actions: `emerald-exchange-order-execution`.
 
 ## Prerequisites & environment
-Connect via the `mcp-client` skill against the **`emerald-exchange`** MCP server. Ingestion
-targets a running arbora / medulla engine. Engine, validation, and transaction
-failures propagate instead of acknowledging an unwritten result. The active backend/mode is the one
-configured under `config.json` → `trading` (default `paper`).
+Connect to the **`emerald-exchange`** MCP server. The active backend and mode come from the trading
+configuration and default to the paper backend, which needs no credentials. Alpaca reads need the Alpaca
+credentials in the operator configuration; provider reads need their provider key. Every tool here is
+read-only and typed; there is no `action` argument. Never print a key.
 
-| Variable | Required | Notes |
-|----------|----------|-------|
-| a reachable medulla engine | yes | Required for authoritative ingestion |
-| exchange creds | for `live` snapshots | Paper mode needs none |
+## Sources
+| Source tool | Record type | Needs |
+|---|---|---|
+| `emerald_exchange_get_account_snapshot` | Account with positions | Alpaca backend |
+| `emerald_exchange_get_account_positions` | Position, with `position_id` from account and symbol | Alpaca backend |
+| `emerald_exchange_get_positions` | Position | any backend |
+| `emerald_exchange_get_csv_activities` | Activity | Alpaca backend, column mapping |
+| `emerald_exchange_get_stock_bars`, `_get_stock_quote`, `_get_stock_news`, `_get_stock_dividends` | StockBar, StockQuote, StockNews, StockDividend | Alpaca backend |
+| `emerald_exchange_get_company_records` | CompanyRecord | Alpaca backend, FMP key |
+| `emerald_exchange_get_exchange_history` | ExchangeCandle | CCXT backend |
+| `emerald_exchange_get_multi_asset_records` | MultiAssetRecord | provider key per kind |
 
-## Tools & actions
-| Tool | Purpose |
-|------|---------|
-| `emerald_ingest_snapshot` | List account + positions (+ optional quotes/bars) → typed KG nodes |
-
-### Key parameters
-- `symbols` — comma-separated tickers to also snapshot as :Quote nodes (e.g. `"AAPL,BTC/USD"`).
-- `include_history` — also pull OHLCV bars → :MarketBar timeseries per symbol (default false).
-- `period` / `interval` — history window/bar size when `include_history` is true.
-
-## Recipes
-Snapshot account + positions only:
-```json
-{}
-```
-Snapshot plus quotes for two symbols:
-```json
-{"symbols": "AAPL,BTC/USD"}
-```
-Snapshot plus a month of daily bars per symbol:
-```json
-{"symbols": "AAPL", "include_history": true, "period": "1mo", "interval": "1d"}
-```
+## Procedure
+1. Run the source with `mode` set to `delta` and the previous checkpoint in `since`.
+2. Confirm the response holds records and a new `checkpoint` (and `next_page_token` for paged sources).
+3. Page until `next_page_token` is empty, then store the last checkpoint.
 
 ## Gotchas
-- Node ids are deterministic — `emerald:<class>:<extId>` (e.g. `emerald:instrument:AAPL`,
-  `emerald:position:paper:AAPL`) — so re-ingesting MERGEs/updates the same nodes rather
-  than duplicating them; run it repeatedly to keep the graph fresh.
-- `include_history` can write many :MarketBar nodes (one per bar); keep `period`/`interval`
-  sane for large universes.
-- Ingestion only returns a count after the authoritative graph write succeeds; engine,
-  validation, and transaction failures are surfaced to the caller.
-- `type` on every node matches the federated ontology (emerald.ttl / quant.ttl); the
-  :Instrument/:Quote/:MarketBar classes come from this package's `emerald` ontology leg.
-
-## Related
-- `emerald-exchange-market-data` / `emerald-exchange-order-execution` — the read/act tools
-  whose records this skill persists.
-- The declarative `connectors/mcp_source_presets.json` preset mirrors open positions as
-  documents for the central `source_sync` path.
+- A repeated run with the same checkpoint must not duplicate records; identities are hashes of tenant, source, account and event id.
+- A source on the wrong backend is refused; read `emerald_exchange_exchanges` first.

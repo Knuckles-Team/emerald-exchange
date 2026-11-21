@@ -1,73 +1,44 @@
 # Emerald Exchange Market Data
 
-Read market data through the emerald-exchange MCP server — top-of-book quotes, OHLCV history, and the available exchange backends — via the domain-typed emerald_market_data and emerald_portfolio tools (not raw exchange SDK calls). Use when the agent must fetch a live quote for a symbol, pull historical bars for backtesting/analysis, list which exchange backends are wired, or read account equity/positions. Do NOT use to place or cancel orders (use emerald-exchange-order-execution) or to push records into the knowledge graph (use emerald-exchange-kg-ingestion).
+Read market data and account state through the emerald-exchange read tools: list the exchange backends (`emerald_exchange_exchanges`), quote a symbol (`emerald_exchange_get_quote`), read OHLCV bars (`emerald_exchange_get_historical`), and read account balances and open positions (`emerald_exchange_get_account`, `emerald_exchange_get_positions`). Use when the agent needs a current quote, history for analysis, or equity and positions on the active backend. Do NOT use for Alpaca feed-labelled pages (use emerald-exchange-stock-reference), for FX, commodity or exchange candles (use emerald-exchange-multi-asset), or to place orders (use emerald-exchange-order-execution).
 
-# Emerald Exchange — Market Data
+# Emerald Exchange Market Data
 
-Domain-typed, backend-abstracted read access to market data across every wired
-exchange (paper, Alpaca, Binance, CCXT, …). One tool surface regardless of the
-underlying venue.
+One read surface over every wired backend (paper, Alpaca, CCXT venues). Say which backend and mode
+answered each read.
 
 ## When to use
-- Get a current quote (bid/ask/last/volume) for a symbol.
-- Pull OHLCV historical bars for a symbol over a period/interval.
-- List the available exchange backends and the active one + mode.
-- Read the account summary (equity, cash, buying power) or open positions.
+- Latest quote (bid, ask, last, volume) of one symbol.
+- OHLCV bars of one symbol for a period and interval.
+- Which backends exist, which is active and in what mode.
+- Equity, cash and buying power; open positions.
 
 ## When NOT to use
-- Submitting, cancelling, or checking orders → `emerald-exchange-order-execution`.
-- Pushing quotes/positions/bars into the knowledge graph as typed nodes →
-  `emerald-exchange-kg-ingestion`.
-- Strategy signals, statarb, derivatives pricing → the respective emerald tools
-  (`emerald_signals`, `emerald_statarb`, `emerald_derivatives`).
+- Alpaca pages that need an explicit feed, adjustment and license tag: `emerald-exchange-stock-reference`.
+- Exchange candles, FX, commodities, property: `emerald-exchange-multi-asset`.
+- Order status or any order action: `emerald-exchange-order-execution`.
+- Statement import and account snapshots: `emerald-exchange-account-intake`.
 
 ## Prerequisites & environment
-Connect via the `mcp-client` skill against the **`emerald-exchange`** MCP server.
-The active backend + mode come from `config.json` → `trading.default_exchange` /
-`trading.default_mode` (defaults to `paper`, so no credentials are needed to start).
+Connect to the **`emerald-exchange`** MCP server. The active backend and mode come from the trading
+configuration and default to the paper backend, which needs no credentials. Alpaca reads need the Alpaca
+credentials in the operator configuration; provider reads need their provider key. Every tool here is
+read-only and typed; there is no `action` argument. Never print a key.
 
-| Variable | Required | Notes |
-|----------|----------|-------|
-| (paper mode) | — | No credentials; local simulation backend |
-| `ALPACA_API_KEY` / `ALPACA_SECRET_KEY` | for alpaca | Live/paper equities |
-| `BINANCE_API_KEY` / `BINANCE_SECRET` | for binance | Crypto |
+## Tools
+| Tool | Arguments | Returns |
+|---|---|---|
+| `emerald_exchange_exchanges` | none | `available`, `active`, `mode` |
+| `emerald_exchange_get_quote` | `symbol` | `symbol`, `bid`, `ask`, `last`, `volume`, `timestamp` |
+| `emerald_exchange_get_historical` | `symbol`, `period` (default `1y`), `interval` (default `1d`) | bars with `timestamp`, `open`, `high`, `low`, `close`, `volume` |
+| `emerald_exchange_get_account` | none | `equity`, `cash`, `buying_power`, `margin_used`, `currency`, `exchange`, `account_id` |
+| `emerald_exchange_get_positions` | none | positions with `symbol`, `qty`, `avg_entry_price`, `current_price`, `unrealized_pnl`, `side` |
 
-`MCP_TOOL_MODE` (`condensed`|`verbose`|`both`) selects the condensed `action`-routed
-surface (used below) vs. the 1:1 verbose tools over the backend methods.
-
-## Tools & actions
-| Condensed tool | Actions |
-|----------------|---------|
-| `emerald_market_data` | `quote`, `historical`, `exchanges` |
-| `emerald_portfolio` | `positions`, `account` |
-
-### Key parameters
-- `symbol` — required for `quote` and `historical`.
-- `period` — history lookback (e.g. `1d`, `1mo`, `1y`); default `1y`.
-- `interval` — bar size (e.g. `1m`, `1h`, `1d`); default `1d`.
-
-## Recipes
-Current quote:
-```json
-{"action": "quote", "symbol": "AAPL"}
-```
-Daily bars for the last month:
-```json
-{"action": "historical", "symbol": "BTC/USD", "period": "1mo", "interval": "1d"}
-```
-List backends / active venue:
-```json
-{"action": "exchanges"}
-```
+## Procedure
+1. Call `emerald_exchange_exchanges` first when the backend matters to the answer.
+2. Read the quote or bars; quote the `timestamp` of what you report.
+3. For account questions read `get_account` and `get_positions` together so equity and positions agree.
 
 ## Gotchas
-- `historical` is capped to the first 50 bars in the condensed response — narrow the
-  `period`/`interval` if you need a specific window rather than expecting the full series.
-- In `paper` mode quotes/prices are simulated placeholders; do not treat them as real
-  marks. Check `emerald_market_data action=exchanges` to confirm the active `mode`.
-- Symbol conventions differ per backend (e.g. `BTC/USD` on CCXT vs `BTCUSDT` on Binance);
-  pass the symbol as the active backend expects it.
-
-## Related
-- `emerald-exchange-order-execution` — act on this data (submit/cancel orders).
-- `emerald-exchange-kg-ingestion` — persist quotes/positions/bars into the KG.
+- Paper mode returns simulated data. Never present it as a live price or balance.
+- Period and interval strings follow the backend (for example `1mo`, `1d`, `1h`).
