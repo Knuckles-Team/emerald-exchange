@@ -20,7 +20,8 @@
     "EMERALD-OPS-R014",
     "EMERALD-OPS-R015",
     "CONN-EMERALD-EXCHANGE-OPS-R016",
-    "CONN-EMERALD-EXCHANGE-OPS-R017"
+    "CONN-EMERALD-EXCHANGE-OPS-R017",
+    "CONN-EMERALD-EXCHANGE-OPS-R018"
   ],
   "requirements": [
     {
@@ -151,8 +152,8 @@
       "delivery_state": "BUILT",
       "landed_in": [],
       "verified_by": [
-        "tests/test_performance_activity_records.py:36",
-        "tests/test_performance_activity_records.py:66"
+        "tests/test_performance_activity_records.py:41",
+        "tests/test_performance_activity_records.py:71"
       ]
     },
     {
@@ -161,7 +162,17 @@
       "delivery_state": "BUILT",
       "landed_in": [],
       "verified_by": [
-        "tests/test_performance_activity_records.py:58"
+        "tests/test_performance_activity_records.py:63"
+      ]
+    },
+    {
+      "id": "CONN-EMERALD-EXCHANGE-OPS-R018",
+      "title": "Account value is written as valuation records",
+      "delivery_state": "BUILT",
+      "landed_in": [],
+      "verified_by": [
+        "tests/test_performance_activity_records.py:83",
+        "tests/test_performance_activity_records.py:100"
       ]
     }
   ]

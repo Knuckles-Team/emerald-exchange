@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import re
 from datetime import UTC, datetime
 from decimal import Decimal
@@ -81,6 +82,33 @@ def _record(
             "activitySession": f'"{session}"',
         },
     }
+
+
+def valuation_record(
+    *,
+    tenant_id: str,
+    account_id: str,
+    value: Any,
+    currency: str,
+    as_of: datetime,
+    source: str,
+) -> dict[str, Any]:
+    """The account's market value, cash included, at one instant."""
+    if isinstance(value, float) and not math.isfinite(value):
+        raise ValueError("account value must be finite")
+    return _record(
+        "valuation",
+        [tenant_id, account_id, _instant(as_of)],
+        {
+            "activityAccount": _iri(account_id),
+            "activityPosition": _iri(VALUATION_POSITION),
+            "activityTradeDate": _instant(as_of),
+            "activityMarketValue": _decimal(value),
+            "activityCurrency": _currency(currency),
+        },
+        source=source,
+        session=ACCOUNT_SESSION,
+    )
 
 
 def cash_flow_record(

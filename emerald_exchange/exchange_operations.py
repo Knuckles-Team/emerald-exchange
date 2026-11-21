@@ -14,6 +14,7 @@ import hashlib
 import json
 import os
 from dataclasses import asdict
+from datetime import UTC, datetime
 from typing import Any, Literal, cast
 from uuid import uuid4
 
@@ -30,6 +31,7 @@ from emerald_exchange.backends import (
 )
 from emerald_exchange.performance_records import (
     cash_flow_record,
+    valuation_record,
 )
 
 #: Backend methods that may be served without the risk guard.
@@ -41,6 +43,7 @@ READ_OPERATIONS = (
     "get_account_snapshot",
     "get_account_positions",
     "get_csv_activities",
+    "get_account_valuation",
     "get_stock_bars",
     "get_stock_quote",
     "get_stock_news",
@@ -390,6 +393,35 @@ class ExchangeReadOperations:
                     raise ValueError("Invalid CSV activity statement") from None
             records.append(record)
         return {"records": records, "checkpoint": {"generation": uuid4().hex}}
+
+    def get_account_valuation(
+        self,
+        tenant_id: str,
+        mode: Literal["delta"],
+        since: dict[str, str] | None = None,
+    ) -> dict[str, Any]:
+        """Read the active Alpaca account's total value as a valuation record."""
+        if self._backend.name != "alpaca":
+            raise ValueError("account valuation source requires the Alpaca backend")
+        if mode != "delta":
+            raise ValueError("account valuation source requires delta mode")
+        if not isinstance(tenant_id, str) or not tenant_id.strip():
+            raise ValueError("account valuation source requires a tenant")
+        account = self._backend.get_account()
+        if not account.account_id:
+            raise ValueError("account valuation source requires an account identity")
+        as_of = datetime.now(UTC).replace(microsecond=0)
+        record = valuation_record(
+            tenant_id=tenant_id,
+            account_id=account.account_id,
+            value=account.equity,
+            currency=account.currency,
+            as_of=as_of,
+            source="alpaca-account-valuations",
+        )
+        record["account_id"] = account.account_id
+        record["currency"] = account.currency
+        return {"records": [record], "checkpoint": {"generation": uuid4().hex}}
 
     def exchanges(self) -> dict[str, Any]:
         """Available exchange backends, the active backend and its mode."""

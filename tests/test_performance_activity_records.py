@@ -3,9 +3,10 @@
 from types import SimpleNamespace
 
 import pytest
+from scion_sdk.ingest.live_declaration import load_declaration as declaration
 
-from emerald_exchange.backends import AlpacaBackend
-from emerald_exchange.exchange_operations import ExchangeReadOperations
+from emerald_exchange.backends import AlpacaBackend, PaperBackend
+from emerald_exchange.exchange_operations import READ_OPERATIONS, ExchangeReadOperations
 from tests.test_alpaca_csv_activity_source import MAPPING
 
 BASE = "http://example.org/markets#"
@@ -25,6 +26,10 @@ def broker(equity="1234.5"):
         )
     )
     return ExchangeReadOperations(backend)
+
+
+def sources():
+    return {s.source_id: s for s in declaration("emerald_exchange").sources}
 
 
 def cash_records():
@@ -73,3 +78,30 @@ def test_zero_cash_amount_is_refused():
         broker().get_csv_activities(
             zero, MAPPING, "tenant-1", "ABC", "licensed", "delta"
         )
+
+
+@pytest.mark.spec("CONN-EMERALD-EXCHANGE-OPS-R018")
+def test_account_valuation_is_a_decimal_account_value_record():
+    assert "get_account_valuation" in READ_OPERATIONS
+    source = sources()["alpaca-account-valuations"]
+    assert source.tools == ("emerald_exchange_get_account_valuation",)
+    result = broker().get_account_valuation("tenant-1", "delta")
+    (record,) = result["records"]
+    fields = record["fields"]
+    assert fields["activityKind"] == '"valuation"'
+    assert fields["activityPosition"] == f"<{BASE}account-value>"
+    assert fields["activityAccount"] == f"<{BASE}account-1>"
+    assert fields["activityMarketValue"] == '"1234.5"^^xsd:decimal'
+    assert fields["activityCurrency"] == '"USD"'
+    assert fields["activityTradeDate"].endswith('Z"^^xsd:dateTime')
+    assert fields["recordSource"] == '"alpaca-account-valuations"'
+
+
+@pytest.mark.spec("CONN-EMERALD-EXCHANGE-OPS-R018")
+def test_account_valuation_refuses_bad_backend_and_non_finite_value():
+    with pytest.raises(ValueError, match="Alpaca"):
+        ExchangeReadOperations(PaperBackend()).get_account_valuation("t", "delta")
+    with pytest.raises(ValueError, match="tenant"):
+        broker().get_account_valuation(" ", "delta")
+    with pytest.raises(RuntimeError):
+        broker("nan").get_account_valuation("tenant-1", "delta")
