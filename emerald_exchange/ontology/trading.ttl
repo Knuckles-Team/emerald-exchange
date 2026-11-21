@@ -1,3 +1,4 @@
+@prefix core: <https://knuckles-team.github.io/ontology/core#> .
 @prefix fibo-fi: <https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstruments/FinancialInstruments/> .
 @prefix fibo-org: <https://spec.edmcouncil.org/fibo/ontology/FND/Organizations/Organizations/> .
 @prefix bibo: <http://purl.org/ontology/bibo/> .
@@ -5,7 +6,7 @@
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
 @prefix dc: <http://purl.org/dc/terms/> .
-@prefix : <http://knuckles.team/kg#> .
+@prefix : <https://knuckles-team.github.io/ontology/connector/emerald#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
@@ -25,7 +26,7 @@
     rdfs:label "informs" ;
     rdfs:comment "Curated knowledge informs a trading strategy." ;
     rdfs:domain :TradingKnowledge ;
-    rdfs:range :TradingStrategy .
+    rdfs:range core:TradingStrategy .
 
 :RiskConcept a owl:Class ;
     rdfs:label "Risk Concept" ;
@@ -40,7 +41,7 @@
 :VALID_IN a owl:ObjectProperty ;
     rdfs:label "valid in regime" ;
     rdfs:comment "A trading strategy is applicable in a given market regime." ;
-    rdfs:domain :TradingStrategy ;
+    rdfs:domain core:TradingStrategy ;
     rdfs:range :MarketRegime .
 
 :chapter a owl:DatatypeProperty ;
@@ -90,17 +91,16 @@
     rdfs:domain :TradingKnowledge ;
     rdfs:range xsd:string .
 
-<http://knuckles.team/kg/trading> a owl:Ontology ;
+<https://knuckles-team.github.io/ontology/connector/emerald/trading> a owl:Ontology ;
     rdfs:label "Agent Intelligence Graph — Trading Module" ;
-    rdfs:comment "Trading domain extension (microstructure signals, market knowledge provenance). Imported by the canonical <http://knuckles.team/kg> ontology; resolved to ontology_trading.ttl by the local loader convention." .
+    rdfs:comment "Trading domain extension (microstructure signals, market knowledge provenance). Resolved to ontology_trading.ttl by the local loader convention." .
 
 :MicrostructureSignal a owl:Class ;
     rdfs:label "Microstructure Signal" ;
     rdfs:comment "A short-horizon order-flow / microstructure alpha whose measured priors (directional accuracy, standalone Sharpe, PBO, decay) drive signal-fusion weights." ;
-    rdfs:subClassOf :TradingSignal .
+    rdfs:subClassOf core:TradingSignal .
 
 :TradingKnowledge a owl:Class ;
     rdfs:label "Trading Knowledge" ;
     rdfs:comment "Curated, classified knowledge distilled from books, papers, PDFs, or notes — organised into typed concepts with citations and confidence rather than stored as a verbatim document." ;
-    rdfs:subClassOf :Concept .
-
+    rdfs:subClassOf core:Concept .
