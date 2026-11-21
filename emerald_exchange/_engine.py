@@ -29,6 +29,10 @@ ENGINE_REQUIRED_ERR = (
 #: ``ontology/quant.ttl``; medulla selects algorithms from it by SPARQL.
 QUANT_VOCABULARY = "https://knuckles-team.github.io/ontology/connector/emerald/finance#"
 
+#: The engine serves the numeric analyses (state-space filters, regimes,
+#: validation statistics) from the numeric client, which needs its own scope.
+NUMERIC_SCOPE = "compute:numeric"
+
 # Sentinel so a cached None ("engine not reachable") is distinct from "unprobed".
 _UNPROBED = object()
 _COMPUTE_CACHE: Any = _UNPROBED
@@ -44,10 +48,14 @@ def finance_compute() -> Any:
     global _COMPUTE_CACHE
     if _COMPUTE_CACHE is not _UNPROBED:
         return _COMPUTE_CACHE
-    from scion_sdk.compute import ComputeUnavailableError, connect_compute
+    from scion_sdk.compute import (
+        COMPUTE_SCOPES,
+        ComputeUnavailableError,
+        connect_compute,
+    )
 
     try:
-        _COMPUTE_CACHE = connect_compute()
+        _COMPUTE_CACHE = connect_compute(scopes=(*COMPUTE_SCOPES, NUMERIC_SCOPE))
         logger.info("medulla engine connected; Rust quant compute enabled")
     except ComputeUnavailableError as exc:
         logger.warning("Operation failed: error_type=%s", type(exc).__name__)

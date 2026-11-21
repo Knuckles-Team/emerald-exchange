@@ -19,7 +19,7 @@ from importlib.resources import files
 from pathlib import Path
 
 import pytest
-from scion_sdk.compute import EngineCompute, connect_compute
+from scion_sdk.compute import COMPUTE_SCOPES, EngineCompute, connect_compute
 from scion_sdk.ingest.engine import EngineSettings
 
 from emerald_exchange import _engine
@@ -172,7 +172,8 @@ def live_compute(
                     graph=GRAPH,
                     principal=PRINCIPAL,
                     policy_version=POLICY,
-                )
+                ),
+                scopes=(*COMPUTE_SCOPES, _engine.NUMERIC_SCOPE),
             )
             yield compute
         finally:

@@ -1873,7 +1873,7 @@ and AHE efficacy scoring for evolutionary rule selection.""" ;
 fin:FinanceAnalysis a owl:Class ;
     rdfs:label "Finance Analysis" ;
     rdfs:comment "A kind of analysis a finance connector asks the graph service to perform." ;
-    rdfs:subClassOf <https://knuckles-team.github.io/ontology/core#Task> .
+    rdfs:subClassOf <https://knuckles-team.github.io/ontology/core#Task>, core:AnalysisType .
 
 fin:appliesAlgorithm a owl:ObjectProperty ;
     rdfs:label "applies algorithm" ;
@@ -1898,6 +1898,8 @@ fin:SignalFusionAnalysis a fin:FinanceAnalysis ;
     fin:appliesAlgorithm fin:BayesianSignalFusion .
 
 fin:BayesianSignalFusion a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:SignalFusionAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "Bayesian signal fusion" ;
     fin:servedBy "finance.signal_models" ;
     fin:servedOp "bayes_fuse" .
@@ -1907,6 +1909,8 @@ fin:InsiderEquilibriumAnalysis a fin:FinanceAnalysis ;
     fin:appliesAlgorithm fin:KyleInsiderEquilibrium .
 
 fin:KyleInsiderEquilibrium a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:InsiderEquilibriumAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "Kyle insider equilibrium under dynamic legal risk" ;
     fin:servedBy "finance.signal_models" ;
     fin:servedOp "insider_equilibrium" .
@@ -1916,14 +1920,18 @@ fin:RegimeAnalysis a fin:FinanceAnalysis ;
     fin:appliesAlgorithm fin:GaussianHmmRegimes .
 
 fin:GaussianHmmRegimes a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:RegimeAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "Gaussian hidden Markov regime model" ;
-    fin:servedBy "finance.detect_regimes" .
+    fin:servedBy "numeric.regime_hmm" .
 
 fin:SurveillanceAnalysis a fin:FinanceAnalysis ;
     rdfs:label "Informed-flow surveillance analysis" ;
     fin:appliesAlgorithm fin:KyleSurveillanceRisk .
 
 fin:KyleSurveillanceRisk a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:SurveillanceAnalysis ;
+    core:appliesToInstrumentType core:Position ;
     rdfs:label "Kyle surveillance risk" ;
     fin:servedBy "finance.surveillance_risk" .
 
@@ -1933,6 +1941,8 @@ fin:EnsembleProbabilityAnalysis a fin:FinanceAnalysis ;
     fin:appliesAlgorithm fin:LaplaceEnsembleProbability .
 
 fin:LaplaceEnsembleProbability a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:EnsembleProbabilityAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "Laplace ensemble probability with cost-aware edge threshold" .
 
 # Venue-engine analyses: every computation the connector used to hold.
@@ -1941,6 +1951,8 @@ fin:ForensicAccountingAnalysis a fin:FinanceAnalysis ;
     fin:appliesAlgorithm fin:BeneishAltmanPiotroskiReport .
 
 fin:BeneishAltmanPiotroskiReport a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:ForensicAccountingAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "Beneish M, Altman Z, Piotroski F and Sloan accruals report" ;
     fin:servedBy "finance.forensic_report" .
 
@@ -1949,38 +1961,48 @@ fin:HedgeBetaAnalysis a fin:FinanceAnalysis ;
     fin:appliesAlgorithm fin:KalmanBetaFilter .
 
 fin:KalmanBetaFilter a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:HedgeBetaAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "Kalman time-varying CAPM beta" ;
-    fin:servedBy "finance.kalman_beta" .
+    fin:servedBy "numeric.kalman_beta" .
 
 fin:SpreadStationarityAnalysis a fin:FinanceAnalysis ;
     rdfs:label "Spread stationarity analysis" ;
     fin:appliesAlgorithm fin:AugmentedDickeyFuller .
 
 fin:AugmentedDickeyFuller a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:SpreadStationarityAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "Augmented Dickey-Fuller test" ;
-    fin:servedBy "finance.adf_test" .
+    fin:servedBy "numeric.adf" .
 
 fin:MeanReversionCalibrationAnalysis a fin:FinanceAnalysis ;
     rdfs:label "Mean-reversion calibration analysis" ;
     fin:appliesAlgorithm fin:OrnsteinUhlenbeckCalibration .
 
 fin:OrnsteinUhlenbeckCalibration a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:MeanReversionCalibrationAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "Ornstein-Uhlenbeck calibration" ;
-    fin:servedBy "finance.ou_calibrate" .
+    fin:servedBy "numeric.ou_calibrate" .
 
 fin:MeanReversionThresholdAnalysis a fin:FinanceAnalysis ;
     rdfs:label "Mean-reversion threshold analysis" ;
     fin:appliesAlgorithm fin:OrnsteinUhlenbeckOptimalThresholds .
 
 fin:OrnsteinUhlenbeckOptimalThresholds a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:MeanReversionThresholdAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "Ornstein-Uhlenbeck optimal entry and exit bands" ;
-    fin:servedBy "finance.ou_optimal_thresholds" .
+    fin:servedBy "numeric.ou_thresholds" .
 
 fin:ImpliedVolatilityAnalysis a fin:FinanceAnalysis ;
     rdfs:label "Implied volatility analysis" ;
     fin:appliesAlgorithm fin:SabrImpliedVolatility .
 
 fin:SabrImpliedVolatility a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:ImpliedVolatilityAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "SABR lognormal implied volatility (Hagan 2002)" ;
     fin:servedBy "finance.sabr_implied_vol" .
 
@@ -1989,6 +2011,8 @@ fin:VolatilitySmileAnalysis a fin:FinanceAnalysis ;
     fin:appliesAlgorithm fin:SabrSmile .
 
 fin:SabrSmile a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:VolatilitySmileAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "SABR implied-volatility smile" ;
     fin:servedBy "finance.sabr_smile" .
 
@@ -1997,6 +2021,8 @@ fin:VolatilityCalibrationAnalysis a fin:FinanceAnalysis ;
     fin:appliesAlgorithm fin:SabrCalibration .
 
 fin:SabrCalibration a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:VolatilityCalibrationAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "SABR calibration with fixed beta" ;
     fin:servedBy "finance.sabr_calibrate" .
 
@@ -2005,14 +2031,18 @@ fin:ForecastCalibrationAnalysis a fin:FinanceAnalysis ;
     fin:appliesAlgorithm fin:BrierScore .
 
 fin:BrierScore a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:ForecastCalibrationAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "Brier score" ;
-    fin:servedBy "finance.brier_score" .
+    fin:servedBy "numeric.brier" .
 
 fin:FairValueAnalysis a fin:FinanceAnalysis ;
     rdfs:label "Fair value analysis" ;
     fin:appliesAlgorithm fin:Microprice .
 
 fin:Microprice a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:FairValueAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "Size-weighted microprice" ;
     fin:servedBy "finance.microprice_series" .
 
@@ -2021,6 +2051,8 @@ fin:OrderFlowImbalanceAnalysis a fin:FinanceAnalysis ;
     fin:appliesAlgorithm fin:ContKukanovStoikovOfi .
 
 fin:ContKukanovStoikovOfi a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:OrderFlowImbalanceAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "Cont-Kukanov-Stoikov order-flow imbalance" ;
     fin:servedBy "finance.ofi_series" .
 
@@ -2029,6 +2061,8 @@ fin:FlowToxicityAnalysis a fin:FinanceAnalysis ;
     fin:appliesAlgorithm fin:PredictionMarketVpin .
 
 fin:PredictionMarketVpin a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:FlowToxicityAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "VPIN normalised for binary payoffs" ;
     fin:servedBy "finance.vpin_pm" .
 
@@ -2037,6 +2071,8 @@ fin:BreakevenAlphaAnalysis a fin:FinanceAnalysis ;
     fin:appliesAlgorithm fin:GlostenMilgromBreakevenAlpha .
 
 fin:GlostenMilgromBreakevenAlpha a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:BreakevenAlphaAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "Glosten-Milgrom breakeven informed share" ;
     fin:servedBy "finance.breakeven_alpha" .
 
@@ -2045,6 +2081,8 @@ fin:QueuePositionAnalysis a fin:FinanceAnalysis ;
     fin:appliesAlgorithm fin:QueueImbalance .
 
 fin:QueueImbalance a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:QueuePositionAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "Queue imbalance and time to fill" ;
     fin:servedBy "finance.queue_imbalance" .
 
@@ -2053,6 +2091,8 @@ fin:ConvictionAnalysis a fin:FinanceAnalysis ;
     fin:appliesAlgorithm fin:ConvergenceGate .
 
 fin:ConvergenceGate a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:ConvictionAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "Strong-signal convergence gate" ;
     fin:servedBy "finance.convergence_gate" .
 
@@ -2061,6 +2101,8 @@ fin:BoundedQuoteAnalysis a fin:FinanceAnalysis ;
     fin:appliesAlgorithm fin:LogitAvellanedaStoikov .
 
 fin:LogitAvellanedaStoikov a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:BoundedQuoteAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "Logit-space Avellaneda-Stoikov quotes" ;
     fin:servedBy "finance.logit_quotes" .
 
@@ -2069,6 +2111,8 @@ fin:QuoteAnalysis a fin:FinanceAnalysis ;
     fin:appliesAlgorithm fin:AvellanedaStoikov .
 
 fin:AvellanedaStoikov a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:QuoteAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "Avellaneda-Stoikov quotes" ;
     fin:servedBy "finance.avellaneda_stoikov" .
 
@@ -2077,6 +2121,8 @@ fin:PerformanceAnalysis a fin:FinanceAnalysis ;
     fin:appliesAlgorithm fin:ReturnRiskMetrics .
 
 fin:ReturnRiskMetrics a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:PerformanceAnalysis ;
+    core:appliesToInstrumentType core:Position ;
     rdfs:label "Return risk metrics" ;
     fin:servedBy "finance.risk_metrics" .
 
@@ -2085,30 +2131,38 @@ fin:DeflatedSharpeAnalysis a fin:FinanceAnalysis ;
     fin:appliesAlgorithm fin:DeflatedSharpeRatio .
 
 fin:DeflatedSharpeRatio a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:DeflatedSharpeAnalysis ;
+    core:appliesToInstrumentType core:Position ;
     rdfs:label "Deflated Sharpe ratio" ;
-    fin:servedBy "finance.deflated_sharpe" .
+    fin:servedBy "numeric.deflated_sharpe" .
 
 fin:CrossValidationSplitAnalysis a fin:FinanceAnalysis ;
     rdfs:label "Cross-validation split analysis" ;
     fin:appliesAlgorithm fin:PurgedCombinatorialCv .
 
 fin:PurgedCombinatorialCv a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:CrossValidationSplitAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "Purged combinatorial cross-validation" ;
-    fin:servedBy "finance.purged_cpcv" .
+    fin:servedBy "numeric.purged_cpcv" .
 
 fin:BacktestOverfitAnalysis a fin:FinanceAnalysis ;
     rdfs:label "Backtest overfit analysis" ;
     fin:appliesAlgorithm fin:ProbabilityBacktestOverfit .
 
 fin:ProbabilityBacktestOverfit a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:BacktestOverfitAnalysis ;
+    core:appliesToInstrumentType core:Position ;
     rdfs:label "Probability of backtest overfit" ;
-    fin:servedBy "finance.probability_backtest_overfit" .
+    fin:servedBy "numeric.probability_of_backtest_overfit" .
 
 fin:PointKellyAnalysis a fin:FinanceAnalysis ;
     rdfs:label "Point Kelly analysis" ;
     fin:appliesAlgorithm fin:FractionalKelly .
 
 fin:FractionalKelly a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:PointKellyAnalysis ;
+    core:appliesToInstrumentType core:Position ;
     rdfs:label "Fractional Kelly for a binary contract" ;
     fin:servedBy "finance.kelly_fraction" .
 
@@ -2117,6 +2171,8 @@ fin:BayesianKellyAnalysis a fin:FinanceAnalysis ;
     fin:appliesAlgorithm fin:BetaPosteriorKelly .
 
 fin:BetaPosteriorKelly a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:BayesianKellyAnalysis ;
+    core:appliesToInstrumentType core:Position ;
     rdfs:label "Kelly under a Beta posterior" ;
     fin:servedBy "finance.bayesian_kelly" .
 
@@ -2125,6 +2181,8 @@ fin:EmpiricalKellyAnalysis a fin:FinanceAnalysis ;
     fin:appliesAlgorithm fin:ResampledKelly .
 
 fin:ResampledKelly a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:EmpiricalKellyAnalysis ;
+    core:appliesToInstrumentType core:Position ;
     rdfs:label "Uncertainty-adjusted resampled Kelly" ;
     fin:servedBy "finance.empirical_kelly" .
 
@@ -2134,6 +2192,8 @@ fin:VolatilityArbitrageAnalysis a fin:FinanceAnalysis ;
     fin:appliesAlgorithm fin:SabrResidualClassification .
 
 fin:SabrResidualClassification a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:VolatilityArbitrageAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "Rich/cheap strike classification against the SABR-fair smile" .
 
 fin:EventBacktestAnalysis a fin:FinanceAnalysis ;
@@ -2142,6 +2202,8 @@ fin:EventBacktestAnalysis a fin:FinanceAnalysis ;
     fin:appliesAlgorithm fin:L2QueueEventBacktest .
 
 fin:L2QueueEventBacktest a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:EventBacktestAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "Event-driven L2-queue backtest with latency and maker/taker fees" .
 
 fin:VenueFeeAnalysis a fin:FinanceAnalysis ;
@@ -2150,6 +2212,8 @@ fin:VenueFeeAnalysis a fin:FinanceAnalysis ;
     fin:appliesAlgorithm fin:CategoryFeeSchedule .
 
 fin:CategoryFeeSchedule a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:VenueFeeAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "Category taker fee and maker rebate schedule" .
 
 fin:DistributionShiftAnalysis a fin:FinanceAnalysis ;
@@ -2158,6 +2222,8 @@ fin:DistributionShiftAnalysis a fin:FinanceAnalysis ;
     fin:appliesAlgorithm fin:KolmogorovSmirnovTwoSample .
 
 fin:KolmogorovSmirnovTwoSample a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:DistributionShiftAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "Two-sample Kolmogorov-Smirnov test" .
 fin:SharpeRatioAnalysis a fin:FinanceAnalysis ;
     rdfs:label "Sharpe ratio analysis" ;
@@ -2165,6 +2231,8 @@ fin:SharpeRatioAnalysis a fin:FinanceAnalysis ;
     fin:appliesAlgorithm fin:SampleSharpeRatio .
 
 fin:SampleSharpeRatio a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:SharpeRatioAnalysis ;
+    core:appliesToInstrumentType core:Position ;
     rdfs:label "Sample Sharpe ratio" .
 
 fin:HitRateAnalysis a fin:FinanceAnalysis ;
@@ -2173,6 +2241,8 @@ fin:HitRateAnalysis a fin:FinanceAnalysis ;
     fin:appliesAlgorithm fin:PositiveReturnShare .
 
 fin:PositiveReturnShare a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:HitRateAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "Positive return share" .
 
 # ontology-codemod R3
