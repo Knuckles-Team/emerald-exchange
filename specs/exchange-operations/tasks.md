@@ -23,3 +23,4 @@ Each task line reads `- [ ] T001 [P] [US1] <ID>-R012.4 description`. Order is pr
 - [x] T017 [US1] CONN-EMERALD-EXCHANGE-OPS-R017 Broker statement withdrawals are written as withdrawal records.
 - [x] T018 [US1] CONN-EMERALD-EXCHANGE-OPS-R018 Account value is written as valuation records.
 - [x] T019 [US1] CONN-EMERALD-EXCHANGE-OPS-R019 Index bars are written as benchmark-level records.
+- [x] T020 [US1] CONN-EMERALD-EXCHANGE-OPS-R020 The account record carries its binding state.

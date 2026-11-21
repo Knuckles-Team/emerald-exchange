@@ -22,7 +22,8 @@
     "CONN-EMERALD-EXCHANGE-OPS-R016",
     "CONN-EMERALD-EXCHANGE-OPS-R017",
     "CONN-EMERALD-EXCHANGE-OPS-R018",
-    "CONN-EMERALD-EXCHANGE-OPS-R019"
+    "CONN-EMERALD-EXCHANGE-OPS-R019",
+    "CONN-EMERALD-EXCHANGE-OPS-R020"
   ],
   "requirements": [
     {
@@ -153,8 +154,8 @@
       "delivery_state": "BUILT",
       "landed_in": [],
       "verified_by": [
-        "tests/test_performance_activity_records.py:42",
-        "tests/test_performance_activity_records.py:72"
+        "tests/test_performance_activity_records.py:44",
+        "tests/test_performance_activity_records.py:74"
       ]
     },
     {
@@ -163,7 +164,7 @@
       "delivery_state": "BUILT",
       "landed_in": [],
       "verified_by": [
-        "tests/test_performance_activity_records.py:64"
+        "tests/test_performance_activity_records.py:66"
       ]
     },
     {
@@ -172,8 +173,8 @@
       "delivery_state": "BUILT",
       "landed_in": [],
       "verified_by": [
-        "tests/test_performance_activity_records.py:84",
-        "tests/test_performance_activity_records.py:101"
+        "tests/test_performance_activity_records.py:86",
+        "tests/test_performance_activity_records.py:103"
       ]
     },
     {
@@ -182,8 +183,18 @@
       "delivery_state": "BUILT",
       "landed_in": [],
       "verified_by": [
-        "tests/test_performance_activity_records.py:111",
-        "tests/test_performance_activity_records.py:136"
+        "tests/test_performance_activity_records.py:113",
+        "tests/test_performance_activity_records.py:138"
+      ]
+    },
+    {
+      "id": "CONN-EMERALD-EXCHANGE-OPS-R020",
+      "title": "The account record carries its binding state",
+      "delivery_state": "BUILT",
+      "landed_in": [],
+      "verified_by": [
+        "tests/test_performance_activity_records.py:155",
+        "tests/test_performance_activity_records.py:162"
       ]
     }
   ]

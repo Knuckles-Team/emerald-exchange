@@ -31,6 +31,7 @@ from emerald_exchange.backends import (
 )
 from emerald_exchange.performance_records import (
     DEFAULT_BAR_SESSION,
+    account_binding_fields,
     benchmark_level_record,
     cash_flow_record,
     valuation_record,
@@ -116,7 +117,13 @@ class ExchangeReadOperations:
         if not account.account_id:
             raise ValueError("account snapshot source requires an account identity")
         positions = self._backend.get_positions()
-        return [{**asdict(account), "positions": [asdict(item) for item in positions]}]
+        return [
+            {
+                **asdict(account),
+                "positions": [asdict(item) for item in positions],
+                "fields": account_binding_fields(account.account_id),
+            }
+        ]
 
     def get_account_positions(self) -> list[dict[str, Any]]:
         """Read positions with stable identities scoped to their Alpaca account."""

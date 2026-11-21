@@ -7,6 +7,7 @@ from scion_sdk.ingest.live_declaration import load_declaration as declaration
 
 from emerald_exchange.backends import AlpacaBackend, PaperBackend
 from emerald_exchange.exchange_operations import READ_OPERATIONS, ExchangeReadOperations
+from emerald_exchange.performance_records import account_binding_fields
 from tests.test_alpaca_csv_activity_source import MAPPING
 from tests.test_alpaca_stock_bars import ARGS, BAR, Market
 
@@ -19,12 +20,13 @@ CASH_CSV = (
 )
 
 
-def broker(equity="1234.5"):
+def broker(equity="1234.5", account_id="account-1"):
     backend = AlpacaBackend()
     backend._client = SimpleNamespace(
         get_account=lambda: SimpleNamespace(
-            id="account-1", currency="USD", equity=equity, cash="9", buying_power="8"
-        )
+            id=account_id, currency="USD", equity=equity, cash="9", buying_power="8"
+        ),
+        get_all_positions=lambda: [],
     )
     return ExchangeReadOperations(backend)
 
@@ -148,3 +150,18 @@ def test_benchmark_name_must_be_an_identifier_and_level_positive():
         ops.get_benchmark_levels(
             tenant_id="", benchmark="SPX", **{**ARGS, "symbol": "SPY"}
         )
+
+
+@pytest.mark.spec("CONN-EMERALD-EXCHANGE-OPS-R020")
+def test_account_record_carries_a_verified_binding_state():
+    (record,) = broker().get_account_snapshot()
+    assert record["account_id"] == "account-1"
+    assert record["fields"] == {"accountBindingState": '"verified"'}
+
+
+@pytest.mark.spec("CONN-EMERALD-EXCHANGE-OPS-R020")
+def test_account_without_a_valid_identity_gets_no_binding_state():
+    with pytest.raises(RuntimeError, match="account read failed"):
+        broker(account_id="").get_account_snapshot()
+    with pytest.raises(ValueError, match="identifier"):
+        account_binding_fields("a b>")

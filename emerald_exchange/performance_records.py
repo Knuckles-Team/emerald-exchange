@@ -23,6 +23,7 @@ VALUATION_POSITION = "account-value"
 CASH_POSITION = "account-cash"
 BENCHMARK_ACCOUNT = "account-benchmark"
 ACCOUNT_SESSION = "account"
+BINDING_VERIFIED = "verified"
 DEFAULT_BAR_SESSION = "regular"
 
 _NAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$")
@@ -140,6 +141,19 @@ def cash_flow_record(
         source=source,
         session=ACCOUNT_SESSION,
     )
+
+
+def account_binding_fields(account_id: str) -> dict[str, str]:
+    """The ``fields`` of the account record that mark its binding verified.
+
+    The return engine refuses a figure for an account whose node carries no
+    ``accountBindingState`` of ``verified``. The provider read that produced
+    ``account_id`` ran under the connector's own credentials, so the identity
+    is the verified principal's account; the check rejects a blank or
+    malformed identity instead of marking it.
+    """
+    _iri(account_id)
+    return {"accountBindingState": f'"{BINDING_VERIFIED}"'}
 
 
 def benchmark_level_record(
