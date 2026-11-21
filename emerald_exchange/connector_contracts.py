@@ -554,6 +554,78 @@ CONTRACTS = (
         ),
         description="Read the status of a submitted order and the positions it changed.",
     ),
+    ToolUseContract(
+        "emerald-record-account-value",
+        (
+            ToolStep(
+                "emerald_exchange_get_account_valuation",
+                params=(
+                    "tenant_id",
+                    "mode",
+                    "since",
+                ),
+                result=(
+                    "records",
+                    "checkpoint",
+                ),
+                refusals=(
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "BACKEND_MISMATCH",
+                        "the active exchange backend is not the one the tool needs",
+                    ),
+                ),
+            ),
+        ),
+        description="Record the active account's total value as a valuation record the return engine reads.",
+    ),
+    ToolUseContract(
+        "emerald-record-benchmark-levels",
+        (
+            ToolStep(
+                "emerald_exchange_get_benchmark_levels",
+                params=(
+                    "tenant_id",
+                    "benchmark",
+                    "symbol",
+                    "start",
+                    "end",
+                    "timeframe",
+                    "adjustment",
+                    "feed",
+                    "license_tag",
+                    "mode",
+                    "limit",
+                    "page_token",
+                    "since",
+                    "session_scope",
+                ),
+                result=(
+                    "records",
+                    "next_page_token",
+                    "checkpoint",
+                ),
+                refusals=(
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "BACKEND_MISMATCH",
+                        "the active exchange backend is not the one the tool needs",
+                    ),
+                ),
+            ),
+        ),
+        description="Record a bounded page of index bars as benchmark-level records the return engine reads.",
+    ),
 )
 
 LINKS = (
@@ -691,6 +763,24 @@ LINKS = (
         ),
         skills=("emerald-exchange-order-execution",),
     ),
+    SurfaceLink(
+        "emerald-record-account-value",
+        tools=("emerald_exchange_get_account_valuation",),
+        prompts=(
+            "emerald-exchange-operator",
+            "emerald-exchange-portfolio-accountant",
+        ),
+        skills=("emerald-exchange-performance-records",),
+    ),
+    SurfaceLink(
+        "emerald-record-benchmark-levels",
+        tools=("emerald_exchange_get_benchmark_levels",),
+        prompts=(
+            "emerald-exchange-operator",
+            "emerald-exchange-market-data-analyst",
+        ),
+        skills=("emerald-exchange-performance-records",),
+    ),
 )
 
 LOCATIONS = (
@@ -749,6 +839,24 @@ LOCATIONS = (
         route_param="kind",
         federation_key="",
     ),
+    DataLocation(
+        "emerald-account-valuation",
+        ("Activity",),
+        "alpaca-account-valuations",
+        "emerald_exchange_get_account_valuation",
+        store="",
+        route_param="",
+        federation_key="account_id",
+    ),
+    DataLocation(
+        "emerald-benchmark-levels",
+        ("Activity",),
+        "alpaca-benchmark-levels",
+        "emerald_exchange_get_benchmark_levels",
+        store="",
+        route_param="benchmark",
+        federation_key="benchmark",
+    ),
 )
 
 ROLES = (
@@ -762,6 +870,7 @@ ROLES = (
             "emerald-read-stock-events",
             "emerald-read-exchange-candles",
             "emerald-read-multi-asset",
+            "emerald-record-benchmark-levels",
         ),
     ),
     BusinessRole(
@@ -770,6 +879,7 @@ ROLES = (
             "emerald-read-account",
             "emerald-snapshot-account",
             "emerald-import-statement",
+            "emerald-record-account-value",
         ),
     ),
     BusinessRole(
