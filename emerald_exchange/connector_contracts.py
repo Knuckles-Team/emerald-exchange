@@ -1,0 +1,893 @@
+"""Surface contracts: tool use, links, data locations and business roles."""
+
+from scion_sdk.surface_contracts import (
+    BusinessRole,
+    DataLocation,
+    Refusal,
+    SurfaceLink,
+    ToolStep,
+    ToolUseContract,
+)
+
+CONTRACTS = (
+    ToolUseContract(
+        "emerald-list-backends",
+        (
+            ToolStep(
+                "emerald_exchange_exchanges",
+                params=(),
+                result=(
+                    "available",
+                    "active",
+                    "mode",
+                ),
+                refusals=(
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                ),
+            ),
+        ),
+        description="List the exchange backends, the active one and its trading mode.",
+    ),
+    ToolUseContract(
+        "emerald-read-account",
+        (
+            ToolStep(
+                "emerald_exchange_exchanges",
+                params=(),
+                result=(
+                    "available",
+                    "active",
+                    "mode",
+                ),
+                refusals=(
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                ),
+            ),
+            ToolStep(
+                "emerald_exchange_get_account",
+                params=(),
+                result=(
+                    "equity",
+                    "cash",
+                    "buying_power",
+                    "margin_used",
+                    "currency",
+                    "exchange",
+                    "account_id",
+                ),
+                refusals=(
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                ),
+            ),
+            ToolStep(
+                "emerald_exchange_get_positions",
+                params=(),
+                result=(
+                    "symbol",
+                    "qty",
+                    "avg_entry_price",
+                    "current_price",
+                    "unrealized_pnl",
+                    "side",
+                    "exchange",
+                ),
+                refusals=(
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                ),
+            ),
+        ),
+        description="Confirm the active backend, then read the account balances and open positions.",
+    ),
+    ToolUseContract(
+        "emerald-quote-symbol",
+        (
+            ToolStep(
+                "emerald_exchange_get_quote",
+                params=("symbol",),
+                result=(
+                    "symbol",
+                    "bid",
+                    "ask",
+                    "last",
+                    "volume",
+                    "timestamp",
+                ),
+                refusals=(
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                ),
+            ),
+        ),
+        description="Read the latest quote of one symbol on the active backend.",
+    ),
+    ToolUseContract(
+        "emerald-read-bars",
+        (
+            ToolStep(
+                "emerald_exchange_get_historical",
+                params=(
+                    "symbol",
+                    "period",
+                    "interval",
+                ),
+                result=(
+                    "timestamp",
+                    "open",
+                    "high",
+                    "low",
+                    "close",
+                    "volume",
+                ),
+                refusals=(
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                ),
+            ),
+        ),
+        description="Read OHLCV bars of one symbol for a period and interval.",
+    ),
+    ToolUseContract(
+        "emerald-read-stock-bars",
+        (
+            ToolStep(
+                "emerald_exchange_get_stock_quote",
+                params=(
+                    "symbol",
+                    "feed",
+                    "license_tag",
+                    "mode",
+                    "since",
+                ),
+                result=(
+                    "quotes",
+                    "checkpoint",
+                ),
+                refusals=(
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "BACKEND_MISMATCH",
+                        "the active exchange backend is not the one the tool needs",
+                    ),
+                ),
+            ),
+            ToolStep(
+                "emerald_exchange_get_stock_bars",
+                params=(
+                    "symbol",
+                    "start",
+                    "end",
+                    "timeframe",
+                    "adjustment",
+                    "feed",
+                    "license_tag",
+                    "mode",
+                    "limit",
+                    "page_token",
+                    "since",
+                    "session_scope",
+                ),
+                result=(
+                    "bars",
+                    "next_page_token",
+                    "checkpoint",
+                ),
+                refusals=(
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "BACKEND_MISMATCH",
+                        "the active exchange backend is not the one the tool needs",
+                    ),
+                ),
+            ),
+        ),
+        description="Read an Alpaca quote and a bounded page of bars with explicit feed and adjustment labels.",
+    ),
+    ToolUseContract(
+        "emerald-read-stock-events",
+        (
+            ToolStep(
+                "emerald_exchange_get_stock_news",
+                params=(
+                    "symbol",
+                    "start",
+                    "end",
+                    "license_tag",
+                    "mode",
+                    "limit",
+                    "page_token",
+                    "since",
+                ),
+                result=(
+                    "news",
+                    "next_page_token",
+                    "checkpoint",
+                ),
+                refusals=(
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "BACKEND_MISMATCH",
+                        "the active exchange backend is not the one the tool needs",
+                    ),
+                ),
+            ),
+            ToolStep(
+                "emerald_exchange_get_stock_dividends",
+                params=(
+                    "symbol",
+                    "start",
+                    "end",
+                    "license_tag",
+                    "mode",
+                    "limit",
+                    "page_token",
+                    "since",
+                ),
+                result=(
+                    "dividends",
+                    "next_page_token",
+                    "checkpoint",
+                ),
+                refusals=(
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "BACKEND_MISMATCH",
+                        "the active exchange backend is not the one the tool needs",
+                    ),
+                ),
+            ),
+            ToolStep(
+                "emerald_exchange_get_company_records",
+                params=(
+                    "symbol",
+                    "dataset",
+                    "license_tag",
+                    "mode",
+                    "since",
+                ),
+                result=(
+                    "records",
+                    "checkpoint",
+                ),
+                refusals=(
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "BACKEND_MISMATCH",
+                        "the active exchange backend is not the one the tool needs",
+                    ),
+                ),
+            ),
+        ),
+        description="Read news, dividends and company profile, income, earnings or logo records of one symbol.",
+    ),
+    ToolUseContract(
+        "emerald-read-exchange-candles",
+        (
+            ToolStep(
+                "emerald_exchange_exchanges",
+                params=(),
+                result=(
+                    "available",
+                    "active",
+                    "mode",
+                ),
+                refusals=(
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                ),
+            ),
+            ToolStep(
+                "emerald_exchange_get_exchange_history",
+                params=(
+                    "symbol",
+                    "start",
+                    "end",
+                    "interval",
+                    "license_tag",
+                    "mode",
+                    "limit",
+                    "page_token",
+                    "since",
+                ),
+                result=(
+                    "candles",
+                    "next_page_token",
+                    "checkpoint",
+                ),
+                refusals=(
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "BACKEND_MISMATCH",
+                        "the active exchange backend is not the one the tool needs",
+                    ),
+                ),
+            ),
+        ),
+        description="Confirm a CCXT backend is active, then read one bounded page of exchange candles.",
+    ),
+    ToolUseContract(
+        "emerald-read-multi-asset",
+        (
+            ToolStep(
+                "emerald_exchange_get_multi_asset_records",
+                params=(
+                    "kind",
+                    "tenant_id",
+                    "source_id",
+                    "license_tag",
+                    "mode",
+                    "base",
+                    "quote",
+                    "dataset",
+                    "symbol",
+                    "start",
+                    "end",
+                    "attom_id",
+                    "max_age_days",
+                    "since",
+                ),
+                result=(
+                    "records",
+                    "checkpoint",
+                ),
+                refusals=(
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                ),
+            ),
+        ),
+        description="Read foreign exchange, commodity, spot gold or property valuation observations.",
+    ),
+    ToolUseContract(
+        "emerald-snapshot-account",
+        (
+            ToolStep(
+                "emerald_exchange_get_account_snapshot",
+                params=(),
+                result=(
+                    "account_id",
+                    "equity",
+                    "cash",
+                    "buying_power",
+                    "positions",
+                ),
+                refusals=(
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "BACKEND_MISMATCH",
+                        "the active exchange backend is not the one the tool needs",
+                    ),
+                ),
+            ),
+            ToolStep(
+                "emerald_exchange_get_account_positions",
+                params=(),
+                result=(
+                    "account_id",
+                    "position_id",
+                    "symbol",
+                    "qty",
+                ),
+                refusals=(
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "BACKEND_MISMATCH",
+                        "the active exchange backend is not the one the tool needs",
+                    ),
+                ),
+            ),
+        ),
+        description="Read the Alpaca account with its positions, then the positions with stable identities.",
+    ),
+    ToolUseContract(
+        "emerald-import-statement",
+        (
+            ToolStep(
+                "emerald_exchange_get_account",
+                params=(),
+                result=(
+                    "account_id",
+                    "equity",
+                    "cash",
+                ),
+                refusals=(
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                ),
+            ),
+            ToolStep(
+                "emerald_exchange_get_csv_activities",
+                params=(
+                    "content",
+                    "mapping",
+                    "tenant_id",
+                    "instrument_id",
+                    "license_tag",
+                    "mode",
+                    "since",
+                ),
+                result=(
+                    "records",
+                    "checkpoint",
+                ),
+                refusals=(
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "BACKEND_MISMATCH",
+                        "the active exchange backend is not the one the tool needs",
+                    ),
+                ),
+            ),
+        ),
+        description="Check the account identity, then turn a statement CSV into validated activity records.",
+    ),
+    ToolUseContract(
+        "emerald-check-order",
+        (
+            ToolStep(
+                "emerald_exchange_get_order_status",
+                params=("order_id",),
+                result=(
+                    "order_id",
+                    "status",
+                    "filled_qty",
+                    "average_price",
+                    "fees",
+                    "exchange",
+                    "timestamp",
+                ),
+                refusals=(
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal("NOT_FOUND", "the exchange has no order with the id"),
+                ),
+            ),
+            ToolStep(
+                "emerald_exchange_get_positions",
+                params=(),
+                result=(
+                    "symbol",
+                    "qty",
+                    "avg_entry_price",
+                    "current_price",
+                    "unrealized_pnl",
+                    "side",
+                    "exchange",
+                ),
+                refusals=(
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                ),
+            ),
+        ),
+        description="Read the status of a submitted order and the positions it changed.",
+    ),
+    ToolUseContract(
+        "emerald-record-account-value",
+        (
+            ToolStep(
+                "emerald_exchange_get_account_valuation",
+                params=(
+                    "tenant_id",
+                    "mode",
+                    "since",
+                ),
+                result=(
+                    "records",
+                    "checkpoint",
+                ),
+                refusals=(
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "BACKEND_MISMATCH",
+                        "the active exchange backend is not the one the tool needs",
+                    ),
+                ),
+            ),
+        ),
+        description="Record the active account's total value as a valuation record the return engine reads.",
+    ),
+    ToolUseContract(
+        "emerald-record-benchmark-levels",
+        (
+            ToolStep(
+                "emerald_exchange_get_benchmark_levels",
+                params=(
+                    "tenant_id",
+                    "benchmark",
+                    "symbol",
+                    "start",
+                    "end",
+                    "timeframe",
+                    "adjustment",
+                    "feed",
+                    "license_tag",
+                    "mode",
+                    "limit",
+                    "page_token",
+                    "since",
+                    "session_scope",
+                ),
+                result=(
+                    "records",
+                    "next_page_token",
+                    "checkpoint",
+                ),
+                refusals=(
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "BACKEND_MISMATCH",
+                        "the active exchange backend is not the one the tool needs",
+                    ),
+                ),
+            ),
+        ),
+        description="Record a bounded page of index bars as benchmark-level records the return engine reads.",
+    ),
+)
+
+LINKS = (
+    SurfaceLink(
+        "emerald-list-backends",
+        tools=("emerald_exchange_exchanges",),
+        prompts=(
+            "emerald-exchange-operator",
+            "emerald-exchange-market-data-analyst",
+            "emerald-exchange-trading-desk",
+        ),
+        skills=(
+            "emerald-exchange-market-data",
+            "emerald-exchange-operations",
+        ),
+    ),
+    SurfaceLink(
+        "emerald-read-account",
+        tools=(
+            "emerald_exchange_exchanges",
+            "emerald_exchange_get_account",
+            "emerald_exchange_get_positions",
+        ),
+        prompts=(
+            "emerald-exchange-operator",
+            "emerald-exchange-trading-desk",
+            "emerald-exchange-portfolio-accountant",
+        ),
+        skills=("emerald-exchange-market-data",),
+    ),
+    SurfaceLink(
+        "emerald-quote-symbol",
+        tools=("emerald_exchange_get_quote",),
+        prompts=(
+            "emerald-exchange-operator",
+            "emerald-exchange-market-data-analyst",
+            "emerald-exchange-trading-desk",
+        ),
+        skills=("emerald-exchange-market-data",),
+    ),
+    SurfaceLink(
+        "emerald-read-bars",
+        tools=("emerald_exchange_get_historical",),
+        prompts=(
+            "emerald-exchange-operator",
+            "emerald-exchange-market-data-analyst",
+        ),
+        skills=("emerald-exchange-market-data",),
+    ),
+    SurfaceLink(
+        "emerald-read-stock-bars",
+        tools=(
+            "emerald_exchange_get_stock_quote",
+            "emerald_exchange_get_stock_bars",
+        ),
+        prompts=(
+            "emerald-exchange-operator",
+            "emerald-exchange-market-data-analyst",
+        ),
+        skills=("emerald-exchange-stock-reference",),
+    ),
+    SurfaceLink(
+        "emerald-read-stock-events",
+        tools=(
+            "emerald_exchange_get_stock_news",
+            "emerald_exchange_get_stock_dividends",
+            "emerald_exchange_get_company_records",
+        ),
+        prompts=(
+            "emerald-exchange-operator",
+            "emerald-exchange-market-data-analyst",
+        ),
+        skills=("emerald-exchange-stock-reference",),
+    ),
+    SurfaceLink(
+        "emerald-read-exchange-candles",
+        tools=(
+            "emerald_exchange_exchanges",
+            "emerald_exchange_get_exchange_history",
+        ),
+        prompts=(
+            "emerald-exchange-operator",
+            "emerald-exchange-market-data-analyst",
+        ),
+        skills=("emerald-exchange-multi-asset",),
+    ),
+    SurfaceLink(
+        "emerald-read-multi-asset",
+        tools=("emerald_exchange_get_multi_asset_records",),
+        prompts=(
+            "emerald-exchange-operator",
+            "emerald-exchange-market-data-analyst",
+        ),
+        skills=("emerald-exchange-multi-asset",),
+    ),
+    SurfaceLink(
+        "emerald-snapshot-account",
+        tools=(
+            "emerald_exchange_get_account_snapshot",
+            "emerald_exchange_get_account_positions",
+        ),
+        prompts=(
+            "emerald-exchange-operator",
+            "emerald-exchange-portfolio-accountant",
+        ),
+        skills=(
+            "emerald-exchange-account-intake",
+            "emerald-exchange-kg-ingestion",
+        ),
+    ),
+    SurfaceLink(
+        "emerald-import-statement",
+        tools=(
+            "emerald_exchange_get_account",
+            "emerald_exchange_get_csv_activities",
+        ),
+        prompts=(
+            "emerald-exchange-operator",
+            "emerald-exchange-portfolio-accountant",
+        ),
+        skills=(
+            "emerald-exchange-account-intake",
+            "emerald-exchange-kg-ingestion",
+        ),
+    ),
+    SurfaceLink(
+        "emerald-check-order",
+        tools=(
+            "emerald_exchange_get_order_status",
+            "emerald_exchange_get_positions",
+        ),
+        prompts=(
+            "emerald-exchange-operator",
+            "emerald-exchange-trading-desk",
+        ),
+        skills=("emerald-exchange-order-execution",),
+    ),
+    SurfaceLink(
+        "emerald-record-account-value",
+        tools=("emerald_exchange_get_account_valuation",),
+        prompts=(
+            "emerald-exchange-operator",
+            "emerald-exchange-portfolio-accountant",
+        ),
+        skills=("emerald-exchange-performance-records",),
+    ),
+    SurfaceLink(
+        "emerald-record-benchmark-levels",
+        tools=("emerald_exchange_get_benchmark_levels",),
+        prompts=(
+            "emerald-exchange-operator",
+            "emerald-exchange-market-data-analyst",
+        ),
+        skills=("emerald-exchange-performance-records",),
+    ),
+)
+
+LOCATIONS = (
+    DataLocation(
+        "emerald-market",
+        (
+            "Quote",
+            "MarketBar",
+            "Instrument",
+        ),
+        "exchange-backend",
+        "emerald_exchange_get_quote",
+        store="",
+        route_param="symbol",
+        federation_key="symbol",
+    ),
+    DataLocation(
+        "emerald-account",
+        (
+            "Account",
+            "Position",
+        ),
+        "alpaca-account",
+        "emerald_exchange_get_account_snapshot",
+        store="",
+        route_param="",
+        federation_key="account_id",
+    ),
+    DataLocation(
+        "emerald-orders",
+        ("Trade",),
+        "exchange-backend",
+        "emerald_exchange_get_order_status",
+        store="",
+        route_param="order_id",
+        federation_key="order_id",
+    ),
+    DataLocation(
+        "emerald-stock-reference",
+        (
+            "Quote",
+            "MarketBar",
+        ),
+        "alpaca-market-data",
+        "emerald_exchange_get_stock_bars",
+        store="",
+        route_param="symbol",
+        federation_key="symbol",
+    ),
+    DataLocation(
+        "emerald-multi-asset",
+        ("MarketDataSource",),
+        "multi-asset-providers",
+        "emerald_exchange_get_multi_asset_records",
+        store="",
+        route_param="kind",
+        federation_key="",
+    ),
+    DataLocation(
+        "emerald-account-valuation",
+        ("Activity",),
+        "alpaca-account-valuations",
+        "emerald_exchange_get_account_valuation",
+        store="",
+        route_param="",
+        federation_key="account_id",
+    ),
+    DataLocation(
+        "emerald-benchmark-levels",
+        ("Activity",),
+        "alpaca-benchmark-levels",
+        "emerald_exchange_get_benchmark_levels",
+        store="",
+        route_param="benchmark",
+        federation_key="benchmark",
+    ),
+)
+
+ROLES = (
+    BusinessRole(
+        "market data analyst",
+        tasks=(
+            "emerald-list-backends",
+            "emerald-quote-symbol",
+            "emerald-read-bars",
+            "emerald-read-stock-bars",
+            "emerald-read-stock-events",
+            "emerald-read-exchange-candles",
+            "emerald-read-multi-asset",
+            "emerald-record-benchmark-levels",
+        ),
+    ),
+    BusinessRole(
+        "portfolio accountant",
+        tasks=(
+            "emerald-read-account",
+            "emerald-snapshot-account",
+            "emerald-import-statement",
+            "emerald-record-account-value",
+        ),
+    ),
+    BusinessRole(
+        "trading desk",
+        tasks=(
+            "emerald-read-account",
+            "emerald-check-order",
+            "emerald-quote-symbol",
+        ),
+    ),
+)

@@ -18,7 +18,12 @@
     "EMERALD-OPS-R012",
     "EMERALD-OPS-R013",
     "EMERALD-OPS-R014",
-    "EMERALD-OPS-R015"
+    "EMERALD-OPS-R015",
+    "CONN-EMERALD-EXCHANGE-OPS-R016",
+    "CONN-EMERALD-EXCHANGE-OPS-R017",
+    "CONN-EMERALD-EXCHANGE-OPS-R018",
+    "CONN-EMERALD-EXCHANGE-OPS-R019",
+    "CONN-EMERALD-EXCHANGE-OPS-R020"
   ],
   "requirements": [
     {
@@ -142,6 +147,55 @@
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
+    },
+    {
+      "id": "CONN-EMERALD-EXCHANGE-OPS-R016",
+      "title": "Broker statement deposits are written as deposit records",
+      "delivery_state": "BUILT",
+      "landed_in": [],
+      "verified_by": [
+        "tests/test_performance_activity_records.py:44",
+        "tests/test_performance_activity_records.py:74"
+      ]
+    },
+    {
+      "id": "CONN-EMERALD-EXCHANGE-OPS-R017",
+      "title": "Broker statement withdrawals are written as withdrawal records",
+      "delivery_state": "BUILT",
+      "landed_in": [],
+      "verified_by": [
+        "tests/test_performance_activity_records.py:66"
+      ]
+    },
+    {
+      "id": "CONN-EMERALD-EXCHANGE-OPS-R018",
+      "title": "Account value is written as valuation records",
+      "delivery_state": "BUILT",
+      "landed_in": [],
+      "verified_by": [
+        "tests/test_performance_activity_records.py:86",
+        "tests/test_performance_activity_records.py:103"
+      ]
+    },
+    {
+      "id": "CONN-EMERALD-EXCHANGE-OPS-R019",
+      "title": "Index bars are written as benchmark-level records",
+      "delivery_state": "BUILT",
+      "landed_in": [],
+      "verified_by": [
+        "tests/test_performance_activity_records.py:113",
+        "tests/test_performance_activity_records.py:138"
+      ]
+    },
+    {
+      "id": "CONN-EMERALD-EXCHANGE-OPS-R020",
+      "title": "The account record carries its binding state",
+      "delivery_state": "BUILT",
+      "landed_in": [],
+      "verified_by": [
+        "tests/test_performance_activity_records.py:155",
+        "tests/test_performance_activity_records.py:162"
+      ]
     }
   ]
 }

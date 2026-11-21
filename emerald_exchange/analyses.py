@@ -262,6 +262,8 @@ def validate_returns(
     cpcv_groups: int = 6,
     cpcv_test_groups: int = 2,
     observed_sharpe: float | None = None,
+    cpcv_purge_window: int = 0,
+    cpcv_embargo: int = 0,
 ) -> dict[str, Any]:
     """Performance, deflated Sharpe and purged CPCV splits of backtest returns.
 
@@ -295,6 +297,8 @@ def validate_returns(
             n_samples=len(returns),
             n_groups=cpcv_groups,
             n_test_groups=cpcv_test_groups,
+            purge_window=cpcv_purge_window,
+            embargo=cpcv_embargo,
         ),
         "n_returns": len(returns),
     }

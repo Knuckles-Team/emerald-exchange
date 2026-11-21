@@ -9,8 +9,10 @@ engine started from ``medulla[server]``.
 
 import inspect
 import json
+import random
 from importlib.resources import files
 
+import medulla.client as medulla_client
 import pytest
 from medulla.client import FinanceClient
 from pyoxigraph import RdfFormat, Store
@@ -62,8 +64,10 @@ def test_every_analysis_is_served_or_refused():
         if method is None:
             continue
         namespace, attr = method.split(".")
-        assert namespace == "finance", name
-        assert inspect.iscoroutinefunction(getattr(FinanceClient, attr)), name
+        client = {"finance": FinanceClient, "numeric": medulla_client.NumericClient}[
+            namespace
+        ]
+        assert inspect.iscoroutinefunction(getattr(client, attr)), name
 
 
 # ── Recording engine for the quoting policy ───────────────────────────
@@ -256,7 +260,12 @@ def test_live_hedge_beta(live_engine):
 
 
 def test_live_stat_arb(live_engine):
-    spread = [0.1 * ((-1) ** i) + 0.01 * (i % 3) for i in range(60)]
+    # A seeded mean-reverting path (AR(1) coefficient 0.7): the numeric kernel
+    # refuses a spread whose fitted coefficient falls outside (0, 1).
+    rng = random.Random(7)
+    spread = [0.0]
+    for _ in range(199):
+        spread.append(0.7 * spread[-1] + rng.gauss(0.0, 0.05))
     out = analyses.ou_stat_arb_signal(spread)
     assert {"theta", "mu", "sigma", "sigma_eq"} <= set(out["ou"])
     assert {"entry_long", "entry_short", "exit"} <= set(out["thresholds"])

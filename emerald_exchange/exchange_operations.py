@@ -14,6 +14,7 @@ import hashlib
 import json
 import os
 from dataclasses import asdict
+from datetime import UTC, datetime
 from typing import Any, Literal, cast
 from uuid import uuid4
 
@@ -28,6 +29,13 @@ from emerald_exchange.backends import (
     Position,
     Quote,
 )
+from emerald_exchange.performance_records import (
+    DEFAULT_BAR_SESSION,
+    account_binding_fields,
+    benchmark_level_record,
+    cash_flow_record,
+    valuation_record,
+)
 
 #: Backend methods that may be served without the risk guard.
 READ_OPERATIONS = (
@@ -38,6 +46,8 @@ READ_OPERATIONS = (
     "get_account_snapshot",
     "get_account_positions",
     "get_csv_activities",
+    "get_account_valuation",
+    "get_benchmark_levels",
     "get_stock_bars",
     "get_stock_quote",
     "get_stock_news",
@@ -107,7 +117,13 @@ class ExchangeReadOperations:
         if not account.account_id:
             raise ValueError("account snapshot source requires an account identity")
         positions = self._backend.get_positions()
-        return [{**asdict(account), "positions": [asdict(item) for item in positions]}]
+        return [
+            {
+                **asdict(account),
+                "positions": [asdict(item) for item in positions],
+                "fields": account_binding_fields(account.account_id),
+            }
+        ]
 
     def get_account_positions(self) -> list[dict[str, Any]]:
         """Read positions with stable identities scoped to their Alpaca account."""
@@ -366,13 +382,107 @@ class ExchangeReadOperations:
                 ensure_ascii=True,
                 separators=(",", ":"),
             ).encode()
-            records.append(
-                {
-                    **activity.model_dump(mode="json"),
-                    "record_id": hashlib.sha256(identity).hexdigest(),
-                }
-            )
+            record = {
+                **activity.model_dump(mode="json"),
+                "record_id": hashlib.sha256(identity).hexdigest(),
+            }
+            action = activity.action.strip().lower()
+            if action in {"deposit", "withdrawal"}:
+                try:
+                    record["fields"] = cash_flow_record(
+                        tenant_id=tenant_id,
+                        account_id=account.account_id,
+                        action=action,
+                        amount=abs(activity.quantity),
+                        currency=activity.currency,
+                        occurred_at=activity.event_time_utc,
+                        event_id=activity.source_event_id,
+                        source=context.source_id,
+                    )["fields"]
+                except (ValueError, TypeError):
+                    raise ValueError("Invalid CSV activity statement") from None
+            records.append(record)
         return {"records": records, "checkpoint": {"generation": uuid4().hex}}
+
+    def get_account_valuation(
+        self,
+        tenant_id: str,
+        mode: Literal["delta"],
+        since: dict[str, str] | None = None,
+    ) -> dict[str, Any]:
+        """Read the active Alpaca account's total value as a valuation record."""
+        if self._backend.name != "alpaca":
+            raise ValueError("account valuation source requires the Alpaca backend")
+        if mode != "delta":
+            raise ValueError("account valuation source requires delta mode")
+        if not isinstance(tenant_id, str) or not tenant_id.strip():
+            raise ValueError("account valuation source requires a tenant")
+        account = self._backend.get_account()
+        if not account.account_id:
+            raise ValueError("account valuation source requires an account identity")
+        as_of = datetime.now(UTC).replace(microsecond=0)
+        record = valuation_record(
+            tenant_id=tenant_id,
+            account_id=account.account_id,
+            value=account.equity,
+            currency=account.currency,
+            as_of=as_of,
+            source="alpaca-account-valuations",
+        )
+        record["account_id"] = account.account_id
+        record["currency"] = account.currency
+        return {"records": [record], "checkpoint": {"generation": uuid4().hex}}
+
+    def get_benchmark_levels(
+        self,
+        tenant_id: str,
+        benchmark: str,
+        symbol: str,
+        start: str,
+        end: str,
+        timeframe: str,
+        adjustment: str,
+        feed: str,
+        license_tag: str,
+        mode: Literal["delta"],
+        limit: int = 1000,
+        page_token: str | None = None,
+        since: dict[str, Any] | None = None,
+        session_scope: Literal["feed_native", "alpaca_calendar"] = "feed_native",
+    ) -> dict[str, Any]:
+        """Read one page of bars for an index tracker as benchmark-level records."""
+        if not isinstance(tenant_id, str) or not tenant_id.strip():
+            raise ValueError("benchmark source requires a tenant")
+        page = self.get_stock_bars(
+            symbol=symbol,
+            start=start,
+            end=end,
+            timeframe=timeframe,
+            adjustment=adjustment,
+            feed=feed,
+            license_tag=license_tag,
+            mode=mode,
+            limit=limit,
+            page_token=page_token,
+            session_scope=session_scope,
+        )
+        records = []
+        for bar in page["bars"]:
+            observed = datetime.fromisoformat(bar["timestamp"][:19] + "+00:00")
+            record = benchmark_level_record(
+                tenant_id=tenant_id,
+                benchmark=benchmark,
+                level=bar["close"],
+                observed_at=observed,
+                source=f"alpaca-stock-bars:{feed}",
+                session=bar.get("session", DEFAULT_BAR_SESSION),
+            )
+            records.append({**record, "benchmark": benchmark, "symbol": symbol})
+        return {
+            "records": records,
+            "next_page_token": page.get("next_page_token"),
+            "checkpoint": page.get("checkpoint", {"generation": uuid4().hex}),
+        }
 
     def exchanges(self) -> dict[str, Any]:
         """Available exchange backends, the active backend and its mode."""

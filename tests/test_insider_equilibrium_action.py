@@ -64,8 +64,13 @@ class _Finance:
             }
         return {"posterior_up": 0.66, "seeded": 0, "sources": [{"name": "rsi"}]}
 
-    def detect_regimes(self, **params):
-        self.calls.append(("detect_regimes", params))
+
+class _Numeric:
+    def __init__(self, calls: list[tuple[str, dict]]) -> None:
+        self.calls = calls
+
+    def regime_hmm(self, **params):
+        self.calls.append(("regime_hmm", params))
         return {"states": [0, 1], "means": [0.0, 0.01]}
 
 
@@ -78,6 +83,7 @@ class _Client:
     def __init__(self) -> None:
         self.rdf = _Rdf()
         self.finance = _Finance()
+        self.numeric = _Numeric(self.finance.calls)
         self.nodes = _Nodes()
 
 
@@ -121,7 +127,7 @@ def test_regime_runs_the_engine_hmm(client):
     out = json.loads(_signals_fn()(action="regime", signals_json=json.dumps(prices)))
     assert out["regimes"]["states"] == [0, 1]
     name, call = client.finance.calls[0]
-    assert name == "detect_regimes" and len(call["observations"]) == 4
+    assert name == "regime_hmm" and len(call["observations"]) == 4
 
 
 def test_insider_equilibrium_rejects_bad_json(client):
