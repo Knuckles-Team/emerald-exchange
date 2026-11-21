@@ -1,3 +1,4 @@
+@prefix core: <https://knuckles-team.github.io/ontology/core#> .
 @prefix fibo-fi: <https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstruments/FinancialInstruments/> .
 @prefix fibo-org: <https://spec.edmcouncil.org/fibo/ontology/FND/Organizations/Organizations/> .
 @prefix bibo: <http://purl.org/ontology/bibo/> .
@@ -187,3 +188,16 @@ identity verification, and risk classification. FATF/FinCEN aligned.""" ;
     rdfs:label "Bank Account" ;
     rdfs:comment "A bank account with IBAN/SWIFT identifiers. Extends Account." ;
     rdfs:subClassOf :Account .
+
+# --- roll-up to the core ontology ---
+:AMLAlert rdfs:subClassOf core:Incident .
+:BankAccount rdfs:subClassOf core:Account .
+:Budget rdfs:subClassOf core:Budget .
+:CorrespondentBank rdfs:subClassOf core:Organization .
+:CreditRiskAssessment rdfs:subClassOf core:Assessment .
+:KYCRecord rdfs:subClassOf core:Document .
+:PaymentMessage rdfs:subClassOf core:Message .
+:RegulatoryCapital rdfs:subClassOf core:Concept .
+:SanctionsScreening rdfs:subClassOf core:Assessment .
+:SettlementLeg rdfs:subClassOf core:Event .
+:Transaction rdfs:subClassOf core:LedgerTransaction .

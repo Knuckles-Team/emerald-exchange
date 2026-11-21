@@ -24,21 +24,25 @@ The `emerald-exchange-mcp` server serves its packaged skills, prompts and ontolo
 
 1. **Given** the connector is configured, **When** the behaviour of row `CONN-EMERALD-EXCHANGE-CONNECTOR-CONTENT-R001` (default content) is exercised, **Then** `resources/list` includes `skill://` and `ontology://`; `prompts/list` includes each packaged prompt. Test: `tests/test_default_content_surfaces.py::test_default_content_surfaces`.
 2. **Given** the connector is configured, **When** the behaviour of row `CONN-EMERALD-EXCHANGE-CONNECTOR-CONTENT-R002` (serve the chain trade log tool) is exercised, **Then** serve the chain trade log tool.
+3. **Given** the connector is configured, **When** the behaviour of row `CONN-EMERALD-EXCHANGE-CONNECTOR-CONTENT-R003` (surface completeness) is exercised, **Then** the SDK surface check reports no gap and the roll-up check reports no orphan class. Test: `tests/test_surface_contracts.py`.
 
 ### Edge Cases
 
 - If `CONN-EMERALD-EXCHANGE-CONNECTOR-CONTENT-R001` is not met, its proving test fails: default content.
 - If `CONN-EMERALD-EXCHANGE-CONNECTOR-CONTENT-R002` is not met, its proving test fails: serve the chain trade log tool.
+- If `CONN-EMERALD-EXCHANGE-CONNECTOR-CONTENT-R003` is not met, its proving test fails: surface completeness.
 
 ## Requirements
 
 - **FR-001**: Default content. Rows: `CONN-EMERALD-EXCHANGE-CONNECTOR-CONTENT-R001`.
 - **FR-002**: Serve the chain trade log tool. Rows: `CONN-EMERALD-EXCHANGE-CONNECTOR-CONTENT-R002`.
+- **FR-003**: Surface completeness. Rows: `CONN-EMERALD-EXCHANGE-CONNECTOR-CONTENT-R003`.
 
 ## Success Criteria
 
 - **SC-001**: `resources/list` includes `skill://` and `ontology://`; `prompts/list` includes each packaged prompt. Rows: `CONN-EMERALD-EXCHANGE-CONNECTOR-CONTENT-R001`.
 - **SC-002**: Serve the chain trade log tool. Rows: `CONN-EMERALD-EXCHANGE-CONNECTOR-CONTENT-R002`.
+- **SC-003**: The SDK surface and roll-up checks report no gap. Rows: `CONN-EMERALD-EXCHANGE-CONNECTOR-CONTENT-R003`.
 
 ## Assumptions
 
@@ -51,3 +55,4 @@ The `emerald-exchange-mcp` server serves its packaged skills, prompts and ontolo
 |---|---|---|---|---|
 | FR-001 | `CONN-EMERALD-EXCHANGE-CONNECTOR-CONTENT-R001` | [plan.md](plan.md) | T-001 | [test-spec.md](test-spec.md) |
 | FR-002 | `CONN-EMERALD-EXCHANGE-CONNECTOR-CONTENT-R002` | [plan.md](plan.md) | T-002 | [test-spec.md](test-spec.md) |
+| FR-003 | `CONN-EMERALD-EXCHANGE-CONNECTOR-CONTENT-R003` | [plan.md](plan.md) | T-003 | [test-spec.md](test-spec.md) |

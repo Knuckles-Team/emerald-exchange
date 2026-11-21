@@ -2,82 +2,50 @@
 name: emerald-exchange-order-execution
 skill_type: skill
 description: >-
-  Place, cancel, and check trading orders through the emerald-exchange MCP server
-  with mandatory pre-trade risk validation, plus the emergency halt/resume kill
-  switch — via the domain-typed emerald_orders tool (every order is routed through
-  the risk guard). Use when the agent must submit a market/limit order, cancel or
-  status an existing order by id, or halt all trading. Do NOT use to read quotes
-  or positions (use emerald-exchange-market-data), and be deliberate in live mode —
-  paper is the default. Do NOT bypass the risk guard with raw backend calls.
+  Check the state of orders and the positions they change with `emerald_exchange_get_order_status` and
+  `emerald_exchange_get_positions`. This connector is read-only: orders are placed, changed and cancelled only
+  through the platform's risk-guarded order tools, which check limits, halts and live-mode approval first. Use
+  when the agent must report whether an order is open, filled or rejected, with filled quantity, average price
+  and fees. Do NOT use to read quotes or history (use emerald-exchange-market-data) and never route an order
+  around the risk guard.
 license: MIT
-tags: [emerald-exchange, orders, execution, risk, trading, mcp]
+tags: [emerald-exchange, orders, execution, risk]
 metadata:
   author: Knuckles-Team
-  version: '0.1.0'
+  version: '0.2.0'
 ---
-# Emerald Exchange — Order Execution
+# Emerald Exchange Order Status
 
-Backend-abstracted order management. **Every** order passes a pre-trade
-`RiskGuard.pre_trade_check` (sizing, exposure, live-mode gating) before it reaches
-the exchange, and a global kill switch can halt all trading instantly.
+Placing, modifying or cancelling an order changes exchange state, so it goes only through the risk-guarded
+order tools, never through this connector's read tools. This skill covers the read side: what happened to an
+order that was already submitted.
 
 ## When to use
-- Submit a market or limit order (buy/sell) with risk validation.
-- Cancel an existing order by `order_id`.
-- Check the status/fill of an order by `order_id`.
-- Emergency `halt` (kill switch) / `resume` of all trading.
+- Report the status of an order by id: open, filled, rejected or cancelled.
+- Report filled quantity, average price and fees.
+- Show the positions after a fill.
 
 ## When NOT to use
-- Reading quotes, history, positions, or account → `emerald-exchange-market-data`.
-- Persisting executed trades into the KG → `emerald-exchange-kg-ingestion`.
-- Market-making quoting loops, statarb, or derivatives → their dedicated emerald tools.
+- Submit, modify or cancel an order, or halt trading: the platform's risk-guarded order tools.
+- Quotes and bars: `emerald-exchange-market-data`.
 
 ## Prerequisites & environment
-Connect via the `mcp-client` skill against the **`emerald-exchange`** MCP server.
-Mode + risk limits come from `config.json` → `trading.default_mode` (`paper`|`live`)
-and `trading.risk_limits`. Default is `paper` — no credentials, simulated fills.
+Connect to the **`emerald-exchange`** MCP server. The active backend and mode come from the trading
+configuration and default to the paper backend, which needs no credentials. Alpaca reads need the Alpaca
+credentials in the operator configuration; provider reads need their provider key. Every tool here is
+read-only and typed; there is no `action` argument. Never print a key.
 
-| Variable | Required | Notes |
-|----------|----------|-------|
-| (paper mode) | — | Simulated fills; safe to exercise freely |
-| exchange creds (e.g. `ALPACA_API_KEY`/`ALPACA_SECRET_KEY`) | for `live` | Real orders |
+## Tools
+| Tool | Arguments | Returns |
+|---|---|---|
+| `emerald_exchange_get_order_status` | `order_id` | `order_id`, `status`, `filled_qty`, `average_price`, `fees`, `exchange`, `timestamp` |
+| `emerald_exchange_get_positions` | none | positions with `symbol`, `qty`, `avg_entry_price`, `unrealized_pnl` |
 
-## Tools & actions
-| Condensed tool | Actions |
-|----------------|---------|
-| `emerald_orders` | `submit`, `cancel`, `status`, `halt`, `resume` |
-
-### Key parameters
-- `symbol` + `qty` (> 0) — required for `submit`.
-- `side` — `buy` or `sell` (default `buy`).
-- `order_type` — `market`, `limit`, `stop`, `stop_limit` (default `market`).
-- `limit_price` — required for limit/stop-limit orders.
-- `order_id` — required for `cancel` and `status`.
-
-## Recipes
-Submit a limit buy:
-```json
-{"action": "submit", "symbol": "AAPL", "side": "buy", "qty": 10, "order_type": "limit", "limit_price": 150.0}
-```
-Cancel an order:
-```json
-{"action": "cancel", "order_id": "PAPER-000001"}
-```
-Emergency halt / resume:
-```json
-{"action": "halt"}
-```
+## Procedure
+1. Read the status with the exact id the order tool returned. Never guess an id.
+2. Report the status words as the exchange gives them.
+3. When a fill is reported, read the positions and show the change.
 
 ## Gotchas
-- The risk guard can **reject** (`approved: false` + `reason`/`risk_score`) or **resize**
-  the order — the response's `filled_qty` may be smaller than requested (`adjusted_qty`).
-  Always read the returned `risk_check`/`risk_score`, don't assume the full qty filled.
-- `halt` trips the kill switch for the whole server; nothing submits until `resume`.
-- Live mode applies stricter checks and touches real money — confirm the active `mode`
-  via `emerald_market_data action=exchanges` before submitting.
-- A `limit`/`stop_limit` order with `limit_price` <= 0 is treated as a market fill in
-  paper; set an explicit `limit_price`.
-
-## Related
-- `emerald-exchange-market-data` — get the quote/marks to price an order.
-- `emerald-exchange-kg-ingestion` — record executed trades + resulting positions in the KG.
+- A paper backend fills instantly and at simulated prices; state the mode with the result.
+- Partially filled orders show `filled_qty` below the ordered quantity; do not call them filled.
