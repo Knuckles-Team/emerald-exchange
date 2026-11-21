@@ -6,3 +6,5 @@ Each task line reads `- [ ] T001 [P] [US1] <ID>-R012.4 description`. Order is pr
 
 - [x] T001 [US1] CONN-EMERALD-EXCHANGE-CONNECTOR-CONTENT-R001 Default content.
 - [ ] T002 [US1] CONN-EMERALD-EXCHANGE-CONNECTOR-CONTENT-R002 Serve the chain trade log tool.
+- [x] T003 [US1] CONN-EMERALD-EXCHANGE-CONNECTOR-CONTENT-R003 Pack extends only the core ontology.
+- [x] T004 [US1] CONN-EMERALD-EXCHANGE-CONNECTOR-CONTENT-R004 Surface completeness.

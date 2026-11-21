@@ -231,7 +231,10 @@ async def exercise(mcp, *, validate=False):
         (activity,) = (
             n for n in nodes if n["source_stream"] == "alpaca-csv-activities"
         )
-        assert account["source_record_id"] == "account-1"
+        assert (
+            account["https://knuckles-team.github.io/ontology/core#sourceRecordId"]
+            == "account-1"
+        )
         assert (position["account_id"], position["symbol"], position["qty"]) == (
             "account-1",
             "ABC",

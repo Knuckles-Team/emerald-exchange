@@ -178,7 +178,15 @@ async def _exercise(server):
             == (100, 103, 99, 102, 25)
             for b in bars
         )
-        assert len({b["source_record_id"] for b in bars}) == 2
+        assert (
+            len(
+                {
+                    b["https://knuckles-team.github.io/ontology/core#sourceRecordId"]
+                    for b in bars
+                }
+            )
+            == 2
+        )
         quotes = [
             r["n"] for r in rows if r["n"].get("source_stream") == "alpaca-stock-quotes"
         ]

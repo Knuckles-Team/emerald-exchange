@@ -1,8 +1,9 @@
+@prefix core: <https://knuckles-team.github.io/ontology/core#> .
 @prefix fibo-org: <https://spec.edmcouncil.org/fibo/ontology/FND/Organizations/Organizations/> .
 @prefix bibo: <http://purl.org/ontology/bibo/> .
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
-@prefix : <http://knuckles.team/kg#> .
-@prefix fin: <http://knuckles.team/kg/emerald-finance#> .
+@prefix : <https://knuckles-team.github.io/ontology/connector/emerald#> .
+@prefix fin: <https://knuckles-team.github.io/ontology/connector/emerald/finance#> .
 @prefix bfo: <http://purl.obolibrary.org/obo/BFO_> .
 @prefix dc: <http://purl.org/dc/terms/> .
 @prefix fibo-fi: <https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstruments/FinancialInstruments/> .
@@ -16,58 +17,46 @@
 :AlphaCombinationEngine a owl:Class ;
     rdfs:label "Alpha Combination Engine" ;
     rdfs:comment "A procedure representing an N-step fusion logic to remove shared variance." ;
-    rdfs:subClassOf :Procedure .
+    rdfs:subClassOf core:Procedure .
 
 :AlphaDataset a owl:Class ;
     rdfs:label "Alpha Dataset" ;
     rdfs:comment "A dataset processed for alpha signal generation." ;
-    rdfs:subClassOf :Dataset .
-
-:ApplicationComponent a owl:Class ;
-    rdfs:label "Application Component" ;
-    rdfs:comment "An ArchiMate Application Component representing a modular, deployable, and replaceable part of a software system. Maps to ArchiMate 3.1 ApplicationComponent." ;
-    rdfs:seeAlso <https://pubs.opengroup.org/architecture/archimate3-doc/chap09.html#_Toc489946063> ;
-    rdfs:subClassOf :Concept .
-
-:BacktestResult a owl:Class .
-
+    rdfs:subClassOf core:Dataset .
 
 :BrierScoreValidator a owl:Class ;
     rdfs:label "Brier Score Validator" ;
     rdfs:comment "Validates prediction model calibration using Brier score." ;
-    rdfs:subClassOf :Procedure .
+    rdfs:subClassOf core:Procedure .
 
 :BuffettInvestor a owl:Class ;
     rdfs:label "Buffett Investor" ;
     rdfs:comment "A value-investor persona (Warren Buffett archetype): durable moat, owner earnings, margin of safety. Maps to the FUNDAMENTAL_ANALYST swarm role; argues the BULL side of a debate. CONCEPT:KG-2.6" ;
-    rdfs:subClassOf :Agent .
+    rdfs:subClassOf core:Agent .
 
 :BurryInvestor a owl:Class ;
     rdfs:label "Burry Investor" ;
     rdfs:comment "A contrarian/forensic short-biased persona (Michael Burry archetype): reads the footnotes, cites the forensic screener, asks what is quietly broken. Maps to the BEAR_RESEARCHER swarm role. CONCEPT:KG-2.6" ;
-    rdfs:subClassOf :Agent .
-
-:BusinessProcess a owl:Class ;
-    rdfs:seeAlso <https://pubs.opengroup.org/architecture/archimate3-doc/chap08.html#_Toc489946042> .
-
+    rdfs:subClassOf core:Agent .
 
 :BusinessRole a owl:Class ;
     rdfs:label "Business Role" ;
     rdfs:comment "An ArchiMate Business Role representing a responsibility for performing specific behavior. Maps to ArchiMate 3.1 BusinessRole." ;
     rdfs:seeAlso <https://pubs.opengroup.org/architecture/archimate3-doc/chap08.html#_Toc489946037> ;
-    rdfs:subClassOf :Concept .
+    rdfs:subClassOf core:Concept .
 
 :BusinessUnit a owl:Class ;
     rdfs:label "Business Unit" ;
     rdfs:comment "A distinct department or unit within an Enterprise." ;
-    rdfs:subClassOf :Organization .
+    rdfs:subClassOf core:Organization .
 
 :CircuitBreaker a owl:Class ;
     rdfs:label "Circuit Breaker" ;
     rdfs:comment "A risk management mechanism that halts trading upon breaching a daily loss limit." ;
-    rdfs:subClassOf :Policy .
+    rdfs:subClassOf core:Policy .
 
 :Codemap a owl:Class ;
+    rdfs:subClassOf core:Artifact ;
     rdfs:label "Codemap" ;
     rdfs:comment """A structural representation of a code repository.
 BFO:GenericallyDependentContinuant — contains hierarchy, nodes, edges.
@@ -75,12 +64,10 @@ partOf transitivity enables multi-level code navigation.""" ;
     rdfs:subClassOf bfo:0000031 .
 
 :CointegrationModel a owl:Class ;
+    rdfs:subClassOf core:Model ;
     rdfs:label "Cointegration Model" ;
     rdfs:comment "A statistical arbitrage modeling framework." ;
     rdfs:subClassOf bfo:0000031 .
-
-:Commit a owl:Class .
-
 
 :CommunicationMCP a owl:Class ;
     rdfs:label "Communication MCP" ;
@@ -90,37 +77,32 @@ partOf transitivity enables multi-level code navigation.""" ;
 :ComplianceControl a owl:Class ;
     rdfs:label "Compliance Control" ;
     rdfs:comment "A specific check or control enforcing a regulatory policy." ;
-    rdfs:subClassOf :Policy .
+    rdfs:subClassOf core:Policy .
 
 :ConsensusRound a owl:Class ;
     rdfs:label "Consensus Round" ;
     rdfs:comment "A phase within a debate to reach consensus." ;
-    rdfs:subClassOf :Phase .
+    rdfs:subClassOf core:Phase .
 
 :ConvergenceFilter a owl:Class ;
     rdfs:label "Convergence Filter" ;
     rdfs:comment "A filter requiring N/N signal agreement before executing a trade." ;
-    rdfs:subClassOf :Procedure .
+    rdfs:subClassOf core:Procedure .
 
 :CrossTenantInsight a owl:Class ;
     rdfs:label "Cross Tenant Insight" ;
     rdfs:comment "A syndicatable insight sanitized for global enterprise sharing." ;
-    rdfs:subClassOf :Concept .
+    rdfs:subClassOf core:Concept .
 
 :CryptoExchange a owl:Class ;
     rdfs:label "Crypto Exchange" ;
     rdfs:comment "A cryptocurrency exchange system." ;
-    rdfs:subClassOf :System .
+    rdfs:subClassOf core:System .
 
 :DamodaranInvestor a owl:Class ;
     rdfs:label "Damodaran Investor" ;
     rdfs:comment "An intrinsic-valuation persona (Aswath Damodaran archetype): explicit DCF, transparent growth/margin/reinvestment/cost-of-capital assumptions, price-vs-value verdict. Maps to the FUNDAMENTAL_ANALYST swarm role. CONCEPT:KG-2.6" ;
-    rdfs:subClassOf :Agent .
-
-:DataPipeline a owl:Class ;
-    rdfs:label "Data Pipeline" ;
-    rdfs:comment "A procedure for ingesting data." ;
-    rdfs:subClassOf :Procedure .
+    rdfs:subClassOf core:Agent .
 
 :DataScienceMCP a owl:Class ;
     rdfs:label "Data Science MCP" ;
@@ -128,6 +110,7 @@ partOf transitivity enables multi-level code navigation.""" ;
     rdfs:subClassOf :MCPServerPackage .
 
 :DelegatedAuthority a owl:Class ;
+    rdfs:subClassOf core:Policy ;
     rdfs:label "Delegated Authority" ;
     rdfs:comment "Permission or budget dynamically delegated to an agent swarm." ;
     rdfs:subClassOf bfo:0000031 .
@@ -138,6 +121,7 @@ partOf transitivity enables multi-level code navigation.""" ;
     rdfs:subClassOf :MCPServerPackage .
 
 :DiffEntry a owl:Class ;
+    rdfs:subClassOf core:CodeChange ;
     rdfs:label "Diff Entry" ;
     rdfs:comment "A git diff patch captured by the post-commit hook for continuous KG ingestion. CONCEPT:KG-2.0." ;
     rdfs:seeAlso prov:Entity ;
@@ -146,9 +130,10 @@ partOf transitivity enables multi-level code navigation.""" ;
 :DruckenmillerInvestor a owl:Class ;
     rdfs:label "Druckenmiller Investor" ;
     rdfs:comment "A macro/regime persona (Stanley Druckenmiller archetype): top-down liquidity bias, engine-grounded regime classification, conviction-and-regime-scaled position sizing. Maps to the DIRECTOR swarm role. CONCEPT:KG-2.6" ;
-    rdfs:subClassOf :Agent .
+    rdfs:subClassOf core:Agent .
 
 :DynamicBeta a owl:Class ;
+    rdfs:subClassOf core:Metric ;
     rdfs:label "Dynamic Beta" ;
     rdfs:comment "A time-varying sensitivity estimation." ;
     rdfs:subClassOf bfo:0000031 .
@@ -156,14 +141,16 @@ partOf transitivity enables multi-level code navigation.""" ;
 :EmpiricalKelly a owl:Class ;
     rdfs:label "Empirical Kelly" ;
     rdfs:comment "A position sizing policy adjusted by the Coefficient of Variation of the edge." ;
-    rdfs:subClassOf :Policy .
+    rdfs:subClassOf core:Policy .
 
 :EnterpriseResource a owl:Class ;
+    rdfs:subClassOf core:Resource ;
     rdfs:label "Enterprise Resource" ;
     rdfs:comment "A physical or digital resource owned by the enterprise. BFO:IndependentContinuant." ;
     rdfs:subClassOf bfo:0000004 .
 
 :EquivalenceClass a owl:Class ;
+    rdfs:subClassOf core:ResourceGroup ;
     rdfs:label "Equivalence Class" ;
     rdfs:comment "A set of mutually equivalent entities. BFO:GenericallyDependentContinuant." ;
     rdfs:subClassOf bfo:0000031 .
@@ -174,20 +161,13 @@ partOf transitivity enables multi-level code navigation.""" ;
 Subclass of Evidence — inherits supportsBeliefProp and
 contradictsBeliefProp for transitive epistemic reasoning.
 Tracks task_id, pass/fail, root_cause, and component attribution.""" ;
-    rdfs:subClassOf :Evidence .
-
-:Experiment a owl:Class ;
-    rdfs:label "Experiment" ;
-    rdfs:comment "A self-improvement experiment. BFO:Process." ;
-    rdfs:subClassOf bfo:0000015 .
+    rdfs:subClassOf core:Evidence .
 
 :ExternalEntity a owl:Class ;
+    rdfs:subClassOf core:ExternalGraphReference ;
     rdfs:label "External Entity" ;
     rdfs:comment "A stub entity representing a node in an external Knowledge Graph." ;
     rdfs:subClassOf bfo:0000031 .
-
-:ExternalGraphReference a owl:Class .
-
 
 :FactorModel a owl:Class ;
     rdfs:label "Factor Model" ;
@@ -197,7 +177,7 @@ Tracks task_id, pass/fail, root_cause, and component attribution.""" ;
 :ForensicScreener a owl:Class ;
     rdfs:label "Forensic Screener" ;
     rdfs:comment "An engine-grounded forensic-accounting screening agent: runs the medulla forensic_report (Beneish M / Altman Z / Piotroski F / Sloan accruals) over two fiscal years and emits an INVESTIGATE/CLEAN verdict the bear/forensic personas cite. CONCEPT:KG-2.6" ;
-    rdfs:subClassOf :Agent .
+    rdfs:subClassOf core:Agent .
 
 :FractionalKelly a owl:Class ;
     rdfs:label "Fractional Kelly" ;
@@ -207,14 +187,16 @@ Tracks task_id, pass/fail, root_cause, and component attribution.""" ;
 :GrahamInvestor a owl:Class ;
     rdfs:label "Graham Investor" ;
     rdfs:comment "A quantitative deep-value persona (Benjamin Graham archetype): statistical cheapness (NCAV/tangible book, earnings yield), balance-sheet margin of safety, engine-grounded solvency (Piotroski F / Altman Z). Maps to the FUNDAMENTAL_ANALYST swarm role. CONCEPT:KG-2.6" ;
-    rdfs:subClassOf :Agent .
+    rdfs:subClassOf core:Agent .
 
 :InformationCoefficient a owl:Class ;
+    rdfs:subClassOf core:Metric ;
     rdfs:label "Information Coefficient" ;
     rdfs:comment "A measure of the predictive skill of a factor." ;
     rdfs:subClassOf bfo:0000031 .
 
 :InformationRatio a owl:Class ;
+    rdfs:subClassOf core:Metric ;
     rdfs:label "Information Ratio" ;
     rdfs:comment "Risk-adjusted edge of a combined prediction system." ;
     rdfs:subClassOf bfo:0000031 .
@@ -227,10 +209,7 @@ Tracks task_id, pass/fail, root_cause, and component attribution.""" ;
 :Invariant a owl:Class ;
     rdfs:label "Invariant" ;
     rdfs:comment "A provable mathematical property that holds true across all valid state transitions." ;
-    rdfs:subClassOf :Policy .
-
-:Issue a owl:Class .
-
+    rdfs:subClassOf core:Policy .
 
 :KalmanFilter a owl:Class ;
     rdfs:label "Kalman Filter" ;
@@ -238,11 +217,13 @@ Tracks task_id, pass/fail, root_cause, and component attribution.""" ;
     rdfs:subClassOf :StateSpaceModel .
 
 :KnowledgeBase a owl:Class ;
+    rdfs:subClassOf core:Collection ;
     rdfs:label "Knowledge Base" ;
     rdfs:comment "A curated knowledge collection. BFO:GenericallyDependentContinuant." ;
     rdfs:subClassOf bfo:0000031 .
 
 :KnowledgeBaseTopic a owl:Class ;
+    rdfs:subClassOf core:Topic ;
     rdfs:label "Knowledge Base Topic" ;
     rdfs:comment "A topic within a KnowledgeBase. SKOS-aligned for taxonomy reasoning." ;
     rdfs:subClassOf bfo:0000031,
@@ -256,7 +237,7 @@ Tracks task_id, pass/fail, root_cause, and component attribution.""" ;
 :MacroIndicator a owl:Class ;
     rdfs:label "Macro Indicator" ;
     rdfs:comment "A macroeconomic indicator value." ;
-    rdfs:subClassOf :Fact .
+    rdfs:subClassOf core:Fact .
 
 :MarketFeed a owl:Class ;
     rdfs:label "Market Feed" ;
@@ -269,6 +250,7 @@ Tracks task_id, pass/fail, root_cause, and component attribution.""" ;
     rdfs:subClassOf :MCPServerPackage .
 
 :MicroPrice a owl:Class ;
+    rdfs:subClassOf core:Metric ;
     rdfs:label "Micro Price" ;
     rdfs:comment "A volume-weighted instantaneous price estimate." ;
     rdfs:subClassOf bfo:0000031 .
@@ -276,19 +258,22 @@ Tracks task_id, pass/fail, root_cause, and component attribution.""" ;
 :OptimizationGoal a owl:Class ;
     rdfs:label "Optimization Goal" ;
     rdfs:comment "A formal policy/reward objective modeled as a node for RLM." ;
-    rdfs:subClassOf :Goal .
+    rdfs:subClassOf core:Goal .
 
 :OrderBook a owl:Class ;
+    rdfs:subClassOf core:Dataset ;
     rdfs:label "Order Book" ;
     rdfs:comment "The order book of an exchange." ;
     rdfs:subClassOf bfo:0000031 .
 
 :OrderBookImbalance a owl:Class ;
+    rdfs:subClassOf core:Metric ;
     rdfs:label "Order Book Imbalance" ;
     rdfs:comment "A quantifiable liquidity skew in the order book." ;
     rdfs:subClassOf bfo:0000031 .
 
 :OrderCommitRecord a owl:Class ;
+    rdfs:subClassOf core:Event ;
     rdfs:label "Order Commit" ;
     rdfs:comment "An atomic commit of a staged order to execution. BFO:Process. CONCEPT:KG-2.6" ;
     rdfs:subClassOf bfo:0000015 .
@@ -301,7 +286,7 @@ Tracks task_id, pass/fail, root_cause, and component attribution.""" ;
 :PairConfiguration a owl:Class ;
     rdfs:label "Pair Configuration" ;
     rdfs:comment "Trading configuration for a crypto pair." ;
-    rdfs:subClassOf :Policy .
+    rdfs:subClassOf core:Policy .
 
 :ParetoFrontierEntry a owl:Class ;
     rdfs:label "pareto frontier entry" ;
@@ -316,9 +301,10 @@ Tracks task_id, pass/fail, root_cause, and component attribution.""" ;
 :PatternAnalyst a owl:Class ;
     rdfs:label "Pattern Analyst" ;
     rdfs:comment "A price-action pattern-classifier agent: maps the four price-action patterns (large bodies, wicks-into-levels, consecutive candles, choppy) to a momentum-vs-mean-reversion edge, with numerics grounded in the medulla signal kernels (momentum/mean_reversion/rolling_zscore/detect_regimes). Maps to the PATTERN_ANALYST swarm role. CONCEPT:KG-2.6" ;
-    rdfs:subClassOf :Agent .
+    rdfs:subClassOf core:Agent .
 
 :PatternTemplate a owl:Class ;
+    rdfs:subClassOf core:Template ;
     rdfs:label "Pattern Template" ;
     rdfs:comment """A reusable solution pattern. BFO:GenericallyDependentContinuant.
 Aligned to skos:Concept for broader/narrower taxonomy reasoning.""" ;
@@ -328,26 +314,22 @@ Aligned to skos:Concept for broader/narrower taxonomy reasoning.""" ;
 :PaymentBudget a owl:Class ;
     rdfs:label "Payment Budget" ;
     rdfs:comment "Budget limits governing autonomous AI agent spending. CONCEPT:KG-2.6" ;
-    rdfs:subClassOf :Policy .
-
-:Pipeline a owl:Class ;
-    rdfs:label "Pipeline" ;
-    rdfs:comment "A CI/CD pipeline run. BFO:Process." ;
-    rdfs:subClassOf bfo:0000015 .
+    rdfs:subClassOf core:Policy .
 
 :PredictionMarket a owl:Class ;
     rdfs:label "Prediction Market" ;
     rdfs:comment "A system representing a prediction platform (e.g. Polymarket)." ;
-    rdfs:subClassOf :System .
+    rdfs:subClassOf core:System .
 
 :ProcessFlow a owl:Class ;
     rdfs:label "Process Flow" ;
     rdfs:comment """A workflow or process template. BFO:Process.
 partOf transitivity enables flow → step → sub-step reasoning.""" ;
-    rdfs:subClassOf :BusinessLayer,
+    rdfs:subClassOf core:BusinessLayer,
         bfo:0000015 .
 
 :ProcessStep a owl:Class ;
+    rdfs:subClassOf core:WorkflowStep ;
     rdfs:label "Process Step" ;
     rdfs:comment "A step within a ProcessFlow. BFO:Process. partOf ProcessFlow." ;
     rdfs:subClassOf bfo:0000015 .
@@ -357,51 +339,36 @@ partOf transitivity enables flow → step → sub-step reasoning.""" ;
     rdfs:comment "MCP server for productivity tools (Atlassian, Nextcloud, etc.)." ;
     rdfs:subClassOf :MCPServerPackage .
 
-:Prompt a owl:Class .
-
-
 :ProposedSkill a owl:Class ;
     rdfs:label "Proposed Skill" ;
     rdfs:comment """A candidate skill not yet promoted to production.
 Subclass of Skill — inherits all skill properties. wasDerivedFrom
 enables tracking skill evolution lineage.""" ;
-    rdfs:subClassOf :Skill .
-
-:PullRequest a owl:Class ;
-    owl:equivalentClass :MergeRequest .
-
+    rdfs:subClassOf core:Skill .
 
 :RLMActor a owl:Class ;
     rdfs:label "RLM Actor" ;
     rdfs:comment "A Reinforcement Learning from Multi-agent feedback actor." ;
-    rdfs:subClassOf :Agent .
+    rdfs:subClassOf core:Agent .
 
 :RegulatoryFramework a owl:Class ;
+    rdfs:subClassOf core:Regulation ;
     rdfs:label "Regulatory Framework" ;
     rdfs:comment "A comprehensive framework of regulations." ;
     rdfs:subClassOf bfo:0000031 .
 
-:Repository a owl:Class .
-
-
 :RiskVeto a owl:Class ;
     rdfs:label "Risk Veto" ;
     rdfs:comment "A decision by a risk agent to veto a trade." ;
-    rdfs:subClassOf :Decision .
-
-:Server rdfs:subClassOf :TechnologyLayer .
+    rdfs:subClassOf core:Decision .
 
 :SkillPackage a owl:Class ;
     rdfs:label "Skill Package" ;
     rdfs:comment "A package providing skill definitions or skill graphs." ;
-    rdfs:subClassOf :EcosystemPackage .
-
-:StateMachine a owl:Class ;
-    rdfs:label "State Machine" ;
-    rdfs:comment "A formal Deterministic Finite Automaton (DFA) governing agent transitions." ;
-    rdfs:subClassOf bfo:0000004 .
+    rdfs:subClassOf core:EcosystemPackage .
 
 :StateTransition a owl:Class ;
+    rdfs:subClassOf core:Transition ;
     rdfs:label "State Transition" ;
     rdfs:comment "A formal transition in a State Machine. BFO:Process." ;
     rdfs:subClassOf bfo:0000015 .
@@ -409,43 +376,45 @@ enables tracking skill evolution lineage.""" ;
 :StatisticalArbitrage a owl:Class ;
     rdfs:label "Statistical Arbitrage" ;
     rdfs:comment "A class of quantitative trading strategies based on mean reversion." ;
-    rdfs:subClassOf :TradingStrategy .
+    rdfs:subClassOf core:TradingStrategy .
 
 :SubAgent a owl:Class ;
     rdfs:label "Sub Agent" ;
     rdfs:comment "An ephemeral agent spawned for a specific sub-task." ;
-    rdfs:subClassOf :Agent .
+    rdfs:subClassOf core:Agent .
 
 :SystemPromptTemplate a owl:Class ;
+    rdfs:subClassOf core:Prompt ;
     rdfs:label "System Prompt Template" ;
     rdfs:comment """A versioned system prompt. BFO:GenericallyDependentContinuant.
 wasDerivedFrom enables prompt version chain reasoning.""" ;
     rdfs:subClassOf bfo:0000031 .
 
-:TradingDebate a owl:Class .
-
-
 :TrailingStop a owl:Class ;
     rdfs:label "Trailing Stop" ;
     rdfs:comment "A dynamic stop-loss policy." ;
-    rdfs:subClassOf :Policy .
+    rdfs:subClassOf core:Policy .
 
 :TransitionMatrix a owl:Class ;
+    rdfs:subClassOf core:Artifact ;
     rdfs:label "Transition Matrix" ;
     rdfs:comment "A square matrix used to describe the transitions of a Markov chain. BFO:GenericallyDependentContinuant." ;
     rdfs:subClassOf bfo:0000031 .
 
 :VaREstimate a owl:Class ;
+    rdfs:subClassOf core:Metric ;
     rdfs:label "VaR Estimate" ;
     rdfs:comment "A Value at Risk estimate (historical, parametric, or Monte Carlo). CONCEPT:KG-2.6" ;
     rdfs:subClassOf bfo:0000031 .
 
 :ValueStream a owl:Class ;
+    rdfs:subClassOf core:BusinessProcess ;
     rdfs:label "Value Stream" ;
     rdfs:comment "A sequence of activities that creates value for a customer. BFO:Process." ;
     rdfs:subClassOf bfo:0000015 .
 
 :VolatilityTracking a owl:Class ;
+    rdfs:subClassOf core:Model ;
     rdfs:label "Volatility Tracking" ;
     rdfs:comment "A state-space approach to modeling latent variance." ;
     rdfs:subClassOf bfo:0000031 .
@@ -454,12 +423,12 @@ wasDerivedFrom enables prompt version chain reasoning.""" ;
     rdfs:label "about" ;
     rdfs:comment "Relates a SentimentFact to the FinancialInstrument entity it concerns. CONCEPT:KG-2.29" ;
     rdfs:domain :SentimentFact ;
-    rdfs:range :FinancialInstrument .
+    rdfs:range core:FinancialInstrument .
 
 :absorbedInto a owl:ObjectProperty ;
     rdfs:label "absorbed into" ;
     rdfs:comment "Indicates a sub-agent's local knowledge has been collapsed back." ;
-    rdfs:domain :Memory ;
+    rdfs:domain core:Memory ;
     rdfs:range :AgentSwarm .
 
 :actualScore a owl:DatatypeProperty ;
@@ -470,30 +439,24 @@ wasDerivedFrom enables prompt version chain reasoning.""" ;
 
 :affected a owl:ObjectProperty ;
     rdfs:label "affected" ;
-    rdfs:domain :Event .
+    rdfs:domain core:Event .
 
 :affectsRegion a owl:ObjectProperty ;
     rdfs:label "affects region" ;
     rdfs:comment "Relates a GeopoliticalRisk to a Region within its impact footprint. CONCEPT:KG-2.30" ;
-    rdfs:domain :GeopoliticalRisk ;
-    rdfs:range :Region .
+    rdfs:domain core:GeopoliticalRisk ;
+    rdfs:range core:Region .
 
 :affectsSector a owl:ObjectProperty ;
     rdfs:label "affects sector" ;
     rdfs:comment "Relates a GeopoliticalRisk to a Sector within its impact footprint. CONCEPT:KG-2.30" ;
-    rdfs:domain :GeopoliticalRisk ;
+    rdfs:domain core:GeopoliticalRisk ;
     rdfs:range :Sector .
 
 :altLabel a owl:DatatypeProperty ;
     rdfs:label "alternative label" ;
     rdfs:range xsd:string ;
     rdfs:subPropertyOf skos:altLabel .
-
-:alternativesTo a owl:ObjectProperty ;
-    rdfs:label "alternatives to" ;
-    rdfs:comment "Links an ADR to alternative decisions that were considered but not chosen." ;
-    rdfs:domain :ArchitectureDecisionRecord ;
-    rdfs:range :ArchitectureDecisionRecord .
 
 :answersQuestion a owl:DatatypeProperty ;
     rdfs:label "answers question" ;
@@ -505,7 +468,7 @@ wasDerivedFrom enables prompt version chain reasoning.""" ;
     rdfs:label "applicable when" ;
     rdfs:comment "Links a rule to the task context Concept where it activates." ;
     rdfs:domain :EngineeringRule ;
-    rdfs:range :Concept .
+    rdfs:range core:Concept .
 
 :applicationCount a owl:DatatypeProperty ;
     rdfs:label "application count" ;
@@ -523,7 +486,7 @@ wasDerivedFrom enables prompt version chain reasoning.""" ;
     rdfs:label "applied in task" ;
     rdfs:comment "Links a rule to tasks where it was active for AHE tracking." ;
     rdfs:domain :EngineeringRule ;
-    rdfs:range :Task .
+    rdfs:range core:Task .
 
 :assessedRisk a owl:ObjectProperty ;
     rdfs:label "assessed risk" ;
@@ -533,18 +496,18 @@ wasDerivedFrom enables prompt version chain reasoning.""" ;
 :assignedToSpecialist a owl:ObjectProperty ;
     rdfs:label "assigned to specialist" ;
     rdfs:domain :PrioritizedTask ;
-    rdfs:range :Agent .
+    rdfs:range core:Agent .
 
 :attributedBy a owl:ObjectProperty ;
     rdfs:label "attributed by" ;
     rdfs:comment "Links an outcome to its alpha/beta P&L decomposition." ;
-    rdfs:domain :OutcomeEvaluation ;
+    rdfs:domain core:OutcomeEvaluation ;
     rdfs:range :ProfitAttribution .
 
 :backtestedWith a owl:ObjectProperty ;
     rdfs:label "backtested with" ;
     rdfs:domain :Strategy ;
-    rdfs:range :BacktestRun .
+    rdfs:range core:BacktestRun .
 
 :baselineScore a owl:DatatypeProperty ;
     rdfs:label "baseline score" ;
@@ -554,7 +517,7 @@ wasDerivedFrom enables prompt version chain reasoning.""" ;
 
 :belongsToPortfolio a owl:ObjectProperty ;
     rdfs:label "belongs to portfolio" ;
-    rdfs:domain :Position ;
+    rdfs:domain core:Position ;
     rdfs:range :Portfolio .
 
 :blastRadiusCount a owl:DatatypeProperty ;
@@ -600,13 +563,13 @@ wasDerivedFrom enables prompt version chain reasoning.""" ;
     rdfs:label "calibration of" ;
     rdfs:comment "Relates an AgentCalibration record to the Agent persona it scores. CONCEPT:KG-2.27" ;
     rdfs:domain :AgentCalibration ;
-    rdfs:range :Agent .
+    rdfs:range core:Agent .
 
 :causedRegression a owl:ObjectProperty ;
     rdfs:label "caused regression" ;
     rdfs:comment "Verified: this edit caused this task to regress." ;
     rdfs:domain :ComponentEditRecord ;
-    rdfs:range :Task .
+    rdfs:range core:Task .
 
 :citationDepth a owl:DatatypeProperty ;
     rdfs:label "citation depth" ;
@@ -619,11 +582,6 @@ wasDerivedFrom enables prompt version chain reasoning.""" ;
     rdfs:comment "Links a citing paper to its cited paper." ;
     rdfs:domain :CitationEdge ;
     rdfs:range bfo:0000031 .
-
-:citesSource a owl:ObjectProperty ;
-    rdfs:label "cites source" ;
-    rdfs:comment "Links a document or article to its cited source." ;
-    rdfs:seeAlso dc:references .
 
 :closeMatch a owl:ObjectProperty,
         owl:SymmetricProperty ;
@@ -654,21 +612,18 @@ wasDerivedFrom enables prompt version chain reasoning.""" ;
 :comparedToBenchmark a owl:ObjectProperty ;
     rdfs:label "compared to benchmark" ;
     rdfs:comment "Benchmark comparison reference." ;
-    rdfs:domain :BacktestRun .
+    rdfs:domain core:BacktestRun .
 
 :completenessScore a owl:DatatypeProperty ;
     rdfs:label "completeness score" ;
     rdfs:domain :EvaluationRecord ;
     rdfs:range xsd:float .
 
-:confidence a owl:DatatypeProperty ;
-    rdfs:range xsd:float .
-
 :confirmedFix a owl:ObjectProperty ;
     rdfs:label "confirmed fix" ;
     rdfs:comment "Verified: this edit confirmed to fix this task." ;
     rdfs:domain :ComponentEditRecord ;
-    rdfs:range :Task .
+    rdfs:range core:Task .
 
 :conflictWeight a owl:DatatypeProperty ;
     rdfs:label "conflict weight" ;
@@ -686,23 +641,19 @@ with A. Conflict resolution uses deterministic conflict_weight comparison.""" ;
 
 :consumedResource a owl:ObjectProperty ;
     rdfs:label "consumed resource" ;
-    rdfs:domain :Episode ;
+    rdfs:domain core:Episode ;
     rdfs:range :ResourceUsage .
 
 :consumesFromKernel a owl:ObjectProperty ;
     rdfs:label "consumes from kernel" ;
     rdfs:comment "A package consumes services from the kernel package." ;
-    rdfs:domain :EcosystemPackage ;
+    rdfs:domain core:EcosystemPackage ;
     rdfs:range :KernelPackage .
-
-:contains a owl:ObjectProperty ;
-    rdfs:label "contains" ;
-    owl:inverseOf :partOf .
 
 :contradictsBeliefProp a owl:ObjectProperty ;
     rdfs:label "contradicts belief" ;
-    rdfs:domain :Evidence ;
-    rdfs:range :Belief .
+    rdfs:domain core:Evidence ;
+    rdfs:range core:Belief .
 
 :correctivePrompt a owl:DatatypeProperty ;
     rdfs:label "corrective prompt" ;
@@ -760,26 +711,10 @@ with A. Conflict resolution uses deterministic conflict_weight comparison.""" ;
     rdfs:domain :SimilarityEdge ;
     rdfs:range xsd:float .
 
-:decidedBy a owl:ObjectProperty ;
-    rdfs:label "decided by" ;
-    rdfs:comment "The agent or authority that made/approved this decision." ;
-    rdfs:domain :ArchitectureDecisionRecord ;
-    rdfs:range :Agent .
-
 :definedIn a owl:ObjectProperty ;
     rdfs:label "defined in" ;
-    rdfs:domain :Symbol ;
-    rdfs:range :File .
-
-:dependsOn a owl:ObjectProperty,
-        owl:TransitiveProperty ;
-    rdfs:label "depends on" .
-
-:derivedFrom a owl:ObjectProperty ;
-    rdfs:label "derived from" ;
-    rdfs:comment "Relates a SentimentFact to the SentimentSource it was observed from. CONCEPT:KG-2.29" ;
-    rdfs:domain :SentimentFact ;
-    rdfs:range :SentimentSource .
+    rdfs:domain core:Symbol ;
+    rdfs:range core:File .
 
 :derivedFromBook a owl:ObjectProperty ;
     rdfs:label "derived from book" ;
@@ -790,7 +725,7 @@ with A. Conflict resolution uses deterministic conflict_weight comparison.""" ;
 :detectedPattern a owl:ObjectProperty ;
     rdfs:label "detected pattern" ;
     rdfs:comment "Links a strategy to a detected visual chart pattern." ;
-    rdfs:domain :TradingStrategy ;
+    rdfs:domain core:TradingStrategy ;
     rdfs:range :ChartPattern .
 
 :discoveredInSession a owl:ObjectProperty ;
@@ -860,12 +795,12 @@ with A. Conflict resolution uses deterministic conflict_weight comparison.""" ;
 
 :evaluatedStrategy a owl:ObjectProperty ;
     rdfs:label "evaluated strategy" ;
-    rdfs:domain :BacktestRun ;
+    rdfs:domain core:BacktestRun ;
     rdfs:range :Strategy .
 
 :evaluatedWith a owl:ObjectProperty ;
     rdfs:label "evaluated with" ;
-    rdfs:domain :Episode ;
+    rdfs:domain core:Episode ;
     rdfs:range :EvaluationRecord .
 
 :evolvedModel a owl:ObjectProperty,
@@ -884,7 +819,7 @@ with A. Conflict resolution uses deterministic conflict_weight comparison.""" ;
 
 :executedTransaction a owl:ObjectProperty ;
     rdfs:label "executed transaction" ;
-    rdfs:domain :Agent ;
+    rdfs:domain core:Agent ;
     rdfs:range :FinancialTransaction .
 
 :executesStrategy a owl:ObjectProperty ;
@@ -904,20 +839,20 @@ with A. Conflict resolution uses deterministic conflict_weight comparison.""" ;
 
 :exploredGap a owl:ObjectProperty ;
     rdfs:label "explored gap" ;
-    rdfs:domain :Hypothesis ;
+    rdfs:domain core:Hypothesis ;
     rdfs:range :KnowledgeGap .
 
 :exportedAs a owl:ObjectProperty ;
     rdfs:label "exported as" ;
     rdfs:comment "Links a strategy to its platform-specific code exports." ;
-    rdfs:domain :TradingStrategy ;
+    rdfs:domain core:TradingStrategy ;
     rdfs:range :StrategyExport .
 
 :exposedTo a owl:ObjectProperty ;
     rdfs:label "exposed to" ;
     rdfs:comment "Relates a FinancialInstrument holding to a GeopoliticalRisk it is exposed to (by sector/region overlap). The query backbone for 'which holdings are exposed to risk X'. CONCEPT:KG-2.30" ;
-    rdfs:domain :FinancialInstrument ;
-    rdfs:range :GeopoliticalRisk .
+    rdfs:domain core:FinancialInstrument ;
+    rdfs:range core:GeopoliticalRisk .
 
 :externalSystemId a owl:DatatypeProperty ;
     rdfs:label "external system id" ;
@@ -954,7 +889,7 @@ with A. Conflict resolution uses deterministic conflict_weight comparison.""" ;
 :generatedSignal a owl:ObjectProperty ;
     rdfs:label "generated signal" ;
     rdfs:domain :Strategy ;
-    rdfs:range :TradingSignal .
+    rdfs:range core:TradingSignal .
 
 :generatesSignal a owl:ObjectProperty ;
     rdfs:label "generates signal" ;
@@ -964,13 +899,13 @@ with A. Conflict resolution uses deterministic conflict_weight comparison.""" ;
 :hasAllocation a owl:ObjectProperty ;
     rdfs:label "has allocation" ;
     rdfs:comment "Links a portfolio to its optimized weight allocation." ;
-    rdfs:domain :Account ;
+    rdfs:domain core:Account ;
     rdfs:range :PortfolioAllocation .
 
 :hasAlphaFactor a owl:ObjectProperty ;
     rdfs:label "has alpha factor" ;
     rdfs:comment "Links a strategy to its predictive alpha factors." ;
-    rdfs:domain :TradingStrategy ;
+    rdfs:domain core:TradingStrategy ;
     rdfs:range :AlphaFactor .
 
 :hasChainStep a owl:ObjectProperty ;
@@ -982,14 +917,14 @@ with A. Conflict resolution uses deterministic conflict_weight comparison.""" ;
     rdfs:label "has clearance" ;
     rdfs:comment "Assigns a security clearance level to a person, agent, or role." ;
     rdfs:domain bfo:0000004 ;
-    rdfs:range :SecurityClearance .
+    rdfs:range core:SecurityClearance .
 
 :hasDelegatedAuthorityFrom a owl:ObjectProperty,
         owl:TransitiveProperty ;
     rdfs:label "has delegated authority from" ;
     rdfs:comment "Transitive authority linking an agent chain back to a human owner." ;
-    rdfs:domain :Agent ;
-    rdfs:range :Person .
+    rdfs:domain core:Agent ;
+    rdfs:range core:Person .
 
 :hasEditFor a owl:ObjectProperty ;
     rdfs:label "has edit for" ;
@@ -998,12 +933,12 @@ with A. Conflict resolution uses deterministic conflict_weight comparison.""" ;
 
 :hasFinancialInstrument a owl:ObjectProperty ;
     rdfs:label "has financial instrument" ;
-    rdfs:domain :Account ;
-    rdfs:range :FinancialInstrument .
+    rdfs:domain core:Account ;
+    rdfs:range core:FinancialInstrument .
 
 :hasMetric a owl:ObjectProperty ;
     rdfs:label "has metric" ;
-    rdfs:domain :BacktestRun ;
+    rdfs:domain core:BacktestRun ;
     rdfs:range :BacktestMetric .
 
 :hasOrderVersion a owl:ObjectProperty,
@@ -1022,7 +957,7 @@ with A. Conflict resolution uses deterministic conflict_weight comparison.""" ;
 :hasResourceEfficiency a owl:DatatypeProperty ;
     rdfs:label "has resource efficiency" ;
     rdfs:comment "Composite resource efficiency metric for model selection optimization." ;
-    rdfs:domain :Agent ;
+    rdfs:domain core:Agent ;
     rdfs:range xsd:float .
 
 :hasRiskFactor a owl:ObjectProperty ;
@@ -1033,13 +968,8 @@ with A. Conflict resolution uses deterministic conflict_weight comparison.""" ;
 :hasRiskLimit a owl:ObjectProperty ;
     rdfs:label "has risk limit" ;
     rdfs:comment "Assigns risk limits to an account or portfolio." ;
-    rdfs:domain :Account ;
+    rdfs:domain core:Account ;
     rdfs:range :RiskLimit .
-
-:hasRole a owl:ObjectProperty ;
-    rdfs:label "has role" ;
-    rdfs:domain :Person ;
-    rdfs:range :Role .
 
 :hasSeverityScore a owl:DatatypeProperty ;
     rdfs:label "severity score" ;
@@ -1049,8 +979,8 @@ with A. Conflict resolution uses deterministic conflict_weight comparison.""" ;
         owl:SymmetricProperty ;
     rdfs:label "has synergy with" ;
     rdfs:comment "CONCEPT:KG-2.4 — Two packages have a discovered functional synergy." ;
-    rdfs:domain :EcosystemPackage ;
-    rdfs:range :EcosystemPackage .
+    rdfs:domain core:EcosystemPackage ;
+    rdfs:range core:EcosystemPackage .
 
 :hasTemporalExtent a owl:ObjectProperty ;
     rdfs:label "has temporal extent" ;
@@ -1061,7 +991,7 @@ with A. Conflict resolution uses deterministic conflict_weight comparison.""" ;
     rdfs:label "heuristic of" ;
     rdfs:comment "Relates a DecisionHeuristic to the persona Agent whose framework it belongs to. CONCEPT:KG-2.28" ;
     rdfs:domain :DecisionHeuristic ;
-    rdfs:range :Agent .
+    rdfs:range core:Agent .
 
 :identifier a owl:DatatypeProperty ;
     rdfs:label "identifier" ;
@@ -1075,25 +1005,19 @@ with A. Conflict resolution uses deterministic conflict_weight comparison.""" ;
     rdfs:domain :BlastRadiusReport ;
     rdfs:range xsd:float .
 
-:impactsConcept a owl:ObjectProperty ;
-    rdfs:label "impacts concept" ;
-    rdfs:comment "Links an ADR to the concepts it directly affects." ;
-    rdfs:domain :ArchitectureDecisionRecord ;
-    rdfs:range :Concept .
-
 :importance a owl:DatatypeProperty ;
     rdfs:range xsd:float .
 
 :imports a owl:ObjectProperty ;
     rdfs:label "imports" ;
-    rdfs:domain :Symbol ;
-    rdfs:range :Symbol .
+    rdfs:domain core:Symbol ;
+    rdfs:range core:Symbol .
 
 :inheritsFrom a owl:ObjectProperty,
         owl:TransitiveProperty ;
     rdfs:label "inherits from" ;
-    rdfs:domain :Symbol ;
-    rdfs:range :Symbol .
+    rdfs:domain core:Symbol ;
+    rdfs:range core:Symbol .
 
 :interpretabilityScore a owl:DatatypeProperty ;
     rdfs:label "interpretability score" ;
@@ -1128,16 +1052,6 @@ with A. Conflict resolution uses deterministic conflict_weight comparison.""" ;
     rdfs:label "message" ;
     rdfs:range xsd:string .
 
-:mitigatedBy a owl:ObjectProperty ;
-    rdfs:label "mitigated by" ;
-    rdfs:domain :RiskFactor ;
-    rdfs:range :RiskMitigation .
-
-:mitigatesRisk a owl:ObjectProperty ;
-    rdfs:label "mitigates risk" ;
-    rdfs:domain :Action ;
-    rdfs:range :RiskProfile .
-
 :modelsRegime a owl:ObjectProperty ;
     rdfs:label "models regime" ;
     rdfs:domain :NeuralNetworkModel ;
@@ -1149,8 +1063,8 @@ with A. Conflict resolution uses deterministic conflict_weight comparison.""" ;
 
 :motivatedBy a owl:ObjectProperty ;
     rdfs:label "motivated by" ;
-    rdfs:domain :Decision ;
-    rdfs:range :Goal .
+    rdfs:domain core:Decision ;
+    rdfs:range core:Goal .
 
 :narrower a owl:ObjectProperty ;
     rdfs:label "narrower" ;
@@ -1166,20 +1080,13 @@ with A. Conflict resolution uses deterministic conflict_weight comparison.""" ;
 
 :observedBy a owl:ObjectProperty ;
     rdfs:label "observed by" ;
-    rdfs:domain :Observation ;
-    rdfs:range :Agent .
-
-:occurredDuring a owl:ObjectProperty,
-        owl:TransitiveProperty ;
-    rdfs:label "occurred during" ;
-    rdfs:comment "Transitive: if Event occurredDuring Phase and Phase partOf ParentPhase, reasoner can infer Event occurredDuring ParentPhase." ;
-    rdfs:domain :Event ;
-    rdfs:range :Phase .
+    rdfs:domain core:Observation ;
+    rdfs:range core:Agent .
 
 :openedPosition a owl:ObjectProperty ;
     rdfs:label "opened position" ;
-    rdfs:domain :Order ;
-    rdfs:range :Position .
+    rdfs:domain core:Order ;
+    rdfs:range core:Position .
 
 :orchestratedBy a owl:ObjectProperty ;
     rdfs:label "orchestrated by" ;
@@ -1187,20 +1094,15 @@ with A. Conflict resolution uses deterministic conflict_weight comparison.""" ;
     rdfs:domain bfo:0000015 ;
     rdfs:range :OrchestrationCycle .
 
-:ownedBy a owl:ObjectProperty ;
-    rdfs:label "owned by" ;
-    rdfs:domain :System ;
-    rdfs:range :Organization .
-
 :packageCategory a owl:DatatypeProperty ;
     rdfs:label "package category" ;
     rdfs:comment "Intelligent category classification: infrastructure, media, productivity, data_science, devops, communication." ;
-    rdfs:domain :EcosystemPackage ;
+    rdfs:domain core:EcosystemPackage ;
     rdfs:range xsd:string .
 
 :packageVersion a owl:DatatypeProperty ;
     rdfs:label "package version" ;
-    rdfs:domain :EcosystemPackage ;
+    rdfs:domain core:EcosystemPackage ;
     rdfs:range xsd:string .
 
 :paidVia a owl:ObjectProperty ;
@@ -1223,12 +1125,8 @@ with A. Conflict resolution uses deterministic conflict_weight comparison.""" ;
 
 :placedOrder a owl:ObjectProperty ;
     rdfs:label "placed order" ;
-    rdfs:domain :TradingSignal ;
-    rdfs:range :Order .
-
-:platform a owl:DatatypeProperty ;
-    rdfs:label "platform" ;
-    rdfs:range xsd:string .
+    rdfs:domain core:TradingSignal ;
+    rdfs:range core:Order .
 
 :pnl a owl:DatatypeProperty ;
     rdfs:label "profit and loss" ;
@@ -1238,7 +1136,7 @@ with A. Conflict resolution uses deterministic conflict_weight comparison.""" ;
     rdfs:label "predicted fix" ;
     rdfs:comment "Falsifiable: this edit is predicted to fix this task." ;
     rdfs:domain :ComponentEditRecord ;
-    rdfs:range :Task .
+    rdfs:range core:Task .
 
 :predictedScore a owl:DatatypeProperty ;
     rdfs:label "predicted score" ;
@@ -1270,24 +1168,20 @@ with A. Conflict resolution uses deterministic conflict_weight comparison.""" ;
 
 :producedOutcome a owl:ObjectProperty ;
     rdfs:label "produced outcome" ;
-    rdfs:domain :Episode ;
-    rdfs:range :OutcomeEvaluation .
+    rdfs:domain core:Episode ;
+    rdfs:range core:OutcomeEvaluation .
 
 :propagatesRiskTo a owl:ObjectProperty,
         owl:TransitiveProperty ;
     rdfs:label "propagates risk to" ;
     rdfs:comment "Transitive risk propagation. If A propagatesRiskTo B and B propagatesRiskTo C, then A propagatesRiskTo C. Enables automated upstream risk chain inference via OWL reasoning." .
 
-:providedBy a owl:ObjectProperty ;
-    rdfs:label "provided by" ;
-    owl:inverseOf :provides .
-
 :providesCapabilityTo a owl:ObjectProperty,
         owl:TransitiveProperty ;
     rdfs:label "provides capability to" ;
     rdfs:comment "A package provides capability to another package (transitive)." ;
-    rdfs:domain :EcosystemPackage ;
-    rdfs:range :EcosystemPackage .
+    rdfs:domain core:EcosystemPackage ;
+    rdfs:range core:EcosystemPackage .
 
 :ranPreset a owl:ObjectProperty ;
     rdfs:label "ran preset" ;
@@ -1315,12 +1209,12 @@ with A. Conflict resolution uses deterministic conflict_weight comparison.""" ;
     rdfs:label "requires classification" ;
     rdfs:comment "Defines the required data classification to access a node." ;
     rdfs:domain bfo:0000001 ;
-    rdfs:range :DataClassification .
+    rdfs:range core:DataClassification .
 
 :resultedInDiscovery a owl:ObjectProperty ;
     rdfs:label "resulted in discovery" ;
     rdfs:domain :ExplorationExperiment ;
-    rdfs:range :Fact .
+    rdfs:range core:Fact .
 
 :ruleClass a owl:DatatypeProperty ;
     rdfs:label "rule class" ;
@@ -1339,9 +1233,6 @@ with A. Conflict resolution uses deterministic conflict_weight comparison.""" ;
     rdfs:domain :EvaluationRecord ;
     rdfs:range xsd:float .
 
-:severity a owl:DatatypeProperty ;
-    rdfs:range xsd:string .
-
 :sha a owl:DatatypeProperty ;
     rdfs:label "sha" ;
     rdfs:range xsd:string .
@@ -1349,7 +1240,7 @@ with A. Conflict resolution uses deterministic conflict_weight comparison.""" ;
 :sharedAs a owl:ObjectProperty ;
     rdfs:label "shared as" ;
     rdfs:comment "Links a strategy to its published strategy card." ;
-    rdfs:domain :TradingStrategy ;
+    rdfs:domain core:TradingStrategy ;
     rdfs:range :StrategyCardEntity .
 
 :sharpeRatio a owl:DatatypeProperty ;
@@ -1369,18 +1260,6 @@ with A. Conflict resolution uses deterministic conflict_weight comparison.""" ;
     rdfs:domain bfo:0000001 ;
     rdfs:range bfo:0000001 .
 
-:signalType a owl:DatatypeProperty ;
-    rdfs:label "signal type" ;
-    rdfs:range xsd:string .
-
-:similarTo a owl:ObjectProperty,
-        owl:SymmetricProperty ;
-    rdfs:label "similar to" ;
-    rdfs:comment """Symmetric auto-similarity relationship discovered during memory
-    node insertion. Weight decays exponentially over time.""" ;
-    rdfs:domain bfo:0000001 ;
-    rdfs:range bfo:0000001 .
-
 :sizedBy a owl:ObjectProperty ;
     rdfs:label "sized by" ;
     rdfs:domain :ExecutionSignal ;
@@ -1393,8 +1272,8 @@ with A. Conflict resolution uses deterministic conflict_weight comparison.""" ;
 :spawnedBy a owl:ObjectProperty ;
     rdfs:label "spawned by" ;
     rdfs:comment "Links an ephemeral SubAgent/Swarm back to its orchestrator." ;
-    rdfs:domain :Agent ;
-    rdfs:range :Agent .
+    rdfs:domain core:Agent ;
+    rdfs:range core:Agent .
 
 :staleEdgeCount a owl:DatatypeProperty ;
     rdfs:label "stale edge count" ;
@@ -1406,10 +1285,6 @@ with A. Conflict resolution uses deterministic conflict_weight comparison.""" ;
     rdfs:label "started at time" ;
     rdfs:range xsd:dateTime ;
     rdfs:subPropertyOf prov:startedAtTime .
-
-:state a owl:DatatypeProperty ;
-    rdfs:label "state" ;
-    rdfs:range xsd:string .
 
 :status a owl:DatatypeProperty ;
     rdfs:label "status" ;
@@ -1423,22 +1298,10 @@ with A. Conflict resolution uses deterministic conflict_weight comparison.""" ;
     rdfs:domain :MarketDataSource ;
     rdfs:range :StreamChannel .
 
-:subject a owl:DatatypeProperty ;
-    rdfs:label "subject" ;
-    rdfs:range xsd:string ;
-    rdfs:subPropertyOf dc:subject .
-
-:supersedes a owl:ObjectProperty,
-        owl:TransitiveProperty ;
-    rdfs:label "supersedes" ;
-    rdfs:comment "Transitive: if ADR-C supersedes ADR-B supersedes ADR-A, then ADR-C supersedes ADR-A. Enables full decision lineage queries." ;
-    rdfs:domain :ArchitectureDecisionRecord ;
-    rdfs:range :ArchitectureDecisionRecord .
-
 :supportsBeliefProp a owl:ObjectProperty ;
     rdfs:label "supports belief" ;
-    rdfs:domain :Evidence ;
-    rdfs:range :Belief .
+    rdfs:domain core:Evidence ;
+    rdfs:range core:Belief .
 
 :swarmDecidedBy a owl:ObjectProperty ;
     rdfs:label "swarm decided by" ;
@@ -1461,7 +1324,7 @@ with A. Conflict resolution uses deterministic conflict_weight comparison.""" ;
 :syndicatable a owl:DatatypeProperty ;
     rdfs:label "syndicatable" ;
     rdfs:comment "Opt-in flag for cross-tenant knowledge federation." ;
-    rdfs:domain :Concept ;
+    rdfs:domain core:Concept ;
     rdfs:range xsd:boolean .
 
 :targets a owl:ObjectProperty ;
@@ -1478,7 +1341,7 @@ with A. Conflict resolution uses deterministic conflict_weight comparison.""" ;
 :testedHypothesis a owl:ObjectProperty ;
     rdfs:label "tested hypothesis" ;
     rdfs:comment "Links a strategy to a research hypothesis it validated." ;
-    rdfs:domain :TradingStrategy ;
+    rdfs:domain core:TradingStrategy ;
     rdfs:range :ResearchHypothesis .
 
 :testedInterpretability a owl:ObjectProperty ;
@@ -1489,15 +1352,10 @@ with A. Conflict resolution uses deterministic conflict_weight comparison.""" ;
 :testsHypothesis a owl:ObjectProperty ;
     rdfs:label "tests hypothesis" ;
     rdfs:domain :ExplorationExperiment ;
-    rdfs:range :Hypothesis .
+    rdfs:range core:Hypothesis .
 
 :timestamp a owl:DatatypeProperty ;
     rdfs:range xsd:dateTime .
-
-:title a owl:DatatypeProperty ;
-    rdfs:label "title" ;
-    rdfs:range xsd:string ;
-    rdfs:subPropertyOf dc:title .
 
 :tokenBudgetMax a owl:DatatypeProperty ;
     rdfs:label "token budget max" ;
@@ -1511,13 +1369,13 @@ with A. Conflict resolution uses deterministic conflict_weight comparison.""" ;
 
 :triggeredAction a owl:ObjectProperty ;
     rdfs:label "triggered action" ;
-    rdfs:domain :Event ;
-    rdfs:range :Action .
+    rdfs:domain core:Event ;
+    rdfs:range core:Action .
 
 :triggeredBy a owl:ObjectProperty ;
     rdfs:label "triggered by" ;
-    rdfs:domain :Event ;
-    rdfs:range :Event .
+    rdfs:domain core:Event ;
+    rdfs:range core:Event .
 
 :triggeredDoomLoop a owl:ObjectProperty ;
     rdfs:label "triggered doom loop" ;
@@ -1530,11 +1388,6 @@ with A. Conflict resolution uses deterministic conflict_weight comparison.""" ;
     rdfs:comment "The validated, factual answer for this IdeaBlock." ;
     rdfs:domain :IdeaBlock ;
     rdfs:range xsd:string .
-
-:verifiedBy a owl:ObjectProperty ;
-    rdfs:label "verified by" ;
-    rdfs:comment "Links a manifest to its verification evidence." ;
-    rdfs:domain :ChangeManifest .
 
 :violationCount a owl:DatatypeProperty ;
     rdfs:label "violation count" ;
@@ -1566,22 +1419,19 @@ with A. Conflict resolution uses deterministic conflict_weight comparison.""" ;
     rdfs:comment "Provenance: what Activity generated this Entity." ;
     rdfs:subPropertyOf prov:wasGeneratedBy .
 
-<http://knuckles.team/kg/quant> a owl:Ontology ;
+<https://knuckles-team.github.io/ontology/connector/emerald/quant> a owl:Ontology ;
     rdfs:label "Quant & Finance Domain Extension" ;
     rdfs:comment "Domain extension for quant trading, crypto, and finance." .
-
-
-bfo:0000002 owl:disjointWith bfo:0000003 .
 
 :AgentCalibration a owl:Class ;
     rdfs:label "Agent Calibration" ;
     rdfs:comment "A Brier-based reputation/calibration record CALIBRATION_OF an Agent persona, used to compute calibration-weighted SwarmConsensus role weights. CONCEPT:KG-2.27" ;
-    rdfs:subClassOf :OutcomeEvaluation .
+    rdfs:subClassOf core:OutcomeEvaluation .
 
 :AgentSwarm a owl:Class ;
     rdfs:label "Agent Swarm" ;
     rdfs:comment "A dynamic, hierarchically synthesized team of AI agents." ;
-    rdfs:subClassOf :Team .
+    rdfs:subClassOf core:Team .
 
 :AlphaFactor a owl:Class ;
     rdfs:label "Alpha Factor" ;
@@ -1596,9 +1446,10 @@ bfo:0000002 owl:disjointWith bfo:0000003 .
 :BehavioralBias a owl:Class ;
     rdfs:label "Behavioral Bias" ;
     rdfs:comment "A diagnosed behavioural-finance bias EXHIBITED_BY a TraderProfile: disposition effect, overtrading, momentum-chasing, or anchoring — each with a numeric metric and severity. CONCEPT:KG-2.26" ;
-    rdfs:subClassOf :OutcomeEvaluation .
+    rdfs:subClassOf core:OutcomeEvaluation .
 
 :ChartPattern a owl:Class ;
+    rdfs:subClassOf core:Pattern ;
     rdfs:label "Chart Pattern" ;
     rdfs:comment "A detected visual chart pattern (double top, breakout, etc.). CONCEPT:KG-2.6" ;
     rdfs:subClassOf bfo:0000031 .
@@ -1611,9 +1462,10 @@ bfo:0000002 owl:disjointWith bfo:0000003 .
 :DecisionHeuristic a owl:Class ;
     rdfs:label "Decision Heuristic" ;
     rdfs:comment "An explicit, evaluable investor decision rule (e.g. Graham P/E<15, Buffett ROE>=15%) HEURISTIC_OF a persona Agent. Borrowed from Fincept's granular persona registry. CONCEPT:KG-2.28" ;
-    rdfs:subClassOf :Procedure .
+    rdfs:subClassOf core:Procedure .
 
 :FormalRelation a owl:Class ;
+    rdfs:subClassOf core:ObjectRelationship ;
     rdfs:label "Formal Relation" ;
     rdfs:comment "A mathematically formal relation (e.g. Equivalence, Partial Order). BFO:GenericallyDependentContinuant." ;
     rdfs:subClassOf bfo:0000031 .
@@ -1621,7 +1473,7 @@ bfo:0000002 owl:disjointWith bfo:0000003 .
 :FrontendPackage a owl:Class ;
     rdfs:label "Frontend Package" ;
     rdfs:comment "A user-facing frontend (TUI or WebUI) package." ;
-    rdfs:subClassOf :EcosystemPackage .
+    rdfs:subClassOf core:EcosystemPackage .
 
 :InterpretabilityTest a owl:Class ;
     rdfs:label "interpretability test" ;
@@ -1631,12 +1483,12 @@ bfo:0000002 owl:disjointWith bfo:0000003 .
 :KernelPackage a owl:Class ;
     rdfs:label "Kernel Package" ;
     rdfs:comment "The core harness kernel package." ;
-    rdfs:subClassOf :EcosystemPackage .
+    rdfs:subClassOf core:EcosystemPackage .
 
 :KnowledgeGap a owl:Class ;
     rdfs:label "Knowledge Gap" ;
     rdfs:comment "An identified gap in the agent's knowledge. Subclass of Observation." ;
-    rdfs:subClassOf :Observation .
+    rdfs:subClassOf core:Observation .
 
 :KronosModel a owl:Class ;
     rdfs:label "Kronos Foundation Model" ;
@@ -1646,15 +1498,12 @@ bfo:0000002 owl:disjointWith bfo:0000003 .
 :MarketDataSource a owl:Class ;
     rdfs:label "Market Data Source" ;
     rdfs:comment "A market data provider (yfinance, CCXT, synthetic). CONCEPT:KG-2.6" ;
-    rdfs:subClassOf :Tool .
+    rdfs:subClassOf core:Tool .
 
 :MarketRegime a owl:Class ;
     rdfs:label "Market Regime" ;
     rdfs:comment "A specific topological state of the market." ;
-    rdfs:subClassOf :Phase .
-
-:MergeRequest a owl:Class .
-
+    rdfs:subClassOf core:Phase .
 
 :PaymentProofEntity a owl:Class ;
     rdfs:label "Payment Proof" ;
@@ -1662,31 +1511,29 @@ bfo:0000002 owl:disjointWith bfo:0000003 .
     rdfs:subClassOf :FinancialTransaction .
 
 :PortfolioAllocation a owl:Class ;
+    rdfs:subClassOf core:PortfolioGroup ;
     rdfs:label "Portfolio Allocation" ;
     rdfs:comment "An optimized weight assignment (MVO, Risk Parity, Black-Litterman). CONCEPT:KG-2.6" ;
     rdfs:subClassOf bfo:0000031 .
 
-:Principle rdfs:subClassOf :MotivationLayer .
-
 :ProfitAttribution a owl:Class ;
     rdfs:label "Profit Attribution" ;
     rdfs:comment "Alpha/beta/residual P&L decomposition. CONCEPT:KG-2.6" ;
-    rdfs:subClassOf :OutcomeEvaluation .
+    rdfs:subClassOf core:OutcomeEvaluation .
 
 :PromptChain a owl:Class ;
     rdfs:label "Prompt Chain" ;
     rdfs:comment "A declarative multi-step prompt pipeline with intermediate validation and conditional branching. BFO:Process via Procedure." ;
-    rdfs:subClassOf :Procedure .
-
-:Region a owl:Class .
-
+    rdfs:subClassOf core:Procedure .
 
 :ResearchHypothesis a owl:Class ;
+    rdfs:subClassOf core:Hypothesis ;
     rdfs:label "Research Hypothesis" ;
     rdfs:comment "A testable trading hypothesis in the research autopilot. CONCEPT:KG-2.6" ;
     rdfs:subClassOf bfo:0000031 .
 
 :ResourceUsage a owl:Class ;
+    rdfs:subClassOf core:Metric ;
     rdfs:label "Resource Usage Record" ;
     rdfs:comment "Per-session resource consumption tracking (tokens, cost, latency). BFO:Process." ;
     rdfs:subClassOf bfo:0000015 .
@@ -1694,7 +1541,7 @@ bfo:0000002 owl:disjointWith bfo:0000003 .
 :RiskLimit a owl:Class ;
     rdfs:label "Risk Limit" ;
     rdfs:comment "A risk management policy (max position, VaR limit, drawdown limit). CONCEPT:KG-2.6" ;
-    rdfs:subClassOf :Policy .
+    rdfs:subClassOf core:Policy .
 
 :RiskMitigation a owl:Class ;
     rdfs:label "risk mitigation" ;
@@ -1702,6 +1549,7 @@ bfo:0000002 owl:disjointWith bfo:0000003 .
     rdfs:subClassOf :RegistryNode .
 
 :RiskProfile a owl:Class ;
+    rdfs:subClassOf core:RiskSnapshot ;
     rdfs:label "Risk Profile" ;
     rdfs:comment "The quantified or qualitative risk posture of an entity." ;
     rdfs:subClassOf bfo:0000031 .
@@ -1711,47 +1559,47 @@ bfo:0000002 owl:disjointWith bfo:0000003 .
     rdfs:comment """A canonical software engineering book that is the source
 of engineering rules (e.g., 'Clean Architecture', 'Domain-Driven Design').
 Subclass of CreativeWork for Dublin Core / BIBO alignment.""" ;
-    rdfs:subClassOf :CreativeWork .
+    rdfs:subClassOf core:CreativeWork .
 
 :Sector a owl:Class ;
     rdfs:label "Sector" ;
     rdfs:comment "An industry/GICS sector affected by a GeopoliticalRisk or in an asset's revenue attribution. CONCEPT:KG-2.30" ;
-    rdfs:subClassOf :Concept .
+    rdfs:subClassOf core:Concept .
 
 :SentimentSource a owl:Class ;
     rdfs:label "Sentiment Source" ;
     rdfs:comment "A provenance channel for a SentimentFact (filing, analyst, news, social, ...) carrying a credibility prior. CONCEPT:KG-2.29" ;
-    rdfs:subClassOf :Concept .
-
-:Skill rdfs:subClassOf :ApplicationLayer .
+    rdfs:subClassOf core:Concept .
 
 :StateSpaceModel a owl:Class ;
+    rdfs:subClassOf core:Model ;
     rdfs:label "State Space Model" ;
     rdfs:comment "A mathematical model to estimate unobservable, time-varying states from noisy observations." ;
     rdfs:subClassOf bfo:0000031 .
 
 :StationaryFeature a owl:Class ;
+    rdfs:subClassOf core:MLFeature ;
     rdfs:label "Stationary Feature" ;
     rdfs:comment "A mathematically stationary market feature." ;
     rdfs:subClassOf bfo:0000031 .
 
 :StochasticProcess a owl:Class ;
+    rdfs:subClassOf core:Model ;
     rdfs:label "Stochastic Process" ;
     rdfs:comment "A mathematical object defined as a family of random variables, such as a Markov Chain." ;
     rdfs:subClassOf bfo:0000015 .
 
 :StrategyCardEntity a owl:Class ;
+    rdfs:subClassOf core:StrategyCard ;
     rdfs:label "Strategy Card" ;
     rdfs:comment "A shareable strategy card with configuration and performance data. CONCEPT:KG-2.6" ;
     rdfs:subClassOf bfo:0000031 .
 
 :StrategyExport a owl:Class ;
+    rdfs:subClassOf core:Artifact ;
     rdfs:label "Strategy Export" ;
     rdfs:comment "A platform-specific strategy code export (Pine Script, MQL5, TDX). CONCEPT:KG-2.6" ;
     rdfs:subClassOf bfo:0000031 .
-
-:StrategyLayer a owl:Class .
-
 
 :SwarmRun a owl:Class ;
     rdfs:label "swarm run" ;
@@ -1761,9 +1609,10 @@ Subclass of CreativeWork for Dublin Core / BIBO alignment.""" ;
 :TraderProfile a owl:Class ;
     rdfs:label "Trader Profile" ;
     rdfs:comment "An aggregate behavioural portrait of a trader from their closed roundtrips (win rate, holding period, PnL ratio, max drawdown). Borrowed from Vibe-Trading's shadow account, persisted as a queryable learning signal. CONCEPT:KG-2.26" ;
-    rdfs:subClassOf :OutcomeEvaluation .
+    rdfs:subClassOf core:OutcomeEvaluation .
 
 :TradingSwarmEntity a owl:Class ;
+    rdfs:subClassOf core:Team ;
     rdfs:label "Trading Swarm" ;
     rdfs:comment "A multi-agent swarm with specialized roles for collaborative trading. CONCEPT:KG-2.6" ;
     rdfs:subClassOf bfo:0000027 .
@@ -1780,21 +1629,8 @@ Subclass of CreativeWork for Dublin Core / BIBO alignment.""" ;
     rdfs:domain :ComponentEditRecord ;
     rdfs:range :ChangeManifest .
 
-:partOf a owl:ObjectProperty,
-        owl:TransitiveProperty ;
-    rdfs:label "part of" .
-
-:provides a owl:ObjectProperty ;
-    rdfs:label "provides" ;
-    rdfs:domain :Agent ;
-    rdfs:range :Tool .
-
-:Belief owl:disjointWith :Fact .
-
-:BusinessLayer a owl:Class .
-
-
 :CitationEdge a owl:Class ;
+    rdfs:subClassOf core:ObjectRelationship ;
     rdfs:label "Citation Edge" ;
     rdfs:comment """A directional citation relationship between two research papers
     with semantic metadata. BFO:GenericallyDependentContinuant.
@@ -1804,27 +1640,20 @@ Subclass of CreativeWork for Dublin Core / BIBO alignment.""" ;
 :ExplorationExperiment a owl:Class ;
     rdfs:label "Exploration Experiment" ;
     rdfs:comment "A structured experiment to test a hypothesis. BFO:Process via Procedure." ;
-    rdfs:subClassOf :Procedure .
-
-:Goal rdfs:subClassOf :MotivationLayer .
+    rdfs:subClassOf core:Procedure .
 
 :KellySizing a owl:Class ;
     rdfs:label "Kelly Sizing" ;
     rdfs:comment "A position sizing procedure using the Kelly Criterion." ;
-    rdfs:subClassOf :Procedure .
+    rdfs:subClassOf core:Procedure .
 
 :ModelDisplay a owl:Class ;
     rdfs:label "model display" ;
     rdfs:comment "An optimized display representation of a model's __str__() output, decoupled from predict() logic." ;
     rdfs:subClassOf :RegistryNode .
 
-:MotivationLayer a owl:Class .
-
-
-:Order a owl:Class .
-
-
 :OrderVersion a owl:Class ;
+    rdfs:subClassOf core:VersionedOrder ;
     rdfs:label "Order Version" ;
     rdfs:comment "An immutable versioned snapshot of a trading order. CONCEPT:KG-2.6" ;
     rdfs:subClassOf bfo:0000031 .
@@ -1834,10 +1663,8 @@ Subclass of CreativeWork for Dublin Core / BIBO alignment.""" ;
     rdfs:comment "An aggregation of positions with allocation tracking." ;
     rdfs:subClassOf :RegistryNode .
 
-:Position a owl:Class .
-
-
 :ResearchSession a owl:Class ;
+    rdfs:subClassOf core:Session ;
     rdfs:label "Research Session" ;
     rdfs:comment """An isolated research sub-agent execution session with its own
     token budget, tool whitelist, and findings. BFO:Process. Adapted from
@@ -1852,9 +1679,10 @@ Subclass of CreativeWork for Dublin Core / BIBO alignment.""" ;
 :SentimentFact a owl:Class ;
     rdfs:label "Sentiment Fact" ;
     rdfs:comment "A normalized, credibility-weighted sentiment observation ABOUT a FinancialInstrument and DERIVED_FROM a Source, with polarity, magnitude and a source-skepticism weight. Fused per-entity into a SENTIMENT_ANALYST AgentSignal consumed by SwarmConsensus. CONCEPT:KG-2.29" ;
-    rdfs:subClassOf :Observation .
+    rdfs:subClassOf core:Observation .
 
 :SimilarityEdge a owl:Class ;
+    rdfs:subClassOf core:ObjectRelationship ;
     rdfs:label "Similarity Edge" ;
     rdfs:comment """An auto-created similarity link between memory nodes.
     Uses cosine similarity thresholding with exponential decay scoring.
@@ -1862,6 +1690,7 @@ Subclass of CreativeWork for Dublin Core / BIBO alignment.""" ;
     rdfs:subClassOf bfo:0000031 .
 
 :StreamChannel a owl:Class ;
+    rdfs:subClassOf core:MessageChannel ;
     rdfs:label "Stream Channel" ;
     rdfs:comment "A real-time pub/sub streaming topic. CONCEPT:KG-2.6" ;
     rdfs:subClassOf bfo:0000031 .
@@ -1876,13 +1705,8 @@ Subclass of CreativeWork for Dublin Core / BIBO alignment.""" ;
     rdfs:comment "Individual task execution record within a swarm run." ;
     rdfs:subClassOf :RegistryNode .
 
-:TechnologyLayer a owl:Class .
-
-
-:TradingSignal a owl:Class .
-
-
 :UnifiedRAGConfig a owl:Class ;
+    rdfs:subClassOf core:ConfigurationItem ;
     rdfs:label "Unified RAG Config" ;
     rdfs:comment """Configuration and performance snapshot for KG-native unified
     retrieval combining similarity-edge shortcuts, spectral cluster
@@ -1890,19 +1714,14 @@ Subclass of CreativeWork for Dublin Core / BIBO alignment.""" ;
     (CONCEPT:KG-2.3).""" ;
     rdfs:subClassOf bfo:0000020 .
 
-:Account a owl:Class .
-
-
-:ApplicationLayer a owl:Class .
-
-
 :DataConnector a owl:Class ;
     rdfs:label "data connector" ;
     rdfs:comment "A registered external data source with health and rate-limit metadata." ;
     rdfs:subClassOf :RegistryNode,
-        :TechnologyLayer .
+        core:TechnologyLayer .
 
 :DistillationIndex a owl:Class ;
+    rdfs:subClassOf core:SearchIndex ;
     rdfs:label "Distillation Index" ;
     rdfs:comment """A snapshot of the pre-computed similarity edge index health.
     Tracks coverage, staleness, and recommendations for maintenance.
@@ -1910,6 +1729,7 @@ Subclass of CreativeWork for Dublin Core / BIBO alignment.""" ;
     rdfs:subClassOf bfo:0000020 .
 
 :DoomLoopIncident a owl:Class ;
+    rdfs:subClassOf core:Incident ;
     rdfs:label "Doom Loop Incident" ;
     rdfs:comment """A detected tool-call repetition pattern including consecutive
     identical calls and repeating multi-tool sequences. BFO:Process.
@@ -1917,20 +1737,13 @@ Subclass of CreativeWork for Dublin Core / BIBO alignment.""" ;
     rdfs:subClassOf bfo:0000015 .
 
 :ExecutionSignal a owl:Class ;
+    rdfs:subClassOf core:TradingSignal ;
     rdfs:label "Execution Signal" ;
     rdfs:comment "A directional market signal generated by a model." ;
     rdfs:subClassOf bfo:0000031 .
 
-:FinancialInstrument a owl:Class ;
-    rdfs:seeAlso fibo-fi:FinancialInstrument .
-
-
-:GeopoliticalRisk a owl:Class ;
-    rdfs:label "Geopolitical Risk" ;
-    rdfs:comment "A reasoned geopolitical risk factor (conflict, sanctions, supply-chain chokepoint, election/regime-change) with severity, likelihood and an affected sector/region footprint. Holdings are exposedTo it (making 'which holdings are exposed to risk X' a graph query) and it transmits into the existing StressTestEngine shock path. CONCEPT:KG-2.30" ;
-    rdfs:subClassOf :RiskFactor .
-
 :OrchestrationCycle a owl:Class ;
+    rdfs:subClassOf core:IterationCycle ;
     rdfs:label "Orchestration Cycle" ;
     rdfs:comment """A complete research orchestration cycle connecting discovery,
     citation traversal, similarity linking, and cluster refresh.
@@ -1940,17 +1753,15 @@ Subclass of CreativeWork for Dublin Core / BIBO alignment.""" ;
 :PromptChainStep a owl:Class ;
     rdfs:label "Prompt Chain Step" ;
     rdfs:comment "A single step within a PromptChain. BFO:Process via Action." ;
-    rdfs:subClassOf :Action .
+    rdfs:subClassOf core:Action .
 
 :RiskFactor a owl:Class ;
     rdfs:label "risk factor" ;
     rdfs:comment "An individual risk factor contributing to an assessment." ;
     rdfs:subClassOf :RegistryNode .
 
-:BacktestRun a owl:Class .
-
-
 :BlastRadiusReport a owl:Class ;
+    rdfs:subClassOf core:Document ;
     rdfs:label "Blast Radius Report" ;
     rdfs:comment """A symbol-level impact analysis report tracking how widely a
     code symbol is used across the codebase. BFO:SpecificallyDependentContinuant.
@@ -1963,9 +1774,10 @@ Subclass of CreativeWork for Dublin Core / BIBO alignment.""" ;
 Subclass of Policy — inherits governance semantics. Tracks
 current_level (PROMPT→TOOL_DESCRIPTION→MIDDLEWARE→TOOL_IMPLEMENTATION),
 violation_count, and escalation history.""" ;
-    rdfs:subClassOf :Policy .
+    rdfs:subClassOf core:Policy .
 
 :DistillationRound a owl:Class ;
+    rdfs:subClassOf core:IterationCycle ;
     rdfs:label "Distillation Round" ;
     rdfs:comment """A single iteration of the knowledge deduplication process.
     BFO:Process. Tracks blocks_before, blocks_after, and similarity_threshold
@@ -1973,6 +1785,7 @@ violation_count, and escalation history.""" ;
     rdfs:subClassOf bfo:0000015 .
 
 :FinancialTransaction a owl:Class ;
+    rdfs:subClassOf core:LedgerTransaction ;
     rdfs:label "Financial Transaction" ;
     rdfs:comment "A financial transaction event. BFO:Process. Aligned to FIBO." ;
     rdfs:subClassOf bfo:0000015 .
@@ -1980,23 +1793,15 @@ violation_count, and escalation history.""" ;
 :PrioritizedTask a owl:Class ;
     rdfs:label "Prioritized Task" ;
     rdfs:comment "A task with multi-factor priority scoring (urgency, impact, effort, risk). BFO:Process via Action." ;
-    rdfs:subClassOf :Action .
+    rdfs:subClassOf core:Action .
 
 :Strategy a owl:Class ;
     rdfs:label "strategy" ;
     rdfs:comment "A named trading strategy with parameters and performance lineage." ;
     rdfs:subClassOf :RegistryNode .
 
-:Task a owl:Class ;
-    rdfs:seeAlso prov:Activity .
-
-
-:Tool rdfs:subClassOf :ApplicationLayer .
-
-:ArchiMateElement a owl:Class .
-
-
 :ComponentEditRecord a owl:Class ;
+    rdfs:subClassOf core:HarnessEdit ;
     rdfs:label "Component Edit Record" ;
     rdfs:comment """A granular edit applied to a harness component file.
 BFO:GenericallyDependentContinuant — tracks file_path, component_type,
@@ -2010,15 +1815,16 @@ git_commit_sha, predicted_fixes, and predicted_regressions.""" ;
     question, trusted answer, governance tags, and entity references.
     BFO:GenericallyDependentContinuant. Aligned to skos:Concept.
     Derived from Blockify's IdeaBlock specification (CONCEPT:KG-2.2).""" ;
-    rdfs:subClassOf :Concept,
+    rdfs:subClassOf core:Concept,
         bfo:0000031 .
 
 :NeuralNetworkModel a owl:Class ;
     rdfs:label "Neural Network Model" ;
     rdfs:comment "A trained neural network model." ;
-    rdfs:subClassOf :Tool .
+    rdfs:subClassOf core:Tool .
 
 :SpectralCluster a owl:Class ;
+    rdfs:subClassOf core:ResourceGroup ;
     rdfs:label "Spectral Cluster" ;
     rdfs:comment """A semantically coherent cluster discovered via spectral
     decomposition of the normalized Laplacian. Inherits SKOS taxonomy
@@ -2026,10 +1832,8 @@ git_commit_sha, predicted_fixes, and predicted_regressions.""" ;
     k-selection via eigengap heuristic (CONCEPT:KG-2.5).""" ;
     rdfs:subClassOf skos:Concept .
 
-:ArchitectureDecisionRecord a owl:Class .
-
-
 :ChangeManifest a owl:Class ;
+    rdfs:subClassOf core:Change ;
     rdfs:label "Change Manifest" ;
     rdfs:comment """A versioned record of harness edits with falsifiable predictions.
 BFO:GenericallyDependentContinuant — an information entity that tracks
@@ -2040,29 +1844,17 @@ transitive, enabling automatic lineage tracking across manifests.""" ;
 :MCPServerPackage a owl:Class ;
     rdfs:label "MCP Server Package" ;
     rdfs:comment "An MCP server package providing tool integrations." ;
-    rdfs:subClassOf :EcosystemPackage .
-
-:TradingStrategy a owl:Class .
-
+    rdfs:subClassOf core:EcosystemPackage .
 
 :EvaluationRecord a owl:Class ;
     rdfs:label "Multi-Dimensional Evaluation Record" ;
     rdfs:comment "Multi-dimensional quality evaluation with per-dimension scoring. Subclass of Observation." ;
-    rdfs:subClassOf :Observation .
+    rdfs:subClassOf core:Observation .
 
 :IModel a owl:Class ;
     rdfs:label "interpretable model" ;
     rdfs:comment "An evolved agent-interpretable ML model class with dual-axis fitness (accuracy + LLM readability). Based on arXiv:2605.03808." ;
     rdfs:subClassOf :RegistryNode .
-
-:Policy rdfs:subClassOf :BusinessLayer .
-
-:Concept rdfs:subClassOf :StrategyLayer .
-
-:EcosystemPackage a owl:Class ;
-    rdfs:label "Ecosystem Package" ;
-    rdfs:comment "A software package within the agent-packages ecosystem." ;
-    rdfs:subClassOf bfo:0000004 .
 
 :EngineeringRule a owl:Class ;
     rdfs:label "Engineering Rule" ;
@@ -2070,11 +1862,7 @@ transitive, enabling automatic lineage tracking across manifests.""" ;
 Subclass of Principle — inherits strength, scope, and derivation semantics.
 Adds tier (full/mini/nano), rule classification, bias correction tracking,
 and AHE efficacy scoring for evolutionary rule selection.""" ;
-    rdfs:subClassOf :Principle .
-
-:Agent rdfs:subClassOf :ApplicationLayer ;
-    owl:disjointWith :Tool .
-
+    rdfs:subClassOf core:Principle .
 
 # --- Analysis -> algorithm -> served method bindings ---------------------------
 # medulla selects the algorithm for an analysis by SPARQL over these
@@ -2085,35 +1873,33 @@ and AHE efficacy scoring for evolutionary rule selection.""" ;
 fin:FinanceAnalysis a owl:Class ;
     rdfs:label "Finance Analysis" ;
     rdfs:comment "A kind of analysis a finance connector asks the graph service to perform." ;
-    rdfs:subClassOf <http://knuckles.team/kg#Task> .
-
-fin:FinanceAlgorithm a owl:Class ;
-    rdfs:label "Finance Algorithm" ;
-    rdfs:comment "An algorithm the graph service runs for a finance analysis." ;
-    rdfs:subClassOf <http://knuckles.team/kg#Procedure> .
+    rdfs:subClassOf <https://knuckles-team.github.io/ontology/core#Task>, core:AnalysisType .
 
 fin:appliesAlgorithm a owl:ObjectProperty ;
     rdfs:label "applies algorithm" ;
     rdfs:domain fin:FinanceAnalysis ;
-    rdfs:range fin:FinanceAlgorithm .
+    rdfs:range core:FinanceAlgorithm .
 
 fin:servedBy a owl:DatatypeProperty ;
     rdfs:label "served by" ;
     rdfs:comment "Client path (namespace.method) of the medulla method that runs the algorithm." ;
-    rdfs:domain fin:FinanceAlgorithm ;
+    rdfs:subPropertyOf core:servedBy ;
+    rdfs:domain core:FinanceAlgorithm ;
     rdfs:range xsd:string .
 
 fin:servedOp a owl:DatatypeProperty ;
     rdfs:label "served operation" ;
     rdfs:comment "Operation selector of a multi-operation served method." ;
-    rdfs:domain fin:FinanceAlgorithm ;
+    rdfs:domain core:FinanceAlgorithm ;
     rdfs:range xsd:string .
 
 fin:SignalFusionAnalysis a fin:FinanceAnalysis ;
     rdfs:label "Signal fusion analysis" ;
     fin:appliesAlgorithm fin:BayesianSignalFusion .
 
-fin:BayesianSignalFusion a fin:FinanceAlgorithm ;
+fin:BayesianSignalFusion a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:SignalFusionAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "Bayesian signal fusion" ;
     fin:servedBy "finance.signal_models" ;
     fin:servedOp "bayes_fuse" .
@@ -2122,7 +1908,9 @@ fin:InsiderEquilibriumAnalysis a fin:FinanceAnalysis ;
     rdfs:label "Insider equilibrium analysis" ;
     fin:appliesAlgorithm fin:KyleInsiderEquilibrium .
 
-fin:KyleInsiderEquilibrium a fin:FinanceAlgorithm ;
+fin:KyleInsiderEquilibrium a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:InsiderEquilibriumAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "Kyle insider equilibrium under dynamic legal risk" ;
     fin:servedBy "finance.signal_models" ;
     fin:servedOp "insider_equilibrium" .
@@ -2131,15 +1919,19 @@ fin:RegimeAnalysis a fin:FinanceAnalysis ;
     rdfs:label "Market regime analysis" ;
     fin:appliesAlgorithm fin:GaussianHmmRegimes .
 
-fin:GaussianHmmRegimes a fin:FinanceAlgorithm ;
+fin:GaussianHmmRegimes a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:RegimeAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "Gaussian hidden Markov regime model" ;
-    fin:servedBy "finance.detect_regimes" .
+    fin:servedBy "numeric.regime_hmm" .
 
 fin:SurveillanceAnalysis a fin:FinanceAnalysis ;
     rdfs:label "Informed-flow surveillance analysis" ;
     fin:appliesAlgorithm fin:KyleSurveillanceRisk .
 
-fin:KyleSurveillanceRisk a fin:FinanceAlgorithm ;
+fin:KyleSurveillanceRisk a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:SurveillanceAnalysis ;
+    core:appliesToInstrumentType core:Position ;
     rdfs:label "Kyle surveillance risk" ;
     fin:servedBy "finance.surveillance_risk" .
 
@@ -2148,7 +1940,9 @@ fin:EnsembleProbabilityAnalysis a fin:FinanceAnalysis ;
     rdfs:comment "Laplace-smoothed ensemble probability and cost-aware edge threshold; no served method yet." ;
     fin:appliesAlgorithm fin:LaplaceEnsembleProbability .
 
-fin:LaplaceEnsembleProbability a fin:FinanceAlgorithm ;
+fin:LaplaceEnsembleProbability a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:EnsembleProbabilityAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "Laplace ensemble probability with cost-aware edge threshold" .
 
 # Venue-engine analyses: every computation the connector used to hold.
@@ -2156,7 +1950,9 @@ fin:ForensicAccountingAnalysis a fin:FinanceAnalysis ;
     rdfs:label "Forensic accounting analysis" ;
     fin:appliesAlgorithm fin:BeneishAltmanPiotroskiReport .
 
-fin:BeneishAltmanPiotroskiReport a fin:FinanceAlgorithm ;
+fin:BeneishAltmanPiotroskiReport a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:ForensicAccountingAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "Beneish M, Altman Z, Piotroski F and Sloan accruals report" ;
     fin:servedBy "finance.forensic_report" .
 
@@ -2164,39 +1960,49 @@ fin:HedgeBetaAnalysis a fin:FinanceAnalysis ;
     rdfs:label "Dynamic hedge beta analysis" ;
     fin:appliesAlgorithm fin:KalmanBetaFilter .
 
-fin:KalmanBetaFilter a fin:FinanceAlgorithm ;
+fin:KalmanBetaFilter a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:HedgeBetaAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "Kalman time-varying CAPM beta" ;
-    fin:servedBy "finance.kalman_beta" .
+    fin:servedBy "numeric.kalman_beta" .
 
 fin:SpreadStationarityAnalysis a fin:FinanceAnalysis ;
     rdfs:label "Spread stationarity analysis" ;
     fin:appliesAlgorithm fin:AugmentedDickeyFuller .
 
-fin:AugmentedDickeyFuller a fin:FinanceAlgorithm ;
+fin:AugmentedDickeyFuller a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:SpreadStationarityAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "Augmented Dickey-Fuller test" ;
-    fin:servedBy "finance.adf_test" .
+    fin:servedBy "numeric.adf" .
 
 fin:MeanReversionCalibrationAnalysis a fin:FinanceAnalysis ;
     rdfs:label "Mean-reversion calibration analysis" ;
     fin:appliesAlgorithm fin:OrnsteinUhlenbeckCalibration .
 
-fin:OrnsteinUhlenbeckCalibration a fin:FinanceAlgorithm ;
+fin:OrnsteinUhlenbeckCalibration a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:MeanReversionCalibrationAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "Ornstein-Uhlenbeck calibration" ;
-    fin:servedBy "finance.ou_calibrate" .
+    fin:servedBy "numeric.ou_calibrate" .
 
 fin:MeanReversionThresholdAnalysis a fin:FinanceAnalysis ;
     rdfs:label "Mean-reversion threshold analysis" ;
     fin:appliesAlgorithm fin:OrnsteinUhlenbeckOptimalThresholds .
 
-fin:OrnsteinUhlenbeckOptimalThresholds a fin:FinanceAlgorithm ;
+fin:OrnsteinUhlenbeckOptimalThresholds a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:MeanReversionThresholdAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "Ornstein-Uhlenbeck optimal entry and exit bands" ;
-    fin:servedBy "finance.ou_optimal_thresholds" .
+    fin:servedBy "numeric.ou_thresholds" .
 
 fin:ImpliedVolatilityAnalysis a fin:FinanceAnalysis ;
     rdfs:label "Implied volatility analysis" ;
     fin:appliesAlgorithm fin:SabrImpliedVolatility .
 
-fin:SabrImpliedVolatility a fin:FinanceAlgorithm ;
+fin:SabrImpliedVolatility a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:ImpliedVolatilityAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "SABR lognormal implied volatility (Hagan 2002)" ;
     fin:servedBy "finance.sabr_implied_vol" .
 
@@ -2204,7 +2010,9 @@ fin:VolatilitySmileAnalysis a fin:FinanceAnalysis ;
     rdfs:label "Volatility smile analysis" ;
     fin:appliesAlgorithm fin:SabrSmile .
 
-fin:SabrSmile a fin:FinanceAlgorithm ;
+fin:SabrSmile a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:VolatilitySmileAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "SABR implied-volatility smile" ;
     fin:servedBy "finance.sabr_smile" .
 
@@ -2212,7 +2020,9 @@ fin:VolatilityCalibrationAnalysis a fin:FinanceAnalysis ;
     rdfs:label "Volatility calibration analysis" ;
     fin:appliesAlgorithm fin:SabrCalibration .
 
-fin:SabrCalibration a fin:FinanceAlgorithm ;
+fin:SabrCalibration a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:VolatilityCalibrationAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "SABR calibration with fixed beta" ;
     fin:servedBy "finance.sabr_calibrate" .
 
@@ -2220,15 +2030,19 @@ fin:ForecastCalibrationAnalysis a fin:FinanceAnalysis ;
     rdfs:label "Forecast calibration analysis" ;
     fin:appliesAlgorithm fin:BrierScore .
 
-fin:BrierScore a fin:FinanceAlgorithm ;
+fin:BrierScore a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:ForecastCalibrationAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "Brier score" ;
-    fin:servedBy "finance.brier_score" .
+    fin:servedBy "numeric.brier" .
 
 fin:FairValueAnalysis a fin:FinanceAnalysis ;
     rdfs:label "Fair value analysis" ;
     fin:appliesAlgorithm fin:Microprice .
 
-fin:Microprice a fin:FinanceAlgorithm ;
+fin:Microprice a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:FairValueAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "Size-weighted microprice" ;
     fin:servedBy "finance.microprice_series" .
 
@@ -2236,7 +2050,9 @@ fin:OrderFlowImbalanceAnalysis a fin:FinanceAnalysis ;
     rdfs:label "Order-flow imbalance analysis" ;
     fin:appliesAlgorithm fin:ContKukanovStoikovOfi .
 
-fin:ContKukanovStoikovOfi a fin:FinanceAlgorithm ;
+fin:ContKukanovStoikovOfi a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:OrderFlowImbalanceAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "Cont-Kukanov-Stoikov order-flow imbalance" ;
     fin:servedBy "finance.ofi_series" .
 
@@ -2244,7 +2060,9 @@ fin:FlowToxicityAnalysis a fin:FinanceAnalysis ;
     rdfs:label "Flow toxicity analysis" ;
     fin:appliesAlgorithm fin:PredictionMarketVpin .
 
-fin:PredictionMarketVpin a fin:FinanceAlgorithm ;
+fin:PredictionMarketVpin a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:FlowToxicityAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "VPIN normalised for binary payoffs" ;
     fin:servedBy "finance.vpin_pm" .
 
@@ -2252,7 +2070,9 @@ fin:BreakevenAlphaAnalysis a fin:FinanceAnalysis ;
     rdfs:label "Breakeven alpha analysis" ;
     fin:appliesAlgorithm fin:GlostenMilgromBreakevenAlpha .
 
-fin:GlostenMilgromBreakevenAlpha a fin:FinanceAlgorithm ;
+fin:GlostenMilgromBreakevenAlpha a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:BreakevenAlphaAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "Glosten-Milgrom breakeven informed share" ;
     fin:servedBy "finance.breakeven_alpha" .
 
@@ -2260,7 +2080,9 @@ fin:QueuePositionAnalysis a fin:FinanceAnalysis ;
     rdfs:label "Queue position analysis" ;
     fin:appliesAlgorithm fin:QueueImbalance .
 
-fin:QueueImbalance a fin:FinanceAlgorithm ;
+fin:QueueImbalance a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:QueuePositionAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "Queue imbalance and time to fill" ;
     fin:servedBy "finance.queue_imbalance" .
 
@@ -2268,7 +2090,9 @@ fin:ConvictionAnalysis a fin:FinanceAnalysis ;
     rdfs:label "Conviction analysis" ;
     fin:appliesAlgorithm fin:ConvergenceGate .
 
-fin:ConvergenceGate a fin:FinanceAlgorithm ;
+fin:ConvergenceGate a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:ConvictionAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "Strong-signal convergence gate" ;
     fin:servedBy "finance.convergence_gate" .
 
@@ -2276,7 +2100,9 @@ fin:BoundedQuoteAnalysis a fin:FinanceAnalysis ;
     rdfs:label "Bounded quote analysis" ;
     fin:appliesAlgorithm fin:LogitAvellanedaStoikov .
 
-fin:LogitAvellanedaStoikov a fin:FinanceAlgorithm ;
+fin:LogitAvellanedaStoikov a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:BoundedQuoteAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "Logit-space Avellaneda-Stoikov quotes" ;
     fin:servedBy "finance.logit_quotes" .
 
@@ -2284,7 +2110,9 @@ fin:QuoteAnalysis a fin:FinanceAnalysis ;
     rdfs:label "Quote analysis" ;
     fin:appliesAlgorithm fin:AvellanedaStoikov .
 
-fin:AvellanedaStoikov a fin:FinanceAlgorithm ;
+fin:AvellanedaStoikov a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:QuoteAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "Avellaneda-Stoikov quotes" ;
     fin:servedBy "finance.avellaneda_stoikov" .
 
@@ -2292,7 +2120,9 @@ fin:PerformanceAnalysis a fin:FinanceAnalysis ;
     rdfs:label "Performance analysis" ;
     fin:appliesAlgorithm fin:ReturnRiskMetrics .
 
-fin:ReturnRiskMetrics a fin:FinanceAlgorithm ;
+fin:ReturnRiskMetrics a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:PerformanceAnalysis ;
+    core:appliesToInstrumentType core:Position ;
     rdfs:label "Return risk metrics" ;
     fin:servedBy "finance.risk_metrics" .
 
@@ -2300,31 +2130,39 @@ fin:DeflatedSharpeAnalysis a fin:FinanceAnalysis ;
     rdfs:label "Deflated Sharpe analysis" ;
     fin:appliesAlgorithm fin:DeflatedSharpeRatio .
 
-fin:DeflatedSharpeRatio a fin:FinanceAlgorithm ;
+fin:DeflatedSharpeRatio a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:DeflatedSharpeAnalysis ;
+    core:appliesToInstrumentType core:Position ;
     rdfs:label "Deflated Sharpe ratio" ;
-    fin:servedBy "finance.deflated_sharpe" .
+    fin:servedBy "numeric.deflated_sharpe" .
 
 fin:CrossValidationSplitAnalysis a fin:FinanceAnalysis ;
     rdfs:label "Cross-validation split analysis" ;
     fin:appliesAlgorithm fin:PurgedCombinatorialCv .
 
-fin:PurgedCombinatorialCv a fin:FinanceAlgorithm ;
+fin:PurgedCombinatorialCv a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:CrossValidationSplitAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "Purged combinatorial cross-validation" ;
-    fin:servedBy "finance.purged_cpcv" .
+    fin:servedBy "numeric.purged_cpcv" .
 
 fin:BacktestOverfitAnalysis a fin:FinanceAnalysis ;
     rdfs:label "Backtest overfit analysis" ;
     fin:appliesAlgorithm fin:ProbabilityBacktestOverfit .
 
-fin:ProbabilityBacktestOverfit a fin:FinanceAlgorithm ;
+fin:ProbabilityBacktestOverfit a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:BacktestOverfitAnalysis ;
+    core:appliesToInstrumentType core:Position ;
     rdfs:label "Probability of backtest overfit" ;
-    fin:servedBy "finance.probability_backtest_overfit" .
+    fin:servedBy "numeric.probability_of_backtest_overfit" .
 
 fin:PointKellyAnalysis a fin:FinanceAnalysis ;
     rdfs:label "Point Kelly analysis" ;
     fin:appliesAlgorithm fin:FractionalKelly .
 
-fin:FractionalKelly a fin:FinanceAlgorithm ;
+fin:FractionalKelly a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:PointKellyAnalysis ;
+    core:appliesToInstrumentType core:Position ;
     rdfs:label "Fractional Kelly for a binary contract" ;
     fin:servedBy "finance.kelly_fraction" .
 
@@ -2332,7 +2170,9 @@ fin:BayesianKellyAnalysis a fin:FinanceAnalysis ;
     rdfs:label "Bayesian Kelly analysis" ;
     fin:appliesAlgorithm fin:BetaPosteriorKelly .
 
-fin:BetaPosteriorKelly a fin:FinanceAlgorithm ;
+fin:BetaPosteriorKelly a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:BayesianKellyAnalysis ;
+    core:appliesToInstrumentType core:Position ;
     rdfs:label "Kelly under a Beta posterior" ;
     fin:servedBy "finance.bayesian_kelly" .
 
@@ -2340,7 +2180,9 @@ fin:EmpiricalKellyAnalysis a fin:FinanceAnalysis ;
     rdfs:label "Empirical Kelly analysis" ;
     fin:appliesAlgorithm fin:ResampledKelly .
 
-fin:ResampledKelly a fin:FinanceAlgorithm ;
+fin:ResampledKelly a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:EmpiricalKellyAnalysis ;
+    core:appliesToInstrumentType core:Position ;
     rdfs:label "Uncertainty-adjusted resampled Kelly" ;
     fin:servedBy "finance.empirical_kelly" .
 
@@ -2349,7 +2191,9 @@ fin:VolatilityArbitrageAnalysis a fin:FinanceAnalysis ;
     rdfs:comment "SABR residual rich/cheap classification; no served method yet." ;
     fin:appliesAlgorithm fin:SabrResidualClassification .
 
-fin:SabrResidualClassification a fin:FinanceAlgorithm ;
+fin:SabrResidualClassification a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:VolatilityArbitrageAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "Rich/cheap strike classification against the SABR-fair smile" .
 
 fin:EventBacktestAnalysis a fin:FinanceAnalysis ;
@@ -2357,7 +2201,9 @@ fin:EventBacktestAnalysis a fin:FinanceAnalysis ;
     rdfs:comment "Event-driven backtest with L2 queue position, latency injection and venue fees; no served method yet." ;
     fin:appliesAlgorithm fin:L2QueueEventBacktest .
 
-fin:L2QueueEventBacktest a fin:FinanceAlgorithm ;
+fin:L2QueueEventBacktest a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:EventBacktestAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "Event-driven L2-queue backtest with latency and maker/taker fees" .
 
 fin:VenueFeeAnalysis a fin:FinanceAnalysis ;
@@ -2365,7 +2211,9 @@ fin:VenueFeeAnalysis a fin:FinanceAnalysis ;
     rdfs:comment "Per-venue, per-category taker fee and maker rebate; no served method yet." ;
     fin:appliesAlgorithm fin:CategoryFeeSchedule .
 
-fin:CategoryFeeSchedule a fin:FinanceAlgorithm ;
+fin:CategoryFeeSchedule a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:VenueFeeAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "Category taker fee and maker rebate schedule" .
 
 fin:DistributionShiftAnalysis a fin:FinanceAnalysis ;
@@ -2373,14 +2221,18 @@ fin:DistributionShiftAnalysis a fin:FinanceAnalysis ;
     rdfs:comment "Two-sample return distribution shift test; no served method yet." ;
     fin:appliesAlgorithm fin:KolmogorovSmirnovTwoSample .
 
-fin:KolmogorovSmirnovTwoSample a fin:FinanceAlgorithm ;
+fin:KolmogorovSmirnovTwoSample a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:DistributionShiftAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "Two-sample Kolmogorov-Smirnov test" .
 fin:SharpeRatioAnalysis a fin:FinanceAnalysis ;
     rdfs:label "Sharpe ratio analysis" ;
     rdfs:comment "Observed per-period Sharpe ratio of a return series; no served method yet." ;
     fin:appliesAlgorithm fin:SampleSharpeRatio .
 
-fin:SampleSharpeRatio a fin:FinanceAlgorithm ;
+fin:SampleSharpeRatio a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:SharpeRatioAnalysis ;
+    core:appliesToInstrumentType core:Position ;
     rdfs:label "Sample Sharpe ratio" .
 
 fin:HitRateAnalysis a fin:FinanceAnalysis ;
@@ -2388,12 +2240,24 @@ fin:HitRateAnalysis a fin:FinanceAnalysis ;
     rdfs:comment "Share of positive returns (directional accuracy); no served method yet." ;
     fin:appliesAlgorithm fin:PositiveReturnShare .
 
-fin:PositiveReturnShare a fin:FinanceAlgorithm ;
+fin:PositiveReturnShare a core:FinanceAlgorithm ;
+    core:appliesToAnalysis fin:HitRateAnalysis ;
+    core:appliesToInstrumentType core:FinancialInstrument ;
     rdfs:label "Positive return share" .
 
 # ontology-codemod R3
-<http://knuckles.team/kg#BacktestMetric> rdfs:subClassOf <http://knuckles.team/kg#Metric> .
+<https://knuckles-team.github.io/ontology/connector/emerald#BacktestMetric> rdfs:subClassOf <https://knuckles-team.github.io/ontology/core#Metric> .
 
 # ontology-codemod R4
-<http://knuckles.team/kg#Portfolio> rdfs:subClassOf <http://knuckles.team/kg#ResourceGroup> .
-<http://knuckles.team/kg#RiskAssessment> rdfs:subClassOf <http://knuckles.team/kg#Assessment> .
+<https://knuckles-team.github.io/ontology/connector/emerald#Portfolio> rdfs:subClassOf <https://knuckles-team.github.io/ontology/core#ResourceGroup> .
+<https://knuckles-team.github.io/ontology/connector/emerald#RiskAssessment> rdfs:subClassOf <https://knuckles-team.github.io/ontology/core#Assessment> .
+
+:RegistryNode a owl:Class ;
+    rdfs:label "Registry Node" ;
+    rdfs:comment "A node in an emerald registry: a recorded model, strategy, swarm or risk entry." ;
+    rdfs:subClassOf core:Resource .
+
+:TeamConfig a owl:Class ;
+    rdfs:label "Team Config" ;
+    rdfs:comment "The configuration of a trading team." ;
+    rdfs:subClassOf core:ConfigurationItem .

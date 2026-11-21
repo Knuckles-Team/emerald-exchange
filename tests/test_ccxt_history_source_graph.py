@@ -124,7 +124,15 @@ async def _exercise(server):
         assert all(
             c["symbol"] == "BTC/USDT" and c["exchange"] == "binance" for c in candles
         )
-        assert len({c["source_record_id"] for c in candles}) == 2
+        assert (
+            len(
+                {
+                    c["https://knuckles-team.github.io/ontology/core#sourceRecordId"]
+                    for c in candles
+                }
+            )
+            == 2
+        )
     finally:
         await client.close()
 
