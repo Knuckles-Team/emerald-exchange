@@ -21,7 +21,8 @@
     "EMERALD-OPS-R015",
     "CONN-EMERALD-EXCHANGE-OPS-R016",
     "CONN-EMERALD-EXCHANGE-OPS-R017",
-    "CONN-EMERALD-EXCHANGE-OPS-R018"
+    "CONN-EMERALD-EXCHANGE-OPS-R018",
+    "CONN-EMERALD-EXCHANGE-OPS-R019"
   ],
   "requirements": [
     {
@@ -152,8 +153,8 @@
       "delivery_state": "BUILT",
       "landed_in": [],
       "verified_by": [
-        "tests/test_performance_activity_records.py:41",
-        "tests/test_performance_activity_records.py:71"
+        "tests/test_performance_activity_records.py:42",
+        "tests/test_performance_activity_records.py:72"
       ]
     },
     {
@@ -162,7 +163,7 @@
       "delivery_state": "BUILT",
       "landed_in": [],
       "verified_by": [
-        "tests/test_performance_activity_records.py:63"
+        "tests/test_performance_activity_records.py:64"
       ]
     },
     {
@@ -171,8 +172,18 @@
       "delivery_state": "BUILT",
       "landed_in": [],
       "verified_by": [
-        "tests/test_performance_activity_records.py:83",
-        "tests/test_performance_activity_records.py:100"
+        "tests/test_performance_activity_records.py:84",
+        "tests/test_performance_activity_records.py:101"
+      ]
+    },
+    {
+      "id": "CONN-EMERALD-EXCHANGE-OPS-R019",
+      "title": "Index bars are written as benchmark-level records",
+      "delivery_state": "BUILT",
+      "landed_in": [],
+      "verified_by": [
+        "tests/test_performance_activity_records.py:111",
+        "tests/test_performance_activity_records.py:136"
       ]
     }
   ]

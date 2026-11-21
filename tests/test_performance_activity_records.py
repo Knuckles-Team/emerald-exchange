@@ -8,6 +8,7 @@ from scion_sdk.ingest.live_declaration import load_declaration as declaration
 from emerald_exchange.backends import AlpacaBackend, PaperBackend
 from emerald_exchange.exchange_operations import READ_OPERATIONS, ExchangeReadOperations
 from tests.test_alpaca_csv_activity_source import MAPPING
+from tests.test_alpaca_stock_bars import ARGS, BAR, Market
 
 BASE = "http://example.org/markets#"
 CASH_CSV = (
@@ -105,3 +106,45 @@ def test_account_valuation_refuses_bad_backend_and_non_finite_value():
         broker().get_account_valuation(" ", "delta")
     with pytest.raises(RuntimeError):
         broker("nan").get_account_valuation("tenant-1", "delta")
+
+
+@pytest.mark.spec("CONN-EMERALD-EXCHANGE-OPS-R019")
+def test_bars_become_account_free_benchmark_levels():
+    assert "get_benchmark_levels" in READ_OPERATIONS
+    source = sources()["alpaca-benchmark-levels"]
+    assert source.tools == ("emerald_exchange_get_benchmark_levels",)
+    backend = AlpacaBackend()
+    market = Market({"bars": {"SPY": [BAR]}, "next_page_token": None})
+    backend._stock_data_client = market
+    args = {**ARGS, "symbol": "SPY"}
+    result = ExchangeReadOperations(backend).get_benchmark_levels(
+        tenant_id="tenant-1", benchmark="SPX", **args
+    )
+    (record,) = result["records"]
+    assert record["fields"] == {
+        "activityKind": '"benchmark_level"',
+        "activityAccount": f"<{BASE}account-benchmark>",
+        "activityPosition": f"<{BASE}SPX>",
+        "activityTradeDate": '"2026-01-02T14:30:00Z"^^xsd:dateTime',
+        "activityPrice": '"102.0"^^xsd:decimal',
+        "recordSource": '"alpaca-stock-bars:iex"',
+        "activitySession": '"regular"',
+    }
+    assert result["next_page_token"] is None
+
+
+@pytest.mark.spec("CONN-EMERALD-EXCHANGE-OPS-R019")
+def test_benchmark_name_must_be_an_identifier_and_level_positive():
+    backend = AlpacaBackend()
+    backend._stock_data_client = Market(
+        {"bars": {"SPY": [BAR]}, "next_page_token": None}
+    )
+    ops = ExchangeReadOperations(backend)
+    with pytest.raises(ValueError, match="identifier"):
+        ops.get_benchmark_levels(
+            tenant_id="t", benchmark="S P>X", **{**ARGS, "symbol": "SPY"}
+        )
+    with pytest.raises(ValueError, match="tenant"):
+        ops.get_benchmark_levels(
+            tenant_id="", benchmark="SPX", **{**ARGS, "symbol": "SPY"}
+        )

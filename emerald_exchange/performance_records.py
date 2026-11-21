@@ -140,3 +140,29 @@ def cash_flow_record(
         source=source,
         session=ACCOUNT_SESSION,
     )
+
+
+def benchmark_level_record(
+    *,
+    tenant_id: str,
+    benchmark: str,
+    level: Any,
+    observed_at: datetime,
+    source: str,
+    session: str = DEFAULT_BAR_SESSION,
+) -> dict[str, Any]:
+    """One index level for a named benchmark; it belongs to no account."""
+    if Decimal(decimal_text(level)) <= 0:
+        raise ValueError("benchmark level must be positive")
+    return _record(
+        "benchmark_level",
+        [tenant_id, benchmark, _instant(observed_at)],
+        {
+            "activityAccount": _iri(BENCHMARK_ACCOUNT),
+            "activityPosition": _iri(benchmark),
+            "activityTradeDate": _instant(observed_at),
+            "activityPrice": _decimal(level),
+        },
+        source=source,
+        session=session or DEFAULT_BAR_SESSION,
+    )
