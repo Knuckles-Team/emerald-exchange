@@ -28,6 +28,9 @@ from emerald_exchange.backends import (
     Position,
     Quote,
 )
+from emerald_exchange.performance_records import (
+    cash_flow_record,
+)
 
 #: Backend methods that may be served without the risk guard.
 READ_OPERATIONS = (
@@ -366,12 +369,26 @@ class ExchangeReadOperations:
                 ensure_ascii=True,
                 separators=(",", ":"),
             ).encode()
-            records.append(
-                {
-                    **activity.model_dump(mode="json"),
-                    "record_id": hashlib.sha256(identity).hexdigest(),
-                }
-            )
+            record = {
+                **activity.model_dump(mode="json"),
+                "record_id": hashlib.sha256(identity).hexdigest(),
+            }
+            action = activity.action.strip().lower()
+            if action in {"deposit", "withdrawal"}:
+                try:
+                    record["fields"] = cash_flow_record(
+                        tenant_id=tenant_id,
+                        account_id=account.account_id,
+                        action=action,
+                        amount=abs(activity.quantity),
+                        currency=activity.currency,
+                        occurred_at=activity.event_time_utc,
+                        event_id=activity.source_event_id,
+                        source=context.source_id,
+                    )["fields"]
+                except (ValueError, TypeError):
+                    raise ValueError("Invalid CSV activity statement") from None
+            records.append(record)
         return {"records": records, "checkpoint": {"generation": uuid4().hex}}
 
     def exchanges(self) -> dict[str, Any]:
