@@ -55,6 +55,14 @@ def test_csv_deposit_rows_become_deposit_records():
     ]
 
 
+@pytest.mark.spec("CONN-EMERALD-EXCHANGE-OPS-R017")
+def test_csv_withdrawal_rows_become_positive_amount_withdrawal_records():
+    withdrawal = cash_records()["records"][1]
+    assert withdrawal["fields"]["activityKind"] == '"withdrawal"'
+    assert withdrawal["fields"]["activityAmount"] == '"100.0"^^xsd:decimal'
+    assert withdrawal["fields"]["activityPosition"] == f"<{BASE}account-cash>"
+
+
 @pytest.mark.spec("CONN-EMERALD-EXCHANGE-OPS-R016")
 def test_zero_cash_amount_is_refused():
     zero = (
