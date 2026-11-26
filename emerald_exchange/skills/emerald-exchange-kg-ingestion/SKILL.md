@@ -2,14 +2,7 @@
 name: emerald-exchange-kg-ingestion
 skill_type: skill
 description: >-
-  Natively ingest live Emerald Exchange trading state into the medulla
-  knowledge graph as typed OWL nodes — :Portfolio, :Position, :Instrument, :Quote,
-  and :MarketBar (OHLCV timeseries) — via the emerald_ingest_snapshot MCP tool.
-  Use when the agent must snapshot the current account, open positions, and
-  optionally quotes/history for given symbols into the KG so they become
-  queryable/linked knowledge. Do NOT use for one-off reads that shouldn't be
-  persisted (use emerald-exchange-market-data) or to place orders
-  (use emerald-exchange-order-execution).
+  Natively ingest live Emerald Exchange trading state into the medulla knowledge graph as typed OWL nodes — :Portfolio, :Position, :Instrument, :Quote, and :MarketBar (OHLCV timeseries) — via the emerald_ingest_snapshot MCP tool. Use when the agent must snapshot the current account, open positions, and optionally quotes/history for given symbols into the KG so they become queryable/linked knowledge.
 license: MIT
 tags: [emerald-exchange, knowledge-graph, ingestion, kg, timeseries, mcp]
 metadata:
@@ -17,6 +10,8 @@ metadata:
   version: '0.1.0'
 ---
 # Emerald Exchange — Knowledge-Graph Ingestion
+
+Scope: Natively ingest live Emerald Exchange trading state into the medulla knowledge graph as typed OWL nodes — :Portfolio, :Position, :Instrument, :Quote, and :MarketBar (OHLCV timeseries) — via the emerald_ingest_snapshot MCP tool. Use when the agent must snapshot the current account, open positions, and optionally quotes/history for given symbols into the KG so they become queryable/linked knowledge. Do NOT use for one-off reads that shouldn't be persisted (use emerald-exchange-market-data) or to place orders (use emerald-exchange-order-execution).
 
 Wire-First native ingestion: pull a live snapshot off the active exchange backend and
 push it into the ONE medulla as typed nodes + links, so trading state becomes
@@ -45,6 +40,22 @@ configured under `config.json` → `trading` (default `paper`).
 |----------|----------|-------|
 | a reachable medulla engine | for a non-null result | Else clean no-op |
 | exchange creds | for `live` snapshots | Paper mode needs none |
+
+## Steps
+
+1. Check the backend format with `emerald_market_data` `{"action": "exchanges"}`. Verify the active backend and mode, and that each symbol you plan to ingest matches that backend's format.
+2. Run `emerald_ingest_snapshot` with `{}` for the account and positions only, or `{"symbols": "AAPL,BTC/USD"}` to add quotes. Verify the response has a non-null `ingested` count.
+3. For bars call `emerald_ingest_snapshot` `{"symbols": "AAPL", "include_history": true, "period": "1mo", "interval": "1d"}`. Verify the response reports :MarketBar nodes for each symbol.
+4. Re-run the same call once. Verify the counts are unchanged, since node ids such as `emerald:instrument:AAPL` merge instead of duplicating.
+5. Spot-check the graph by querying for `emerald:instrument:AAPL` through the KG tools. Verify the node exists with its :Instrument type.
+
+## Failure recovery
+
+| Failure | Cause | Recovery |
+|---------|-------|----------|
+| `ingested` is null | No medulla engine is reachable, which is a clean no-op | Report that nothing was persisted and ask the operator to bring the engine up, then run `emerald_ingest_snapshot` again |
+| Very large result or slow call | `include_history` with a wide `period` over many symbols | Narrow `period` and `interval`, or split `symbols` into smaller batches |
+| Live snapshot returns an authentication error | Exchange credentials unset for the live backend | Report the missing credential variable, or ingest from the paper backend instead |
 
 ## Tools & actions
 | Tool | Purpose |
