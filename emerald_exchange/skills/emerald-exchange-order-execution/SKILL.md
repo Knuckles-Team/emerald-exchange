@@ -2,13 +2,7 @@
 name: emerald-exchange-order-execution
 skill_type: skill
 description: >-
-  Place, cancel, and check trading orders through the emerald-exchange MCP server
-  with mandatory pre-trade risk validation, plus the emergency halt/resume kill
-  switch — via the domain-typed emerald_orders tool (every order is routed through
-  the risk guard). Use when the agent must submit a market/limit order, cancel or
-  status an existing order by id, or halt all trading. Do NOT use to read quotes
-  or positions (use emerald-exchange-market-data), and be deliberate in live mode —
-  paper is the default. Do NOT bypass the risk guard with raw backend calls.
+  Place, cancel, and check trading orders through the emerald-exchange MCP server with mandatory pre-trade risk validation, plus the emergency halt/resume kill switch — via the domain-typed emerald_orders tool (every order is routed through the risk guard). Use when the agent must submit a market/limit order, cancel or status an existing order by id, or halt all trading.
 license: MIT
 tags: [emerald-exchange, orders, execution, risk, trading, mcp]
 metadata:
@@ -16,6 +10,8 @@ metadata:
   version: '0.1.0'
 ---
 # Emerald Exchange — Order Execution
+
+Scope: Place, cancel, and check trading orders through the emerald-exchange MCP server with mandatory pre-trade risk validation, plus the emergency halt/resume kill switch — via the domain-typed emerald_orders tool (every order is routed through the risk guard). Use when the agent must submit a market/limit order, cancel or status an existing order by id, or halt all trading. Do NOT use to read quotes or positions (use emerald-exchange-market-data), and be deliberate in live mode — paper is the default. Do NOT bypass the risk guard with raw backend calls.
 
 Backend-abstracted order management. **Every** order passes a pre-trade
 `RiskGuard.pre_trade_check` (sizing, exposure, live-mode gating) before it reaches
@@ -41,6 +37,22 @@ and `trading.risk_limits`. Default is `paper` — no credentials, simulated fill
 |----------|----------|-------|
 | (paper mode) | — | Simulated fills; safe to exercise freely |
 | exchange creds (e.g. `ALPACA_API_KEY`/`ALPACA_SECRET_KEY`) | for `live` | Real orders |
+
+## Steps
+
+1. Confirm the mode by calling `emerald_market_data` `{"action": "exchanges"}`. Verify the response shows `paper` unless the requester explicitly asked for live trading.
+2. Get a reference price with `emerald_market_data` `{"action": "quote", "symbol": "<symbol>"}`. Verify the quote is present before setting a `limit_price`.
+3. Submit the order with `emerald_orders` `{"action": "submit", "symbol": "<symbol>", "side": "buy", "qty": 10}` after the requester confirmed symbol, side and quantity. Verify the response has `approved: true` and read `risk_check` and `filled_qty`.
+4. Check the order with `emerald_orders` `{"action": "status", "order_id": "<order_id>"}`. Verify the status and filled quantity match the submit response.
+5. Cancel with `emerald_orders` `{"action": "cancel", "order_id": "<order_id>"}` when asked. Verify a follow-up `status` shows the order cancelled.
+
+## Failure recovery
+
+| Failure | Cause | Recovery |
+|---------|-------|----------|
+| Response has `approved: false` with a `reason` | The pre-trade risk guard rejected sizing, exposure or live-mode gating | Report the `reason` and `risk_score`, resubmit only with a smaller `qty` the requester approves, and never bypass the guard |
+| Submit fails for a limit order | `limit_price` missing or not above zero | Resubmit with an explicit positive `limit_price` taken from the quote |
+| Submit or any action refused after a halt | The kill switch was tripped with `halt` | Confirm with the requester, then call `emerald_orders` `{"action": "resume"}` and verify with `status` |
 
 ## Tools & actions
 | Condensed tool | Actions |
