@@ -1,13 +1,30 @@
-# Emerald Exchange - API | MCP | A2A
+# Emerald Exchange
+## CLI or API | MCP
 
 ![PyPI - Version](https://img.shields.io/pypi/v/emerald-exchange)
 ![MCP Server](https://badge.mcpx.dev?type=server 'MCP Server')
+![PyPI - Downloads](https://img.shields.io/pypi/dd/emerald-exchange)
+![GitHub Repo stars](https://img.shields.io/github/stars/Knuckles-Team/emerald-exchange)
+![GitHub forks](https://img.shields.io/github/forks/Knuckles-Team/emerald-exchange)
+![GitHub contributors](https://img.shields.io/github/contributors/Knuckles-Team/emerald-exchange)
+![PyPI - License](https://img.shields.io/pypi/l/emerald-exchange)
+![GitHub](https://img.shields.io/github/license/Knuckles-Team/emerald-exchange)
+![GitHub last commit (by committer)](https://img.shields.io/github/last-commit/Knuckles-Team/emerald-exchange)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/Knuckles-Team/emerald-exchange)
+![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/Knuckles-Team/emerald-exchange)
+![GitHub issues](https://img.shields.io/github/issues/Knuckles-Team/emerald-exchange)
+![GitHub top language](https://img.shields.io/github/languages/top/Knuckles-Team/emerald-exchange)
+![GitHub language count](https://img.shields.io/github/languages/count/Knuckles-Team/emerald-exchange)
+![GitHub repo size](https://img.shields.io/github/repo-size/Knuckles-Team/emerald-exchange)
+![GitHub repo file count (file type)](https://img.shields.io/github/directory-file-count/Knuckles-Team/emerald-exchange)
+![PyPI - Wheel](https://img.shields.io/pypi/wheel/emerald-exchange)
+![PyPI - Implementation](https://img.shields.io/pypi/implementation/emerald-exchange)
 
-*Version: 2.3.6*
+> **Documentation** — Installation, deployment, and usage across the API, CLI, MCP,
+> and A2A agent interfaces are maintained in the
+> [official documentation](https://knuckles-team.github.io/emerald-exchange/).
 
-> **Documentation** — Installation, deployment, usage across the API, CLI, and MCP
-> interfaces, the A2A agent server, and the trading configuration schema are
-> maintained in the [official documentation](https://knuckles-team.github.io/emerald-exchange/).
+---
 
 ## Overview
 
@@ -20,6 +37,8 @@ with built-in financial hardening controls (OS-5.1).
 - **6 MCP Tool Domains**: market-data, orders, portfolio, risk, signals, strategy
 - **Financial Hardening**: Paper-first default, Kelly criterion position sizing, circuit breakers, kill switch
 - **Config-Driven**: All settings via `~/.config/agent-connectors/config.json`
+
+---
 
 ## Architecture
 
@@ -38,7 +57,11 @@ flowchart TB
     style E fill:#6366F1,stroke:#4338CA,color:#fff
 ```
 
-## MCP Tools
+---
+
+## MCP
+
+### MCP Tools
 
 _Auto-generated from the live MCP server — do not edit by hand._
 
@@ -86,6 +109,27 @@ _Auto-generated from the live MCP server — do not edit by hand._
 _15 action-routed tool(s) · 9 verbose 1:1 tool(s). Each is enabled unless its `<DOMAIN>TOOL` toggle is set false; `MCP_TOOL_MODE` selects the surface (**`intent` default** — the six verb-tools, granular set loaded on demand · `condensed` action-routed · `verbose` 1:1 · `both`). Auto-generated — do not edit._
 <!-- MCP-TOOLS-TABLE:END -->
 
+### Dynamic Tool Selection & Visibility
+
+This MCP server supports dynamic toolset selection and visibility filtering at runtime. This allows the operator to restrict the set of exposed tools to prevent blowing up the LLM's context window.
+
+The operator can configure tool filtering via multiple input channels:
+
+- **CLI Arguments:** Pass `--tools` or `--toolsets` (or their disabled counterparts `--disabled-tools` and `--disabled-toolsets`) during startup.
+- **Environment Variables:** Define standard environment variables:
+  - `MCP_ENABLED_TOOLS` / `MCP_DISABLED_TOOLS`
+  - `MCP_ENABLED_TAGS` / `MCP_DISABLED_TAGS`
+- **HTTP SSE Request Headers:** Pass custom headers during transport initialization:
+  - `x-mcp-enabled-tools` / `x-mcp-disabled-tools`
+  - `x-mcp-enabled-tags` / `x-mcp-disabled-tags`
+- **HTTP SSE Request Query Parameters:** Append query parameters directly to the operator's transport connection URL:
+  - `?tools=tool1,tool2`
+  - `?tags=tag1`
+
+When query strings or parameters are provided, an LLM-free **Knowledge Graph resolution layer** (using `DynamicToolOrchestrator`) matches query intents against known tool tags, names, or descriptions, with safe fallback and automated 24-hour background cache refreshing.
+
+---
+
 ## Exchange Backends
 
 | Backend | Assets | Paper | Live | Free |
@@ -98,6 +142,8 @@ _15 action-routed tool(s) · 9 verbose 1:1 tool(s). Each is enabled unless its `
 | Freqtrade | Crypto | ✅ | ✅ | ✅ |
 | Prediction Markets (Kalshi/Polymarket) | Events/Weather | ✅ | ✅ | ✅ |
 
+---
+
 ## Financial Hardening (OS-5.1)
 
 | Control | Default |
@@ -109,6 +155,8 @@ _15 action-routed tool(s) · 9 verbose 1:1 tool(s). Each is enabled unless its `
 | Regime Shift Detection | KS-test auto-halt |
 | Human Approval for Live | Required |
 | Kill Switch | `emerald_orders(action="halt")` |
+
+---
 
 ## Usage
 
@@ -185,173 +233,7 @@ the detailed transport contract.
   `MCP_ALLOWED_HOSTS` in `AgentConfig`.
 <!-- END GENERATED: additional-deployment-options -->
 
-## ⚙️ Dynamic Tool Selection & Visibility
-
-This MCP server supports dynamic toolset selection and visibility filtering at runtime. This allows the operator to restrict the set of exposed tools to prevent blowing up the LLM's context window.
-
-The operator can configure tool filtering via multiple input channels:
-
-- **CLI Arguments:** Pass `--tools` or `--toolsets` (or their disabled counterparts `--disabled-tools` and `--disabled-toolsets`) during startup.
-- **Environment Variables:** Define standard environment variables:
-  - `MCP_ENABLED_TOOLS` / `MCP_DISABLED_TOOLS`
-  - `MCP_ENABLED_TAGS` / `MCP_DISABLED_TAGS`
-- **HTTP SSE Request Headers:** Pass custom headers during transport initialization:
-  - `x-mcp-enabled-tools` / `x-mcp-disabled-tools`
-  - `x-mcp-enabled-tags` / `x-mcp-disabled-tags`
-- **HTTP SSE Request Query Parameters:** Append query parameters directly to the operator's transport connection URL:
-  - `?tools=tool1,tool2`
-  - `?tags=tag1`
-
-When query strings or parameters are provided, an LLM-free **Knowledge Graph resolution layer** (using `DynamicToolOrchestrator`) matches query intents against known tool tags, names, or descriptions, with safe fallback and automated 24-hour background cache refreshing.
-
-
 ---
-
-## Installation
-
-Pick the extra that matches what the operator want to run, then layer trading-backend extras on top:
-
-| Extra | Installs | Use when |
-|-------|----------|----------|
-| `emerald-exchange[mcp]` | Slim MCP server (`scion-sdk` — FastMCP/FastAPI; still carries the mandatory `medulla[full]` base engine) + paper backend | The operator only run the **MCP server** (smallest install / image) |
-| `emerald-exchange[agent]` | Full agent runtime (`scion-sdk` — Pydantic AI/DSPy orchestration + `medulla[full]`) | The operator run the **integrated agent** |
-| `emerald-exchange[all]` | Everything (`mcp` + `agent` + every trading backend) | Development / full surface |
-
-```bash
-pip install "emerald-exchange[mcp]"                # MCP server only (slim deps)
-pip install "emerald-exchange[agent]"              # Full agent runtime (Pydantic AI + engine)
-pip install "emerald-exchange[mcp,alpaca]"         # + Alpaca equities
-pip install "emerald-exchange[mcp,crypto]"         # + CCXT crypto
-pip install "emerald-exchange[mcp,prediction_markets]"  # + Kalshi & Polymarket
-pip install "emerald-exchange[all]"                # Everything
-```
-
-Alpaca operators can stream live quotes and raw minute bars into an SDK
-`StreamBus` with `AlpacaBackend.stock_stream(bus, symbols, feed=..., license_tag=...)`.
-Subscribe to `market.<symbol>.quotes` and `market.<symbol>.bars` before running
-the returned stream's blocking `run()` in a dedicated thread; call `stop()` from
-another thread to shut it down. Updated bars use the same identity and set
-`updated` to true. Feed and licensing labels remain explicit. The live stream
-does not backfill gaps after reconnect; reconcile with stock history as needed.
-
-For historical one-minute IEX or SIP bars, set `session_scope` to
-`alpaca_calendar` to label bars using the Alpaca exchange calendar. Labels
-distinguish pre-market, regular, post-market, and outside-session minutes;
-half-days and holidays follow the returned calendar and Alpaca's schedule.
-Other feeds and wider bars refuse this classification. The default remains
-`feed_native`, which makes no session claim.
-
-To use company profile, income statement, earnings and logo sources alongside
-Alpaca, configure `fmp_api_key_env` in the Alpaca exchange settings to name the
-environment variable containing a Financial Modeling Prep API key. The key is
-sent in a request header, not the URL. Each source requires an operator-provided
-license tag; the operator must ensure their FMP subscription permits the intended
-use. The returned snapshot is bounded and does not claim complete historical
-coverage or real-time availability. Logo data is returned only when FMP names
-the expected symbol image and does not mark it as a default image.
-
-Multi-asset source snapshots use `FMP_API_KEY` for FX, `DATABENTO_API_KEY`
-for commodity spot or a specific outright futures contract, and `ATTOM_API_KEY`
-for property valuations. Set the keys in the server environment. The declared
-sources accept a tenant, source identity and operator-supplied license tag. FX
-preserves base/quote direction; commodity requests return at most one trade
-with its matching instrument definition for a range of at most one day. Fixed
-futures contracts carry the provider expiry and an explicit no-roll policy.
-ATTOM uses a property ID and reports its valuation date and age against the
-chosen `max_age_days`. Sources are delta observations, not complete histories.
-Twelve Data provides a separate XAU/USD gold spot source; its timestamp is
-the last one-minute candle timestamp, not an individual trade time. Provider
-subscriptions may charge for requests; access and permitted use depend
-on the operator's agreements. Offline fixtures are not evidence of live rights.
-
-## Docker
-
-### Container images (`:mcp` vs `:agent`)
-
-One multi-stage `docker/Dockerfile` builds two right-sized images, selected by `--target`:
-
-| Image tag | Build target | Contents | Entrypoint |
-|-----------|--------------|----------|------------|
-| `knucklessg1/emerald-exchange:mcp` | `--target mcp` | `emerald-exchange[mcp]` — **slim**: no `pydantic-ai`/`dspy`/`llama-index`/`tree-sitter` agent-orchestration stack (the mandatory `medulla[full]` engine is still present — it's a base dependency of `scion-sdk`) | `emerald-exchange-mcp` |
-| `knucklessg1/emerald-exchange:2.3.6` | `--target agent` (default) | `emerald-exchange[agent]` — **full** agent runtime (`scion-sdk`) + `medulla[full]` | `emerald-exchange-agent` |
-
-```bash
-docker build --target mcp   -t knucklessg1/emerald-exchange:mcp    docker/   # slim MCP server
-docker build --target agent -t knucklessg1/emerald-exchange:2.3.6 docker/   # full agent
-docker compose -f docker/mcp.compose.yml up -d                               # run the slim :mcp server
-docker compose -f docker/compose.yml up -d                                   # full stack
-```
-
-### Knowledge-graph database (`medulla`)
-
-Both `[mcp]` and `[agent]` carry the **medulla** engine through the required
-Scion SDK core dependency (`medulla[full]`) — it is a mandatory base
-dependency of `scion-sdk`, not gated behind an extra. The `[mcp]` extra keeps
-the server slim/connector-focused (no agent-orchestration stack); `[agent]`
-also enables Pydantic AI/DSPy model orchestration. Local deployments can use
-the bundled engine. For production — or to share one knowledge graph across multiple
-agents — run **medulla as its own dedicated database service** and point the
-runtime at it instead of embedding it. Deployment recipes (single-node + Raft HA),
-connection configuration, and the full database architecture (with diagrams) are
-documented in the
-[medulla deployment guide](https://knuckles-team.github.io/medulla/deployment/).
-
-## Documentation
-
-The complete documentation is published as the
-[official documentation site](https://knuckles-team.github.io/emerald-exchange/) and is the
-recommended reference for installation, deployment, and day-to-day operation.
-
-| Page | Contents |
-|---|---|
-| [Installation](https://knuckles-team.github.io/emerald-exchange/installation/) | pip, source, extras, prebuilt Docker image |
-| [Deployment](https://knuckles-team.github.io/emerald-exchange/deployment/) | run the MCP and agent servers, Compose, Caddy + Technitium, env config |
-| [Usage](https://knuckles-team.github.io/emerald-exchange/usage/) | the MCP tools, the Python API, the cockpit CLI |
-| [Overview](https://knuckles-team.github.io/emerald-exchange/overview/) | enterprise features, tool surface, architecture |
-| [Configuration Schema](https://knuckles-team.github.io/emerald-exchange/config_schema/) | the `trading` config block and backend matrix |
-| [Concepts](https://knuckles-team.github.io/emerald-exchange/concepts/) | concept registry (`CONCEPT:EE-*`) |
-
-`AGENTS.md` is the canonical contributor/agent guidance.
-
-
-<!-- BEGIN agent-os-genesis-deploy (generated; do not edit between markers) -->
-
-## Deploy with `agent-os-genesis`
-
-This package can be provisioned for you — skill-guided — by the **`agent-os-genesis`**
-universal skill (its *single-package deploy mode*): it picks your install method, seeds
-secrets to OpenBao/Vault (or `.env`), trusts your enterprise CA, registers the MCP
-server, and verifies it — the same machinery that stands up the whole Agent OS, narrowed
-to just this package. Ask your agent to **"deploy `emerald-exchange` with agent-os-genesis"**.
-
-| Install mode | Command |
-|------|---------|
-| Bare-metal, prod (PyPI) | `uvx emerald-exchange-mcp` · or `uv tool install emerald-exchange` |
-| Bare-metal, dev (editable) | `uv pip install -e ".[all]"` · or `pip install -e ".[all]"` |
-| Container, prod | deploy `knucklessg1/emerald-exchange:2.3.6` via docker-compose / swarm / podman / podman-compose / kubernetes |
-| Container, dev (editable) | deploy `docker/compose.dev.yml` (source-mounted at `/src`; edits live on restart) |
-
-Secrets are read-existing + seeded via `vault_sync` — you are only prompted for what's missing.
-
-<!-- END agent-os-genesis-deploy -->
-
-### Single-package self-setup: `deployment`
-
-For a `tiny`/`single-node-prod` profile scoped to just this package (no whole-homelab
-genesis), the **`deployment`** skill runs the equivalent
-install-mode/secrets/doctor/registration/observability/rollback sequence. Ask the operator's
-agent to **"deploy `emerald-exchange` with deployment"**.
-
-| Install mode | Command |
-|------|---------|
-| Installed package | `uv tool install "emerald-exchange[mcp]"`, then run `emerald-exchange-mcp` |
-| Editable source | `uv pip install -e ".[agent]"`, then run `emerald-exchange-mcp` |
-| Immutable container | deploy `knucklessg1/emerald-exchange:2.3.6` through the operator-selected orchestrator |
-
-Either path: the repository embeds no deployment profile, credential value,
-certificate path, or environment-specific endpoint. Runtime secrets, TLS trust
-material, and endpoints come from `AgentConfig` / the configured secret provider
-(OpenBao or `.env`), never from a committed file.
 
 ## Environment Variables
 
@@ -421,6 +303,176 @@ material, and endpoints come from `AgentConfig` / the configured secret provider
 
 _24 package + 24 inherited variable(s). Auto-generated from `.env.example` + the shared scion-sdk set — do not edit._
 <!-- ENV-VARS-TABLE:END -->
+
+---
+
+## Installation
+
+Pick the extra that matches what the operator want to run, then layer trading-backend extras on top:
+
+| Extra | Installs | Use when |
+|-------|----------|----------|
+| `emerald-exchange[mcp]` | Slim MCP server (`scion-sdk` — FastMCP/FastAPI; still carries the mandatory `medulla[full]` base engine) + paper backend | The operator only run the **MCP server** (smallest install / image) |
+| `emerald-exchange[agent]` | Full agent runtime (`scion-sdk` — Pydantic AI/DSPy orchestration + `medulla[full]`) | The operator run the **integrated agent** |
+| `emerald-exchange[all]` | Everything (`mcp` + `agent` + every trading backend) | Development / full surface |
+
+```bash
+pip install "emerald-exchange[mcp]"                # MCP server only (slim deps)
+pip install "emerald-exchange[agent]"              # Full agent runtime (Pydantic AI + engine)
+pip install "emerald-exchange[mcp,alpaca]"         # + Alpaca equities
+pip install "emerald-exchange[mcp,crypto]"         # + CCXT crypto
+pip install "emerald-exchange[mcp,prediction_markets]"  # + Kalshi & Polymarket
+pip install "emerald-exchange[all]"                # Everything
+```
+
+Alpaca operators can stream live quotes and raw minute bars into an SDK
+`StreamBus` with `AlpacaBackend.stock_stream(bus, symbols, feed=..., license_tag=...)`.
+Subscribe to `market.<symbol>.quotes` and `market.<symbol>.bars` before running
+the returned stream's blocking `run()` in a dedicated thread; call `stop()` from
+another thread to shut it down. Updated bars use the same identity and set
+`updated` to true. Feed and licensing labels remain explicit. The live stream
+does not backfill gaps after reconnect; reconcile with stock history as needed.
+
+For historical one-minute IEX or SIP bars, set `session_scope` to
+`alpaca_calendar` to label bars using the Alpaca exchange calendar. Labels
+distinguish pre-market, regular, post-market, and outside-session minutes;
+half-days and holidays follow the returned calendar and Alpaca's schedule.
+Other feeds and wider bars refuse this classification. The default remains
+`feed_native`, which makes no session claim.
+
+To use company profile, income statement, earnings and logo sources alongside
+Alpaca, configure `fmp_api_key_env` in the Alpaca exchange settings to name the
+environment variable containing a Financial Modeling Prep API key. The key is
+sent in a request header, not the URL. Each source requires an operator-provided
+license tag; the operator must ensure their FMP subscription permits the intended
+use. The returned snapshot is bounded and does not claim complete historical
+coverage or real-time availability. Logo data is returned only when FMP names
+the expected symbol image and does not mark it as a default image.
+
+Multi-asset source snapshots use `FMP_API_KEY` for FX, `DATABENTO_API_KEY`
+for commodity spot or a specific outright futures contract, and `ATTOM_API_KEY`
+for property valuations. Set the keys in the server environment. The declared
+sources accept a tenant, source identity and operator-supplied license tag. FX
+preserves base/quote direction; commodity requests return at most one trade
+with its matching instrument definition for a range of at most one day. Fixed
+futures contracts carry the provider expiry and an explicit no-roll policy.
+ATTOM uses a property ID and reports its valuation date and age against the
+chosen `max_age_days`. Sources are delta observations, not complete histories.
+Twelve Data provides a separate XAU/USD gold spot source; its timestamp is
+the last one-minute candle timestamp, not an individual trade time. Provider
+subscriptions may charge for requests; access and permitted use depend
+on the operator's agreements. Offline fixtures are not evidence of live rights.
+
+---
+
+## Docker
+
+### Container images (`:mcp` vs `:agent`)
+
+One multi-stage `docker/Dockerfile` builds two right-sized images, selected by `--target`:
+
+| Image tag | Build target | Contents | Entrypoint |
+|-----------|--------------|----------|------------|
+| `knucklessg1/emerald-exchange:mcp` | `--target mcp` | `emerald-exchange[mcp]` — **slim**: no `pydantic-ai`/`dspy`/`llama-index`/`tree-sitter` agent-orchestration stack (the mandatory `medulla[full]` engine is still present — it's a base dependency of `scion-sdk`) | `emerald-exchange-mcp` |
+| `knucklessg1/emerald-exchange:2.3.6` | `--target agent` (default) | `emerald-exchange[agent]` — **full** agent runtime (`scion-sdk`) + `medulla[full]` | `emerald-exchange-agent` |
+
+```bash
+docker build --target mcp   -t knucklessg1/emerald-exchange:mcp    docker/   # slim MCP server
+docker build --target agent -t knucklessg1/emerald-exchange:2.3.6 docker/   # full agent
+docker compose -f docker/mcp.compose.yml up -d                               # run the slim :mcp server
+docker compose -f docker/compose.yml up -d                                   # full stack
+```
+
+### Knowledge-graph database (`medulla`)
+
+Both `[mcp]` and `[agent]` carry the **medulla** engine through the required
+Scion SDK core dependency (`medulla[full]`) — it is a mandatory base
+dependency of `scion-sdk`, not gated behind an extra. The `[mcp]` extra keeps
+the server slim/connector-focused (no agent-orchestration stack); `[agent]`
+also enables Pydantic AI/DSPy model orchestration. Local deployments can use
+the bundled engine. For production — or to share one knowledge graph across multiple
+agents — run **medulla as its own dedicated database service** and point the
+runtime at it instead of embedding it. Deployment recipes (single-node + Raft HA),
+connection configuration, and the full database architecture (with diagrams) are
+documented in the
+[medulla deployment guide](https://knuckles-team.github.io/medulla/deployment/).
+
+---
+
+## Documentation
+
+The complete documentation is published as the
+[official documentation site](https://knuckles-team.github.io/emerald-exchange/) and is the
+recommended reference for installation, deployment, and day-to-day operation.
+
+| Page | Contents |
+|---|---|
+| [Installation](https://knuckles-team.github.io/emerald-exchange/installation/) | pip, source, extras, prebuilt Docker image |
+| [Deployment](https://knuckles-team.github.io/emerald-exchange/deployment/) | run the MCP and agent servers, Compose, Caddy + Technitium, env config |
+| [Usage](https://knuckles-team.github.io/emerald-exchange/usage/) | the MCP tools, the Python API, the cockpit CLI |
+| [Overview](https://knuckles-team.github.io/emerald-exchange/overview/) | enterprise features, tool surface, architecture |
+| [Configuration Schema](https://knuckles-team.github.io/emerald-exchange/config_schema/) | the `trading` config block and backend matrix |
+| [Concepts](https://knuckles-team.github.io/emerald-exchange/concepts/) | concept registry (`CONCEPT:EE-*`) |
+
+`AGENTS.md` is the canonical contributor/agent guidance.
+
+---
+
+## Repository Owners
+
+<img width="100%" height="180em" src="https://github-readme-stats.vercel.app/api?username=example&show_icons=true&hide_border=true&&count_private=true&include_all_commits=true" />
+
+![GitHub followers](https://img.shields.io/github/followers/example)
+![GitHub User's stars](https://img.shields.io/github/stars/example)
+
+---
+
+## Contribute
+
+Contributions are welcome! Please ensure code quality by running local checks before submitting pull requests:
+- Format code using `ruff format .`
+- Lint code using `ruff check .`
+- Validate type-safety with `mypy .`
+- Run test suites using `pytest`
+
+<!-- BEGIN agent-os-genesis-deploy (generated; do not edit between markers) -->
+
+## Deploy with `agent-os-genesis`
+
+This package can be provisioned for you — skill-guided — by the **`agent-os-genesis`**
+universal skill (its *single-package deploy mode*): it picks your install method, seeds
+secrets to OpenBao/Vault (or `.env`), trusts your enterprise CA, registers the MCP
+server, and verifies it — the same machinery that stands up the whole Agent OS, narrowed
+to just this package. Ask your agent to **"deploy `emerald-exchange` with agent-os-genesis"**.
+
+| Install mode | Command |
+|------|---------|
+| Bare-metal, prod (PyPI) | `uvx emerald-exchange-mcp` · or `uv tool install emerald-exchange` |
+| Bare-metal, dev (editable) | `uv pip install -e ".[all]"` · or `pip install -e ".[all]"` |
+| Container, prod | deploy `knucklessg1/emerald-exchange:2.3.6` via docker-compose / swarm / podman / podman-compose / kubernetes |
+| Container, dev (editable) | deploy `docker/compose.dev.yml` (source-mounted at `/src`; edits live on restart) |
+
+Secrets are read-existing + seeded via `vault_sync` — you are only prompted for what's missing.
+
+<!-- END agent-os-genesis-deploy -->
+
+### Single-package self-setup: `deployment`
+
+For a `tiny`/`single-node-prod` profile scoped to just this package (no whole-homelab
+genesis), the **`deployment`** skill runs the equivalent
+install-mode/secrets/doctor/registration/observability/rollback sequence. Ask the operator's
+agent to **"deploy `emerald-exchange` with deployment"**.
+
+| Install mode | Command |
+|------|---------|
+| Installed package | `uv tool install "emerald-exchange[mcp]"`, then run `emerald-exchange-mcp` |
+| Editable source | `uv pip install -e ".[agent]"`, then run `emerald-exchange-mcp` |
+| Immutable container | deploy `knucklessg1/emerald-exchange:2.3.6` through the operator-selected orchestrator |
+
+Either path: the repository embeds no deployment profile, credential value,
+certificate path, or environment-specific endpoint. Runtime secrets, TLS trust
+material, and endpoints come from `AgentConfig` / the configured secret provider
+(OpenBao or `.env`), never from a committed file.
 
 <!-- GOVERNED-CAPABILITY:START -->
 ## Governed capability contract
